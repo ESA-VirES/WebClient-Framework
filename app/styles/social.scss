@@ -1,0 +1,45 @@
+
+
+
+.socialaccount_provider.facebook  { 
+  font-size: 0;
+  text-decoration: none;
+}
+.socialaccount_provider.facebook::before { 
+  font-family: FontAwesome;
+  content: "\f082";
+  font-size: 40px;
+}
+
+
+.socialaccount_provider.twitter  { 
+  font-size: 0;
+  text-decoration: none;
+}
+.socialaccount_provider.twitter::before { 
+  font-family: FontAwesome;
+  content: "\f081";
+  font-size: 40px;
+}
+
+
+.socialaccount_provider.github  { 
+  font-size: 0;
+  text-decoration: none;
+}
+.socialaccount_provider.github::before { 
+  font-family: FontAwesome;
+  content: "\f092";
+  font-size: 40px;
+}
+
+
+.socialaccount_provider.dropbox  { 
+  font-size: 0;
+  text-decoration: none;
+}
+.socialaccount_provider.dropbox::before { 
+  font-family: FontAwesome;
+  content: "\f16b";
+  font-size: 40px;
+}

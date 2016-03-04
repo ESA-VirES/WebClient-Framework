@@ -5,7 +5,7 @@ define([
 	'./CesiumViewController',
 	'./CesiumViewRouter',
 	'keypress'
-], function(Marionette, App, Communicator, CesiumViewController, CesiumViewRouterController) {
+], function(Marionette, App, Communicator, CesiumViewController, CesiumViewRouterController, keypress) {
 
 	'use strict';
 

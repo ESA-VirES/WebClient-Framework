@@ -764,8 +764,8 @@
     }],
 
     "navBarConfig": {
-        "title": "VirES",
-        "url": "http://vires2.eox.at",
+        "title": "Swarm Services",
+        "url": "//swarm.vires.services",
         "items": [{
             "name": "Layers",
             "icon": "fa-globe",

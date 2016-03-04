@@ -8,7 +8,8 @@
 			name: "",
 			icon: "",
 			content: "",
-			eventToRaise: ""
+			eventToRaise: "",
+			url: ""
 
 		});
 		return {'NavBarItemModel':NavBarItemModel};

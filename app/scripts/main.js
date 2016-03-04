@@ -1,3 +1,7 @@
+
+function defaultFor(arg, val) { return typeof arg !== 'undefined' ? arg : val; }
+
+
 (function() {
     'use strict';
 
@@ -51,8 +55,8 @@
 		// 	console.log("link: " + nodes.item(i).href);
 		// }
 
-
-		$.get("scripts/config.json", function(values) {
+		var configurl = defaultFor(CONFIG_URL, "scripts/config.json");
+		$.get(configurl, function(values) {
 			
 			// Configure Debug options
 			setuplogging(values.debug);

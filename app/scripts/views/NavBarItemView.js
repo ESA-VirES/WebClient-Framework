@@ -27,10 +27,23 @@
             },
 
             initialize: function(options){
+            	var self = this;
 	        	if(this.model.get("subitems")){
 	        		this.$el.attr("class", "dropdown");
+	        	}else if(this.model.get("url")){
+	        		this.$el.on("click", function () {
+        				window.location.href = self.model.get("url");
+        			});
 	        	}else{
-	        		this.$el.on("click", $.proxy(this.itemClicked, this));
+	        		var event = this.model.get("eventToRaise").split(':');
+	        		if(event && event[0] === 'modal'){
+	        			this.$el.on("click", function () {
+	        				$(('#'+event[1])).modal('show');
+	        			});
+		        		
+		        	}else{
+		        		this.$el.on("click", $.proxy(this.itemClicked, this));
+		        	}
 	        	}
 	      	}
             

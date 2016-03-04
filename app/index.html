@@ -22,6 +22,18 @@
             <link rel="stylesheet" href="bower_components/cesium/Build/Cesium/Widgets/widgets.css">
             <link rel="stylesheet" href="scripts/vendor/cesium_DrawHelper.css">
         <!-- endbuild -->
+
+        <!-- Possible path configurations if dependency files are on different paths -->
+        <script type="text/javascript">
+
+            var CONFIG_URL = "scripts/config.json";
+            CESIUM_BASE_URL = "bower_components/cesium/Build/Cesium/";
+            var require = {
+                baseUrl : "scripts/"
+            };
+
+        </script>
+
         <!-- build:js scripts/vendor/modernizr.js -->
         <script src="bower_components/modernizr/modernizr.js"></script>
         <!-- endbuild -->
@@ -130,7 +142,7 @@
         </script>
 
         <!-- build:js scripts/init.js -->
-        <script data-main="scripts/init" src="bower_components/requirejs/require.js"></script>     
+        <script data-main="init" src="bower_components/requirejs/require.js"></script>     
         <!-- endbuild -->
 
 
