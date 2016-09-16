@@ -21,7 +21,7 @@
     "bootstrap": "~3.0.1",
     "font-awesome": "~4.5.0",
     "d3.Graphs": "ESA-VirES/AnalyticsViewer#~0.4.5",
-    "cesium": "http://cesiumjs.org/releases/Cesium-1.20.zip",
+    "cesium": "http://cesiumjs.org/releases/Cesium-1.25.zip",
     "papaparse": "~4.1.0",
     "plotty": "santilland/plotty#^0.1.1",
     "jqueryui-touch-punch": "*",
