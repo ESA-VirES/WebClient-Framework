@@ -328,6 +328,8 @@ define([
                     })
                 );
             }, this);
+
+
         }, // END of createMap
 
         onShow: function() {
@@ -385,6 +387,8 @@ define([
                 globals.swarm.get('data'),
                 'pointcollection', 'band'
             );
+
+            this.createGraticules();
 
             $('#bb_selection').unbind('click');
             $('#bb_selection').click(function(){
@@ -1583,6 +1587,89 @@ define([
         onFieldlinesChanged: function(){
             this.checkFieldLines();
         },
+
+        createGraticules: function(){
+            var instances = [];
+
+           /* this.featuresCollection[row.id+set.band].geometryInstances.push( 
+                new Cesium.GeometryInstance({
+                    geometry : new Cesium.SimplePolylineGeometry({
+                        positions : Cesium.Cartesian3.fromDegreesArrayHeights([
+                            row.Longitude, row.Latitude, (row.Radius-maxRad+heightOffset),
+                            (row.Longitude+vE), (row.Latitude+vN), ((row.Radius-maxRad)+vC*30000)
+                        ]),
+                        followSurface: false
+                    }),
+                    id: 'vec_line_'+linecnt,
+                    attributes : {
+                        color : Cesium.ColorGeometryInstanceAttribute.fromColor(
+                            new Cesium.Color.fromBytes(color[0], color[1], color[2], alpha)
+                        )
+                    }
+                })
+            );*/
+
+           
+
+            // Latitudes
+            
+            for (var l = -180; l < 180; l+=45) {
+                var positions = [];
+                for (var lon = 0; lon < 360; lon+=90) {
+                    positions.push(lon, l, lon, l);
+                }
+                instances.push(
+                    new Cesium.GeometryInstance({
+                        geometry : new Cesium.SimplePolylineGeometry({
+                            positions : Cesium.Cartesian3.fromDegreesArray(
+                                positions
+                            ),
+                            followSurface: true,
+                            width : 4.0,
+                            vertexFormat : Cesium.PolylineColorAppearance.VERTEX_FORMAT
+                        }),
+                        id: 'vec_line_'+l,
+                        attributes : {
+                            color : Cesium.ColorGeometryInstanceAttribute.fromColor(
+                                new Cesium.Color.fromBytes(0, 0, 255, 255)
+                            )
+                        }
+                    })
+                );
+            }
+
+            // longitudes
+            /*for (var lon = -180; lon < 180; lon+=5) {
+                instances.push(
+                    new Cesium.GeometryInstance({
+                        geometry : new Cesium.SimplePolylineGeometry({
+                            positions : Cesium.Cartesian3.fromDegreesArray([
+                                lon, -85, lon, 85
+                            ]),
+                            followSurface: true,
+                            width : 4.0,
+                            vertexFormat : Cesium.PolylineColorAppearance.VERTEX_FORMAT
+                        }),
+                        id: 'vec_line_'+l,
+                        attributes : {
+                            color : Cesium.ColorGeometryInstanceAttribute.fromColor(
+                                new Cesium.Color.fromBytes(255, 0, 0, 255)
+                            )
+                        }
+                    })
+                );
+            }*/
+            
+            var prim = new Cesium.Primitive({
+                geometryInstances: instances,
+                appearance: new Cesium.PerInstanceColorAppearance({
+                    flat : true,
+                    translucent : true
+                }),
+            });
+            this.map.scene.primitives.add(prim);
+        },
+
 
         createPrimitives: function(results, name){
             var parseddata = {};
