@@ -21,11 +21,11 @@
     "bootstrap": "~3.0.1",
     "font-awesome": "~4.5.0",
     "d3.Graphs": "ESA-VirES/AnalyticsViewer#~0.4.21",
-    "cesium": "http://cesiumjs.org/releases/Cesium-1.20.zip",
+    "cesium": "https://github.com/AnalyticalGraphicsInc/cesium/releases/download/1.20/Cesium-1.20.zip",
     "papaparse": "~4.1.0",
     "plotty": "santilland/plotty#^0.1.1",
     "jqueryui-touch-punch": "*",
-    "FileSaver.js": "eligrey/FileSaver.js",
+    "FileSaver.js": "eligrey/FileSaver.js#~1.2.0",
     "canvas-toBlob.js": "eligrey/canvas-toBlob.js",
     "Blob.js": "eligrey/Blob.js"
   },
