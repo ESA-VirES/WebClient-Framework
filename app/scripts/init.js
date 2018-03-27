@@ -87,7 +87,7 @@
 
             'canvas-toBlob': '../bower_components/canvas-toBlob.js/canvas-toBlob',
             'Blob': '../bower_components/Blob.js/Blob',
-            'FileSaver': '../bower_components/FileSaver.js/FileSaver.min',
+            'FileSaver': '../bower_components/FileSaver.js/FileSaver',
 
             lm: '../bower_components/lm.js/lm',
 

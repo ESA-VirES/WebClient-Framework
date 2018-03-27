@@ -279,7 +279,8 @@
             "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "GPS_Position", "LEO_Position",
             "IRC", "IRC_Error", "FAC", "FAC_Error",
             "EEF", "RelErr", "OrbitNumber",
-            "SunDeclination","SunRightAscension","SunHourAngle","SunAzimuthAngle","SunZenithAngle"
+            "SunDeclination","SunRightAscension","SunHourAngle","SunAzimuthAngle","SunZenithAngle",
+            "IMF_V", "IMF_BY_GSM", "IMF_BZ_GSM", "F10_INDEX"
           ];
 
           // See if magnetic data actually selected if not remove residuals

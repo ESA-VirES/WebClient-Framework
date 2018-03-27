@@ -254,6 +254,22 @@ define(['backbone.marionette',
                 this.sp.uom_set['QDLon'] = {uom: 'deg', name:'Quasi-Dipole Longitude'};
                 this.sp.uom_set['Dst'] = {uom: null, name:'Disturbance storm time Index'};
                 this.sp.uom_set['Kp'] = {uom: null, name:'Global geomagnetic storm Index'};
+                this.sp.uom_set['OrbitNumber'] = {uom: null, name:'Orbit number'};
+                this.sp.uom_set['IMF_V'] = {uom: 'km/s', name:'Solar wind speed'};
+                this.sp.uom_set['IMF_BY_GSM'] = {uom: 'nT', name:'y-component of IMF (GSM frame)'};
+                this.sp.uom_set['IMF_BZ_GSM'] = {uom: 'nT', name:'z-component of IMF (GSM frame)'};
+                this.sp.uom_set['F10_INDEX'] = {uom: '1e-22 J/s/m^2/Hz', name:'10.7cm Solar Radio Flux'};
+
+                this.activeParameters['MLT'] = {uom: null, name:'Magnetic Local Time'};
+                this.activeParameters['QDLat'] = {uom: 'deg', name:'Quasi-Dipole Latitude'};
+                this.activeParameters['QDLon'] = {uom: 'deg', name:'Quasi-Dipole Longitude'};
+                this.activeParameters['Dst'] = {uom: null, name:'Disturbance storm time Index'};
+                this.activeParameters['Kp'] = {uom: null, name:'Global geomagnetic storm Index'};
+                this.activeParameters['OrbitNumber'] = {uom: null, name:'Orbit number'};
+                this.activeParameters['IMF_V'] = {uom: 'km/s', name:'Solar wind speed'};
+                this.activeParameters['IMF_BY_GSM'] = {uom: 'nT', name:'y-component of IMF (GSM frame)'};
+                this.activeParameters['IMF_BZ_GSM'] = {uom: 'nT', name:'z-component of IMF (GSM frame)'};
+                this.activeParameters['F10_INDEX'] = {uom: '1e-22 J/s/m^2/Hz', name:'10.7cm Solar Radio Flux'};
 
                 globals.swarm.set('uom_set', this.activeParameters);
 
