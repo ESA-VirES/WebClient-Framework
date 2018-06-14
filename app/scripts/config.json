@@ -1329,7 +1329,14 @@
                     "uom":"TECU",
                     "colorscale": "portland",
                     "name": "Relative STEC RMS"
+                },
+                "Absolute_VTEC": {
+                    "range": [0, 15],
+                    "uom":"TECU",
+                    "colorscale": "viridis",
+                    "name": "Absolute_VTEC"
                 }
+                
             },
             "download_parameters": {
                 "Timestamp": {
@@ -1387,6 +1394,14 @@
                 "Absolute_STEC": {
                     "uom": "TECU",
                     "name": "Absolute slant TEC"
+                },
+                "Absolute_VTEC": {
+                    "uom": "TECU",
+                    "name": "Absolute vertical TEC"
+                },
+                "Elevation_Angle": {
+                    "uom": "degree",
+                    "name": "Elevation angle"
                 },
                 "Relative_STEC": {
                     "uom": "TECU",

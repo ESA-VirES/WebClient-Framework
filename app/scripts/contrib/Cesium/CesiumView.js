@@ -1015,46 +1015,45 @@ define([
 
                 if (!_.isEmpty(settings) ){
 
-                    /*_.uniq(results, function(row) { 
-                            return row.id; 
-                    })*/
                     _.uniq(results.id)
                     .map(function(obj){
                         var parameters = _.filter(
                             SCALAR_PARAM,
                             function(par){
                                 return settings[obj].hasOwnProperty(par);
-                            });
+                        });
 
-                            for (var i = 0; i < parameters.length; i++) {
-                                this.activeCollections.push(obj+parameters[i]);
-                                this.featuresCollection[obj+parameters[i]] = 
-                                    new Cesium.PointPrimitiveCollection();
-                                if(!this.map.scene.context._gl.getExtension('EXT_frag_depth')){
-                                    this.featuresCollection[obj+parameters[i]]._rs = 
-                                        Cesium.RenderState.fromCache({
-                                            depthTest : {
-                                                enabled : true,
-                                                func : Cesium.DepthFunction.LESS
-                                            },
-                                            depthMask : false,
-                                            blending : Cesium.BlendingState.ALPHA_BLEND
-                                        });
-                                }
+
+
+                        for (var i = 0; i < parameters.length; i++) {
+                            this.activeCollections.push(obj+parameters[i]);
+                            this.featuresCollection[obj+parameters[i]] = 
+                                new Cesium.PointPrimitiveCollection();
+                            if(!this.map.scene.context._gl.getExtension('EXT_frag_depth')){
+                                this.featuresCollection[obj+parameters[i]]._rs = 
+                                    Cesium.RenderState.fromCache({
+                                        depthTest : {
+                                            enabled : true,
+                                            func : Cesium.DepthFunction.LESS
+                                        },
+                                        depthMask : false,
+                                        blending : Cesium.BlendingState.ALPHA_BLEND
+                                    });
                             }
-                            parameters = _.filter(VECTOR_PARAM, function(par){
-                                return settings[obj].hasOwnProperty(par);
+                        }
+                        parameters = _.filter(VECTOR_PARAM, function(par){
+                            return settings[obj].hasOwnProperty(par);
+                        });
+                        for (var i = 0; i < parameters.length; i++) {
+                            this.activeCollections.push(obj+parameters[i]);
+                            this.featuresCollection[obj+parameters[i]] = new Cesium.Primitive({
+                                geometryInstances : [],
+                                appearance : new Cesium.PolylineColorAppearance({
+                                    translucent : true
+                                }),
+                                releaseGeometryInstances: false
                             });
-                            for (var i = 0; i < parameters.length; i++) {
-                                this.activeCollections.push(obj+parameters[i]);
-                                this.featuresCollection[obj+parameters[i]] = new Cesium.Primitive({
-                                    geometryInstances : [],
-                                    appearance : new Cesium.PolylineColorAppearance({
-                                        translucent : true
-                                    }),
-                                    releaseGeometryInstances: false
-                                });
-                            }
+                        }
                     },this);
 
                     var maxRad = this.map.scene.globe.ellipsoid.maximumRadius;
@@ -1064,6 +1063,7 @@ define([
 
                     //_.each(results, function(row){
                     var lastTS = null;
+                    var TECGroup = [];
                     for (var r = 0; r < results[refKey].length; r++) {
                         var row = {};
                         for(var k in results){
@@ -1107,32 +1107,94 @@ define([
                                 if (_.find(SCALAR_PARAM, function(par){
                                     return set.band === par;
                                 })) {
-                                    if(tovisualize[i] === 'Bubble_Probability'){
-                                        if(row[set.band] <= 0.1){
-                                            continue;
-                                        }
-                                    }
-                                    heightOffset = i*210000;
 
-                                    if(!isNaN(row[set.band])){
-                                        color = this.plot.getColor(row[set.band]);
-                                        var options = {
-                                            position : new Cesium.Cartesian3.fromDegrees(
-                                                row.Longitude, row.Latitude,
-                                                row.Radius-maxRad+heightOffset
-                                            ),
-                                            color : new Cesium.Color.fromBytes(
-                                                color[0], color[1], color[2], alpha
-                                            ),
-                                            pixelSize : 8,
-                                            scaleByDistance : scaltype
-                                        };
-                                        if(set.outlines){
-                                            options.outlineWidth = 0.5;
-                                            options.outlineColor = 
-                                                Cesium.Color.fromCssColorString(set.outline_color);
+                                    if (tovisualize[i] === 'Absolute_STEC') {
+                                        if(lastTS === null){
+                                            lastTS = row.Timestamp;
                                         }
-                                        this.featuresCollection[row.id+set.band].add(options);
+
+                                        var diff = row.Timestamp.getTime()-lastTS.getTime();
+                                        if(row.Timestamp.getTime() === lastTS.getTime()){
+                                            TECGroup.push(row);
+                                        } else {
+                                            // Do grouping computation afterwards reset group
+                                            var filteredTEC = TECGroup.filter(function(obj){
+                                                return obj.Elevation_Angle < 50;
+                                            })
+                                            var max = d3.max(filteredTEC, function(b){
+                                                return b.Absolute_VTEC;
+                                            });
+                                            var min = d3.min(filteredTEC, function(b){
+                                                return b.Absolute_VTEC;
+                                            });
+                                            var mean = d3.mean(filteredTEC, function(b){
+                                                return b.Absolute_VTEC;
+                                            });
+
+                                            var set = settings[row.id][tovisualize[i]];
+                                            var alpha = set.alpha;
+                                            this.plot.setColorScale(set.colorscale);
+                                            this.plot.setDomain(set.range);
+
+                                            
+                                            heightOffset = i*210000;
+
+                                            if(!isNaN(row[set.band])){
+                                                color = this.plot.getColor(max);
+                                                var options = {
+                                                    position : new Cesium.Cartesian3.fromDegrees(
+                                                        row.Longitude, row.Latitude,
+                                                        row.Radius-maxRad+heightOffset
+                                                    ),
+                                                    color : new Cesium.Color.fromBytes(
+                                                        color[0], color[1], color[2], alpha
+                                                    ),
+                                                    pixelSize : 8,
+                                                    scaleByDistance : scaltype
+                                                };
+                                                if(set.outlines){
+                                                    options.outlineWidth = 0.5;
+                                                    options.outlineColor = 
+                                                        Cesium.Color.fromCssColorString(set.outline_color);
+                                                }
+                                                this.featuresCollection[row.id+set.band].add(options);
+                                            }
+                                            
+
+                                            TECGroup = [];
+                                        }
+
+                                        lastTS = row.Timestamp;
+
+                                    } else {
+
+                                        if(tovisualize[i] === 'Bubble_Probability'){
+                                            if(row[set.band] <= 0.1){
+                                                continue;
+                                            }
+                                        }
+                                        heightOffset = i*210000;
+
+                                        if(!isNaN(row[set.band])){
+                                            color = this.plot.getColor(row[set.band]);
+                                            var options = {
+                                                position : new Cesium.Cartesian3.fromDegrees(
+                                                    row.Longitude, row.Latitude,
+                                                    row.Radius-maxRad+heightOffset
+                                                ),
+                                                color : new Cesium.Color.fromBytes(
+                                                    color[0], color[1], color[2], alpha
+                                                ),
+                                                pixelSize : 8,
+                                                scaleByDistance : scaltype
+                                            };
+                                            if(set.outlines){
+                                                options.outlineWidth = 0.5;
+                                                options.outlineColor = 
+                                                    Cesium.Color.fromCssColorString(set.outline_color);
+                                            }
+                                            this.featuresCollection[row.id+set.band].add(options);
+                                        }
                                     }
                                     
                                 } else if (

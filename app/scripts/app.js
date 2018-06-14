@@ -1,7 +1,7 @@
 
 var SCALAR_PARAM = [
     "F", "n", "T_elec", "U_SC", "Bubble_Index", "Bubble_Probability",
-    "IRC", "FAC", "EEF"
+    "IRC", "FAC", "EEF", "Absolute_VTEC"
 ];
 
 var VECTOR_PARAM = [
