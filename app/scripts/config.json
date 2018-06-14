@@ -2612,6 +2612,1183 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
+            "name": "MCO_SHA_2C",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "opacity": 0.7,
+            "tileSize":1024,
+            "validity":{
+                "start": "1900-01-01T00:00:00Z",
+                "end": "2020-01-01T00:00:00Z"
+            },
+            "views": [{
+                "id": "MCO_SHA_2C_view",
+                "protocol": "WMS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "MCO_SHA_2C",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "parameters": {
+                "F": {
+                    "range": [15000, 55000],
+                    "uom":"nT",
+                    "name": "Total field intensity",
+                    "colorscale": "jet",
+                    "selected": true
+                },
+                "H": {
+                    "range": [0, 35000],
+                    "uom":"nT",
+                    "name": "Horizontal intensity",
+                    "colorscale": "jet"
+                },
+                "X": {
+                    "range": [-15000, 35000],
+                    "uom":"nT",
+                    "name": "North component",
+                    "colorscale": "jet"
+                },
+                "Y": {
+                    "range": [-14000, 14000],
+                    "uom":"nT",
+                    "name": "East component",
+                    "colorscale": "diverging_1"
+                },
+                "Z": {
+                    "range": [-60000, 50000],
+                    "uom":"nT",
+                    "name": "Down component",
+                    "colorscale": "diverging_1"
+                },
+                "I": {
+                    "range": [-100, 100],
+                    "uom":"degree",
+                    "name": "Inclination",
+                    "colorscale": "diverging_1"
+                },
+                "D": {
+                    "range": [-200, 200],
+                    "uom":"degree",
+                    "name": "Declination",
+                    "colorscale": "diverging_1"
+                },
+                "X_EW": {
+                    "range": [-30, 30],
+                    "uom":"nT/km",
+                    "name": "North component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Y_EW": {
+                    "range": [-30, 30],
+                    "uom":"nT/km",
+                    "name": "East component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Z_EW": {
+                    "range": [-7, 6],
+                    "uom":"nT/km",
+                    "name": "Down component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                }
+            },
+            "download_parameters": {
+                "F_MCO_SHA_2C": {
+                    "uom":"nT",
+                    "name": "Calculated MCO SHA 2C model value at MAG LR position"
+                },
+                "B_NEC_res_MCO_SHA_2C": {
+                    "uom":"nT",
+                    "name": "Residuals to MCO_SHA_2C model of Magnetic field vector, NEC frame"
+                },
+                "F_res_MCO_SHA_2C": {
+                    "uom":"nT",
+                    "name": "Residuals of Magnetic field intensity to MCO_SHA_2C model"
+                }
+            },
+            "height": 450,
+            "model": true,
+            "coefficients_range": [-1,-1],
+            "differenceTo": null
+
+        },{
+            "name": "MCO_SHA_2D",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "opacity": 0.7,
+            "tileSize":1024,
+            "validity":{
+                "start": "1900-01-01T00:00:00Z",
+                "end": "2020-01-01T00:00:00Z"
+            },
+            "views": [{
+                "id": "MCO_SHA_2D_view",
+                "protocol": "WMS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "MCO_SHA_2D",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "parameters": {
+                "F": {
+                    "range": [15000, 55000],
+                    "uom":"nT",
+                    "name": "Total field intensity",
+                    "colorscale": "jet",
+                    "selected": true
+                },
+                "H": {
+                    "range": [0, 35000],
+                    "uom":"nT",
+                    "name": "Horizontal intensity",
+                    "colorscale": "jet"
+                },
+                "X": {
+                    "range": [-15000, 35000],
+                    "uom":"nT",
+                    "name": "North component",
+                    "colorscale": "jet"
+                },
+                "Y": {
+                    "range": [-14000, 14000],
+                    "uom":"nT",
+                    "name": "East component",
+                    "colorscale": "diverging_1"
+                },
+                "Z": {
+                    "range": [-60000, 50000],
+                    "uom":"nT",
+                    "name": "Down component",
+                    "colorscale": "diverging_1"
+                },
+                "I": {
+                    "range": [-100, 100],
+                    "uom":"degree",
+                    "name": "Inclination",
+                    "colorscale": "diverging_1"
+                },
+                "D": {
+                    "range": [-200, 200],
+                    "uom":"degree",
+                    "name": "Declination",
+                    "colorscale": "diverging_1"
+                },
+                "X_EW": {
+                    "range": [-30, 30],
+                    "uom":"nT/km",
+                    "name": "North component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Y_EW": {
+                    "range": [-30, 30],
+                    "uom":"nT/km",
+                    "name": "East component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Z_EW": {
+                    "range": [-7, 6],
+                    "uom":"nT/km",
+                    "name": "Down component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                }
+            },
+            "download_parameters": {
+                "F_MCO_SHA_2D": {
+                    "uom":"nT",
+                    "name": "Calculated MCO SHA 2D model value at MAG LR position"
+                },
+                "B_NEC_res_MCO_SHA_2D": {
+                    "uom":"nT",
+                    "name": "Residuals to MCO_SHA_2D model of Magnetic field vector, NEC frame"
+                },
+                "F_res_MCO_SHA_2D": {
+                    "uom":"nT",
+                    "name": "Residuals of Magnetic field intensity to MCO_SHA_2D model"
+                }
+            },
+            "height": 450,
+            "model": true,
+            "coefficients_range": [-1,-1],
+            "differenceTo": null
+
+        },{
+            "name": "MCO_SHA_2F",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "opacity": 0.7,
+            "tileSize":1024,
+            "validity":{
+                "start": "1900-01-01T00:00:00Z",
+                "end": "2020-01-01T00:00:00Z"
+            },
+            "views": [{
+                "id": "MCO_SHA_2F_view",
+                "protocol": "WMS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "MCO_SHA_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "parameters": {
+                "F": {
+                    "range": [15000, 55000],
+                    "uom":"nT",
+                    "name": "Total field intensity",
+                    "colorscale": "jet",
+                    "selected": true
+                },
+                "H": {
+                    "range": [0, 35000],
+                    "uom":"nT",
+                    "name": "Horizontal intensity",
+                    "colorscale": "jet"
+                },
+                "X": {
+                    "range": [-15000, 35000],
+                    "uom":"nT",
+                    "name": "North component",
+                    "colorscale": "jet"
+                },
+                "Y": {
+                    "range": [-14000, 14000],
+                    "uom":"nT",
+                    "name": "East component",
+                    "colorscale": "diverging_1"
+                },
+                "Z": {
+                    "range": [-60000, 50000],
+                    "uom":"nT",
+                    "name": "Down component",
+                    "colorscale": "diverging_1"
+                },
+                "I": {
+                    "range": [-100, 100],
+                    "uom":"degree",
+                    "name": "Inclination",
+                    "colorscale": "diverging_1"
+                },
+                "D": {
+                    "range": [-200, 200],
+                    "uom":"degree",
+                    "name": "Declination",
+                    "colorscale": "diverging_1"
+                },
+                "X_EW": {
+                    "range": [-30, 30],
+                    "uom":"nT/km",
+                    "name": "North component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Y_EW": {
+                    "range": [-30, 30],
+                    "uom":"nT/km",
+                    "name": "East component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Z_EW": {
+                    "range": [-7, 6],
+                    "uom":"nT/km",
+                    "name": "Down component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                }
+            },
+            "download_parameters": {
+                "F_MCO_SHA_2F": {
+                    "uom":"nT",
+                    "name": "Calculated MCO SHA 2F model value at MAG LR position"
+                },
+                "B_NEC_res_MCO_SHA_2F": {
+                    "uom":"nT",
+                    "name": "Residuals to MCO_SHA_2F model of Magnetic field vector, NEC frame"
+                },
+                "F_res_MCO_SHA_2F": {
+                    "uom":"nT",
+                    "name": "Residuals of Magnetic field intensity to MCO_SHA_2F model"
+                }
+            },
+            "height": 450,
+            "model": true,
+            "coefficients_range": [-1,-1],
+            "differenceTo": null
+
+        },{
+            "name": "MLI_SHA_2C",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "opacity": 0.7,
+            "tileSize":1024,
+            "validity":{
+                "start": "1900-01-01T00:00:00Z",
+                "end": "2020-01-01T00:00:00Z"
+            },
+            "views": [{
+                "id": "MLI_SHA_2C_view",
+                "protocol": "WMS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "MLI_SHA_2C",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "parameters": {
+                "F": {
+                    "range": [0, 14],
+                    "uom":"nT",
+                    "name": "Total field intensity",
+                    "colorscale": "jet",
+                    "selected": true
+                },
+                "H": {
+                    "range": [0, 11],
+                    "uom":"nT",
+                    "name": "Horizontal intensity",
+                    "colorscale": "jet"
+                },
+                "X": {
+                    "range": [-8, 8],
+                    "uom":"nT",
+                    "name": "North component",
+                    "colorscale": "jet"
+                },
+                "Y": {
+                    "range": [-8, 10],
+                    "uom":"nT",
+                    "name": "East component",
+                    "colorscale": "diverging_1"
+                },
+                "Z": {
+                    "range": [-10, 12],
+                    "uom":"nT",
+                    "name": "Down component",
+                    "colorscale": "diverging_1"
+                },
+                "I": {
+                    "range": [-100, 100],
+                    "uom":"degree",
+                    "name": "Inclination",
+                    "colorscale": "diverging_1"
+                },
+                "D": {
+                    "range": [-200, 200],
+                    "uom":"degree",
+                    "name": "Declination",
+                    "colorscale": "diverging_1"
+                },
+                "X_EW": {
+                    "range": [-0.025, 0.015],
+                    "uom":"nT/km",
+                    "name": "North component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Y_EW": {
+                    "range": [-0.03, 0.025],
+                    "uom":"nT/km",
+                    "name": "East component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Z_EW": {
+                    "range": [-0.04, 0.04],
+                    "uom":"nT/km",
+                    "name": "Down component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                }
+            },
+            "download_parameters": {
+                "F_MLI_SHA_2C": {
+                    "uom":"nT",
+                    "name": "Calculated MLI SHA 2C model value at MAG LR position"
+                },
+                "B_NEC_res_MLI_SHA_2C": {
+                    "uom":"nT",
+                    "name": "Residuals to MLI_SHA_2C model of Magnetic field vector, NEC frame"
+                },
+                "F_res_MLI_SHA_2C": {
+                    "uom":"nT",
+                    "name": "Residuals of Magnetic field intensity to MLI_SHA_2C model"
+                }
+            },
+            "height": 450,
+            "model": true,
+            "coefficients_range": [-1,-1],
+            "differenceTo": null
+
+        },{
+            "name": "MLI_SHA_2D",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "opacity": 0.7,
+            "tileSize":1024,
+            "validity":{
+                "start": "1900-01-01T00:00:00Z",
+                "end": "2020-01-01T00:00:00Z"
+            },
+            "views": [{
+                "id": "MLI_SHA_2D_view",
+                "protocol": "WMS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "MLI_SHA_2D",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "parameters": {
+                "F": {
+                    "range": [0, 14],
+                    "uom":"nT",
+                    "name": "Total field intensity",
+                    "colorscale": "jet",
+                    "selected": true
+                },
+                "H": {
+                    "range": [0, 11],
+                    "uom":"nT",
+                    "name": "Horizontal intensity",
+                    "colorscale": "jet"
+                },
+                "X": {
+                    "range": [-8, 8],
+                    "uom":"nT",
+                    "name": "North component",
+                    "colorscale": "jet"
+                },
+                "Y": {
+                    "range": [-8, 10],
+                    "uom":"nT",
+                    "name": "East component",
+                    "colorscale": "diverging_1"
+                },
+                "Z": {
+                    "range": [-10, 12],
+                    "uom":"nT",
+                    "name": "Down component",
+                    "colorscale": "diverging_1"
+                },
+                "I": {
+                    "range": [-100, 100],
+                    "uom":"degree",
+                    "name": "Inclination",
+                    "colorscale": "diverging_1"
+                },
+                "D": {
+                    "range": [-200, 200],
+                    "uom":"degree",
+                    "name": "Declination",
+                    "colorscale": "diverging_1"
+                },
+                "X_EW": {
+                    "range": [-0.025, 0.015],
+                    "uom":"nT/km",
+                    "name": "North component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Y_EW": {
+                    "range": [-0.03, 0.025],
+                    "uom":"nT/km",
+                    "name": "East component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Z_EW": {
+                    "range": [-0.04, 0.04],
+                    "uom":"nT/km",
+                    "name": "Down component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                }
+            },
+            "download_parameters": {
+                "F_MLI_SHA_2D": {
+                    "uom":"nT",
+                    "name": "Calculated MLI SHA 2D model value at MAG LR position"
+                },
+                "B_NEC_res_MLI_SHA_2D": {
+                    "uom":"nT",
+                    "name": "Residuals to MLI_SHA_2D model of Magnetic field vector, NEC frame"
+                },
+                "F_res_MLI_SHA_2D": {
+                    "uom":"nT",
+                    "name": "Residuals of Magnetic field intensity to MLI_SHA_2D model"
+                }
+            },
+            "height": 450,
+            "model": true,
+            "coefficients_range": [-1,-1],
+            "differenceTo": null
+
+        },{
+            "name": "MIO_SHA_2C-Primary",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "opacity": 0.7,
+            "tileSize":1024,
+            "validity":{
+                "start": "1900-01-01T00:00:00Z",
+                "end": "2020-01-01T00:00:00Z"
+            },
+            "views": [{
+                "id": "MIO_SHA_2C-Primary_view",
+                "protocol": "WMS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "MIO_SHA_2C-Primary",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "parameters": {
+                "F": {
+                    "range": [0, 28],
+                    "uom":"nT",
+                    "name": "Total field intensity",
+                    "colorscale": "jet",
+                    "selected": true
+                },
+                "H": {
+                    "range": [0, 22],
+                    "uom":"nT",
+                    "name": "Horizontal intensity",
+                    "colorscale": "jet"
+                },
+                "X": {
+                    "range": [-25, 25],
+                    "uom":"nT",
+                    "name": "North component",
+                    "colorscale": "diverging_1"
+                },
+                "Y": {
+                    "range": [-20, 15],
+                    "uom":"nT",
+                    "name": "East component",
+                    "colorscale": "diverging_1"
+                },
+                "Z": {
+                    "range": [-30, 20],
+                    "uom":"nT",
+                    "name": "Down component",
+                    "colorscale": "diverging_1"
+                },
+                "I": {
+                    "range": [-100, 100],
+                    "uom":"degree",
+                    "name": "Inclination",
+                    "colorscale": "diverging_1"
+                },
+                "D": {
+                    "range": [-200, 200],
+                    "uom":"degree",
+                    "name": "Declination",
+                    "colorscale": "diverging_1"
+                },
+                "X_EW": {
+                    "range": [-0.04, 0.05],
+                    "uom":"nT/km",
+                    "name": "North component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Y_EW": {
+                    "range": [-0.03, 0.06],
+                    "uom":"nT/km",
+                    "name": "East component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Z_EW": {
+                    "range": [-0.04, 0.02],
+                    "uom":"nT/km",
+                    "name": "Down component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                }
+            },
+            "download_parameters": {
+                "F_MIO_SHA_2C-Primary": {
+                    "uom":"nT",
+                    "name": "Calculated MMA SHA 2C Primary model value at MAG LR position"
+                },
+                "B_NEC_res_MIO_SHA_2C-Primary": {
+                    "uom":"nT",
+                    "name": "Residuals to MIO_SHA_2C-Primary model of Magnetic field vector, NEC frame"
+                },
+                "F_res_MIO_SHA_2C-Primary": {
+                    "uom":"nT",
+                    "name": "Residuals of Magnetic field intensity to MIO_SHA_2C-Primary model"
+                }
+            },
+            "height": 450,
+            "model": true,
+            "coefficients_range": [-1,-1],
+            "differenceTo": null
+
+        },{
+            "name": "MIO_SHA_2C-Secondary",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "opacity": 0.7,
+            "tileSize":1024,
+            "validity":{
+                "start": "1900-01-01T00:00:00Z",
+                "end": "2020-01-01T00:00:00Z"
+            },
+            "views": [{
+                "id": "MIO_SHA_2C-Secondary_view",
+                "protocol": "WMS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "MIO_SHA_2C-Secondary",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "parameters": {
+                "F": {
+                    "range": [0, 12],
+                    "uom":"nT",
+                    "name": "Total field intensity",
+                    "colorscale": "jet",
+                    "selected": true
+                },
+                "H": {
+                    "range": [0, 7],
+                    "uom":"nT",
+                    "name": "Horizontal intensity",
+                    "colorscale": "jet"
+                },
+                "X": {
+                    "range": [-6, 7],
+                    "uom":"nT",
+                    "name": "North component",
+                    "colorscale": "diverging_1"
+                },
+                "Y": {
+                    "range": [-5, 6],
+                    "uom":"nT",
+                    "name": "East component",
+                    "colorscale": "diverging_1"
+                },
+                "Z": {
+                    "range": [-10, 12],
+                    "uom":"nT",
+                    "name": "Down component",
+                    "colorscale": "diverging_1"
+                },
+                "I": {
+                    "range": [-100, 100],
+                    "uom":"degree",
+                    "name": "Inclination",
+                    "colorscale": "diverging_1"
+                },
+                "D": {
+                    "range": [-200, 200],
+                    "uom":"degree",
+                    "name": "Declination",
+                    "colorscale": "diverging_1"
+                },
+                "X_EW": {
+                    "range": [-0.01, 0.012],
+                    "uom":"nT/km",
+                    "name": "North component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Y_EW": {
+                    "range": [-0.014, 0.01],
+                    "uom":"nT/km",
+                    "name": "East component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Z_EW": {
+                    "range": [-0.008, 0.005],
+                    "uom":"nT/km",
+                    "name": "Down component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                }
+            },
+            "download_parameters": {
+                "F_MIO_SHA_2C-Secondary": {
+                    "uom":"nT",
+                    "name": "Calculated MMA SHA 2C Secondary model value at MAG LR position"
+                },
+                "B_NEC_res_MIO_SHA_2C-Secondary": {
+                    "uom":"nT",
+                    "name": "Residuals to MIO_SHA_2C-Secondary model of Magnetic field vector, NEC frame"
+                },
+                "F_res_MIO_SHA_2C-Secondary": {
+                    "uom":"nT",
+                    "name": "Residuals of Magnetic field intensity to MIO_SHA_2C-Secondary model"
+                }
+            },
+            "height": 450,
+            "model": true,
+            "coefficients_range": [-1,-1],
+            "differenceTo": null
+
+        },{
+            "name": "MIO_SHA_2D-Primary",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "opacity": 0.7,
+            "tileSize":1024,
+            "validity":{
+                "start": "1900-01-01T00:00:00Z",
+                "end": "2020-01-01T00:00:00Z"
+            },
+            "views": [{
+                "id": "MIO_SHA_2D-Primary_view",
+                "protocol": "WMS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "MIO_SHA_2D-Primary",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "parameters": {
+                "F": {
+                    "range": [0, 28],
+                    "uom":"nT",
+                    "name": "Total field intensity",
+                    "colorscale": "jet",
+                    "selected": true
+                },
+                "H": {
+                    "range": [0, 22],
+                    "uom":"nT",
+                    "name": "Horizontal intensity",
+                    "colorscale": "jet"
+                },
+                "X": {
+                    "range": [-25, 25],
+                    "uom":"nT",
+                    "name": "North component",
+                    "colorscale": "diverging_1"
+                },
+                "Y": {
+                    "range": [-20, 15],
+                    "uom":"nT",
+                    "name": "East component",
+                    "colorscale": "diverging_1"
+                },
+                "Z": {
+                    "range": [-30, 20],
+                    "uom":"nT",
+                    "name": "Down component",
+                    "colorscale": "diverging_1"
+                },
+                "I": {
+                    "range": [-100, 100],
+                    "uom":"degree",
+                    "name": "Inclination",
+                    "colorscale": "diverging_1"
+                },
+                "D": {
+                    "range": [-200, 200],
+                    "uom":"degree",
+                    "name": "Declination",
+                    "colorscale": "diverging_1"
+                },
+                "X_EW": {
+                    "range": [-0.04, 0.05],
+                    "uom":"nT/km",
+                    "name": "North component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Y_EW": {
+                    "range": [-0.03, 0.06],
+                    "uom":"nT/km",
+                    "name": "East component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Z_EW": {
+                    "range": [-0.04, 0.02],
+                    "uom":"nT/km",
+                    "name": "Down component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                }
+            },
+            "download_parameters": {
+                "F_MIO_SHA_2D-Primary": {
+                    "uom":"nT",
+                    "name": "Calculated MMA SHA 2D Primary model value at MAG LR position"
+                },
+                "B_NEC_res_MIO_SHA_2D-Primary": {
+                    "uom":"nT",
+                    "name": "Residuals to MIO_SHA_2D-Primary model of Magnetic field vector, NEC frame"
+                },
+                "F_res_MIO_SHA_2D-Primary": {
+                    "uom":"nT",
+                    "name": "Residuals of Magnetic field intensity to MIO_SHA_2D-Primary model"
+                }
+            },
+            "height": 450,
+            "model": true,
+            "coefficients_range": [-1,-1],
+            "differenceTo": null
+
+        },{
+            "name": "MIO_SHA_2D-Secondary",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "opacity": 0.7,
+            "tileSize":1024,
+            "validity":{
+                "start": "1900-01-01T00:00:00Z",
+                "end": "2020-01-01T00:00:00Z"
+            },
+            "views": [{
+                "id": "MIO_SHA_2D-Secondary_view",
+                "protocol": "WMS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "MIO_SHA_2D-Secondary",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "parameters": {
+                "F": {
+                    "range": [0, 16],
+                    "uom":"nT",
+                    "name": "Total field intensity",
+                    "colorscale": "jet",
+                    "selected": true
+                },
+                "H": {
+                    "range": [0, 9],
+                    "uom":"nT",
+                    "name": "Horizontal intensity",
+                    "colorscale": "jet"
+                },
+                "X": {
+                    "range": [-6, 8],
+                    "uom":"nT",
+                    "name": "North component",
+                    "colorscale": "diverging_1"
+                },
+                "Y": {
+                    "range": [-5, 6],
+                    "uom":"nT",
+                    "name": "East component",
+                    "colorscale": "diverging_1"
+                },
+                "Z": {
+                    "range": [-10, 12],
+                    "uom":"nT",
+                    "name": "Down component",
+                    "colorscale": "diverging_1"
+                },
+                "I": {
+                    "range": [-100, 100],
+                    "uom":"degree",
+                    "name": "Inclination",
+                    "colorscale": "diverging_1"
+                },
+                "D": {
+                    "range": [-200, 200],
+                    "uom":"degree",
+                    "name": "Declination",
+                    "colorscale": "diverging_1"
+                },
+                "X_EW": {
+                    "range": [-0.01, 0.012],
+                    "uom":"nT/km",
+                    "name": "North component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Y_EW": {
+                    "range": [-0.014, 0.01],
+                    "uom":"nT/km",
+                    "name": "East component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Z_EW": {
+                    "range": [-0.008, 0.005],
+                    "uom":"nT/km",
+                    "name": "Down component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                }
+            },
+            "download_parameters": {
+                "F_MIO_SHA_2D-Secondary": {
+                    "uom":"nT",
+                    "name": "Calculated MMA SHA 2D Secondary model value at MAG LR position"
+                },
+                "B_NEC_res_MIO_SHA_2D-Secondary": {
+                    "uom":"nT",
+                    "name": "Residuals to MIO_SHA_2D-Secondary model of Magnetic field vector, NEC frame"
+                },
+                "F_res_MIO_SHA_2D-Secondary": {
+                    "uom":"nT",
+                    "name": "Residuals of Magnetic field intensity to MIO_SHA_2D-Secondary model"
+                }
+            },
+            "height": 450,
+            "model": true,
+            "coefficients_range": [-1,-1],
+            "differenceTo": null
+
+        },{
+            "name": "MMA_SHA_2C-Primary",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "opacity": 0.7,
+            "tileSize":1024,
+            "validity":{
+                "start": "1900-01-01T00:00:00Z",
+                "end": "2020-01-01T00:00:00Z"
+            },
+            "views": [{
+                "id": "MMA_SHA_2C-Primary_view",
+                "protocol": "WMS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "MMA_SHA_2C-Primary",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "parameters": {
+                "F": {
+                    "range": [0, 80],
+                    "uom":"nT",
+                    "name": "Total field intensity",
+                    "colorscale": "jet",
+                    "selected": true
+                },
+                "H": {
+                    "range": [0, 60],
+                    "uom":"nT",
+                    "name": "Horizontal intensity",
+                    "colorscale": "jet"
+                },
+                "X": {
+                    "range": [-50, 30],
+                    "uom":"nT",
+                    "name": "North component",
+                    "colorscale": "diverging_1"
+                },
+                "Y": {
+                    "range": [-30, 50],
+                    "uom":"nT",
+                    "name": "East component",
+                    "colorscale": "diverging_1"
+                },
+                "Z": {
+                    "range": [-80, 50],
+                    "uom":"nT",
+                    "name": "Down component",
+                    "colorscale": "diverging_1"
+                },
+                "I": {
+                    "range": [-100, 100],
+                    "uom":"degree",
+                    "name": "Inclination",
+                    "colorscale": "diverging_1"
+                },
+                "D": {
+                    "range": [-200, 200],
+                    "uom":"degree",
+                    "name": "Declination",
+                    "colorscale": "diverging_1"
+                },
+                "X_EW": {
+                    "range": [-0.1, 0.1],
+                    "uom":"nT/km",
+                    "name": "North component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Y_EW": {
+                    "range": [-0.1, 0.1],
+                    "uom":"nT/km",
+                    "name": "East component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Z_EW": {
+                    "range": [-0.1, 0.1],
+                    "uom":"nT/km",
+                    "name": "Down component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                }
+            },
+            "download_parameters": {
+                "F_MMA_SHA_2C-Primary": {
+                    "uom":"nT",
+                    "name": "Calculated MMA SHA 2C Primary model value at MAG LR position"
+                },
+                "B_NEC_res_MMA_SHA_2C-Primary": {
+                    "uom":"nT",
+                    "name": "Residuals to MMA_SHA_2C-Primary model of Magnetic field vector, NEC frame"
+                },
+                "F_res_MMA_SHA_2C-Primary": {
+                    "uom":"nT",
+                    "name": "Residuals of Magnetic field intensity to MMA_SHA_2C-Primary model"
+                }
+            },
+            "height": 450,
+            "model": true,
+            "coefficients_range": [-1,-1],
+            "differenceTo": null
+
+        },{
+            "name": "MMA_SHA_2C-Secondary",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "opacity": 0.7,
+            "tileSize":1024,
+            "validity":{
+                "start": "1900-01-01T00:00:00Z",
+                "end": "2020-01-01T00:00:00Z"
+            },
+            "views": [{
+                "id": "MMA_SHA_2C-Secondary_view",
+                "protocol": "WMS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "MMA_SHA_2C-Secondary",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "parameters": {
+                "F": {
+                    "range": [0, 7],
+                    "uom":"nT",
+                    "name": "Total field intensity",
+                    "colorscale": "jet",
+                    "selected": true
+                },
+                "H": {
+                    "range": [0, 4.5],
+                    "uom":"nT",
+                    "name": "Horizontal intensity",
+                    "colorscale": "jet"
+                },
+                "X": {
+                    "range": [-4, 5],
+                    "uom":"nT",
+                    "name": "North component",
+                    "colorscale": "diverging_1"
+                },
+                "Y": {
+                    "range": [-3, 3],
+                    "uom":"nT",
+                    "name": "East component",
+                    "colorscale": "diverging_1"
+                },
+                "Z": {
+                    "range": [-7, 6],
+                    "uom":"nT",
+                    "name": "Down component",
+                    "colorscale": "diverging_1"
+                },
+                "I": {
+                    "range": [-100, 100],
+                    "uom":"degree",
+                    "name": "Inclination",
+                    "colorscale": "diverging_1"
+                },
+                "D": {
+                    "range": [-200, 200],
+                    "uom":"degree",
+                    "name": "Declination",
+                    "colorscale": "diverging_1"
+                },
+                "X_EW": {
+                    "range": [-0.004, 0.004],
+                    "uom":"nT/km",
+                    "name": "North component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Y_EW": {
+                    "range": [-0.005, 0.003],
+                    "uom":"nT/km",
+                    "name": "East component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Z_EW": {
+                    "range": [-0.0025, 0.002],
+                    "uom":"nT/km",
+                    "name": "Down component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                }
+            },
+            "download_parameters": {
+                "F_MMA_SHA_2C-Secondary": {
+                    "uom":"nT",
+                    "name": "Calculated MMA SHA 2C Secondary model value at MAG LR position"
+                },
+                "B_NEC_res_MMA_SHA_2C-Secondary": {
+                    "uom":"nT",
+                    "name": "Residuals to MMA_SHA_2C-Secondary model of Magnetic field vector, NEC frame"
+                },
+                "F_res_MMA_SHA_2C-Secondary": {
+                    "uom":"nT",
+                    "name": "Residuals of Magnetic field intensity to MMA_SHA_2C-Secondary model"
+                }
+            },
+            "height": 450,
+            "model": true,
+            "coefficients_range": [-1,-1],
+            "differenceTo": null
+
+        },{
             "name": "SIFM",
             "visible": false,
             "timeSlider": true,
@@ -2708,6 +3885,10 @@
                 }
             },
             "download_parameters": {
+                "F_SIFM": {
+                    "uom":"nT",
+                    "name": "Calculated SIFM model value at MAG LR position"
+                },
                 "B_NEC_res_SIFM": {
                     "uom":"nT",
                     "name": "Residuals to SIFM model of Magnetic field vector, NEC frame"
@@ -2819,6 +4000,10 @@
                 }
             },
             "download_parameters": {
+                "F_IGRF12": {
+                    "uom":"nT",
+                    "name": "Calculated IGRF12 model value at MAG LR position"
+                },
                 "B_NEC_res_IGRF12": {
                     "uom":"nT",
                     "name": "Residuals to IGRF12 model of Magnetic field vector, NEC frame"
@@ -2930,6 +4115,10 @@
                 }
             },
             "download_parameters": {
+                "F_CHAOS-6-Combined": {
+                    "uom":"nT",
+                    "name": "Calculated CHAOS-6-Combined model value at MAG LR position"
+                },
                 "B_NEC_res_CHAOS-6-Combined": {
                     "uom":"nT",
                     "name": "Residuals to CHAOS-6 model of Magnetic field vector, NEC frame"
@@ -3006,6 +4195,10 @@
                 }
             },
             "download_parameters": {
+                "F_Custom_Model": {
+                    "uom":"nT",
+                    "name": "Calculated Custom model value at MAG LR position"
+                },
                 "B_NEC_res_Custom_Model": {
                     "uom":"nT",
                     "name": "Residuals to provided model coefficients of Magnetic field vector, NEC frame"
@@ -3195,13 +4388,18 @@
     }],
 
     "navBarConfig": {
-        "title": "VirES for Swarm",
+        "title": "VirES for DISC",
         "url": "/",
         "items": [{
             "name": "Layers",
             "icon": "fa-globe",
             "eventToRaise": "ui:open:layercontrol",
             "template": "LayerControl"
+        }, 
+        {
+            "name": "Download",
+            "icon": "fa-download",
+            "eventToRaise": "dialog:open:download:filter"
         }, 
         {
             "name": "Views",

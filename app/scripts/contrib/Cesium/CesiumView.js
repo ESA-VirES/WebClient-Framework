@@ -451,7 +451,11 @@ define([
 
         connectDataEvents: function(){
             globals.swarm.on('change:data', function(model, data) {
-                if (data.length && data.length>0){
+                var refKey = 'Timestamp';
+                if(!data.hasOwnProperty(refKey)){
+                    refKey = 'timestamp';
+                }
+                if (data.hasOwnProperty(refKey) && data[refKey].length>0){
                     this.createDataFeatures(data, 'pointcollection', 'band');
                 }else{
                     for (var i = 0; i < this.activeCollections.length; i++) {
@@ -953,7 +957,11 @@ define([
 
 
         createDataFeatures: function (results){
-            if(results.length>0){
+            var refKey = 'Timestamp';
+            if(!results.hasOwnProperty(refKey)){
+                refKey = 'timestamp';
+            }
+            if (results.hasOwnProperty(refKey) && results[refKey].length>0){
                 // The feature collections are removed directly when a change happens
                 // because of the asynchronous behavior it can happen that a collection
                 // is added between removing it and adding another one so here we make sure
@@ -1007,22 +1015,23 @@ define([
 
                 if (!_.isEmpty(settings) ){
 
-                    _.uniq(results, function(row) { 
+                    /*_.uniq(results, function(row) { 
                             return row.id; 
-                    })
+                    })*/
+                    _.uniq(results.id)
                     .map(function(obj){
                         var parameters = _.filter(
                             SCALAR_PARAM,
                             function(par){
-                                return settings[obj.id].hasOwnProperty(par);
+                                return settings[obj].hasOwnProperty(par);
                             });
 
                             for (var i = 0; i < parameters.length; i++) {
-                                this.activeCollections.push(obj.id+parameters[i]);
-                                this.featuresCollection[obj.id+parameters[i]] = 
+                                this.activeCollections.push(obj+parameters[i]);
+                                this.featuresCollection[obj+parameters[i]] = 
                                     new Cesium.PointPrimitiveCollection();
                                 if(!this.map.scene.context._gl.getExtension('EXT_frag_depth')){
-                                    this.featuresCollection[obj.id+parameters[i]]._rs = 
+                                    this.featuresCollection[obj+parameters[i]]._rs = 
                                         Cesium.RenderState.fromCache({
                                             depthTest : {
                                                 enabled : true,
@@ -1034,14 +1043,13 @@ define([
                                 }
                             }
                             parameters = _.filter(VECTOR_PARAM, function(par){
-                                return settings[obj.id].hasOwnProperty(par);
+                                return settings[obj].hasOwnProperty(par);
                             });
                             for (var i = 0; i < parameters.length; i++) {
-                                this.activeCollections.push(obj.id+parameters[i]);
-                                this.featuresCollection[obj.id+parameters[i]] = new Cesium.Primitive({
+                                this.activeCollections.push(obj+parameters[i]);
+                                this.featuresCollection[obj+parameters[i]] = new Cesium.Primitive({
                                     geometryInstances : [],
-                                    appearance : new Cesium.PerInstanceColorAppearance({
-                                        flat : true,
+                                    appearance : new Cesium.PolylineColorAppearance({
                                         translucent : true
                                     }),
                                     releaseGeometryInstances: false
@@ -1054,14 +1062,21 @@ define([
                     var timeBucket = {'Alpha':{}, 'Bravo':{}, 'Charlie':{}};
                     var linecnt = 0;
 
-                    _.each(results, function(row){
+                    //_.each(results, function(row){
+                    var lastTS = null;
+                    for (var r = 0; r < results[refKey].length; r++) {
+                        var row = {};
+                        for(var k in results){
+                            row[k] = results[k][r];
+                        }
                         var show = true;
                         var filters = globals.swarm.get('filters');
                         var heightOffset, color;
 
                         if(filters){
-                            for (var k in filters){
-                                show = !(row[k]<filters[k][0] || row[k]>filters[k][1]);
+                            for (var f in filters){
+                                show = filters[f](row[f]);
+                                //show = !(row[k]<filters[k][0] || row[k]>filters[k][1]);
                                 if(!show){break;}
                             }
                         }
@@ -1128,6 +1143,17 @@ define([
                                     if(tovisualize[i] === 'Absolute_STEC' ||
                                        tovisualize[i] === 'Relative_STEC' ||
                                        tovisualize[i] === 'Relative_STEC_RMS'){
+                                        if(lastTS === null){
+                                            lastTS = row.Timestamp;
+                                        }
+                                        var diff = row.Timestamp.getTime()-lastTS.getTime();
+                                        if(diff <= 40000 && diff > 0){
+                                            //lastTS = row.Timestamp;
+                                            continue;
+                                        }
+
+                                        lastTS = row.Timestamp;
+
 
                                         color = this.plot.getColor(row[set.band]);
                                         var addLen = 10;
@@ -1146,12 +1172,14 @@ define([
 
                                         this.featuresCollection[row.id+set.band].geometryInstances.push( 
                                             new Cesium.GeometryInstance({
-                                                geometry : new Cesium.SimplePolylineGeometry({
+                                                geometry : new Cesium.PolylineGeometry({
                                                     positions : [
                                                         new Cesium.Cartesian3(row.LEO_Position_X, row.LEO_Position_Y, row.LEO_Position_Z),
                                                         new Cesium.Cartesian3(secPos[0], secPos[1], secPos[2])
                                                     ],
-                                                    followSurface: false
+                                                    followSurface: false,
+                                                    width: 1.7,
+                                                    vertexFormat : Cesium.PolylineColorAppearance.VERTEX_FORMAT
                                                 }),
                                                 id: 'vec_line_'+linecnt,
                                                 attributes : {
@@ -1161,6 +1189,7 @@ define([
                                                 }
                                             })
                                         );
+
                                         linecnt++;
 
                                     } else {
@@ -1180,12 +1209,13 @@ define([
                                             var vC = (row[sb[2]]/vLen)*addLen;
                                             this.featuresCollection[row.id+set.band].geometryInstances.push( 
                                                 new Cesium.GeometryInstance({
-                                                    geometry : new Cesium.SimplePolylineGeometry({
+                                                    geometry : new Cesium.PolylineGeometry({
                                                         positions : Cesium.Cartesian3.fromDegreesArrayHeights([
                                                             row.Longitude, row.Latitude, (row.Radius-maxRad+heightOffset),
                                                             (row.Longitude+vE), (row.Latitude+vN), ((row.Radius-maxRad)+vC*30000)
                                                         ]),
-                                                        followSurface: false
+                                                        followSurface: false,
+                                                        width: 1.7
                                                     }),
                                                     id: 'vec_line_'+linecnt,
                                                     attributes : {
@@ -1203,7 +1233,7 @@ define([
                                 } // END of if vector parameter
                             }
                         }
-                    }, this);
+                    };
 
                     for (var j = 0; j < this.activeCollections.length; j++) {
                         this.map.scene.primitives.add(this.featuresCollection[this.activeCollections[j]]);

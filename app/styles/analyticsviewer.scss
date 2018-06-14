@@ -1,5 +1,5 @@
 @import "defaults";
-@import "nv.d3";
+
 
 .d3canvas {
     background-color: white;
@@ -18,7 +18,6 @@ text.nvd3.nv-noData {
 .analytics {
     width: 100%;
     height: 100%;
-    padding-top: 50px;
     padding-left: 5px;
     padding-bottom: 8.9em;
     padding-right: 0px;
@@ -26,17 +25,23 @@ text.nvd3.nv-noData {
     background-color: white;
 }
 
+#graph {
+    height: calc(100% - 255px - 2em);
+    position: absolute;
+}
+
+.filterContainer{
+    padding-top: 0px!important;
+}
+
+.editButton{
+    box-sizing: content-box!important;
+}
+
 .analytics .gui {
     top:220px;
 }
 
-//nvd3 needs this
-.analytics svg{
-    /* Trying to get SVG to act like a greedy block in all browsers */
-    display: block;
-    width:100%;
-    height:100%;
-}
 
 .analytics .disabled{
     display: inline;
@@ -125,8 +130,12 @@ text.nvd3.nv-noData {
 }
 
 .w2ui-overlay {
-//position: relative!important;
     min-width: 565px!important;
+    margin-left: -81px!important;
+}
+
+#filterSelectDrop .w2ui-field{
+    margin-left: 5px;
 }
 
 .parallels .tick text{
@@ -181,4 +190,105 @@ text.nvd3.nv-noData {
 
 .SumoSelect p{
     width: 160px!important;
+}
+
+.axisOption label{
+    font-weight: normal!important; 
+}
+
+#saveRendering{
+    margin-top: 7px;
+    position: absolute;
+    padding: 2px 7px 1px 7px;
+    font-size: 20px;
+    z-index: 20;
+}
+
+#resetZoom{
+    margin-top: 45px;
+    position: absolute;
+    padding: 2px 7px 1px 7px;
+    font-size: 20px;
+    z-index: 20;
+    /*/margin-left: 8px;*/
+}
+
+#filterSelectDrop{
+    position: absolute;
+    margin-top: -40px;
+    margin-left: 20px;
+    top: 0px;
+}
+
+#filterDivContainer{
+    position: absolute;
+    margin-top: 30px;
+    width: 100%;
+    padding-right: 10px;
+}
+
+
+#analyticsFilters {
+    max-height: 255px;
+    overflow-y: scroll;
+    overflow-x: none;
+}
+
+
+.w2ui-field-helper input {
+    padding-left: 10px!important;
+    margin-top: 3px!important;
+}
+
+.parameterClose.cross.filterClose{
+    position: absolute;
+    top: 14px!important;
+    right: 3px!important;
+    z-index: 20;
+}
+
+
+#resetFilters{
+    float: left;
+}
+
+
+#minimizeFilters{
+    position: absolute;
+    right: 60px;
+    font-size: 2em;
+    top: 0px;
+    cursor: pointer;
+    margin-top: -40px;
+}
+
+
+
+
+
+#filterSelectDrop .w2ui-field-helper{
+    margin-right: 35px;
+}
+
+#filterSelectDrop > .w2ui-field{
+    display: inline;
+}
+
+#inputAnalyticsAddfilter {
+    margin-left: 5px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+#ySettings, #y2Settings, #xSettings{
+    box-sizing: content-box!important;
+}
+
+#nodataavailable{
+    width: 100%;
+    top: 40%;
+    position: absolute;
+    font-size: 1.9em;
+    color: #444;
+    text-align: center;
 }

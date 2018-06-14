@@ -53,7 +53,7 @@
     </wps:Input>
   </wps:DataInputs>
   <wps:ResponseForm>
-    <wps:RawDataOutput>
+    <wps:RawDataOutput {{#if mimeType}}mimeType="{{mimeType}}"{{/if}}>
       <ows:Identifier>output</ows:Identifier>
     </wps:RawDataOutput>
   </wps:ResponseForm>

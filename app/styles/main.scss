@@ -259,6 +259,17 @@ button[active=active] {
     cursor: ns-resize;
 }
 
+#products{
+  max-height: 220px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+#products .sortable-layer{
+  padding-left: 6px;
+  padding-right: 8px;
+}
+
 #satcheckcontainer{
     margin-right: -20px;
     margin-left: 5px;

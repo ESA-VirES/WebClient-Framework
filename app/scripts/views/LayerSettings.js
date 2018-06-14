@@ -647,7 +647,7 @@
                     var coef_range_max = parseFloat($("#coefficients_range_max").val());
                     error = error || this.checkValue(coef_range_max,$("#coefficients_range_max"));
 
-                    if(coef_range_min>coef_range_max){
+                    if(coef_range_min>coef_range_max && coef_range_max!==-1){
                         error = true;
                         $("#coefficients_range_min").addClass("text_error");
                         $("#coefficients_range_max").addClass("text_error");

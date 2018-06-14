@@ -327,7 +327,7 @@
 
         },this);
 
-        var prod_div = this.$el.find("#products");
+        var prod_div = this.$el.find("#productsList");
         prod_div.append('<div style="font-weight:bold;">Products</div>');
 
         prod_div.append('<ul style="padding-left:15px">');
@@ -568,16 +568,12 @@
         var fil_div = this.$el.find("#filters");
         fil_div.find('.w2ui-field').remove();
         $('#downloadAddFilter').remove();
-        //fil_div.empty();
 
         var available_uom = {};
         // Clone object
         _.each(globals.swarm.get('uom_set'), function(obj, key){
           available_uom[key] = obj;
         });
-        //fil_div.append("<div>Filters</div>");
-
-        
 
         _.each(_.keys(filters), function(key){
 
@@ -585,7 +581,7 @@
           if (!available_uom.hasOwnProperty(key)){
             delete this.currentFilters[key];
 
-          } else if($('#'+key).length==0){
+          } else if($('#filters #'+key).length==0){
             var extent = filters[key].map(this.round);
             var name = "";
             var parts = key.split("_");
@@ -614,21 +610,32 @@
 
           
         }, this);
+
+        // Create possible filter options based on possible download parameters
+        var filteroptions = {};
+        globals.products.each(function(model) {
+          var dpars = model.get('download_parameters');
+          if(model.get('visible')){
+            for (var key in dpars){
+              filteroptions[key] = dpars[key];
+            }
+          }
+        });
         
         var filterkeys = _.keys(this.currentFilters);
         for (var i = 0; i < filterkeys.length; i++) {
-          if(available_uom.hasOwnProperty(filterkeys[i])){
-            delete available_uom[filterkeys[i]];
+          if(filteroptions.hasOwnProperty(filterkeys[i])){
+            delete filteroptions[filterkeys[i]];
           }
         }
 
 
         // Remove unwanted parameters
-        if(available_uom.hasOwnProperty('Timestamp')){delete available_uom['Timestamp'];}
-        if(available_uom.hasOwnProperty('timestamp')){delete available_uom['timestamp'];}
-        if(available_uom.hasOwnProperty('q_NEC_CRF')){delete available_uom['q_NEC_CRF'];}
-        if(available_uom.hasOwnProperty('GPS_Position')){delete available_uom['GPS_Position'];}
-        if(available_uom.hasOwnProperty('LEO_Position')){delete available_uom['LEO_Position'];}
+        if(filteroptions.hasOwnProperty('Timestamp')){delete filteroptions['Timestamp'];}
+        if(filteroptions.hasOwnProperty('timestamp')){delete filteroptions['timestamp'];}
+        if(filteroptions.hasOwnProperty('q_NEC_CRF')){delete filteroptions['q_NEC_CRF'];}
+        if(filteroptions.hasOwnProperty('GPS_Position')){delete filteroptions['GPS_Position'];}
+        if(filteroptions.hasOwnProperty('LEO_Position')){delete filteroptions['LEO_Position'];}
         
         
            
@@ -645,14 +652,14 @@
         var that = this;
 
         $('#addfilter').w2field('list', { 
-          items: _.keys(available_uom).sort(),
+          items: _.keys(filteroptions).sort(),
           renderDrop: function (item, options) {
             var html = '<b>'+that.createSubscript(item.id)+'</b>';
-            if(available_uom[item.id].uom != null){
-              html += ' ['+available_uom[item.id].uom+']';
+            if(filteroptions[item.id].uom != null){
+              html += ' ['+filteroptions[item.id].uom+']';
             }
-            if(available_uom[item.id].name != null){
-              html+= ': '+available_uom[item.id].name;
+            if(filteroptions[item.id].name != null){
+              html+= ': '+filteroptions[item.id].name;
             }
             return html;
           }

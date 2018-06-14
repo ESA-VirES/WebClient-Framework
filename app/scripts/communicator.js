@@ -194,7 +194,7 @@
 
                 // Filters
                 if(event === 'analytics:set:filter'){
-                    localStorage.setItem('filterSelection', JSON.stringify(param));
+                    //localStorage.setItem('filterSelection', JSON.stringify(param));
                 }
 
                 // Area selection

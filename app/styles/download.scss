@@ -129,7 +129,7 @@
 }
 
 #downloadAddFilter {
-    margin-left: -270px;
+    margin-left: -278px;
 }
 
 #filters .w2ui-field-helper input {
@@ -152,4 +152,8 @@
     border-radius: 3px;
     padding-top: 3px !important;
     padding-bottom: 3px !important;
+}
+
+#custom_download .w2ui-field-helper{
+    width: 100%!important;
 }

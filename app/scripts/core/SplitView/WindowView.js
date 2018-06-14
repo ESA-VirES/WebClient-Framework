@@ -57,10 +57,10 @@ define([
 			if (this.viewport.currentView) {
 				this.viewport.currentView.close();
 			}
-			this.viewport.show(view);
-			if (view.onResize) {
-				view.onResize();
+			if(!view.isClosed){
+				view.close();
 			}
+			this.viewport.show(view);
 
 			this.delegateEvents();
 		}

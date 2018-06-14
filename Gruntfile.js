@@ -375,6 +375,8 @@ module.exports = function (grunt) {
                         'bower_components/w2ui/dist/w2ui-fields.min.js',
                         'bower_components/w2ui/src/w2popup.js',
                         'bower_components/w2ui/src/w2utils.js',
+                        'bower_components/msgpack-lite/dist/msgpack.min.js',
+                        'bower_components/graphly/dist/graphly.min.js',
                         'scripts/vendor/**',
                     ]
                 },{

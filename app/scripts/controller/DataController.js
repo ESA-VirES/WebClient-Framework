@@ -11,6 +11,8 @@
     'hbs!tmpl/wps_fetchData',
     'app',
     'papaparse',
+    'msgpack',
+    'graphly'
   ],
 
   function( Backbone, Communicator, globals, wps_getdataTmpl, wps_fetchDataTmpl, App, Papa) {
@@ -31,6 +33,7 @@
         this.listenTo(Communicator.mediator, 'manual:init', this.onManualInit);
 
         this.listenTo(Communicator.mediator, "analytics:set:filter", this.onAnalyticsFilterChanged);
+        this.xhr = null;
        
       },
 
@@ -186,7 +189,7 @@
       },
 
       onAnalyticsFilterChanged: function (filters) {
-        globals.swarm.set({filters: filters});
+        //globals.swarm.set({filters: filters});
       },
 
       checkSelections: function(){
@@ -276,10 +279,30 @@
             "B_NEC_res_IGRF12","B_NEC_res_SIFM","B_NEC_res_CHAOS-6-Combined",
             "B_NEC_res_Custom_Model", "F_res_IGRF12","F_res_SIFM",
             "F_res_CHAOS-6-Combined", "F_res_Custom_Model",
+            "F_IGRF12","F_SIFM", "F_CHAOS-6-Combined", "F_Custom_Model",
             "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "GPS_Position", "LEO_Position",
             "IRC", "IRC_Error", "FAC", "FAC_Error",
             "EEF", "RelErr", "OrbitNumber",
             "SunDeclination","SunRightAscension","SunHourAngle","SunAzimuthAngle","SunZenithAngle",
+            "F10_INDEX",
+            // New models
+            "F_res_MCO_SHA_2C", "B_NEC_res_MCO_SHA_2C",
+            "F_res_MCO_SHA_2D", "B_NEC_res_MCO_SHA_2D",
+            "F_res_MCO_SHA_2F", "B_NEC_res_MCO_SHA_2F",
+            "F_res_MLI_SHA_2C", "B_NEC_res_MLI_SHA_2C",
+            "F_res_MLI_SHA_2D", "B_NEC_res_MLI_SHA_2D",
+            "F_res_MMA_SHA_2C-Primary", "B_NEC_res_MMA_SHA_2C-Primary",
+            "F_res_MMA_SHA_2C-Secondary", "B_NEC_res_MMA_SHA_2C-Secondary",
+            "F_res_MIO_SHA_2C-Primary", "B_NEC_res_MIO_SHA_2C-Primary",
+            "F_res_MIO_SHA_2C-Secondary", "B_NEC_res_MIO_SHA_2C-Secondary",
+            "F_res_MIO_SHA_2D-Primary", "B_NEC_res_MIO_SHA_2D-Primary",
+            "F_res_MIO_SHA_2D-Secondary", "B_NEC_res_MIO_SHA_2D-Secondary",
+            "IMF_V", "IMF_BY_GSM", "IMF_BZ_GSM", "F10_INDEX",
+            "F_MCO_SHA_2C", "F_MCO_SHA_2D", "F_MCO_SHA_2F",
+            "F_MLI_SHA_2C","F_MLI_SHA_2D",
+            "F_MMA_SHA_2C-Primary", "F_MMA_SHA_2C-Secondary",
+            "F_MIO_SHA_2C-Primary", "F_MIO_SHA_2C-Secondary",
+            "F_MIO_SHA_2D-Primary", "F_MIO_SHA_2D-Secondary",
             "IMF_V", "IMF_BY_GSM", "IMF_BZ_GSM", "F10_INDEX"
           ];
 
@@ -329,7 +352,8 @@
             })
           }
 
-          options.variables = variables.join(",")
+          options.variables = variables.join(",");
+          options.mimeType = 'application/msgpack';
 
 
           if(this.selection_list.length > 0){
@@ -348,59 +372,118 @@
 
           var req_data = wps_fetchDataTmpl(options);
 
-          $.post( retrieve_data[0].url, req_data)
-            .done(function( data ) {
-              // Parse data here centrally so other modules do not have to do it again
-              Papa.parse(data, {
-                header: true,
-                dynamicTyping: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                  var dat = results.data; 
-                  for (var i = dat.length - 1; i >= 0; i--) {
-                    if(dat[i].hasOwnProperty('Timestamp')) {
-                      dat[i]['Timestamp'] = new Date(dat[i]['Timestamp']*1000);
-                    }
-                    if(dat[i].hasOwnProperty('timestamp')) {
-                      dat[i]['Timestamp'] = new Date(dat[i]['timestamp']*1000);
-                      delete dat[i].timestamp;
-                    }
-                    if(dat[i].hasOwnProperty('latitude')) {
-                      dat[i]['Latitude'] = dat[i]['latitude'];
-                      delete dat[i].latitude;
-                    }
-                    if(dat[i].hasOwnProperty('longitude')) {
-                      dat[i]['Longitude'] = dat[i]['longitude'];
-                      delete dat[i].longitude;
-                    }
-                    if(!dat[i].hasOwnProperty('Radius')) {
-                      dat[i]['Radius'] = 6832000;
-                    }
+          if(this.xhr !== null){
+            // A request has been sent that is not yet been returned so we need to cancel it
+            Communicator.mediator.trigger("progress:change", false);
+            this.xhr.abort();
+            this.xhr = null;
+          }
 
-                    $.each(dat[i], function(key, value){
-                      if(VECTOR_BREAKDOWN.hasOwnProperty(key)) {
-                        var d = dat[i][key];
-                        d = d.slice(1,-1).split(';').map(Number);
-                        delete dat[i][key];
-                        dat[i][VECTOR_BREAKDOWN[key][0]] = d[0];
-                        dat[i][VECTOR_BREAKDOWN[key][1]] = d[1];
-                        dat[i][VECTOR_BREAKDOWN[key][2]] = d[2];
-                      }
+          this.xhr = new XMLHttpRequest();
+          this.xhr.open('POST', retrieve_data[0].url, true);
+          this.xhr.responseType = 'arraybuffer';
+          var that = this;
 
-                      if(dat[i][key] === "nan"){
-                        dat[i][key] = NaN;
-                      }
-                    });
-                    
-                    
+          this.xhr.onerror = function(e) {
+            that.xhr = null;
+            Communicator.mediator.trigger("progress:change", false);
+          }
 
-                  }
-                  globals.swarm.set({data: results.data});
+          this.xhr.onload = function(e) {
+            that.xhr = null;
+            Communicator.mediator.trigger("progress:change", false);
+
+            if(e.target.status !== 200){
+              globals.swarm.set({data: {}});
+              return;
+            }
+
+            var tmp = new Uint8Array(this.response);
+            var dat = msgpack.decode(tmp);
+
+            var ids = {
+              'A': 'Alpha',
+              'B': 'Bravo',
+              'C': 'Charlie',
+              'NSC': 'NSC'
+            };
+
+            if(dat.hasOwnProperty('Spacecraft')) {
+              dat['id'] = [];
+              for (var i = 0; i < dat.Timestamp.length; i++) {
+                dat.id.push(ids[dat.Spacecraft[i]]);
+              }
+            }
+
+            if(dat.hasOwnProperty('Timestamp')) {
+              for (var i = 0; i < dat.Timestamp.length; i++) {
+                dat.Timestamp[i] = new Date(dat.Timestamp[i]*1000);
+              }
+            }
+            if(dat.hasOwnProperty('timestamp')) {
+              for (var i = 0; i < dat.Timestamp.length; i++) {
+                dat.Timestamp[i] = new Date(dat.timestamp[i]*1000);
+              }
+            }
+            if(dat.hasOwnProperty('latitude')) {
+              dat['Latitude'] = dat['latitude'];
+              delete dat.latitude;
+            }
+            if(dat.hasOwnProperty('longitude')) {
+              dat['Longitude'] = dat['longitude'];
+              delete dat.longitude;
+            }
+            if(!dat.hasOwnProperty('Radius')) {
+              dat['Radius'] = [];
+              var refKey = 'Timestamp';
+              if(!dat.hasOwnProperty(refKey)){
+                refKey = 'timestamp';
+              }
+              for (var i = 0; i < dat[refKey].length; i++) {
+                dat['Radius'].push(6832000)
+              }
+            }
+
+            for(var key in dat){
+              if(VECTOR_BREAKDOWN.hasOwnProperty(key)){
+                dat[VECTOR_BREAKDOWN[key][0]] = [];
+                dat[VECTOR_BREAKDOWN[key][1]] = [];
+                dat[VECTOR_BREAKDOWN[key][2]] = [];
+                for (var i = 0; i < dat[key].length; i++) {
+                  dat[key][i]
+                  dat[VECTOR_BREAKDOWN[key][0]].push(dat[key][i][0]);
+                  dat[VECTOR_BREAKDOWN[key][1]].push(dat[key][i][1]);
+                  dat[VECTOR_BREAKDOWN[key][2]].push(dat[key][i][2]);
                 }
-              });
-              
-          });
+                delete dat[key];
+              }
+            }
+            // This should only happen here if there has been 
+            // some issue with the saved filter configuration
+            // Check if current brushes are valid for current data
+            var idKeys = Object.keys(dat);
+            var filters = globals.swarm.get('filters');
+            var filtersSelec = JSON.parse(localStorage.getItem('filterSelection'));
+            var filtersmodified = false;
+            if(filters){
+              for (var f in filters){
+                if(idKeys.indexOf(f) === -1){
+                    delete filters[f];
+                    delete filtersSelec[f];
+                    filtersmodified = true;
+                }
+              }
+              if(filtersmodified){
+                globals.swarm.set('filters', filters);
+                localStorage.setItem('filterSelection', JSON.stringify(filtersSelec));
+              }
 
+            }
+            
+            globals.swarm.set({data: dat});
+          };
+          Communicator.mediator.trigger("progress:change", true);
+          this.xhr.send(req_data);
         }
       },
 
