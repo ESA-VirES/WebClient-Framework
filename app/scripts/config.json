@@ -2700,6 +2700,14 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MCO_SHA_2C": {
+                    "uom":"nT",
+                    "name": "MCO_SHA_2C model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_MCO_SHA_2C": {
+                    "uom":"nT",
+                    "name": "MCO_SHA_2C model magnetic field intensity calculated for each measurement time and location"
+                },
                 "B_NEC_res_MCO_SHA_2C": {
                     "uom":"nT",
                     "name": "Residuals to MCO_SHA_2C model of Magnetic field vector, NEC frame"
@@ -2803,6 +2811,14 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MCO_SHA_2D": {
+                    "uom":"nT",
+                    "name": "MCO_SHA_2D model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_MCO_SHA_2D": {
+                    "uom":"nT",
+                    "name": "MCO_SHA_2D model magnetic field intensity calculated for each measurement time and location"
+                },
                 "B_NEC_res_MCO_SHA_2D": {
                     "uom":"nT",
                     "name": "Residuals to MCO_SHA_2D model of Magnetic field vector, NEC frame"
@@ -2906,6 +2922,14 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MCO_SHA_2F": {
+                    "uom":"nT",
+                    "name": "MCO_SHA_2F model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_MCO_SHA_2F": {
+                    "uom":"nT",
+                    "name": "MCO_SHA_2F model magnetic field intensity calculated for each measurement time and location"
+                },
                 "B_NEC_res_MCO_SHA_2F": {
                     "uom":"nT",
                     "name": "Residuals to MCO_SHA_2F model of Magnetic field vector, NEC frame"
@@ -3009,6 +3033,14 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MLI_SHA_2C": {
+                    "uom":"nT",
+                    "name": "MLI_SHA_2C model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_MLI_SHA_2C": {
+                    "uom":"nT",
+                    "name": "MLI_SHA_2C model magnetic field intensity calculated for each measurement time and location"
+                },
                 "B_NEC_res_MLI_SHA_2C": {
                     "uom":"nT",
                     "name": "Residuals to MLI_SHA_2C model of Magnetic field vector, NEC frame"
@@ -3112,6 +3144,14 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MLI_SHA_2D": {
+                    "uom":"nT",
+                    "name": "MLI_SHA_2D model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_MLI_SHA_2D": {
+                    "uom":"nT",
+                    "name": "MLI_SHA_2D model magnetic field intensity calculated for each measurement time and location"
+                },
                 "B_NEC_res_MLI_SHA_2D": {
                     "uom":"nT",
                     "name": "Residuals to MLI_SHA_2D model of Magnetic field vector, NEC frame"
@@ -3215,6 +3255,14 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MIO_SHA_2C-Primary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2C-Primary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_MIO_SHA_2C-Primary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2C-Primary model magnetic field intensity calculated for each measurement time and location"
+                },
                 "B_NEC_res_MIO_SHA_2C-Primary": {
                     "uom":"nT",
                     "name": "Residuals to MIO_SHA_2C-Primary model of Magnetic field vector, NEC frame"
@@ -3318,6 +3366,14 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MIO_SHA_2C-Secondary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2C-Secondary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_MIO_SHA_2C-Secondary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2C-Secondary model magnetic field intensity calculated for each measurement time and location"
+                },
                 "B_NEC_res_MIO_SHA_2C-Secondary": {
                     "uom":"nT",
                     "name": "Residuals to MIO_SHA_2C-Secondary model of Magnetic field vector, NEC frame"
@@ -3421,6 +3477,14 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MIO_SHA_2D-Primary": {
+                    "uom":"nT",
+                    "name": "MIO_SHA_2D-Primary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_MIO_SHA_2D-Primary": {
+                    "uom":"nT",
+                    "name": "MIO_SHA_2D-Primary model magnetic field intensity calculated for each measurement time and location"
+                },
                 "B_NEC_res_MIO_SHA_2D-Primary": {
                     "uom":"nT",
                     "name": "Residuals to MIO_SHA_2D-Primary model of Magnetic field vector, NEC frame"
@@ -3524,6 +3588,14 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MIO_SHA_2D-Secondary": {
+                    "uom":"nT",
+                    "name": "MIO_SHA_2D-Secondary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_MIO_SHA_2D-Secondary": {
+                    "uom":"nT",
+                    "name": "MIO_SHA_2D-Secondary model magnetic field intensity calculated for each measurement time and location"
+                },
                 "B_NEC_res_MIO_SHA_2D-Secondary": {
                     "uom":"nT",
                     "name": "Residuals to MIO_SHA_2D-Secondary model of Magnetic field vector, NEC frame"
@@ -3627,6 +3699,14 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MMA_SHA_2C-Primary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2C-Primary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_MMA_SHA_2C-Primary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2C-Primary model magnetic field intensity calculated for each measurement time and location"
+                },
                 "B_NEC_res_MMA_SHA_2C-Primary": {
                     "uom":"nT",
                     "name": "Residuals to MMA_SHA_2C-Primary model of Magnetic field vector, NEC frame"
@@ -3730,6 +3810,14 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MMA_SHA_2C-Secondary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2C-Secondary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_MMA_SHA_2C-Secondary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2C-Secondary model magnetic field intensity calculated for each measurement time and location"
+                },
                 "B_NEC_res_MMA_SHA_2C-Secondary": {
                     "uom":"nT",
                     "name": "Residuals to MMA_SHA_2C-Secondary model of Magnetic field vector, NEC frame"
@@ -3833,6 +3921,14 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MMA_SHA_2F-Primary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2F-Primary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_MMA_SHA_2F-Primary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2F-Primary model magnetic field intensity calculated for each measurement time and location"
+                },
                 "B_NEC_res_MMA_SHA_2F-Primary": {
                     "uom":"nT",
                     "name": "Residuals to MMA_SHA_2F-Primary model of Magnetic field vector, NEC frame"
@@ -3936,6 +4032,14 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MMA_SHA_2F-Secondary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2F-Secondary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_MMA_SHA_2F-Secondary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2F-Secondary model magnetic field intensity calculated for each measurement time and location"
+                },
                 "B_NEC_res_MMA_SHA_2F-Secondary": {
                     "uom":"nT",
                     "name": "Residuals to MMA_SHA_2F-Secondary model of Magnetic field vector, NEC frame"
@@ -4047,6 +4151,14 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_SIFM": {
+                    "uom":"nT",
+                    "name": "SIFM model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_SIFM": {
+                    "uom":"nT",
+                    "name": "SIFM model magnetic field intensity calculated for each measurement time and location"
+                },
                 "B_NEC_res_SIFM": {
                     "uom":"nT",
                     "name": "Residuals to SIFM model of Magnetic field vector, NEC frame"
@@ -4158,6 +4270,14 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_IGRF12": {
+                    "uom":"nT",
+                    "name": "IGRF12 model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_IGRF12": {
+                    "uom":"nT",
+                    "name": "IGRF12 model magnetic field intensity calculated for each measurement time and location"
+                },
                 "B_NEC_res_IGRF12": {
                     "uom":"nT",
                     "name": "Residuals to IGRF12 model of Magnetic field vector, NEC frame"
@@ -4269,6 +4389,14 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_CHAOS-6-Combined": {
+                    "uom":"nT",
+                    "name": "CHAOS-6-Combined model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_CHAOS-6-Combined": {
+                    "uom":"nT",
+                    "name": "CHAOS-6-Combined model magnetic field intensity calculated for each measurement time and location"
+                },
                 "B_NEC_res_CHAOS-6-Combined": {
                     "uom":"nT",
                     "name": "Residuals to CHAOS-6 model of Magnetic field vector, NEC frame"
@@ -4345,6 +4473,14 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_Custom_Model": {
+                    "uom":"nT",
+                    "name": "Custom model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_Custom_Model": {
+                    "uom":"nT",
+                    "name": "Custom model magnetic field intensity calculated for each measurement time and location"
+                },
                 "B_NEC_res_Custom_Model": {
                     "uom":"nT",
                     "name": "Residuals to provided model coefficients of Magnetic field vector, NEC frame"
