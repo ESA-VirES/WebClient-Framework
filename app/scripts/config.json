@@ -2700,9 +2700,13 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MCO_SHA_2C": {
+                    "uom":"nT",
+                    "name": "MCO_SHA_2C model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
                 "F_MCO_SHA_2C": {
                     "uom":"nT",
-                    "name": "Calculated MCO SHA 2C model value at MAG LR position"
+                    "name": "MCO_SHA_2C model magnetic field intensity calculated for each measurement time and location"
                 },
                 "B_NEC_res_MCO_SHA_2C": {
                     "uom":"nT",
@@ -2807,9 +2811,13 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MCO_SHA_2D": {
+                    "uom":"nT",
+                    "name": "MCO_SHA_2D model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
                 "F_MCO_SHA_2D": {
                     "uom":"nT",
-                    "name": "Calculated MCO SHA 2D model value at MAG LR position"
+                    "name": "MCO_SHA_2D model magnetic field intensity calculated for each measurement time and location"
                 },
                 "B_NEC_res_MCO_SHA_2D": {
                     "uom":"nT",
@@ -2914,9 +2922,13 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MCO_SHA_2F": {
+                    "uom":"nT",
+                    "name": "MCO_SHA_2F model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
                 "F_MCO_SHA_2F": {
                     "uom":"nT",
-                    "name": "Calculated MCO SHA 2F model value at MAG LR position"
+                    "name": "MCO_SHA_2F model magnetic field intensity calculated for each measurement time and location"
                 },
                 "B_NEC_res_MCO_SHA_2F": {
                     "uom":"nT",
@@ -3021,9 +3033,13 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MLI_SHA_2C": {
+                    "uom":"nT",
+                    "name": "MLI_SHA_2C model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
                 "F_MLI_SHA_2C": {
                     "uom":"nT",
-                    "name": "Calculated MLI SHA 2C model value at MAG LR position"
+                    "name": "MLI_SHA_2C model magnetic field intensity calculated for each measurement time and location"
                 },
                 "B_NEC_res_MLI_SHA_2C": {
                     "uom":"nT",
@@ -3128,9 +3144,13 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MLI_SHA_2D": {
+                    "uom":"nT",
+                    "name": "MLI_SHA_2D model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
                 "F_MLI_SHA_2D": {
                     "uom":"nT",
-                    "name": "Calculated MLI SHA 2D model value at MAG LR position"
+                    "name": "MLI_SHA_2D model magnetic field intensity calculated for each measurement time and location"
                 },
                 "B_NEC_res_MLI_SHA_2D": {
                     "uom":"nT",
@@ -3235,9 +3255,13 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MIO_SHA_2C-Primary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2C-Primary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
                 "F_MIO_SHA_2C-Primary": {
                     "uom":"nT",
-                    "name": "Calculated MMA SHA 2C Primary model value at MAG LR position"
+                    "name": "MMA_SHA_2C-Primary model magnetic field intensity calculated for each measurement time and location"
                 },
                 "B_NEC_res_MIO_SHA_2C-Primary": {
                     "uom":"nT",
@@ -3342,9 +3366,13 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MIO_SHA_2C-Secondary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2C-Secondary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
                 "F_MIO_SHA_2C-Secondary": {
                     "uom":"nT",
-                    "name": "Calculated MMA SHA 2C Secondary model value at MAG LR position"
+                    "name": "MMA_SHA_2C-Secondary model magnetic field intensity calculated for each measurement time and location"
                 },
                 "B_NEC_res_MIO_SHA_2C-Secondary": {
                     "uom":"nT",
@@ -3449,9 +3477,13 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MIO_SHA_2D-Primary": {
+                    "uom":"nT",
+                    "name": "MIO_SHA_2D-Primary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
                 "F_MIO_SHA_2D-Primary": {
                     "uom":"nT",
-                    "name": "Calculated MMA SHA 2D Primary model value at MAG LR position"
+                    "name": "MIO_SHA_2D-Primary model magnetic field intensity calculated for each measurement time and location"
                 },
                 "B_NEC_res_MIO_SHA_2D-Primary": {
                     "uom":"nT",
@@ -3556,9 +3588,13 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MIO_SHA_2D-Secondary": {
+                    "uom":"nT",
+                    "name": "MIO_SHA_2D-Secondary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
                 "F_MIO_SHA_2D-Secondary": {
                     "uom":"nT",
-                    "name": "Calculated MMA SHA 2D Secondary model value at MAG LR position"
+                    "name": "MIO_SHA_2D-Secondary model magnetic field intensity calculated for each measurement time and location"
                 },
                 "B_NEC_res_MIO_SHA_2D-Secondary": {
                     "uom":"nT",
@@ -3663,9 +3699,13 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MMA_SHA_2C-Primary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2C-Primary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
                 "F_MMA_SHA_2C-Primary": {
                     "uom":"nT",
-                    "name": "Calculated MMA SHA 2C Primary model value at MAG LR position"
+                    "name": "MMA_SHA_2C-Primary model magnetic field intensity calculated for each measurement time and location"
                 },
                 "B_NEC_res_MMA_SHA_2C-Primary": {
                     "uom":"nT",
@@ -3770,9 +3810,13 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MMA_SHA_2C-Secondary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2C-Secondary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
                 "F_MMA_SHA_2C-Secondary": {
                     "uom":"nT",
-                    "name": "Calculated MMA SHA 2C Secondary model value at MAG LR position"
+                    "name": "MMA_SHA_2C-Secondary model magnetic field intensity calculated for each measurement time and location"
                 },
                 "B_NEC_res_MMA_SHA_2C-Secondary": {
                     "uom":"nT",
@@ -3877,6 +3921,14 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MMA_SHA_2F-Primary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2F-Primary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_MMA_SHA_2F-Primary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2F-Primary model magnetic field intensity calculated for each measurement time and location"
+                },
                 "B_NEC_res_MMA_SHA_2F-Primary": {
                     "uom":"nT",
                     "name": "Residuals to MMA_SHA_2F-Primary model of Magnetic field vector, NEC frame"
@@ -3980,6 +4032,14 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_MMA_SHA_2F-Secondary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2F-Secondary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_MMA_SHA_2F-Secondary": {
+                    "uom":"nT",
+                    "name": "MMA_SHA_2F-Secondary model magnetic field intensity calculated for each measurement time and location"
+                },
                 "B_NEC_res_MMA_SHA_2F-Secondary": {
                     "uom":"nT",
                     "name": "Residuals to MMA_SHA_2F-Secondary model of Magnetic field vector, NEC frame"
@@ -4091,9 +4151,13 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_SIFM": {
+                    "uom":"nT",
+                    "name": "SIFM model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
                 "F_SIFM": {
                     "uom":"nT",
-                    "name": "Calculated SIFM model value at MAG LR position"
+                    "name": "SIFM model magnetic field intensity calculated for each measurement time and location"
                 },
                 "B_NEC_res_SIFM": {
                     "uom":"nT",
@@ -4206,9 +4270,13 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_IGRF12": {
+                    "uom":"nT",
+                    "name": "IGRF12 model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
                 "F_IGRF12": {
                     "uom":"nT",
-                    "name": "Calculated IGRF12 model value at MAG LR position"
+                    "name": "IGRF12 model magnetic field intensity calculated for each measurement time and location"
                 },
                 "B_NEC_res_IGRF12": {
                     "uom":"nT",
@@ -4321,9 +4389,13 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_CHAOS-6-Combined": {
+                    "uom":"nT",
+                    "name": "CHAOS-6-Combined model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
                 "F_CHAOS-6-Combined": {
                     "uom":"nT",
-                    "name": "Calculated CHAOS-6-Combined model value at MAG LR position"
+                    "name": "CHAOS-6-Combined model magnetic field intensity calculated for each measurement time and location"
                 },
                 "B_NEC_res_CHAOS-6-Combined": {
                     "uom":"nT",
@@ -4401,9 +4473,13 @@
                 }
             },
             "download_parameters": {
+                "B_NEC_Custom_Model": {
+                    "uom":"nT",
+                    "name": "Custom model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
                 "F_Custom_Model": {
                     "uom":"nT",
-                    "name": "Calculated Custom model value at MAG LR position"
+                    "name": "Custom model magnetic field intensity calculated for each measurement time and location"
                 },
                 "B_NEC_res_Custom_Model": {
                     "uom":"nT",
