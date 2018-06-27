@@ -8,7 +8,8 @@ var VECTOR_PARAM = [
     "B_NEC", "v_SC", "SIFM", "IGRF12", "CHAOS-6-Combined", "Custom_Model",
     "B_NEC_resAC", "GPS_Position", "LEO_Position", "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC",
     "MCO_SHA_2C", "MCO_SHA_2D", "MCO_SHA_2F", "MLI_SHA_2C", "MLI_SHA_2D", 
-    "MMA_SHA_2C-Primary", "MMA_SHA_2C-Secondary", "MIO_SHA_2C-Primary", "MIO_SHA_2C-Secondary", "MIO_SHA_2D-Primary", "MIO_SHA_2D-Secondary"
+    "MMA_SHA_2C-Primary", "MMA_SHA_2C-Secondary", "MMA_SHA_2F-Primary", "MMA_SHA_2F-Secondary",
+    "MIO_SHA_2C-Primary", "MIO_SHA_2C-Secondary", "MIO_SHA_2D-Primary", "MIO_SHA_2D-Secondary"
 ]
 var VECTOR_BREAKDOWN = {
     'SIFM': ['B_N_res_SIFM','B_E_res_SIFM','B_C_res_SIFM'],
@@ -22,6 +23,8 @@ var VECTOR_BREAKDOWN = {
     'MLI_SHA_2D': ['B_N_res_MLI_SHA_2D','B_E_res_MLI_SHA_2D','B_C_res_MLI_SHA_2D'],
     'MMA_SHA_2C-Primary': ['B_N_res_MMA_SHA_2C-Primary','B_E_res_MMA_SHA_2C-Primary','B_C_res_MMA_SHA_2C-Primary'],
     'MMA_SHA_2C-Secondary': ['B_N_res_MMA_SHA_2C-Secondary','B_E_res_MMA_SHA_2C-Secondary','B_C_res_MMA_SHA_2C-Secondary'],
+    'MMA_SHA_2F-Primary': ['B_N_res_MMA_SHA_2F-Primary','B_E_res_MMA_SHA_2F-Primary','B_C_res_MMA_SHA_2F-Primary'],
+    'MMA_SHA_2F-Secondary': ['B_N_res_MMA_SHA_2F-Secondary','B_E_res_MMA_SHA_2F-Secondary','B_C_res_MMA_SHA_2F-Secondary'],
     'MIO_SHA_2C-Primary': ['B_N_res_MIO_SHA_2C-Primary','B_E_res_MIO_SHA_2C-Primary','B_C_res_MIO_SHA_2C-Primary'],
     'MIO_SHA_2C-Secondary': ['B_N_res_MIO_SHA_2C-Secondary','B_E_res_MIO_SHA_2C-Secondary','B_C_res_MIO_SHA_2C-Secondary'],
     'MIO_SHA_2D-Primary': ['B_N_res_MIO_SHA_2D-Primary','B_E_res_MIO_SHA_2D-Primary','B_C_res_MIO_SHA_2D-Primary'],
@@ -44,6 +47,8 @@ var VECTOR_BREAKDOWN = {
     'B_NEC_res_MLI_SHA_2D': ['B_N_res_MLI_SHA_2D','B_E_res_MLI_SHA_2D','B_C_res_MLI_SHA_2D'],
     'B_NEC_res_MMA_SHA_2C-Primary': ['B_N_res_MMA_SHA_2C-Primary','B_E_res_MMA_SHA_2C-Primary','B_C_res_MMA_SHA_2C-Primary'],
     'B_NEC_res_MMA_SHA_2C-Secondary': ['B_N_res_MMA_SHA_2C-Secondary','B_E_res_MMA_SHA_2C-Secondary','B_C_res_MMA_SHA_2C-Secondary'],
+    'B_NEC_res_MMA_SHA_2F-Primary': ['B_N_res_MMA_SHA_2F-Primary','B_E_res_MMA_SHA_2F-Primary','B_C_res_MMA_SHA_2F-Primary'],
+    'B_NEC_res_MMA_SHA_2F-Secondary': ['B_N_res_MMA_SHA_2F-Secondary','B_E_res_MMA_SHA_2F-Secondary','B_C_res_MMA_SHA_2F-Secondary'],
     'B_NEC_res_MIO_SHA_2C-Primary': ['B_N_res_MIO_SHA_2C-Primary','B_E_res_MIO_SHA_2C-Primary','B_C_res_MIO_SHA_2C-Primary'],
     'B_NEC_res_MIO_SHA_2C-Secondary': ['B_N_res_MIO_SHA_2C-Secondary','B_E_res_MIO_SHA_2C-Secondary','B_C_res_MIO_SHA_2C-Secondary'],
     'B_NEC_res_MIO_SHA_2D-Primary': ['B_N_res_MIO_SHA_2D-Primary','B_E_res_MIO_SHA_2D-Primary','B_C_res_MIO_SHA_2D-Primary'],

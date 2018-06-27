@@ -334,7 +334,7 @@ define(['backbone.marionette',
             this.sp.uom_set['QDLon'] = {uom: 'deg', name:'Quasi-Dipole Longitude'};
             this.sp.uom_set['Dst'] = {uom: null, name:'Disturbance storm time Index'};
             this.sp.uom_set['Kp'] = {uom: null, name:'Global geomagnetic storm Index'};
-            this.sp.uom_set['F10_INDEX'] = {uom: '1e-22 J/s/m^2/Hz', name:'10.7cm Solar Radio Flux'};
+            this.sp.uom_set['F107'] = {uom: '1e-22 J/s/m^2/Hz', name:'Observed 10.7cm Solar Radio Flux'};
             this.sp.uom_set['OrbitNumber'] = {uom: null, name:'Orbit number'};
 
             globals.swarm.set('uom_set', this.sp.uom_set);
