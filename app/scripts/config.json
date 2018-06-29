@@ -4545,6 +4545,30 @@
             },
             "index": true
         },{
+            "name": "F10.7 Index",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "INDEX",
+            "views": [{
+                "id": "f107",
+                "protocol": "INDEX",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ]
+            }],
+            "download": {
+                "id": "f107",
+                "protocol": "INDEX",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "download_parameters": {
+                "F107": {
+                    "uom": "1e-22 J/s/m^2/Hz",
+                    "name": "Observed 10.7cm Solar Radio Flux"
+                }
+            },
+            "index": true
+        },{
             "name": "Digital Elevation Model",
             "visible": false,
             "timeSlider": false,
