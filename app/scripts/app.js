@@ -9,7 +9,8 @@ var VECTOR_PARAM = [
     "B_NEC_resAC", "GPS_Position", "LEO_Position", "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC",
     "MCO_SHA_2C", "MCO_SHA_2D", "MCO_SHA_2F", "MLI_SHA_2C", "MLI_SHA_2D", 
     "MMA_SHA_2C-Primary", "MMA_SHA_2C-Secondary", "MMA_SHA_2F-Primary", "MMA_SHA_2F-Secondary",
-    "MIO_SHA_2C-Primary", "MIO_SHA_2C-Secondary", "MIO_SHA_2D-Primary", "MIO_SHA_2D-Secondary"
+    "MIO_SHA_2C-Primary", "MIO_SHA_2C-Secondary", "MIO_SHA_2D-Primary", "MIO_SHA_2D-Secondary",
+    'dB_other', 'dB_AOCS', 'dB_Sun'
 ]
 var VECTOR_BREAKDOWN = {
     'SIFM': ['B_N_res_SIFM','B_E_res_SIFM','B_C_res_SIFM'],
@@ -31,8 +32,8 @@ var VECTOR_BREAKDOWN = {
     'MIO_SHA_2D-Secondary': ['B_N_res_MIO_SHA_2D-Secondary','B_E_res_MIO_SHA_2D-Secondary','B_C_res_MIO_SHA_2D-Secondary'],
     'B_NEC': ['B_N','B_E','B_C'],
     'B_NEC_resAC': ['B_resAC_N','B_resAC_E','B_resAC_C'],
-    'B_error': ['B_error,X', 'B_error,Y', 'B_error,Z'],
-    'B_VFM': ['B_VFM,X', 'B_VFM,Y', 'B_VFM,Z'],
+    'B_error': ['B_error_X', 'B_error_Y', 'B_error_Z'],
+    'B_VFM': ['B_VFM_X', 'B_VFM_Y', 'B_VFM_Z'],
     'v_SC':  ['v_SC_N','v_SC_E','v_SC_C'],
     'GPS_Position':  ['GPS_Position_X','GPS_Position_Y','GPS_Position_Z'],
     'LEO_Position':  ['LEO_Position_X','LEO_Position_Y','LEO_Position_Z'],
@@ -70,6 +71,9 @@ var VECTOR_BREAKDOWN = {
     'B_NEC_res_MIO_SHA_2C-Secondary': ['B_N_res_MIO_SHA_2C-Secondary','B_E_res_MIO_SHA_2C-Secondary','B_C_res_MIO_SHA_2C-Secondary'],
     'B_NEC_res_MIO_SHA_2D-Primary': ['B_N_res_MIO_SHA_2D-Primary','B_E_res_MIO_SHA_2D-Primary','B_C_res_MIO_SHA_2D-Primary'],
     'B_NEC_res_MIO_SHA_2D-Secondary': ['B_N_res_MIO_SHA_2D-Secondary','B_E_res_MIO_SHA_2D-Secondary','B_C_res_MIO_SHA_2D-Secondary'],
+    'dB_other': ['dB_other_X', 'dB_other_Y', 'dB_other_Z'],
+    'dB_AOCS': ['dB_AOCS_X', 'dB_AOCS_Y', 'dB_AOCS_Z'],
+    'dB_Sun': ['dB_Sun_X', 'dB_Sun_Y', 'dB_Sun_Z']
 };
 
 // Ordered from highest resolution to lowest with the exception of FAC that 

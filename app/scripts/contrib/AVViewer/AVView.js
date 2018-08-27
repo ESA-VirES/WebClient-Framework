@@ -308,11 +308,11 @@ define(['backbone.marionette',
             }
 
             // Special cases for separeted vectors
-            this.separateVector('B_error', 'B_error', ['X', 'Y', 'Z'], ',');
+            this.separateVector('B_error', 'B_error', ['X', 'Y', 'Z'], '_');
             this.separateVector('B', 'B_NEC', ['N', 'E', 'C'], '_');
             this.separateVector('B', 'B_NEC', ['N', 'E', 'C'], '_');
             this.separateVector('v_SC', 'v_SC', ['N', 'E', 'C'], '_');
-            this.separateVector('B_VFM', 'B_VFM', ['X', 'Y', 'Z'], ',');
+            this.separateVector('B_VFM', 'B_VFM', ['X', 'Y', 'Z'], '_');
             this.separateVector('B', 'B_NEC_resAC',
                 ['resAC_N', 'resAC_E', 'resAC_C'], '_'
             );
@@ -329,6 +329,10 @@ define(['backbone.marionette',
                 'E_res_Custom_Model',
                 'C_res_Custom_Model'], '_'
             );
+            this.separateVector('dB_other', 'dB_other', ['X', 'Y', 'Z'], '_');
+            this.separateVector('dB_AOCS', 'dB_AOCS', ['X', 'Y', 'Z'], '_');
+            this.separateVector('dB_Sun', 'dB_Sun', ['X', 'Y', 'Z'], '_');
+
             this.sp.uom_set['MLT'] = {uom: null, name:'Magnetic Local Time'};
             this.sp.uom_set['QDLat'] = {uom: 'deg', name:'Quasi-Dipole Latitude'};
             this.sp.uom_set['QDLon'] = {uom: 'deg', name:'Quasi-Dipole Longitude'};

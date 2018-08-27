@@ -2619,8 +2619,8 @@
             "opacity": 0.7,
             "tileSize":1024,
             "validity":{
-                "start": "1900-01-01T00:00:00Z",
-                "end": "2020-01-01T00:00:00Z"
+                "start": "2013-12-01T00:16:34Z",
+                "end": "2017-01-01T00:00:00Z"
             },
             "views": [{
                 "id": "MCO_SHA_2C_view",
@@ -2730,8 +2730,8 @@
             "opacity": 0.7,
             "tileSize":1024,
             "validity":{
-                "start": "1900-01-01T00:00:00Z",
-                "end": "2020-01-01T00:00:00Z"
+                "start": "2013-11-25T12:00:00Z",
+                "end": "2016-12-28T08:09:36Z"
             },
             "views": [{
                 "id": "MCO_SHA_2D_view",
@@ -2841,8 +2841,8 @@
             "opacity": 0.7,
             "tileSize":1024,
             "validity":{
-                "start": "1900-01-01T00:00:00Z",
-                "end": "2020-01-01T00:00:00Z"
+                "start": "2013-11-25T12:00:00Z",
+                "end": "2016-05-26T09:36:00Z"
             },
             "views": [{
                 "id": "MCO_SHA_2F_view",
@@ -2953,7 +2953,7 @@
             "tileSize":1024,
             "validity":{
                 "start": "1900-01-01T00:00:00Z",
-                "end": "2020-01-01T00:00:00Z"
+                "end": "2100-01-01T00:00:00Z"
             },
             "views": [{
                 "id": "MLI_SHA_2C_view",
@@ -3064,7 +3064,7 @@
             "tileSize":1024,
             "validity":{
                 "start": "1900-01-01T00:00:00Z",
-                "end": "2020-01-01T00:00:00Z"
+                "end": "2100-01-01T00:00:00Z"
             },
             "views": [{
                 "id": "MLI_SHA_2D_view",
@@ -3175,7 +3175,7 @@
             "tileSize":1024,
             "validity":{
                 "start": "1900-01-01T00:00:00Z",
-                "end": "2020-01-01T00:00:00Z"
+                "end": "2100-01-01T00:00:00Z"
             },
             "views": [{
                 "id": "MIO_SHA_2C-Primary_view",
@@ -3286,7 +3286,7 @@
             "tileSize":1024,
             "validity":{
                 "start": "1900-01-01T00:00:00Z",
-                "end": "2020-01-01T00:00:00Z"
+                "end": "2100-01-01T00:00:00Z"
             },
             "views": [{
                 "id": "MIO_SHA_2C-Secondary_view",
@@ -3397,7 +3397,7 @@
             "tileSize":1024,
             "validity":{
                 "start": "1900-01-01T00:00:00Z",
-                "end": "2020-01-01T00:00:00Z"
+                "end": "2100-01-01T00:00:00Z"
             },
             "views": [{
                 "id": "MIO_SHA_2D-Primary_view",
@@ -3508,7 +3508,7 @@
             "tileSize":1024,
             "validity":{
                 "start": "1900-01-01T00:00:00Z",
-                "end": "2020-01-01T00:00:00Z"
+                "end": "2100-01-01T00:00:00Z"
             },
             "views": [{
                 "id": "MIO_SHA_2D-Secondary_view",
@@ -3618,8 +3618,8 @@
             "opacity": 0.7,
             "tileSize":1024,
             "validity":{
-                "start": "1900-01-01T00:00:00Z",
-                "end": "2020-01-01T00:00:00Z"
+                "start": "2013-12-01T03:00:00Z",
+                "end": "2016-12-31T21:00:00Z"
             },
             "views": [{
                 "id": "MMA_SHA_2C-Primary_view",
@@ -3729,8 +3729,8 @@
             "opacity": 0.7,
             "tileSize":1024,
             "validity":{
-                "start": "1900-01-01T00:00:00Z",
-                "end": "2020-01-01T00:00:00Z"
+                "start": "2013-12-01T03:00:00Z",
+                "end": "2016-12-31T21:00:00Z"
             },
             "views": [{
                 "id": "MMA_SHA_2C-Secondary_view",
@@ -3840,7 +3840,7 @@
             "opacity": 0.7,
             "tileSize":1024,
             "validity":{
-                "start": "1900-01-01T00:00:00Z",
+                "start": "2013-11-26T00:45:00Z",
                 "end": "2020-01-01T00:00:00Z"
             },
             "views": [{
@@ -3951,7 +3951,7 @@
             "opacity": 0.7,
             "tileSize":1024,
             "validity":{
-                "start": "1900-01-01T00:00:00Z",
+                "start": "2013-11-26T00:45:00Z",
                 "end": "2020-01-01T00:00:00Z"
             },
             "views": [{
@@ -4299,9 +4299,9 @@
             "timeSliderProtocol": "WPS",
             "opacity": 0.7,
             "tileSize":1024,
-            "validity":{
+            "validity": {
                 "start": "1997-02-07T05:31:12Z",
-                "end": "2017-08-08T14:07:00Z"
+                "end": "2018-08-08T08:45:36Z"
             },
             "views": [{
                 "id": "CHAOS-6-Combined_view",

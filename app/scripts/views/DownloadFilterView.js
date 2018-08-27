@@ -430,22 +430,22 @@
         }
 
         // See if magnetic data actually selected if not remove residuals
-          var magdata = false;
-          _.each(products, function(p, key){
-            if(key.indexOf("MAG")!=-1){
-              magdata = true;
-            }
-          });
-
-          if(!magdata){
-            available_parameters = _.filter(available_parameters, function(v){
-              if(v.id.indexOf("_res_")!=-1){
-                return false;
-              }else{
-                return true;
-              }
-            })
+        var magdata = false;
+        _.each(products, function(p, key){
+          if(key.indexOf("MAG")!=-1){
+            magdata = true;
           }
+        });
+
+        if(!magdata){
+          available_parameters = _.filter(available_parameters, function(v){
+            if(v.id.indexOf("_res_")!=-1){
+              return false;
+            }else{
+              return true;
+            }
+          })
+        }
 
         $('#param_enum').w2field('enum', { 
             items: _.sortBy(available_parameters, 'id'), // Sort parameters alphabetically 
@@ -621,6 +621,21 @@
             }
           }
         });
+
+         // We need to decompose all vector parameters so that filters can be 
+        // applied correctly
+
+        for (var key in filteroptions) {
+          if(VECTOR_BREAKDOWN.hasOwnProperty(key)){
+            for (var i = 0; i < VECTOR_BREAKDOWN[key].length; i++) {
+              filteroptions[VECTOR_BREAKDOWN[key][i]] = {
+                uom: filteroptions[key].uom,
+                name: 'Component of '+filteroptions[key].name
+              };
+            }
+            delete filteroptions[key];
+          }
+        }
         
         var filterkeys = _.keys(this.currentFilters);
         for (var i = 0; i < filterkeys.length; i++) {
@@ -636,7 +651,6 @@
         if(filteroptions.hasOwnProperty('q_NEC_CRF')){delete filteroptions['q_NEC_CRF'];}
         if(filteroptions.hasOwnProperty('GPS_Position')){delete filteroptions['GPS_Position'];}
         if(filteroptions.hasOwnProperty('LEO_Position')){delete filteroptions['LEO_Position'];}
-        
         
            
 
