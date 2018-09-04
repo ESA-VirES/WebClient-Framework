@@ -25,7 +25,7 @@
             "views": [{
                 "id": "terrain-light",
                 "protocol": "WMTS",
-                "urlTemplate": "https://{s}.tiles.maps.eox.at/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=terrain-light&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fjpg",
+                "urlTemplate": "https://{s}.s2maps-tiles.eu/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=terrain-light&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fjpg",
                 "subdomains": "abcdef",
                 "urls": [
                     "//a.tiles.maps.eox.at/wmts/",
@@ -61,7 +61,7 @@
             "views": [{
                 "id": "terrain",
                 "protocol": "WMTS",
-                "urlTemplate": "https://{s}.tiles.maps.eox.at/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=terrain&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fjpg",
+                "urlTemplate": "https://{s}.s2maps-tiles.eu/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=terrain&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fjpg",
                 "subdomains": "abcdef",
                 "urls": [
                     "//a.tiles.maps.eox.at/wmts/",
@@ -97,7 +97,7 @@
             "views": [{
                 "id": "s2cloudless",
                 "protocol": "WMTS",
-                "urlTemplate": "https://{s}.tiles.maps.eox.at/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=s2cloudless&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fjpg",
+                "urlTemplate": "https://{s}.s2maps-tiles.eu/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=s2cloudless&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fjpg",
                 "subdomains": "abcdef",
                 "urls": [
                     "//a.tiles.maps.eox.at/wmts/",
@@ -3619,7 +3619,7 @@
             "tileSize":1024,
             "validity":{
                 "start": "2013-12-01T03:00:00Z",
-                "end": "2016-12-31T21:00:00Z"
+                "end": "2017-12-31T21:00:00Z"
             },
             "views": [{
                 "id": "MMA_SHA_2C-Primary_view",
@@ -3730,7 +3730,7 @@
             "tileSize":1024,
             "validity":{
                 "start": "2013-12-01T03:00:00Z",
-                "end": "2016-12-31T21:00:00Z"
+                "end": "2017-12-31T21:00:00Z"
             },
             "views": [{
                 "id": "MMA_SHA_2C-Secondary_view",
