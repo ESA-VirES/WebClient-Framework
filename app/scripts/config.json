@@ -3257,11 +3257,11 @@
             "download_parameters": {
                 "B_NEC_MIO_SHA_2C-Primary": {
                     "uom":"nT",
-                    "name": "MMA_SHA_2C-Primary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                    "name": "MIO_SHA_2C-Primary model magnetic field vector, NEC frame, calculated for each measurement time and location"
                 },
                 "F_MIO_SHA_2C-Primary": {
                     "uom":"nT",
-                    "name": "MMA_SHA_2C-Primary model magnetic field intensity calculated for each measurement time and location"
+                    "name": "MIO_SHA_2C-Primary model magnetic field intensity calculated for each measurement time and location"
                 },
                 "B_NEC_res_MIO_SHA_2C-Primary": {
                     "uom":"nT",
@@ -3368,11 +3368,11 @@
             "download_parameters": {
                 "B_NEC_MIO_SHA_2C-Secondary": {
                     "uom":"nT",
-                    "name": "MMA_SHA_2C-Secondary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                    "name": "MIO_SHA_2C-Secondary model magnetic field vector, NEC frame, calculated for each measurement time and location"
                 },
                 "F_MIO_SHA_2C-Secondary": {
                     "uom":"nT",
-                    "name": "MMA_SHA_2C-Secondary model magnetic field intensity calculated for each measurement time and location"
+                    "name": "MIO_SHA_2C-Secondary model magnetic field intensity calculated for each measurement time and location"
                 },
                 "B_NEC_res_MIO_SHA_2C-Secondary": {
                     "uom":"nT",
