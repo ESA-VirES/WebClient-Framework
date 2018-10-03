@@ -4412,6 +4412,228 @@
             "differenceTo": null
 
         },{
+            "name": "CHAOS-6-MMA-Primary",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "opacity": 0.7,
+            "tileSize":1024,
+            "validity":{
+                "start": "2013-01-01T00:00:00Z",
+                "end": "2018-09-30T00:00:00Z"
+            },
+            "views": [{
+                "id": "CHAOS-6-MMA-Primary_view",
+                "protocol": "WMS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "CHAOS-6-MMA-Primary",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "parameters": {
+                "F": {
+                    "range": [0, 80],
+                    "uom":"nT",
+                    "name": "Total field intensity",
+                    "colorscale": "jet",
+                    "selected": true
+                },
+                "H": {
+                    "range": [0, 60],
+                    "uom":"nT",
+                    "name": "Horizontal intensity",
+                    "colorscale": "jet"
+                },
+                "X": {
+                    "range": [-50, 30],
+                    "uom":"nT",
+                    "name": "North component",
+                    "colorscale": "diverging_1"
+                },
+                "Y": {
+                    "range": [-30, 50],
+                    "uom":"nT",
+                    "name": "East component",
+                    "colorscale": "diverging_1"
+                },
+                "Z": {
+                    "range": [-80, 50],
+                    "uom":"nT",
+                    "name": "Down component",
+                    "colorscale": "diverging_1"
+                },
+                "I": {
+                    "range": [-100, 100],
+                    "uom":"degree",
+                    "name": "Inclination",
+                    "colorscale": "diverging_1"
+                },
+                "D": {
+                    "range": [-200, 200],
+                    "uom":"degree",
+                    "name": "Declination",
+                    "colorscale": "diverging_1"
+                },
+                "X_EW": {
+                    "range": [-0.1, 0.1],
+                    "uom":"nT/km",
+                    "name": "North component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Y_EW": {
+                    "range": [-0.1, 0.1],
+                    "uom":"nT/km",
+                    "name": "East component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Z_EW": {
+                    "range": [-0.1, 0.1],
+                    "uom":"nT/km",
+                    "name": "Down component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                }
+            },
+            "download_parameters": {
+                "B_NEC_CHAOS-6-MMA-Primary": {
+                    "uom":"nT",
+                    "name": "CHAOS-6-MMA-Primary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_CHAOS-6-MMA-Primary": {
+                    "uom":"nT",
+                    "name": "CHAOS-6-MMA-Primary model magnetic field intensity calculated for each measurement time and location"
+                },
+                "B_NEC_res_CHAOS-6-MMA-Primary": {
+                    "uom":"nT",
+                    "name": "Residuals to CHAOS-6-MMA-Primary model of Magnetic field vector, NEC frame"
+                },
+                "F_res_CHAOS-6-MMA-Primary": {
+                    "uom":"nT",
+                    "name": "Residuals of Magnetic field intensity to CHAOS-6-MMA-Primary model"
+                }
+            },
+            "height": 450,
+            "model": true,
+            "coefficients_range": [-1,-1],
+            "differenceTo": null
+
+        },{
+            "name": "CHAOS-6-MMA-Secondary",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "opacity": 0.7,
+            "tileSize":1024,
+            "validity":{
+                "start": "2013-01-01T00:00:00Z",
+                "end": "2018-09-30T00:00:00Z"
+            },
+            "views": [{
+                "id": "CHAOS-6-MMA-Secondary_view",
+                "protocol": "WMS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "CHAOS-6-MMA-Secondary",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "parameters": {
+                "F": {
+                    "range": [0, 7],
+                    "uom":"nT",
+                    "name": "Total field intensity",
+                    "colorscale": "jet",
+                    "selected": true
+                },
+                "H": {
+                    "range": [0, 4.5],
+                    "uom":"nT",
+                    "name": "Horizontal intensity",
+                    "colorscale": "jet"
+                },
+                "X": {
+                    "range": [-4, 5],
+                    "uom":"nT",
+                    "name": "North component",
+                    "colorscale": "diverging_1"
+                },
+                "Y": {
+                    "range": [-3, 3],
+                    "uom":"nT",
+                    "name": "East component",
+                    "colorscale": "diverging_1"
+                },
+                "Z": {
+                    "range": [-7, 6],
+                    "uom":"nT",
+                    "name": "Down component",
+                    "colorscale": "diverging_1"
+                },
+                "I": {
+                    "range": [-100, 100],
+                    "uom":"degree",
+                    "name": "Inclination",
+                    "colorscale": "diverging_1"
+                },
+                "D": {
+                    "range": [-200, 200],
+                    "uom":"degree",
+                    "name": "Declination",
+                    "colorscale": "diverging_1"
+                },
+                "X_EW": {
+                    "range": [-0.004, 0.004],
+                    "uom":"nT/km",
+                    "name": "North component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Y_EW": {
+                    "range": [-0.005, 0.003],
+                    "uom":"nT/km",
+                    "name": "East component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Z_EW": {
+                    "range": [-0.0025, 0.002],
+                    "uom":"nT/km",
+                    "name": "Down component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                }
+            },
+            "download_parameters": {
+                "B_NEC_CHAOS-6-MMA-Secondary": {
+                    "uom":"nT",
+                    "name": "CHAOS-6-MMA-Secondary model magnetic field vector, NEC frame, calculated for each measurement time and location"
+                },
+                "F_CHAOS-6-MMA-Secondary": {
+                    "uom":"nT",
+                    "name": "CHAOS-6-MMA-Secondary model magnetic field intensity calculated for each measurement time and location"
+                },
+                "B_NEC_res_CHAOS-6-MMA-Secondary": {
+                    "uom":"nT",
+                    "name": "Residuals to CHAOS-6-MMA-Secondary model of Magnetic field vector, NEC frame"
+                },
+                "F_res_CHAOS-6-MMA-Secondary": {
+                    "uom":"nT",
+                    "name": "Residuals of Magnetic field intensity to CHAOS-6-MMA-Secondary model"
+                }
+            },
+            "height": 450,
+            "model": true,
+            "coefficients_range": [-1,-1],
+            "differenceTo": null
+
+        },{
             "name": "Custom Model",
             "visible": false,
             "timeSlider": false,

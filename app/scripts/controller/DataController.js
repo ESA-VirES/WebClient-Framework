@@ -292,10 +292,12 @@
             "F_MLI_SHA_2D", "B_NEC_MLI_SHA_2D", "F_res_MLI_SHA_2D", "B_NEC_res_MLI_SHA_2D",
             "F_MMA_SHA_2C-Primary", "B_NEC_MMA_SHA_2C-Primary", "F_res_MMA_SHA_2C-Primary", "B_NEC_res_MMA_SHA_2C-Primary",
             "F_MMA_SHA_2F-Primary", "B_NEC_MMA_SHA_2F-Primary", "F_res_MMA_SHA_2F-Primary", "B_NEC_res_MMA_SHA_2F-Primary",
+            "F_CHAOS-6-MMA-Primary", "B_NEC_CHAOS-6-MMA-Primary", "F_res_CHAOS-6-MMA-Primary", "B_NEC_res_CHAOS-6-MMA-Primary",
             "F_MIO_SHA_2C-Primary", "B_NEC_MIO_SHA_2C-Primary", "F_res_MIO_SHA_2C-Primary", "B_NEC_res_MIO_SHA_2C-Primary",
             "F_MIO_SHA_2D-Primary", "B_NEC_MIO_SHA_2D-Primary", "F_res_MIO_SHA_2D-Primary", "B_NEC_res_MIO_SHA_2D-Primary",
             "F_MMA_SHA_2C-Secondary", "B_NEC_MMA_SHA_2C-Secondary", "F_res_MMA_SHA_2C-Secondary", "B_NEC_res_MMA_SHA_2C-Secondary",
             "F_MMA_SHA_2F-Secondary", "B_NEC_MMA_SHA_2F-Secondary", "F_res_MMA_SHA_2F-Secondary", "B_NEC_res_MMA_SHA_2F-Secondary",
+            "F_CHAOS-6-MMA-Secondary", "B_NEC_CHAOS-6-MMA-Secondary", "F_res_CHAOS-6-MMA-Secondary", "B_NEC_res_CHAOS-6-MMA-Secondary",
             "F_MIO_SHA_2C-Secondary", "B_NEC_MIO_SHA_2C-Secondary", "F_res_MIO_SHA_2C-Secondary", "B_NEC_res_MIO_SHA_2C-Secondary",
             "F_MIO_SHA_2D-Secondary", "B_NEC_MIO_SHA_2D-Secondary", "F_res_MIO_SHA_2D-Secondary", "B_NEC_res_MIO_SHA_2D-Secondary",
             "IMF_V", "IMF_BY_GSM", "IMF_BZ_GSM", "F10_INDEX"
