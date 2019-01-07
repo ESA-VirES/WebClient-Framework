@@ -311,7 +311,6 @@ define(['backbone.marionette',
             this.separateVector('B_error', 'B_error', ['X', 'Y', 'Z'], '_');
             this.separateVector('B', 'B_NEC', ['N', 'E', 'C'], '_');
             this.separateVector('B', 'B_NEC', ['N', 'E', 'C'], '_');
-            this.separateVector('v_SC', 'v_SC', ['N', 'E', 'C'], '_');
             this.separateVector('B_VFM', 'B_VFM', ['X', 'Y', 'Z'], '_');
             this.separateVector('B', 'B_NEC_resAC',
                 ['resAC_N', 'resAC_E', 'resAC_C'], '_'
@@ -539,7 +538,7 @@ define(['backbone.marionette',
                     if (!_.isEqual(this.prevParams, idKeys)){
                         // Define which parameters should be selected defaultwise as filtering
                         var filterstouse = [
-                            'n', 'T_elec', 'Bubble_Probability',
+                            'Ne', 'Te', 'Bubble_Probability',
                             'Relative_STEC_RMS', 'Relative_STEC', 'Absolute_STEC',
                             'IRC', 'FAC',
                             'EEF'
