@@ -726,7 +726,7 @@
             "satellite": "Swarm"
 
         },{
-            "name": "EFIB PL 1B",
+            "name": "EFIB LP 1B",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
@@ -868,7 +868,7 @@
             "satellite": "Swarm"
 
         },{
-            "name": "EFIC PL 1B",
+            "name": "EFIC LP 1B",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
