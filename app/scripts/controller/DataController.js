@@ -274,8 +274,8 @@
 
           
           var variables = [
-            "F", "F_error", "B_NEC_resAC", "B_VFM", "B_error", "B_NEC", "n", "T_elec", "U_SC",
-            "v_SC", "Bubble_Probability", "Kp", "Dst", "F107", "QDLat", "QDLon", "MLT",
+            "F", "F_error", "B_NEC_resAC", "B_VFM", "B_error", "B_NEC", "Ne", "Te", "Vs",
+            "U_orbit", "Bubble_Probability", "Kp", "Dst", "F107", "QDLat", "QDLon", "MLT",
             "F_IGRF12", "B_NEC_IGRF12", "F_res_IGRF12", "B_NEC_res_IGRF12",
             "F_SIFM", "B_NEC_SIFM", "F_res_SIFM", "B_NEC_res_SIFM",
             "F_CHAOS-6-Combined", "B_NEC_CHAOS-6-Combined",
