@@ -38,7 +38,7 @@ define(['backbone.marionette',
             this.overlay = null;
             this.activeWPSproducts = [];
             this.plotType = 'scatter';
-            this.prevParams = null;
+            this.prevParams = [];
             this.fieldsforfiltering = [];
 
 
@@ -524,15 +524,7 @@ define(['backbone.marionette',
                         this.graph.debounceActive = true;
                     }
 
-
-
-                    if(this.prevParams === null){
-                        // First time loading data we set previous to current data
-                        this.prevParams = idKeys;
-                    }
-
                     var needsResize = false;
-
 
                     // If data parameters have changed
                     if (!_.isEqual(this.prevParams, idKeys)){
@@ -600,7 +592,7 @@ define(['backbone.marionette',
                         // If previous does not contain key data and new one
                         // does we add key parameter to selection in plot
                         var parasToCheck = [
-                            'n', 'F', 'Bubble_Probability', 'Absolute_STEC', 'FAC', 'EEF'
+                            'Ne', 'F', 'Bubble_Probability', 'Absolute_STEC', 'FAC', 'EEF'
                         ];
 
                         // Check if y axis parameters are still available
