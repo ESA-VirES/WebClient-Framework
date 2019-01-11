@@ -38,7 +38,7 @@ define(['backbone.marionette',
             this.overlay = null;
             this.activeWPSproducts = [];
             this.plotType = 'scatter';
-            this.prevParams = null;
+            this.prevParams = [];
             this.fieldsforfiltering = [];
 
 
@@ -311,7 +311,6 @@ define(['backbone.marionette',
             this.separateVector('B_error', 'B_error', ['X', 'Y', 'Z'], '_');
             this.separateVector('B', 'B_NEC', ['N', 'E', 'C'], '_');
             this.separateVector('B', 'B_NEC', ['N', 'E', 'C'], '_');
-            this.separateVector('v_SC', 'v_SC', ['N', 'E', 'C'], '_');
             this.separateVector('B_VFM', 'B_VFM', ['X', 'Y', 'Z'], '_');
             this.separateVector('B', 'B_NEC_resAC',
                 ['resAC_N', 'resAC_E', 'resAC_C'], '_'
@@ -525,21 +524,13 @@ define(['backbone.marionette',
                         this.graph.debounceActive = true;
                     }
 
-
-
-                    if(this.prevParams === null){
-                        // First time loading data we set previous to current data
-                        this.prevParams = idKeys;
-                    }
-
                     var needsResize = false;
-
 
                     // If data parameters have changed
                     if (!_.isEqual(this.prevParams, idKeys)){
                         // Define which parameters should be selected defaultwise as filtering
                         var filterstouse = [
-                            'n', 'T_elec', 'Bubble_Probability',
+                            'Ne', 'Te', 'Bubble_Probability',
                             'Relative_STEC_RMS', 'Relative_STEC', 'Absolute_STEC',
                             'IRC', 'FAC',
                             'EEF'
@@ -601,7 +592,7 @@ define(['backbone.marionette',
                         // If previous does not contain key data and new one
                         // does we add key parameter to selection in plot
                         var parasToCheck = [
-                            'n', 'F', 'Bubble_Probability', 'Absolute_STEC', 'FAC', 'EEF'
+                            'Ne', 'F', 'Bubble_Probability', 'Absolute_STEC', 'FAC', 'EEF'
                         ];
 
                         // Check if y axis parameters are still available
