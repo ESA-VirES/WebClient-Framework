@@ -281,7 +281,7 @@
             "F_res_CHAOS-6-Combined", "F_res_Custom_Model",
             "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "GPS_Position", "LEO_Position",
             "IRC", "IRC_Error", "FAC", "FAC_Error",
-            "EEF", "RelErr", "OrbitNumber",
+            "EEF", "RelErr", "OrbitNumber", "OrbitDirection", "QDOrbitDirection",
             "SunDeclination","SunRightAscension","SunHourAngle","SunAzimuthAngle","SunZenithAngle",
             // New models
             "F_res_MCO_SHA_2C", "B_NEC_res_MCO_SHA_2C",

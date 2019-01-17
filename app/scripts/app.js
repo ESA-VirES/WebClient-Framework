@@ -326,6 +326,14 @@ function productSortingFunction(a, b) {
                             "uom": "deg",
                             "name": "Sun zenith angle"
                         };
+                        mapConfProds[i].download_parameters['OrbitDirection'] = {
+                            "uom": null,
+                            "name": "Orbit direction in geographic coodinates."
+                        };
+                        mapConfProds[i].download_parameters['QDOrbitDirection'] = {
+                            "uom": null,
+                            "name": "Orbit direction in quasi-dipole coodinates."
+                        };
                     }
                 }
 
