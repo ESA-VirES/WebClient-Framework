@@ -269,11 +269,11 @@
                 },
                 "QDLat": {
                     "uom": "deg",
-                    "name": "Quasi dipole latitude"
+                    "name": "Quasi-dipole latitude"
                 },
                 "QDLon": {
                     "uom": "deg",
-                    "name": "Quasi dipole longitude"
+                    "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
                     "uom": null,
@@ -418,11 +418,11 @@
                 },
                 "QDLat": {
                     "uom": "deg",
-                    "name": "Quasi dipole latitude"
+                    "name": "Quasi-dipole latitude"
                 },
                 "QDLon": {
                     "uom": "deg",
-                    "name": "Quasi dipole longitude"
+                    "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
                     "uom": null,
@@ -566,11 +566,11 @@
                 },
                 "QDLat": {
                     "uom": "deg",
-                    "name": "Quasi dipole latitude"
+                    "name": "Quasi-dipole latitude"
                 },
                 "QDLon": {
                     "uom": "deg",
-                    "name": "Quasi dipole longitude"
+                    "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
                     "uom": null,
@@ -702,11 +702,11 @@
                 },
                 "QDLat": {
                     "uom": "deg",
-                    "name": "Quasi dipole latitude"
+                    "name": "Quasi-dipole latitude"
                 },
                 "QDLon": {
                     "uom": "deg",
-                    "name": "Quasi dipole longitude"
+                    "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
                     "uom": null,
@@ -844,11 +844,11 @@
                 },
                 "QDLat": {
                     "uom": "deg",
-                    "name": "Quasi dipole latitude"
+                    "name": "Quasi-dipole latitude"
                 },
                 "QDLon": {
                     "uom": "deg",
-                    "name": "Quasi dipole longitude"
+                    "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
                     "uom": null,
@@ -986,11 +986,11 @@
                 },
                 "QDLat": {
                     "uom": "deg",
-                    "name": "Quasi dipole latitude"
+                    "name": "Quasi-dipole latitude"
                 },
                 "QDLon": {
                     "uom": "deg",
-                    "name": "Quasi dipole longitude"
+                    "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
                     "uom": null,
@@ -1130,11 +1130,11 @@
                 },
                 "QDLat": {
                     "uom": "deg",
-                    "name": "Quasi dipole latitude"
+                    "name": "Quasi-dipole latitude"
                 },
                 "QDLon": {
                     "uom": "deg",
-                    "name": "Quasi dipole longitude"
+                    "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
                     "uom": null,
@@ -1274,11 +1274,11 @@
                 },
                 "QDLat": {
                     "uom": "deg",
-                    "name": "Quasi dipole latitude"
+                    "name": "Quasi-dipole latitude"
                 },
                 "QDLon": {
                     "uom": "deg",
-                    "name": "Quasi dipole longitude"
+                    "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
                     "uom": null,
@@ -1418,11 +1418,11 @@
                 },
                 "QDLat": {
                     "uom": "deg",
-                    "name": "Quasi dipole latitude"
+                    "name": "Quasi-dipole latitude"
                 },
                 "QDLon": {
                     "uom": "deg",
-                    "name": "Quasi dipole longitude"
+                    "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
                     "uom": null,
@@ -1532,11 +1532,11 @@
                 },
                 "QDLat": {
                     "uom": "deg",
-                    "name": "Quasi dipole latitude"
+                    "name": "Quasi-dipole latitude"
                 },
                 "QDLon": {
                     "uom": "deg",
-                    "name": "Quasi dipole longitude"
+                    "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
                     "uom": null,
@@ -1645,11 +1645,11 @@
                 },
                 "QDLat": {
                     "uom": "deg",
-                    "name": "Quasi dipole latitude"
+                    "name": "Quasi-dipole latitude"
                 },
                 "QDLon": {
                     "uom": "deg",
-                    "name": "Quasi dipole longitude"
+                    "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
                     "uom": null,
@@ -1758,11 +1758,11 @@
                 },
                 "QDLat": {
                     "uom": "deg",
-                    "name": "Quasi dipole latitude"
+                    "name": "Quasi-dipole latitude"
                 },
                 "QDLon": {
                     "uom": "deg",
-                    "name": "Quasi dipole longitude"
+                    "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
                     "uom": null,
@@ -1871,11 +1871,11 @@
                 },
                 "QDLat": {
                     "uom": "deg",
-                    "name": "Quasi dipole latitude"
+                    "name": "Quasi-dipole latitude"
                 },
                 "QDLon": {
                     "uom": "deg",
-                    "name": "Quasi dipole longitude"
+                    "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
                     "uom": null,
@@ -2113,11 +2113,11 @@
                 },
                 "QDLat": {
                     "uom": "deg",
-                    "name": "Quasi dipole latitude"
+                    "name": "Quasi-dipole latitude"
                 },
                 "QDLon": {
                     "uom": "deg",
-                    "name": "Quasi dipole longitude"
+                    "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
                     "uom": null,
@@ -2213,11 +2213,11 @@
                 },
                 "QDLat": {
                     "uom": "deg",
-                    "name": "Quasi dipole latitude"
+                    "name": "Quasi-dipole latitude"
                 },
                 "QDLon": {
                     "uom": "deg",
-                    "name": "Quasi dipole longitude"
+                    "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
                     "uom": null,
@@ -2313,11 +2313,11 @@
                 },
                 "QDLat": {
                     "uom": "deg",
-                    "name": "Quasi dipole latitude"
+                    "name": "Quasi-dipole latitude"
                 },
                 "QDLon": {
                     "uom": "deg",
-                    "name": "Quasi dipole longitude"
+                    "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
                     "uom": null,
