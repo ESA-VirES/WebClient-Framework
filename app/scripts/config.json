@@ -9,6 +9,10 @@
 
     "storyTemplate": "UseCaseTestTemplate",
 
+    "magneticModels": {
+        "infoUrl": "http://localhost:9000/vires00/ows"
+    },
+
     "mapConfig": {
         "model": "models/MapModel",
         "visualizationLibs": [],
@@ -2347,7 +2351,7 @@
                 "end": "2017-01-01T00:00:00Z"
             },
             "views": [{
-                "id": "MCO_SHA_2C_view",
+                "id": "MCO_SHA_2C",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -2450,7 +2454,7 @@
                 "end": "2016-12-28T08:09:36Z"
             },
             "views": [{
-                "id": "MCO_SHA_2D_view",
+                "id": "MCO_SHA_2D",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -2553,7 +2557,7 @@
                 "end": "2016-05-26T09:36:00Z"
             },
             "views": [{
-                "id": "MCO_SHA_2F_view",
+                "id": "MCO_SHA_2F",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -2656,7 +2660,7 @@
                 "end": "2100-01-01T00:00:00Z"
             },
             "views": [{
-                "id": "MLI_SHA_2C_view",
+                "id": "MLI_SHA_2C",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -2759,7 +2763,7 @@
                 "end": "2100-01-01T00:00:00Z"
             },
             "views": [{
-                "id": "MLI_SHA_2D_view",
+                "id": "MLI_SHA_2D",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -2862,7 +2866,7 @@
                 "end": "2100-01-01T00:00:00Z"
             },
             "views": [{
-                "id": "MIO_SHA_2C-Primary_view",
+                "id": "MIO_SHA_2C-Primary",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -2965,7 +2969,7 @@
                 "end": "2100-01-01T00:00:00Z"
             },
             "views": [{
-                "id": "MIO_SHA_2C-Secondary_view",
+                "id": "MIO_SHA_2C-Secondary",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -3068,7 +3072,7 @@
                 "end": "2100-01-01T00:00:00Z"
             },
             "views": [{
-                "id": "MIO_SHA_2D-Primary_view",
+                "id": "MIO_SHA_2D-Primary",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -3171,7 +3175,7 @@
                 "end": "2100-01-01T00:00:00Z"
             },
             "views": [{
-                "id": "MIO_SHA_2D-Secondary_view",
+                "id": "MIO_SHA_2D-Secondary",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -3274,7 +3278,7 @@
                 "end": "2017-12-31T21:00:00Z"
             },
             "views": [{
-                "id": "MMA_SHA_2C-Primary_view",
+                "id": "MMA_SHA_2C-Primary",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -3377,7 +3381,7 @@
                 "end": "2017-12-31T21:00:00Z"
             },
             "views": [{
-                "id": "MMA_SHA_2C-Secondary_view",
+                "id": "MMA_SHA_2C-Secondary",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -3480,7 +3484,7 @@
                 "end": "2020-01-01T00:00:00Z"
             },
             "views": [{
-                "id": "MMA_SHA_2F-Primary_view",
+                "id": "MMA_SHA_2F-Primary",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -3583,7 +3587,7 @@
                 "end": "2020-01-01T00:00:00Z"
             },
             "views": [{
-                "id": "MMA_SHA_2F-Secondary_view",
+                "id": "MMA_SHA_2F-Secondary",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -3686,7 +3690,7 @@
                 "end": "2015-07-01T02:42:43Z"
             },
             "views": [{
-                "id": "SIFM_view",
+                "id": "SIFM",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -3797,7 +3801,7 @@
                 "end": "2020-01-01T00:00:00Z"
             },
             "views": [{
-                "id": "IGRF12_view",
+                "id": "IGRF12",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -3908,7 +3912,7 @@
                 "end": "2019-02-06T17:15:21Z"
             },
             "views": [{
-                "id": "CHAOS-6-Combined_view",
+                "id": "CHAOS-6-Combined",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -4010,7 +4014,7 @@
         },{
             "name": "Custom Model",
             "visible": false,
-            "timeSlider": false,
+            "timeSlider": true,
             "views": [{
                 "id": "shc",
                 "protocol": "WPS",

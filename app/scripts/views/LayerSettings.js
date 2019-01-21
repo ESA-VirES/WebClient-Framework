@@ -795,9 +795,17 @@
                 var reader = new FileReader();
                 var filename = evt.target.files[0].name;
                 reader.onloadend = function(evt) {
-                    //console.log(evt.target.result);
                     that.current_model.set('shc', evt.target.result);
                     that.current_model.set('shc_name', filename);
+
+                    var magnetic_model = globals.models.get(that.current_model.get('download').id);
+                    if (magnetic_model) {
+                      magnetic_model.set({
+                        shc: evt.target.result,
+                        shc_name: filename
+                      });
+                      magnetic_model.fetch();
+                    }
 
                     // Save shc file to localstorage
                     localStorage.setItem('shcFile', JSON.stringify({
