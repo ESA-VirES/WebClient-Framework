@@ -3,12 +3,11 @@
   var root = this;
   var dependencies = [
     'backbone',
-    'communicator',
     'hbs!tmpl/wps_getModelInfo',
     'underscore'
   ];
 
-  function init(Backbone, Communicator, wps_getModelInfoTmpl) {
+  function init(Backbone, wps_getModelInfoTmpl) {
 
     function _fetch_wrapper(this_, options) {
       if (this_.isFetching) {

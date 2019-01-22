@@ -2006,7 +2006,8 @@ define([
                     if(product.get('timeSlider')){
                         product.set('time',string);
                         var cesLayer = product.get('ces_layer');
-                        if(cesLayer){
+                        if(cesLayer && 
+                           (typeof cesLayer.imageryProvider.updateProperties === 'function') ){
                             cesLayer.imageryProvider.updateProperties('time', string);
                             if (cesLayer.show){
                                 var index = this.map.scene.imageryLayers.indexOf(cesLayer);
