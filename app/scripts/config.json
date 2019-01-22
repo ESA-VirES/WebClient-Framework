@@ -4015,6 +4015,7 @@
             "name": "Custom Model",
             "visible": false,
             "timeSlider": true,
+            "timeSliderProtocol": "WPS",
             "views": [{
                 "id": "shc",
                 "protocol": "WPS",

@@ -263,6 +263,11 @@ function productSortingFunction(a, b) {
                     var m_p = config.mapConfig.products;
                     for (var i = 0; i < m_p.length; i++) {
 
+                        // Always load timesliderprotocol from original config
+                        if(m_p[i].hasOwnProperty('timeSliderProtocol')){
+                            product_config[i].timeSliderProtocol = m_p[i].timeSliderProtocol;
+                        }
+
                         // Check if MAG A product has new residual parameter loaded
                         if(product_config[i].download.id === 'SW_OPER_MAGA_LR_1B'){
                             if(!product_config[i].parameters.hasOwnProperty('B_NEC_resAC')){

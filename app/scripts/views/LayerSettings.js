@@ -591,6 +591,14 @@
                 Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
             },
 
+            handleRangeResponeSHC: function(evt, response){
+                this.handleRangeRespone(response);
+                var params = { name: this.current_model.get("name"), isBaseLayer: false, visible: false };
+                Communicator.mediator.trigger('map:layer:change', params);
+                Communicator.mediator.trigger("file:shc:loaded", evt.target.result);
+                Communicator.mediator.trigger("layer:activate", this.current_model.get("views")[0].id);
+            },
+
             handleRangeResponseError: function(response){
                 showMessage(
                     'warning', 
@@ -839,7 +847,7 @@
                             });
 
                             $.post(that.current_model.get("download").url, payload)
-                                .success(that.handleRangeRespone.bind(that))
+                                .success(that.handleRangeResponeSHC.bind(that, evt))
                                 .fail(that.handleRangeResponseError)
                                 .always(that.handleRangeChange.bind(that));
                         }
