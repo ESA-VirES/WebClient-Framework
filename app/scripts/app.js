@@ -1,11 +1,11 @@
 
 var SCALAR_PARAM = [
-    "F", "n", "T_elec", "U_SC", "Bubble_Index", "Bubble_Probability",
+    "F", "Ne", "Te", "Vs", "U_orbit", "Bubble_Index", "Bubble_Probability",
     "IRC", "FAC", "EEF"
 ];
 
 var VECTOR_PARAM = [
-    "B_NEC", "v_SC", "SIFM", "IGRF12", "CHAOS-6-Combined", "Custom_Model",
+    "B_NEC", "SIFM", "IGRF12", "CHAOS-6-Combined", "Custom_Model",
     "B_NEC_resAC", "GPS_Position", "LEO_Position", "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC",
     "MCO_SHA_2C", "MCO_SHA_2D", "MCO_SHA_2F", "MLI_SHA_2C", "MLI_SHA_2D", 
     "MMA_SHA_2C-Primary", "MMA_SHA_2C-Secondary", "MMA_SHA_2F-Primary", "MMA_SHA_2F-Secondary",
@@ -37,7 +37,6 @@ var VECTOR_BREAKDOWN = {
     'B_NEC_resAC': ['B_resAC_N','B_resAC_E','B_resAC_C'],
     'B_error': ['B_error_X', 'B_error_Y', 'B_error_Z'],
     'B_VFM': ['B_VFM_X', 'B_VFM_Y', 'B_VFM_Z'],
-    'v_SC':  ['v_SC_N','v_SC_E','v_SC_C'],
     'GPS_Position':  ['GPS_Position_X','GPS_Position_Y','GPS_Position_Z'],
     'LEO_Position':  ['LEO_Position_X','LEO_Position_Y','LEO_Position_Z'],
     'B_NEC_res_SIFM': ['B_N_res_SIFM','B_E_res_SIFM','B_C_res_SIFM'],
@@ -66,7 +65,7 @@ var VECTOR_BREAKDOWN = {
 // needs to be first as the master product needs to be the same
 var MASTER_PRIORITY = [
     'SW_OPER_FACATMS_2F', 'SW_OPER_FACBTMS_2F', 'SW_OPER_FACCTMS_2F', 'SW_OPER_FAC_TMS_2F',
-    'SW_OPER_EFIA_PL_1B', 'SW_OPER_EFIB_PL_1B', 'SW_OPER_EFIC_PL_1B',
+    'SW_OPER_EFIA_LP_1B', 'SW_OPER_EFIB_LP_1B', 'SW_OPER_EFIC_LP_1B',
     'SW_OPER_MAGA_LR_1B', 'SW_OPER_MAGB_LR_1B', 'SW_OPER_MAGC_LR_1B',
     'SW_OPER_TECATMS_2F', 'SW_OPER_TECBTMS_2F', 'SW_OPER_TECCTMS_2F',
     'SW_OPER_IBIATMS_2F', 'SW_OPER_IBIBTMS_2F', 'SW_OPER_IBICTMS_2F',
@@ -267,6 +266,11 @@ function productSortingFunction(a, b) {
                     var m_p = config.mapConfig.products;
                     for (var i = 0; i < m_p.length; i++) {
 
+                        // Always load timesliderprotocol from original config
+                        if(m_p[i].hasOwnProperty('timeSliderProtocol')){
+                            product_config[i].timeSliderProtocol = m_p[i].timeSliderProtocol;
+                        }
+
                         // Check if MAG A product has new residual parameter loaded
                         if(product_config[i].download.id === 'SW_OPER_MAGA_LR_1B'){
                             if(!product_config[i].parameters.hasOwnProperty('B_NEC_resAC')){
@@ -371,6 +375,8 @@ function productSortingFunction(a, b) {
                     }
 
                     if(lm.get('model')){
+                        // register magnetic model
+                        globals.models.add({name: lm.get('download').id});
                         lm.set('contours', defaultFor( product.contours,false));
                         lm.set('differenceTo', defaultFor( 
                             product.differenceTo, null)
@@ -378,11 +384,16 @@ function productSortingFunction(a, b) {
                     }
 
                     if(lm.get('download').id === 'Custom_Model'){
+                        globals.models.customModelId = 'Custom_Model';
                         var shcFile = localStorage.getItem('shcFile');
                         if(shcFile !== null){
                             shcFile = JSON.parse(shcFile);
                             lm.set('shc', shcFile.data);
                             lm.set('shc_name', shcFile.name);
+                            globals.models.get(lm.get('download').id).set({
+                              'shc': shcFile.data,
+                              'shc_name': shcFile.name
+                            });
                         }
                     }
                     
@@ -399,6 +410,20 @@ function productSortingFunction(a, b) {
                 var productcolors = d3.scale.ordinal().domain(domain).range(range);
 
                 globals.objects.add('productcolors', productcolors);
+
+                // periodic update magnetic models' metadata
+                globals.models.url = config.magneticModels.infoUrl;
+                globals.models.on('fetch:success', function () {
+                  if (this.customModelId && !this.get(this.customModelId))
+                  {
+                    this.add({name: this.customModelId});
+                  }
+                  Communicator.mediator.trigger('models:update');
+                });
+
+                globals.models.fetch()
+                window.setInterval(function () {globals.models.fetch();}, 900000); // refresh each 15min
+
 
                 // If there is already saved overly configuration use that
                 if(localStorage.getItem('overlaysConfig') !== null){
@@ -517,9 +542,9 @@ function productSortingFunction(a, b) {
                         "Charlie": "SW_OPER_MAGC_LR_1B"
                     },
                     "EFI":  {
-                        "Alpha": "SW_OPER_EFIA_PL_1B",
-                        "Bravo": "SW_OPER_EFIB_PL_1B",
-                        "Charlie": "SW_OPER_EFIC_PL_1B"
+                        "Alpha": "SW_OPER_EFIA_LP_1B",
+                        "Bravo": "SW_OPER_EFIB_LP_1B",
+                        "Charlie": "SW_OPER_EFIC_LP_1B"
                     },
                     "IBI":  {
                         "Alpha": "SW_OPER_IBIATMS_2F",
@@ -648,7 +673,7 @@ function productSortingFunction(a, b) {
                     id: "IBI"
                 }, {at: 0});
                 filtered_collection.add({
-                    name: "Plasma data (EFI PL)",
+                    name: "Plasma data (EFI LP)",
                     visible: containerSelection['EFI'],
                     color: "#ff7f0e",
                     protocol: null,
