@@ -2346,10 +2346,6 @@
             "timeSliderProtocol": "WPS",
             "opacity": 0.7,
             "tileSize":1024,
-            "validity":{
-                "start": "2013-12-01T00:16:34Z",
-                "end": "2017-01-01T00:00:00Z"
-            },
             "views": [{
                 "id": "MCO_SHA_2C",
                 "protocol": "WMS",
@@ -2449,10 +2445,6 @@
             "timeSliderProtocol": "WPS",
             "opacity": 0.7,
             "tileSize":1024,
-            "validity":{
-                "start": "2013-11-25T12:00:00Z",
-                "end": "2016-12-28T08:09:36Z"
-            },
             "views": [{
                 "id": "MCO_SHA_2D",
                 "protocol": "WMS",
@@ -2552,10 +2544,6 @@
             "timeSliderProtocol": "WPS",
             "opacity": 0.7,
             "tileSize":1024,
-            "validity":{
-                "start": "2013-11-25T12:00:00Z",
-                "end": "2016-05-26T09:36:00Z"
-            },
             "views": [{
                 "id": "MCO_SHA_2F",
                 "protocol": "WMS",
@@ -2655,10 +2643,6 @@
             "timeSliderProtocol": "WPS",
             "opacity": 0.7,
             "tileSize":1024,
-            "validity":{
-                "start": "1900-01-01T00:00:00Z",
-                "end": "2100-01-01T00:00:00Z"
-            },
             "views": [{
                 "id": "MLI_SHA_2C",
                 "protocol": "WMS",
@@ -2758,10 +2742,6 @@
             "timeSliderProtocol": "WPS",
             "opacity": 0.7,
             "tileSize":1024,
-            "validity":{
-                "start": "1900-01-01T00:00:00Z",
-                "end": "2100-01-01T00:00:00Z"
-            },
             "views": [{
                 "id": "MLI_SHA_2D",
                 "protocol": "WMS",
@@ -2861,10 +2841,6 @@
             "timeSliderProtocol": "WPS",
             "opacity": 0.7,
             "tileSize":1024,
-            "validity":{
-                "start": "1900-01-01T00:00:00Z",
-                "end": "2100-01-01T00:00:00Z"
-            },
             "views": [{
                 "id": "MIO_SHA_2C-Primary",
                 "protocol": "WMS",
@@ -2964,10 +2940,6 @@
             "timeSliderProtocol": "WPS",
             "opacity": 0.7,
             "tileSize":1024,
-            "validity":{
-                "start": "1900-01-01T00:00:00Z",
-                "end": "2100-01-01T00:00:00Z"
-            },
             "views": [{
                 "id": "MIO_SHA_2C-Secondary",
                 "protocol": "WMS",
@@ -3067,10 +3039,6 @@
             "timeSliderProtocol": "WPS",
             "opacity": 0.7,
             "tileSize":1024,
-            "validity":{
-                "start": "1900-01-01T00:00:00Z",
-                "end": "2100-01-01T00:00:00Z"
-            },
             "views": [{
                 "id": "MIO_SHA_2D-Primary",
                 "protocol": "WMS",
@@ -3170,10 +3138,6 @@
             "timeSliderProtocol": "WPS",
             "opacity": 0.7,
             "tileSize":1024,
-            "validity":{
-                "start": "1900-01-01T00:00:00Z",
-                "end": "2100-01-01T00:00:00Z"
-            },
             "views": [{
                 "id": "MIO_SHA_2D-Secondary",
                 "protocol": "WMS",
@@ -3273,10 +3237,6 @@
             "timeSliderProtocol": "WPS",
             "opacity": 0.7,
             "tileSize":1024,
-            "validity":{
-                "start": "2013-12-01T03:00:00Z",
-                "end": "2017-12-31T21:00:00Z"
-            },
             "views": [{
                 "id": "MMA_SHA_2C-Primary",
                 "protocol": "WMS",
@@ -3376,10 +3336,6 @@
             "timeSliderProtocol": "WPS",
             "opacity": 0.7,
             "tileSize":1024,
-            "validity":{
-                "start": "2013-12-01T03:00:00Z",
-                "end": "2017-12-31T21:00:00Z"
-            },
             "views": [{
                 "id": "MMA_SHA_2C-Secondary",
                 "protocol": "WMS",
@@ -3479,10 +3435,6 @@
             "timeSliderProtocol": "WPS",
             "opacity": 0.7,
             "tileSize":1024,
-            "validity":{
-                "start": "2013-11-26T00:45:00Z",
-                "end": "2020-01-01T00:00:00Z"
-            },
             "views": [{
                 "id": "MMA_SHA_2F-Primary",
                 "protocol": "WMS",
@@ -3582,10 +3534,6 @@
             "timeSliderProtocol": "WPS",
             "opacity": 0.7,
             "tileSize":1024,
-            "validity":{
-                "start": "2013-11-26T00:45:00Z",
-                "end": "2020-01-01T00:00:00Z"
-            },
             "views": [{
                 "id": "MMA_SHA_2F-Secondary",
                 "protocol": "WMS",
@@ -3685,10 +3633,6 @@
             "timeSliderProtocol": "WPS",
             "opacity": 0.7,
             "tileSize":1024,
-            "validity":{
-                "start": "2013-07-01T14:58:33Z",
-                "end": "2015-07-01T02:42:43Z"
-            },
             "views": [{
                 "id": "SIFM",
                 "protocol": "WMS",
@@ -3796,10 +3740,6 @@
             "timeSliderProtocol": "WPS",
             "opacity": 0.7,
             "tileSize":1024,
-            "validity":{
-                "start": "1900-01-01T00:00:00Z",
-                "end": "2020-01-01T00:00:00Z"
-            },
             "views": [{
                 "id": "IGRF12",
                 "protocol": "WMS",
@@ -3907,10 +3847,6 @@
             "timeSliderProtocol": "WPS",
             "opacity": 0.7,
             "tileSize":1024,
-            "validity": {
-                "start": "1997-02-07T05:31:12Z",
-                "end": "2019-02-06T17:15:21Z"
-            },
             "views": [{
                 "id": "CHAOS-6-Combined",
                 "protocol": "WMS",
