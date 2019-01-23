@@ -287,6 +287,11 @@ function productSortingFunction(a, b) {
                     var m_p = config.mapConfig.products;
                     for (var i = 0; i < m_p.length; i++) {
 
+                        // Always load timesliderprotocol from original config
+                        if(m_p[i].hasOwnProperty('timeSliderProtocol')){
+                            product_config[i].timeSliderProtocol = m_p[i].timeSliderProtocol;
+                        }
+
                         // Check if MAG A product has new residual parameter loaded
                         if(product_config[i].download.id === 'SW_OPER_MAGA_LR_1B'){
                             if(!product_config[i].parameters.hasOwnProperty('B_NEC_resAC')){
@@ -391,6 +396,8 @@ function productSortingFunction(a, b) {
                     }
 
                     if(lm.get('model')){
+                        // register magnetic model
+                        globals.models.add({name: lm.get('download').id});
                         lm.set('contours', defaultFor( product.contours,false));
                         lm.set('differenceTo', defaultFor( 
                             product.differenceTo, null)
@@ -398,11 +405,16 @@ function productSortingFunction(a, b) {
                     }
 
                     if(lm.get('download').id === 'Custom_Model'){
+                        globals.models.customModelId = 'Custom_Model';
                         var shcFile = localStorage.getItem('shcFile');
                         if(shcFile !== null){
                             shcFile = JSON.parse(shcFile);
                             lm.set('shc', shcFile.data);
                             lm.set('shc_name', shcFile.name);
+                            globals.models.get(lm.get('download').id).set({
+                              'shc': shcFile.data,
+                              'shc_name': shcFile.name
+                            });
                         }
                     }
                     
@@ -419,6 +431,20 @@ function productSortingFunction(a, b) {
                 var productcolors = d3.scale.ordinal().domain(domain).range(range);
 
                 globals.objects.add('productcolors', productcolors);
+
+                // periodic update magnetic models' metadata
+                globals.models.url = config.magneticModels.infoUrl;
+                globals.models.on('fetch:success', function () {
+                  if (this.customModelId && !this.get(this.customModelId))
+                  {
+                    this.add({name: this.customModelId});
+                  }
+                  Communicator.mediator.trigger('models:update');
+                });
+
+                globals.models.fetch()
+                window.setInterval(function () {globals.models.fetch();}, 900000); // refresh each 15min
+
 
                 // If there is already saved overly configuration use that
                 if(localStorage.getItem('overlaysConfig') !== null){
