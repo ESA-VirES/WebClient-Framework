@@ -18,7 +18,7 @@ define(['backbone.marionette',
             this.sp = undefined;
 
             $(window).resize(function() {
-                if(this.graph){
+                if(this.graph && $('#d3canvas').is(':visible')){
                     this.graph.resize();
                 }
             }.bind(this));
@@ -643,17 +643,13 @@ define(['backbone.marionette',
                                     // If second y axis is free we can use it to render
                                     // newly added parameter
 
-                                    if(this.graph.renderSettings.y2Axis.length === 0){
+                                    if(this.graph.renderSettings.yAxis.length === 0 && 
+                                        this.graph.renderSettings.y2Axis.length === 0){
                                         // TODO: For now we add it to yAxis, when y2 axis working correctly
                                         // we will need to add it to y2 axis
                                         this.graph.renderSettings.y2Axis.push(parasToCheck[i]);
                                         this.graph.renderSettings.colorAxis.push(null);
                                         needsResize = true;
-                                    } else {
-                                        // TODO: Decide based on extent where the parameter
-                                        // fits best, right now we just add it to the first y axis
-                                        this.graph.renderSettings.yAxis.push(parasToCheck[i]);
-                                        this.graph.renderSettings.colorAxis.push(null);
                                     }
                                 }
                             }
