@@ -3954,10 +3954,6 @@
             "timeSliderProtocol": "WPS",
             "opacity": 0.7,
             "tileSize":1024,
-            "validity":{
-                "start": "2013-01-01T00:00:00Z",
-                "end": "2018-09-30T00:00:00Z"
-            },
             "views": [{
                 "id": "CHAOS-6-MMA-Primary_view",
                 "protocol": "WMS",
@@ -4057,10 +4053,6 @@
             "timeSliderProtocol": "WPS",
             "opacity": 0.7,
             "tileSize":1024,
-            "validity":{
-                "start": "2013-01-01T00:00:00Z",
-                "end": "2018-09-30T00:00:00Z"
-            },
             "views": [{
                 "id": "CHAOS-6-MMA-Secondary_view",
                 "protocol": "WMS",
