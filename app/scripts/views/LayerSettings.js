@@ -591,6 +591,14 @@
                 Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
             },
 
+            handleRangeResponeSHC: function(evt, response){
+                this.handleRangeRespone(response);
+                var params = { name: this.current_model.get("name"), isBaseLayer: false, visible: false };
+                Communicator.mediator.trigger('map:layer:change', params);
+                Communicator.mediator.trigger("file:shc:loaded", evt.target.result);
+                Communicator.mediator.trigger("layer:activate", this.current_model.get("views")[0].id);
+            },
+
             handleRangeResponseError: function(response){
                 showMessage(
                     'warning', 
@@ -795,9 +803,17 @@
                 var reader = new FileReader();
                 var filename = evt.target.files[0].name;
                 reader.onloadend = function(evt) {
-                    //console.log(evt.target.result);
                     that.current_model.set('shc', evt.target.result);
                     that.current_model.set('shc_name', filename);
+
+                    var magnetic_model = globals.models.get(that.current_model.get('download').id);
+                    if (magnetic_model) {
+                      magnetic_model.set({
+                        shc: evt.target.result,
+                        shc_name: filename
+                      });
+                      magnetic_model.fetch();
+                    }
 
                     // Save shc file to localstorage
                     localStorage.setItem('shcFile', JSON.stringify({
@@ -831,7 +847,7 @@
                             });
 
                             $.post(that.current_model.get("download").url, payload)
-                                .success(that.handleRangeRespone.bind(that))
+                                .success(that.handleRangeResponeSHC.bind(that, evt))
                                 .fail(that.handleRangeResponseError)
                                 .always(that.handleRangeChange.bind(that));
                         }

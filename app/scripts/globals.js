@@ -1,6 +1,8 @@
 
 // globals
-define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
+define(
+  ['backbone', 'objectStore', 'models/MagneticModelCollection'],
+  function (Backbone, ObjectStore, MagneticModel) {
 
     var swarm_model = Backbone.Model.extend({data:[]});
     return {
@@ -10,6 +12,7 @@ define(['backbone', 'objectStore'], function(Backbone, ObjectStore) {
         baseLayers: new Backbone.Collection(),
         products: new Backbone.Collection(),
         overlays: new Backbone.Collection(),
-        swarm: new swarm_model()
+        swarm: new swarm_model(),
+        models: new MagneticModel.MagneticModelCollection()
     }
 });
