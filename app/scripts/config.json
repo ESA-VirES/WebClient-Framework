@@ -4083,7 +4083,7 @@
             "opacity": 0.7,
             "tileSize":1024,
             "views": [{
-                "id": "CHAOS-6-MMA-Primary_view",
+                "id": "CHAOS-6-MMA-Primary",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -4190,7 +4190,7 @@
             "opacity": 0.7,
             "tileSize":1024,
             "views": [{
-                "id": "CHAOS-6-MMA-Secondary_view",
+                "id": "CHAOS-6-MMA-Secondary",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
