@@ -7,6 +7,7 @@
         'backbone',
         'communicator',
         'globals',
+        'bower_components/choices.js/assets/scripts/dist/choices.js',
         'hbs!tmpl/LayerSettings',
         'hbs!tmpl/wps_eval_model_GET',
         'hbs!tmpl/wps_eval_model',
@@ -15,7 +16,7 @@
         'plotty'
     ],
 
-    function( Backbone, Communicator, globals, LayerSettingsTmpl, evalModelTmpl, evalModelTmpl_POST, tmplEvalModelDiff ) {
+    function( Backbone, Communicator, globals, Choices, LayerSettingsTmpl, evalModelTmpl, evalModelTmpl_POST, tmplEvalModelDiff ) {
 
         var LayerSettings = Backbone.Marionette.Layout.extend({
 
@@ -235,6 +236,28 @@
                         }
                         
                     }
+                    
+                    if((this.current_model.get("name") === 'Custom Model')){
+                      //custom model additional fields
+                      this.$("#choices-multiple-remove-button").empty();
+                      var models = globals.products.filter(function (p) {
+                          return p.get('model');
+                      });
+                      
+                      for (var i = 0; i < models.length; i++) {
+                          var name = models[i].get('name');
+                          var id = models[i].get('download').id;
+                          // do not use custom_model for creation of a new custom_model
+                          if(id!=='Custom_Model'){
+                              $('#choices-multiple-remove-button').append('<option value="'+name+'"</option>');
+                          }
+                      }
+                      console.log(models);
+                      var multipleCancelButton = new Choices('#choices-multiple-remove-button', {
+                        removeItemButton: true,
+                      });
+                    }
+
 
                     if(options[this.selected].hasOwnProperty("logarithmic"))
                         this.createScale(options[that.selected].logarithmic);
