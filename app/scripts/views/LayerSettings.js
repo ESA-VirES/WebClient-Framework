@@ -266,8 +266,11 @@
                                       return template(`
                                         <div class="choices__item choices__item--selectable data-item"
                                          data-id="${classNames.id}" data-value="${classNames.value}" data-deletable"}>
-                                         <input type="button" value="+" class="custom_model_operation_operand btn-info" />
-                                          <span>${classNames.label}</span>
+                                         <input type="button" value="+" class="custom_model_operation_operand btn-info">
+                                          <span class="custom_model_operation_label">${classNames.label}</span>
+                                          <input type="text" id="custom_model_operation_coefficient_min" class="custom_model_operation_coefficient" value="${vars[2]}">	
+                                          <input type="text" id="custom_model_operation_coefficient_max"
+                                          class="custom_model_operation_coefficient"  value="${vars[3]}">	
                                           <button type="button" class="choices__button" data-button> Remove item </button>
                                         </div>
                                         `);
@@ -275,6 +278,7 @@
                               };
                           }
                       });
+                      $(document).off("click",".custom_model_operation_operand");
                       $(document).on("click",".custom_model_operation_operand",function(){
                         var dataValuesParent = $(this)[0].parentNode.getAttribute('data-value').split("|");
                         var rest = dataValuesParent.slice(1); //get all but first element of array

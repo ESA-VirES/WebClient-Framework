@@ -49,7 +49,21 @@
     font-weight: bold;
 }
 
+#custom_model_compute{
+  margin-top: 8px;
+}
+
 .custom_model_operation_operand{
     font-weight: bold;
-    padding: 2px,4px;
+    font-size:1.2em;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.custom_model_operation_label{
+  font-weight: bold;
+}
+
+.custom_model_operation_coefficient{
+  width:22px;
 }
