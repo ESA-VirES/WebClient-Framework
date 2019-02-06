@@ -247,14 +247,47 @@
                       for (var i = 0; i < models.length; i++) {
                           var name = models[i].get('name');
                           var id = models[i].get('download').id;
+                          var coefficients = models[i].get('coefficients_range');
+                          var valueString = ['+', name, coefficients[0],coefficients[1]].join("|");
                           // do not use custom_model for creation of a new custom_model
-                          if(id!=='Custom_Model'){
-                              $('#choices-multiple-remove-button').append('<option value="'+name+'"</option>');
+                          if (id !== 'Custom_Model') {
+                              $('#choices-multiple-remove-button').append(
+                                `<option value="${valueString}">${name}</option>`
+                              );
                           }
                       }
-                      console.log(models);
-                      var multipleCancelButton = new Choices('#choices-multiple-remove-button', {
-                        removeItemButton: true,
+                      //create a Choices modified template
+                      var example = new Choices('#choices-multiple-remove-button', {
+                          removeItemButton: true,
+                          callbackOnCreateTemplates: function(template) {
+                              return {
+                                  item: (classNames) => {
+                                    var vars = classNames.value.split('|'); // [+,name,coefbegin,coefend]
+                                      return template(`
+                                        <div class="choices__item choices__item--selectable data-item"
+                                         data-id="${classNames.id}" data-value="${classNames.value}" data-deletable"}>
+                                         <input type="button" value="+" class="custom_model_operation_operand btn-info" />
+                                          <span>${classNames.label}</span>
+                                          <button type="button" class="choices__button" data-button> Remove item </button>
+                                        </div>
+                                        `);
+                                  }
+                              };
+                          }
+                      });
+                      $(document).on("click",".custom_model_operation_operand",function(){
+                        var dataValuesParent = $(this)[0].parentNode.getAttribute('data-value').split("|");
+                        var rest = dataValuesParent.slice(1); //get all but first element of array
+                        //modify the parent div data-value attribute and the button itself
+                        if (dataValuesParent[0] === "+"){
+                          rest.unshift("-");
+                          $(this).parent().attr('data-value', rest.join("|"));
+                          $(this).attr('value', "-");
+                        } else if (dataValuesParent[0] === "-")  {
+                          rest.unshift("+");
+                          $(this).parent().attr('data-value', rest.join("|"));
+                          $(this).attr('value', "+");
+                        }
                       });
                     }
 
