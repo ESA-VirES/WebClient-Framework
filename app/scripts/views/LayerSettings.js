@@ -239,10 +239,10 @@
                     
                     if((this.current_model.get("name") === 'Custom Model')){
                       //custom model additional fields
+                      this.$("#custom_model_compute").empty();                    
                       this.$("#custom_model_compute").append(`
                       <select class="form-control" id="choices-multiple-remove-button" placeholder="Choose models" multiple>
                       </select>`)
-                      this.$("#choices-multiple-remove-button").empty();
                       var models = globals.products.filter(function (p) {
                           return p.get('model');
                       });
@@ -261,8 +261,8 @@
                       }
                       //create a Choices modified template
                       var example = new Choices('#choices-multiple-remove-button', {
+                        //inline onclicks with stopPropagation are there to avoid Choices onclick and onkeydown, which made forms unclicklable
                           removeItemButton: true,
-                          searchChoices: true,
                           callbackOnCreateTemplates: function(template) {
                               return {
                                   item: (classNames) => {
@@ -300,7 +300,7 @@
                         }
                       });
                     } else{
-                      this.$("#choices-multiple-remove-button").empty();
+                      this.$("#custom_model_compute").empty();                    
                     }
 
 
