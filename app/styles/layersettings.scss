@@ -67,3 +67,9 @@
 .custom_model_operation_coefficient{
   width:22px;
 }
+.choices__list--multiple{
+  max-height: 225px;
+  overflow-y: auto;
+  display: block!important;
+}
+

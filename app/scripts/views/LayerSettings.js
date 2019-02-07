@@ -259,6 +259,7 @@
                       //create a Choices modified template
                       var example = new Choices('#choices-multiple-remove-button', {
                           removeItemButton: true,
+                          searchChoices: true,
                           callbackOnCreateTemplates: function(template) {
                               return {
                                   item: (classNames) => {
@@ -268,9 +269,8 @@
                                          data-id="${classNames.id}" data-value="${classNames.value}" data-deletable"}>
                                          <input type="button" value="+" class="custom_model_operation_operand btn-info">
                                           <span class="custom_model_operation_label">${classNames.label}</span>
-                                          <input type="text" id="custom_model_operation_coefficient_min" class="custom_model_operation_coefficient" value="${vars[2]}">	
-                                          <input type="text" id="custom_model_operation_coefficient_max"
-                                          class="custom_model_operation_coefficient"  value="${vars[3]}">	
+                                          <input type="text" class="custom_model_operation_coefficient" value="${vars[2]}" onclick="event.target.focus();event.target.select();">	
+                                          <input type="text" class="custom_model_operation_coefficient"  value="${vars[3]}">	
                                           <button type="button" class="choices__button" data-button> Remove item </button>
                                         </div>
                                         `);
@@ -278,7 +278,7 @@
                               };
                           }
                       });
-                      $(document).off("click",".custom_model_operation_operand");
+                      $(document).off("click",".custom_model_operation_operand"); //avoid multiple bind
                       $(document).on("click",".custom_model_operation_operand",function(){
                         var dataValuesParent = $(this)[0].parentNode.getAttribute('data-value').split("|");
                         var rest = dataValuesParent.slice(1); //get all but first element of array
