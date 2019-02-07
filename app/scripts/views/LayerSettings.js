@@ -239,6 +239,9 @@
                     
                     if((this.current_model.get("name") === 'Custom Model')){
                       //custom model additional fields
+                      this.$("#custom_model_compute").append(`
+                      <select class="form-control" id="choices-multiple-remove-button" placeholder="Choose models" multiple>
+                      </select>`)
                       this.$("#choices-multiple-remove-button").empty();
                       var models = globals.products.filter(function (p) {
                           return p.get('model');
