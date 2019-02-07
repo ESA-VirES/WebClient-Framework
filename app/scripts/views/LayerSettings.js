@@ -269,8 +269,10 @@
                                          data-id="${classNames.id}" data-value="${classNames.value}" data-deletable"}>
                                          <input type="button" value="+" class="custom_model_operation_operand btn-info">
                                           <span class="custom_model_operation_label">${classNames.label}</span>
-                                          <input type="text" class="custom_model_operation_coefficient" value="${vars[2]}" onclick="event.target.focus();event.target.select();">	
-                                          <input type="text" class="custom_model_operation_coefficient"  value="${vars[3]}">	
+                                          <input type="text" class="custom_model_operation_coefficient" value="${vars[2]}" onclick="event.stopPropagation();
+                                          event.target.focus();event.target.select();" onkeydown="event.stopPropagation();">	
+                                          <input type="text" class="custom_model_operation_coefficient"  value="${vars[3]}" onclick="event.stopPropagation();
+                                          event.target.focus();event.target.select();" onkeydown="event.stopPropagation();">	
                                           <button type="button" class="choices__button" data-button> Remove item </button>
                                         </div>
                                         `);
@@ -278,6 +280,7 @@
                               };
                           }
                       });
+                      
                       $(document).off("click",".custom_model_operation_operand"); //avoid multiple bind
                       $(document).on("click",".custom_model_operation_operand",function(){
                         var dataValuesParent = $(this)[0].parentNode.getAttribute('data-value').split("|");
@@ -293,6 +296,8 @@
                           $(this).attr('value', "+");
                         }
                       });
+                    } else{
+                      this.$("#choices-multiple-remove-button").empty();
                     }
 
 
