@@ -73,8 +73,18 @@
 }
 
 .choices__list--multiple{
-  max-height: 225px;
+  max-height: 200px;
   overflow-y: auto;
   display: block!important;
 }
 
+.choices__item{
+  padding: 4px 4px!important;
+  margin-right: 0px!important;
+  margin-bottom: 0px!important;
+}
+
+.choices__button{
+  border-left: 2px solid #008fa1!important;
+  margin-left: 3px!important;
+}
