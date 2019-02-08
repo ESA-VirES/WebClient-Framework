@@ -64,9 +64,14 @@
   font-weight: bold;
 }
 
-.custom_model_operation_coefficient{
+.custom_model_operation_coefficient_min {
   width:22px;
 }
+
+.custom_model_operation_coefficient_max {
+  width:22px;
+}
+
 .choices__list--multiple{
   max-height: 225px;
   overflow-y: auto;

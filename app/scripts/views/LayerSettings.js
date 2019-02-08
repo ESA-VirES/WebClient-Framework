@@ -248,34 +248,43 @@
                       });
                       
                       for (var i = 0; i < models.length; i++) {
-                          var name = models[i].get('name');
+                         //initial choices list preparation
                           var id = models[i].get('download').id;
                           var coefficients = models[i].get('coefficients_range');
-                          var valueString = ['+', name, coefficients[0],coefficients[1]].join("|");
                           // do not use custom_model for creation of a new custom_model
                           if (id !== 'Custom_Model') {
                               $('#choices-multiple-remove-button').append(
-                                `<option value="${valueString}">${name}</option>`
+                                `<option value=${id}>${id}</option>`
                               );
+                              //creating a object storage structure on the holding div element through .data() for later retrieval
+                              $('#custom_model_compute').data(id,{'sign':'+','id':id,'coefficients':coefficients}); 
+                              //this gets lost if another model other than custom is chosen or window is closed
                           }
                       }
                       //create a Choices modified template
                       var example = new Choices('#choices-multiple-remove-button', {
-                        //inline onclicks with stopPropagation are there to avoid Choices onclick and onkeydown, which made forms unclicklable
+                        // inline onclicks with stopPropagation etc. are there to avoid binded Choices onclick and onkeydown, which made forms unclickable
                           removeItemButton: true,
                           callbackOnCreateTemplates: function(template) {
                               return {
-                                  item: (classNames) => {
-                                    var vars = classNames.value.split('|'); // [+,name,coefbegin,coefend]
+                                  item: (classNames, data) => {
+                                    // reason for this ugly inline event stuff mentioned above
+                                    var id = classNames.value;
+                                    var values = $('#custom_model_compute').data(id);
+                                    // prevent click from Choices, focus and select the form
+                                    var onClickFunctionString = 'event.stopPropagation();event.target.focus();event.target.select();';
+                                    // prevent focus and writing into search div of choices
+                                    var onKeyDownFunctionString = 'event.stopPropagation();';
+                                    // handle $.data() change of data holding object so template loads it properly
+                                    var onFormLeaveFunctionStringMin = 'var dataParent=$(this)[0].parentNode.getAttribute(\'data-value\');$(\'#custom_model_compute\').data(dataParent).coefficients[0]=$(this).val();'
+                                    var onFormLeaveFunctionStringMax = 'var dataParent=$(this)[0].parentNode.getAttribute(\'data-value\');$(\'#custom_model_compute\').data(dataParent).coefficients[1]=$(this).val();'
                                       return template(`
                                         <div class="choices__item choices__item--selectable data-item"
                                          data-id="${classNames.id}" data-value="${classNames.value}" data-deletable"}>
-                                         <input type="button" value="+" class="custom_model_operation_operand btn-info">
-                                          <span class="custom_model_operation_label">${classNames.label}</span>
-                                          <input type="text" class="custom_model_operation_coefficient" value="${vars[2]}" onclick="event.stopPropagation();
-                                          event.target.focus();event.target.select();" onkeydown="event.stopPropagation();">	
-                                          <input type="text" class="custom_model_operation_coefficient"  value="${vars[3]}" onclick="event.stopPropagation();
-                                          event.target.focus();event.target.select();" onkeydown="event.stopPropagation();">	
+                                         <input type="button" value="${values.sign}" class="custom_model_operation_operand btn-info">
+                                          <span class="custom_model_operation_label">${values.id}</span>
+                                          <input type="text" class="custom_model_operation_coefficient_min" value="${values.coefficients[0]}" onclick="${onClickFunctionString}" onkeydown="${onKeyDownFunctionString}" onblur="${onFormLeaveFunctionStringMin}">
+                                          <input type="text" class="custom_model_operation_coefficient_max"  value="${values.coefficients[1]}" onclick="${onClickFunctionString}" onkeydown="${onKeyDownFunctionString}" onblur="${onFormLeaveFunctionStringMax}">	
                                           <button type="button" class="choices__button" data-button> Remove item </button>
                                         </div>
                                         `);
@@ -286,17 +295,15 @@
                       
                       $(document).off("click",".custom_model_operation_operand"); //avoid multiple bind
                       $(document).on("click",".custom_model_operation_operand",function(){
-                        var dataValuesParent = $(this)[0].parentNode.getAttribute('data-value').split("|");
-                        var rest = dataValuesParent.slice(1); //get all but first element of array
-                        //modify the parent div data-value attribute and the button itself
-                        if (dataValuesParent[0] === "+"){
-                          rest.unshift("-");
-                          $(this).parent().attr('data-value', rest.join("|"));
+                        var dataParent = $(this)[0].parentNode.getAttribute('data-value'); //get name
+                        var signData = $('#custom_model_compute').data(dataParent).sign;
+                        //modify the data of the holding div for given id and the button itself
+                        if (signData === "+"){
                           $(this).attr('value', "-");
-                        } else if (dataValuesParent[0] === "-")  {
-                          rest.unshift("+");
-                          $(this).parent().attr('data-value', rest.join("|"));
+                          $('#custom_model_compute').data(dataParent).sign = '-';
+                        } else if (signData === "-")  {
                           $(this).attr('value', "+");
+                          $('#custom_model_compute').data(dataParent).sign = '+';
                         }
                       });
                     } else{
