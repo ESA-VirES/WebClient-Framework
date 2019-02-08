@@ -243,6 +243,12 @@
                       this.$("#custom_model_compute").append(`
                       <select class="form-control" id="choices-multiple-remove-button" placeholder="Choose models" multiple>
                       </select>`)
+                      var contextStorer = this;
+                      $(document).off("click","#custom_model_compute");
+                      $(document).on("click","#custom_model_compute",function(){
+                        contextStorer.createApplyButton();
+                      });
+
                       var models = globals.products.filter(function (p) {
                           return p.get('model');
                       });
@@ -258,7 +264,6 @@
                               );
                               //creating a object storage structure on the holding div element through .data() for later retrieval
                               $('#custom_model_compute').data(id,{'sign':'+','id':id,'coefficients':coefficients}); 
-                              //this gets lost if another model other than custom is chosen or window is closed
                           }
                       }
                       //create a Choices modified template
@@ -267,7 +272,7 @@
                           removeItemButton: true,
                           callbackOnCreateTemplates: function(template) {
                               return {
-                                  item: (classNames, data) => {
+                                  item: (classNames) => {
                                     // reason for this ugly inline event stuff mentioned above
                                     var id = classNames.value;
                                     var values = $('#custom_model_compute').data(id);
@@ -763,6 +768,31 @@
                         }
                         this.current_model.set("height", height);
                     }
+                }
+                
+                var contextStorer = this;
+                if ($('.custom_model_operation_operand').length) {
+                    // custom model computation from other models
+                    // check for the coefficient range of all choices elements
+                    $('.custom_model_operation_operand').parent().each(function() {
+                        // "this" is the current element in the loop
+                        var coef_range_min_element = $(this).children('.custom_model_operation_coefficient_min');
+                        var coef_range_max_element = $(this).children('.custom_model_operation_coefficient_max');
+                        var coef_range_min = parseFloat(coef_range_min_element.val());
+                        var coef_range_max = parseFloat(coef_range_max_element.val());
+
+                        if (coef_range_min > coef_range_max && coef_range_max !== -1) {
+                            error = true;
+                            coef_range_min_element.addClass("text_error");
+                            coef_range_max_element.addClass("text_error");
+                        } else {
+                            coef_range_min_element.removeClass("text_error");
+                            coef_range_max_element.removeClass("text_error");
+                        }
+
+                        error = error || contextStorer.checkValue(coef_range_min, coef_range_min_element);
+                        error = error || contextStorer.checkValue(coef_range_max, coef_range_max_element);
+                    });
                 }
 
                 if(!error){
