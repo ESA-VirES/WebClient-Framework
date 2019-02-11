@@ -241,7 +241,7 @@
                       //custom model additional fields
                       this.$("#custom_model_compute").empty();
                       this.$("#custom_model_compute").append(`
-                      <select class="form-control" id="choices-multiple-remove-button" placeholder="Choose models" multiple>
+                      <select class="form-control" id="choices-multiple-remove-button" placeholder="Custom model compute - Choose or type" multiple>
                       </select>`)
                       var contextStorer = this;
                       $(document).off("click","#custom_model_compute");
