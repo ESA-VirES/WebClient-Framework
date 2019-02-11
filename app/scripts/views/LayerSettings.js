@@ -732,10 +732,7 @@
                 // Check coefficient ranges
                 if ($("#coefficients_range_min").length && $("#coefficients_range_max").length){
                     var coef_range_min = parseFloat($("#coefficients_range_min").val());
-                    error = error || this.checkValue(coef_range_min,$("#coefficients_range_min"));
-
                     var coef_range_max = parseFloat($("#coefficients_range_max").val());
-                    error = error || this.checkValue(coef_range_max,$("#coefficients_range_max"));
 
                     if(coef_range_min>coef_range_max && coef_range_max!==-1){
                         error = true;
@@ -749,6 +746,8 @@
                         $("#coefficient_error").remove();
                     }
                 
+                    error = error || this.checkValue(coef_range_min,$("#coefficients_range_min"));
+                    error = error || this.checkValue(coef_range_max,$("#coefficients_range_max"));
 
                     if(!error){
                         if(this.current_model.get("coefficients_range")[0]!=coef_range_min || 
