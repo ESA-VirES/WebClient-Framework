@@ -532,6 +532,7 @@ define(['backbone.marionette',
                         var filterstouse = [
                             'Ne', 'Te', 'Bubble_Probability',
                             'Relative_STEC_RMS', 'Relative_STEC', 'Absolute_STEC',
+                            'Absolute_VTEC', 'Elevation_Angle',
                             'IRC', 'FAC',
                             'EEF'
                         ];
@@ -592,7 +593,8 @@ define(['backbone.marionette',
                         // If previous does not contain key data and new one
                         // does we add key parameter to selection in plot
                         var parasToCheck = [
-                            'Ne', 'F', 'Bubble_Probability', 'Absolute_STEC', 'FAC', 'EEF'
+                            'Ne', 'F', 'Bubble_Probability', 'Absolute_STEC',
+                            'Absolute_VTEC', 'Elevation_Angle', 'FAC', 'EEF'
                         ];
 
                         // Check if y axis parameters are still available

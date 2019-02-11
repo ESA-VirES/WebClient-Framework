@@ -1057,6 +1057,20 @@
                     "uom":"TECU",
                     "colorscale": "portland",
                     "name": "Relative STEC RMS"
+                },
+                "Absolute_VTEC": {
+                    "range": [0, 35],
+                    "uom":"TECU",
+                    "colorscale": "plasma",
+                    "selected": true,
+                    "name": "Absolute vertical TEC"
+                },
+                "Elevation_Angle": {
+                    "range": [0, 90],
+                    "uom":"degree",
+                    "colorscale": "plasma",
+                    "selected": true,
+                    "name": "Elevation Angle"
                 }
             },
             "download_parameters": {
@@ -1115,6 +1129,14 @@
                 "Absolute_STEC": {
                     "uom": "TECU",
                     "name": "Absolute slant TEC"
+                },
+                "Absolute_VTEC": {
+                    "uom": "TECU",
+                    "name": "Absolute vertical TEC"
+                },
+                "Elevation_Angle": {
+                    "uom": "degree",
+                    "name": "Elevation Angle"
                 },
                 "Relative_STEC": {
                     "uom": "TECU",
@@ -1201,6 +1223,20 @@
                     "uom":"TECU",
                     "colorscale": "portland",
                     "name": "Relative STEC RMS"
+                },
+                "Absolute_VTEC": {
+                    "range": [0, 35],
+                    "uom":"TECU",
+                    "colorscale": "plasma",
+                    "selected": true,
+                    "name": "Absolute vertical TEC"
+                },
+                "Elevation_Angle": {
+                    "range": [0, 90],
+                    "uom":"degree",
+                    "colorscale": "plasma",
+                    "selected": true,
+                    "name": "Elevation Angle"
                 }
             },
             "download_parameters": {
@@ -1259,6 +1295,14 @@
                 "Absolute_STEC": {
                     "uom": "TECU",
                     "name": "Absolute slant TEC"
+                },
+                "Absolute_VTEC": {
+                    "uom": "TECU",
+                    "name": "Absolute vertical TEC"
+                },
+                "Elevation_Angle": {
+                    "uom": "degree",
+                    "name": "Elevation Angle"
                 },
                 "Relative_STEC": {
                     "uom": "TECU",
@@ -1345,6 +1389,20 @@
                     "uom":"TECU",
                     "colorscale": "portland",
                     "name": "Relative STEC RMS"
+                },
+                "Absolute_VTEC": {
+                    "range": [0, 35],
+                    "uom":"TECU",
+                    "colorscale": "plasma",
+                    "selected": true,
+                    "name": "Absolute vertical TEC"
+                },
+                "Elevation_Angle": {
+                    "range": [0, 90],
+                    "uom":"degree",
+                    "colorscale": "plasma",
+                    "selected": true,
+                    "name": "Elevation Angle"
                 }
             },
             "download_parameters": {
@@ -1403,6 +1461,14 @@
                 "Absolute_STEC": {
                     "uom": "TECU",
                     "name": "Absolute slant TEC"
+                },
+                "Absolute_VTEC": {
+                    "uom": "TECU",
+                    "name": "Absolute vertical TEC"
+                },
+                "Elevation_Angle": {
+                    "uom": "degree",
+                    "name": "Elevation Angle"
                 },
                 "Relative_STEC": {
                     "uom": "TECU",

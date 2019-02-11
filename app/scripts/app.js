@@ -6,7 +6,8 @@ var SCALAR_PARAM = [
 
 var VECTOR_PARAM = [
     "B_NEC", "SIFM", "IGRF12", "CHAOS-6-Combined", "Custom_Model",
-    "B_NEC_resAC", "GPS_Position", "LEO_Position", "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC",
+    "B_NEC_resAC", "GPS_Position", "LEO_Position",
+    "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle",
     "MCO_SHA_2C", "MCO_SHA_2D", "MCO_SHA_2F", "MLI_SHA_2C", "MLI_SHA_2D", 
     "MMA_SHA_2C-Primary", "MMA_SHA_2C-Secondary", "MMA_SHA_2F-Primary", "MMA_SHA_2F-Secondary",
     "CHAOS-6-MMA-Primary", "CHAOS-6-MMA-Secondary",

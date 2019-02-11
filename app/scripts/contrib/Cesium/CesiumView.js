@@ -1141,6 +1141,8 @@ define([
                                     })) {
 
                                     if(tovisualize[i] === 'Absolute_STEC' ||
+                                       tovisualize[i] === 'Absolute_VTEC' ||
+                                       tovisualize[i] === 'Elevation_Angle' ||
                                        tovisualize[i] === 'Relative_STEC' ||
                                        tovisualize[i] === 'Relative_STEC_RMS'){
                                         if(lastTS === null){
