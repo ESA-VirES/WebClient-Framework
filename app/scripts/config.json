@@ -1062,14 +1062,12 @@
                     "range": [0, 35],
                     "uom":"TECU",
                     "colorscale": "plasma",
-                    "selected": true,
                     "name": "Absolute vertical TEC"
                 },
                 "Elevation_Angle": {
                     "range": [0, 90],
                     "uom":"degree",
                     "colorscale": "plasma",
-                    "selected": true,
                     "name": "Elevation Angle"
                 }
             },
@@ -1228,14 +1226,12 @@
                     "range": [0, 35],
                     "uom":"TECU",
                     "colorscale": "plasma",
-                    "selected": true,
                     "name": "Absolute vertical TEC"
                 },
                 "Elevation_Angle": {
                     "range": [0, 90],
                     "uom":"degree",
                     "colorscale": "plasma",
-                    "selected": true,
                     "name": "Elevation Angle"
                 }
             },
@@ -1394,14 +1390,12 @@
                     "range": [0, 35],
                     "uom":"TECU",
                     "colorscale": "plasma",
-                    "selected": true,
                     "name": "Absolute vertical TEC"
                 },
                 "Elevation_Angle": {
                     "range": [0, 90],
                     "uom":"degree",
                     "colorscale": "plasma",
-                    "selected": true,
                     "name": "Elevation Angle"
                 }
             },
