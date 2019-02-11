@@ -239,7 +239,7 @@
                     
                     if((this.current_model.get("name") === 'Custom Model')){
                       //custom model additional fields
-                      this.$("#custom_model_compute").empty();                    
+                      this.$("#custom_model_compute").empty();
                       this.$("#custom_model_compute").append(`
                       <select class="form-control" id="choices-multiple-remove-button" placeholder="Choose models" multiple>
                       </select>`)

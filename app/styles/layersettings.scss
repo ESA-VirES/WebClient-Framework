@@ -50,41 +50,41 @@
 }
 
 #custom_model_compute{
-  margin-top: 8px;
+    margin-top: 5px;
 }
 
 .custom_model_operation_operand{
     font-weight: bold;
-    font-size:1.2em;
-    width:20px;
-    padding:2px;
+    font-size: 1.2em;
+    width: 20px;
+    padding: 2px;
 }
 
 .custom_model_operation_label{
-  font-weight: bold;
+    font-weight: bold;
 }
 
 .custom_model_operation_coefficient_min {
-  width:22px;
+    width: 22px;
 }
 
 .custom_model_operation_coefficient_max {
-  width:22px;
+    width: 22px;
 }
 
 .choices__list--multiple{
-  max-height: 200px;
-  overflow-y: auto;
-  display: block!important;
+    max-height: 200px;
+    overflow-y: auto;
+    display: block!important;
 }
 
 .choices__item{
-  padding: 3px 4px!important;
-  margin-right: 0px!important;
-  margin-bottom: 0px!important;
+    padding: 3px 4px!important;
+    margin-right: 0px!important;
+    margin-bottom: 0px!important;
 }
 
 .choices__button{
-  border-left: 2px solid #008fa1!important;
-  margin-left: 3px!important;
+    border-left: 2px solid #008fa1!important;
+    margin-left: 3px!important;
 }
