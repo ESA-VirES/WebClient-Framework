@@ -263,6 +263,7 @@
                                 `<option value=${id}>${id}</option>`
                               );
                               //creating a object storage structure on the holding div element through .data() for later retrieval
+                              //here through reference I am actually modifying globals.products.models, so its later saved to localstorage
                               $('#custom_model_compute').data(id,{'sign':'+','id':id,'coefficients':coefficients}); 
                           }
                       }
@@ -283,10 +284,12 @@
                                     // handle $.data() change of data holding object so template loads it properly
                                     var onFormLeaveFunctionStringMin = 'var dataParent=$(this)[0].parentNode.getAttribute(\'data-value\');$(\'#custom_model_compute\').data(dataParent).coefficients[0]=$(this).val();'
                                     var onFormLeaveFunctionStringMax = 'var dataParent=$(this)[0].parentNode.getAttribute(\'data-value\');$(\'#custom_model_compute\').data(dataParent).coefficients[1]=$(this).val();'
+                                    var onCustomModelOperandClick = 'event.stopPropagation();var dataParent = $(this)[0].parentNode.getAttribute(\'data-value\');var signData =$(\'#custom_model_compute\').data(dataParent).sign;var newSign=(signData===\'+\' ? \'-\' : \'+\');$(this).attr(\'value\', newSign);$(\'#custom_model_compute\').data(dataParent).sign=newSign;';
+
                                       return template(`
                                         <div class="choices__item choices__item--selectable data-item"
                                          data-id="${classNames.id}" data-value="${classNames.value}" data-deletable"}>
-                                         <input type="button" value="${values.sign}" class="custom_model_operation_operand btn-info">
+                                         <input type="button" value="${values.sign}" class="custom_model_operation_operand btn-info" onclick="${onCustomModelOperandClick}">
                                           <span class="custom_model_operation_label">${values.id}</span>
                                           <input type="text" class="custom_model_operation_coefficient_min" value="${values.coefficients[0]}" onclick="${onClickFunctionString}" onkeydown="${onKeyDownFunctionString}" onblur="${onFormLeaveFunctionStringMin}">
                                           <input type="text" class="custom_model_operation_coefficient_max"  value="${values.coefficients[1]}" onclick="${onClickFunctionString}" onkeydown="${onKeyDownFunctionString}" onblur="${onFormLeaveFunctionStringMax}">	
@@ -298,18 +301,17 @@
                           }
                       });
                       
-                      $(document).off("click",".custom_model_operation_operand"); //avoid multiple bind
-                      $(document).on("click",".custom_model_operation_operand",function(){
-                        var dataParent = $(this)[0].parentNode.getAttribute('data-value'); //get name
-                        var signData = $('#custom_model_compute').data(dataParent).sign;
-                        //modify the data of the holding div for given id and the button itself
-                        if (signData === "+"){
-                          $(this).attr('value', "-");
-                          $('#custom_model_compute').data(dataParent).sign = '-';
-                        } else if (signData === "-")  {
-                          $(this).attr('value', "+");
-                          $('#custom_model_compute').data(dataParent).sign = '+';
-                        }
+                      $(document).off('input','.custom_model_operation_coefficient_min');     
+                      $(document).on('input','.custom_model_operation_coefficient_min', function(){
+                        contextStorer.createApplyButton();
+                      });
+                      $(document).off('input','.custom_model_operation_coefficient_max');     
+                      $(document).on('input','.custom_model_operation_coefficient_max', function(){
+                        contextStorer.createApplyButton();
+                      });
+                      $(document).off('input','.custom_model_operation_operand');     
+                      $(document).on('input','.custom_model_operation_operand', function(){
+                        contextStorer.createApplyButton();
                       });
                     } else{
                       this.$("#custom_model_compute").empty();                    
