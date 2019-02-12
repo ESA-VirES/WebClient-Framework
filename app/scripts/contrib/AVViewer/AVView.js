@@ -210,6 +210,8 @@ define(['backbone.marionette',
                         'selectedFilterList',
                         JSON.stringify(that.selectedFilterList)
                     );
+                    // I can modify options of w2field, but not aUOM, thus rerendering everything in list
+                    that.renderFilterList();
                 }
             });
 
