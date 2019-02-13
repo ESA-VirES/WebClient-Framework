@@ -1085,11 +1085,11 @@
                     "name": "Geographic longitude"
                 },
                 "Radius": {
-                    "uom": "km",
+                    "uom": "m",
                     "name": "Geographic radius"
                 },
                 "GPS_Position": {
-                    "uom": "km",
+                    "uom": "m",
                     "name": "X-,Y-,Z-coordinates (WGS84) of the GPS satellite"
                 },
                 "LEO_Position": {
@@ -1249,11 +1249,11 @@
                     "name": "Geographic longitude"
                 },
                 "Radius": {
-                    "uom": "km",
+                    "uom": "m",
                     "name": "Geographic radius"
                 },
                 "GPS_Position": {
-                    "uom": "km",
+                    "uom": "m",
                     "name": "X-,Y-,Z-coordinates (WGS84) of the GPS satellite"
                 },
                 "LEO_Position": {
@@ -1413,11 +1413,11 @@
                     "name": "Geographic longitude"
                 },
                 "Radius": {
-                    "uom": "km",
+                    "uom": "m",
                     "name": "Geographic radius"
                 },
                 "GPS_Position": {
-                    "uom": "km",
+                    "uom": "m",
                     "name": "X-,Y-,Z-coordinates (WGS84) of the GPS satellite"
                 },
                 "LEO_Position": {

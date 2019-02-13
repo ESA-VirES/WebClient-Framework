@@ -332,6 +332,9 @@ define(['backbone.marionette',
             this.separateVector('dB_AOCS', 'dB_AOCS', ['X', 'Y', 'Z'], '_');
             this.separateVector('dB_Sun', 'dB_Sun', ['X', 'Y', 'Z'], '_');
 
+            this.separateVector('GPS_Position', 'GPS_Position', ['X', 'Y', 'Z'], '_');
+            this.separateVector('LEO_Position', 'LEO_Position', ['X', 'Y', 'Z'], '_');
+
             this.sp.uom_set['MLT'] = {uom: null, name:'Magnetic Local Time'};
             this.sp.uom_set['QDLat'] = {uom: 'deg', name:'Quasi-Dipole Latitude'};
             this.sp.uom_set['QDLon'] = {uom: 'deg', name:'Quasi-Dipole Longitude'};
