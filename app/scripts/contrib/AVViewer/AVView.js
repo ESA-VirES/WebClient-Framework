@@ -18,8 +18,8 @@ define(['backbone.marionette',
             this.sp = undefined;
 
             $(window).resize(function() {
-                if(this.graph && $('#d3canvas').is(':visible')){
-                    this.graph.resize();
+                if(this.graph && $('.d3canvas').is(':visible')){
+                    this.graph.resize(true);
                 }
             }.bind(this));
 
@@ -46,8 +46,69 @@ define(['backbone.marionette',
             $('#saveRendering').remove();
             this.$el.append('<div type="button" class="btn btn-success darkbutton" id="saveRendering" title="Save as image"><i class="fa fa-floppy-o" aria-hidden="true"></i></div>');
 
+            $('#saveRendering').click(function(){
+                var bodyContainer = $('<div/>');
+
+                var typeContainer = $('<div id="typeSelectionContainer"></div>');
+                var filetypeSelection = $('<select id="filetypeSelection"></select>');
+                filetypeSelection.append($('<option/>').html('png'));
+                filetypeSelection.append($('<option/>').html('jpeg'));
+                filetypeSelection.append($('<option/>').html('svg'));
+                typeContainer.append(
+                    $('<label for="filetypeSelection" style="margin-right:10px;">Output type</label>')
+                );
+                typeContainer.append(filetypeSelection);
+                var w = $('#graph').width();
+                var h = $('#graph').height();
+
+                var resolutionContainer = $('<div id="resolutionSelectionContainer"></div>');
+                var resolutionSelection = $('<select id="resolutionSelection"></select>');
+                resolutionSelection.append($('<option/>').html('normal ('+w+'x'+h+')').val(1));
+                resolutionSelection.append($('<option/>').html('large ('+w*2+'x'+h*2+')').val(2));
+                resolutionSelection.append($('<option/>').html('very large ('+w*3+'x'+h*3+')').val(3));
+                resolutionContainer.append(
+                    $('<label for="resolutionSelection" style="margin-right:10px;">Resolution</label>')
+                );
+                resolutionContainer.append(resolutionSelection);
+
+                bodyContainer.append(typeContainer);
+                bodyContainer.append(resolutionContainer);
+
+                var okbutton = $('<button style="margin-right:5px;">Ok</button>');
+                var cancelbutton = $('<button style="margin-left:5px;">Cancel</button>');
+                var buttons = $('<div/>');
+                buttons.append(okbutton);
+                buttons.append(cancelbutton);
+
+                if (that.graph){
+                    var saveimagedialog = w2popup.open({
+                        body: bodyContainer,
+                        buttons: buttons,
+                        title       : w2utils.lang('Image configuration'),
+                        width       : 400,
+                        height      : 200
+                    });
+
+                    okbutton.click(function(){
+                        var selectedType = $('#filetypeSelection')
+                            .find(":selected").text();
+                        var selectedRes = $('#resolutionSelection')
+                            .find(":selected").val();
+                        that.graph.saveImage(selectedType, selectedRes);
+                        bodyContainer.remove();
+                        saveimagedialog.close();
+                    });
+                    cancelbutton.click(function(){
+                        bodyContainer.remove();
+                        saveimagedialog.close();
+                    });
+                }
+            });
+
+
             $('#resetZoom').off();
             $('#resetZoom').remove();
+
             this.$el.append('<div type="button" class="btn btn-success darkbutton" id="resetZoom" title="Reset graph zoom"><i class="fa fa-refresh" aria-hidden="true"></i></div>');
 
            if (typeof this.graph === 'undefined') {
@@ -61,10 +122,6 @@ define(['backbone.marionette',
             }else if(this.graph){
                 this.graph.resize();
             }
-
-            $('#saveRendering').click(function(){
-                that.graph.saveImage();
-            });
 
             $('#resetZoom').click(function(){
                 that.graph.initAxis();
@@ -108,8 +165,9 @@ define(['backbone.marionette',
 
             var xax = 'Latitude';
             var yax = ['F'];
-            var y2ax = null;
-            var colax = [null];
+            var y2ax = [];
+            var colax = [];
+            var colax2 = [];
 
             if(localStorage.getItem('xAxisSelection') !== null){
                 xax =JSON.parse(localStorage.getItem('xAxisSelection'));
@@ -117,32 +175,69 @@ define(['backbone.marionette',
 
             if(localStorage.getItem('yAxisSelection') !== null){
                 yax = JSON.parse(localStorage.getItem('yAxisSelection'));
-                colax = [];
-                for (var i = yax.length - 1; i >= 0; i--) {
-                    colax.push(null);
-                }
             }
 
             if(localStorage.getItem('y2AxisSelection') !== null){
                 y2ax = JSON.parse(localStorage.getItem('y2AxisSelection'));
-                for (var i = y2ax.length - 1; i >= 0; i--) {
-                    colax.push(null);
+            }
+            // Check if previous config used multiaxis
+
+            var multipleAxis = false;
+            if(Array.isArray(yax) && yax.length>0){
+                for (var i = 0; i < yax.length; i++) {
+                    if(Array.isArray(yax[i])){
+                        multipleAxis = true;
+                    }
                 }
+            } else {
+                // TODO what if nothing is defined for yaxis
+            }
+
+            var multipleAxis2 = false;
+            if(Array.isArray(y2ax) && y2ax.length>0){
+                for (var i = 0; i < y2ax.length; i++) {
+                    if(Array.isArray(y2ax[i])){
+                        multipleAxis2 = true;
+                    }
+                }
+            } else {
+                // TODO what if nothing is defined for yaxis
+            }
+
+            if(!multipleAxis){
+                yax = [yax];
+            }
+            if(!multipleAxis2){
+                y2ax = [y2ax];
+            }
+
+            for (var i = 0; i < yax.length; i++) {
+                var currCols = [];
+                for (var j = 0; j < yax[i].length; j++) {
+                    currCols.push(null);
+                }
+                colax.push(currCols);
+            }
+
+            for (var i = 0; i < y2ax.length; i++) {
+                var currCols = [];
+                for (var j = 0; j < y2ax[i].length; j++) {
+                    currCols.push(null);
+                }
+                colax2.push(currCols);
             }
 
             this.renderSettings = {
                 xAxis:  xax,
                 yAxis: yax,
                 colorAxis: colax,
+                y2Axis: y2ax,
+                colorAxis2: colax2,
                 dataIdentifier: {
                     parameter: 'id',
                     identifiers: identifiers
                 }
             };
-
-            if(y2ax !== null){
-                this.renderSettings.y2Axis = y2ax;
-            }
 
             this.graph = new graphly.graphly({
                 el: '#graph',
@@ -150,8 +245,10 @@ define(['backbone.marionette',
                 renderSettings: this.renderSettings,
                 filterManager: this.filterManager,
                 enableFit: false,
-                displayColorscaleOptions: false,
-                displayAlphaOptions: false
+                multiYAxis: true,
+                margin: {top: 40, left: 90, bottom: 50, right: 30},
+                enableSubXAxis: true,
+                enableSubYAxis: true
 
             });
 
@@ -520,8 +617,13 @@ define(['backbone.marionette',
                         identifiers: identifiers
                     };
 
-                    //this.graph.renderSettings = this.renderSettings[idKeys[0]];
-                    if(data[idKeys[0]].length < 6000){
+                    // Calculate very rough estimate of rendered points
+                    var dataLength = data[idKeys[0]].length;
+                    var renderedPoints = (
+                        (dataLength*this.renderSettings.yAxis.length)+
+                        (dataLength*this.renderSettings.y2Axis.length)
+                    );
+                    if(renderedPoints < 10000){
                         this.graph.debounceActive = false;
                     }else{
                         this.graph.debounceActive = true;
@@ -601,27 +703,35 @@ define(['backbone.marionette',
                         ];
 
                         // Check if y axis parameters are still available
-                        for (var i = this.graph.renderSettings.yAxis.length - 1; i >= 0; i--) {
-                            if(idKeys.indexOf(this.graph.renderSettings.yAxis[i]) === -1){
-                                this.graph.renderSettings.yAxis.splice(i, 1);
-                                this.graph.renderSettings.colorAxis.splice(i, 1);
+
+                        /*for (var i = this.graph.renderSettings.yAxis.length - 1; i >= 0; i--) {
+                            for (var j = this.graph.renderSettings.yAxis[i].length - 1; j >= 0; j--) {
+
+                                if(idKeys.indexOf(this.graph.renderSettings.yAxis[i][j]) === -1){
+                                    this.graph.renderSettings.yAxis[i].splice(j, 1);
+                                    this.graph.renderSettings.colorAxis[i].splice(j, 1);
+
+                                }
                             }
                         }
 
                         for (var i = this.graph.renderSettings.y2Axis.length - 1; i >= 0; i--) {
-                            if(idKeys.indexOf(this.graph.renderSettings.y2Axis[i]) === -1){
-                                this.graph.renderSettings.y2Axis.splice(i, 1);
-                                var colIdx = i+this.graph.renderSettings.yAxis.length;
-                                this.graph.renderSettings.colorAxis.splice(colIdx, 1);
-                            }
-                            if(this.graph.renderSettings.y2Axis.length === 0){
-                                needsResize = true;
+                            for (var j = this.graph.renderSettings.y2Axis[i].length - 1; j >= 0; j--) {
+
+                                if(idKeys.indexOf(this.graph.renderSettings.y2Axis[i][j]) === -1){
+                                    this.graph.renderSettings.y2Axis[i].splice(j, 1);
+                                    this.graph.renderSettings.colorAxis2[i].splice(j, 1);
+                                }
+                                if(this.graph.renderSettings.y2Axis.length === 0){
+                                    needsResize = true;
+                                }
                             }
                         }
+                        */
 
                         // Check if all parameters have been removed from 
                         // the first y axis
-                        if (this.graph.renderSettings.yAxis.length === 0){
+                        /*if (this.graph.renderSettings.yAxis.length === 0){
                             // If this is the case check if we can use one 
                             // parameter from  second y axis
                             var y2axLen = this.graph.renderSettings.y2Axis.length;
@@ -696,15 +806,16 @@ define(['backbone.marionette',
                             }
                             
                         }
+                        */
 
 
-                        localStorage.setItem('yAxisSelection', JSON.stringify(this.graph.renderSettings.yAxis));
+                        /*localStorage.setItem('yAxisSelection', JSON.stringify(this.graph.renderSettings.yAxis));
                         localStorage.setItem('y2AxisSelection',JSON.stringify(this.graph.renderSettings.y2Axis));
-                        localStorage.setItem('xAxisSelection', JSON.stringify(this.graph.renderSettings.xAxis));
+                        localStorage.setItem('xAxisSelection', JSON.stringify(this.graph.renderSettings.xAxis));*/
 
                     } else {// End of IF to see if data parameters have changed
 
-                        for (var i = this.graph.renderSettings.yAxis.length - 1; i >= 0; i--) {
+                        /*for (var i = this.graph.renderSettings.yAxis.length - 1; i >= 0; i--) {
                             // Check if there is some issue with the previously loaded params
                             if(idKeys.indexOf(this.graph.renderSettings.yAxis[i]) === -1){
                                 this.graph.renderSettings.yAxis.splice(i, 1);
@@ -720,17 +831,18 @@ define(['backbone.marionette',
                             if(this.graph.renderSettings.y2Axis.length === 0){
                                 needsResize = true;
                             }
-                        }
+                        }#
+                        */
                         
 
-                        localStorage.setItem(
+                        /*localStorage.setItem(
                             'yAxisSelection', 
                             JSON.stringify(this.graph.renderSettings.yAxis)
                         );
                         localStorage.setItem(
                             'y2AxisSelection', 
                             JSON.stringify(this.graph.renderSettings.y2Axis)
-                        );
+                        );*/
                     }
 
                     // This should only happen here if there has been 
