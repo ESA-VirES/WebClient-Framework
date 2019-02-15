@@ -644,6 +644,18 @@ define(['backbone.marionette',
         },
 
         reloadData: function(model, data) {
+
+            function itemExists(itemArray, item) {
+                for (var i = 0; i < itemArray.length; ++i) {
+                    for (var j = 0; j < itemArray[i].length; ++j) {
+                        if (itemArray[i][j] == item) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
             // If element already has plot rendering
             if( $(this.el).html()){
                 var idKeys = Object.keys(data);
@@ -749,147 +761,93 @@ define(['backbone.marionette',
                             'Absolute_VTEC', 'Elevation_Angle', 'FAC', 'EEF'
                         ];
 
-                        // Check if y axis parameters are still available
+                        // Go trough all plots and see if they need to be removed
+                        // now that data has changed
+                        let renSetY = this.renderSettings.yAxis;
+                        let renSetY2 = this.renderSettings.y2Axis;
+                        let colAx = this.renderSettings.colorAxis;
+                        let colAx2 = this.renderSettings.colorAxis2;
+                        var addYT = this.renderSettings.additionalYTicks;
 
-                        /*for (var i = this.graph.renderSettings.yAxis.length - 1; i >= 0; i--) {
-                            for (var j = this.graph.renderSettings.yAxis[i].length - 1; j >= 0; j--) {
+                        for (var pY=renSetY.length-1; pY>=0; pY--) {
 
-                                if(idKeys.indexOf(this.graph.renderSettings.yAxis[i][j]) === -1){
-                                    this.graph.renderSettings.yAxis[i].splice(j, 1);
-                                    this.graph.renderSettings.colorAxis[i].splice(j, 1);
+                            // Go through all elements of plot, first left y axis
+                            // and remove them if no longer available
+                            for (var yy=renSetY[pY].length-1; yy >=0; yy--) {
+                                if(idKeys.indexOf(renSetY[pY][yy]) === -1){
+                                    renSetY[pY].splice(yy,1);
+                                    // remove corresponding cs
+                                    colAx[pY].splice(yy,1);
+                                }
+                            }
 
+                            // Go through all elements of plot, now right y axis
+                            // and remove them if no longer available
+                            for (var yy2=renSetY2[pY].length-1; yy2 >=0; yy2--) {
+                                if(idKeys.indexOf(renSetY2[pY][yy2]) === -1){
+                                    renSetY2[pY].splice(yy2,1);
+                                    // remove corresponding cs
+                                    colAx2[pY].splice(yy2,1);
+                                }
+                            }
+
+                            // Chech if both left and right are empty we remove
+                            // the complete plot
+                            if(renSetY[pY].length === 0 && renSetY2[pY].length === 0){
+                                renSetY.splice(pY,1);
+                                renSetY2.splice(pY,1);
+                                colAx.splice(pY,1);
+                                colAx2.splice(pY,1);
+                                addYT.splice(pY,1);
+                            }
+                        }
+
+
+                        // Check if we want to add any new parameters as new 
+                        // plot that have been added in the change
+                        for (var pc = 0; pc < parasToCheck.length; pc++) {
+                            if(idKeys.indexOf(parasToCheck[pc]) !== -1){
+                                // Check if parameter is not already selected
+                                if(!itemExists(renSetY, parasToCheck[pc]) && 
+                                    !itemExists(renSetY2, parasToCheck[pc])){
+                                    
+                                    renSetY.push([parasToCheck[pc]]);
+                                    colAx.push([null]);
+                                    renSetY2.push([]);
+                                    colAx2.push([]);
+                                    addYT.push([]);
                                 }
                             }
                         }
 
-                        for (var i = this.graph.renderSettings.y2Axis.length - 1; i >= 0; i--) {
-                            for (var j = this.graph.renderSettings.y2Axis[i].length - 1; j >= 0; j--) {
-
-                                if(idKeys.indexOf(this.graph.renderSettings.y2Axis[i][j]) === -1){
-                                    this.graph.renderSettings.y2Axis[i].splice(j, 1);
-                                    this.graph.renderSettings.colorAxis2[i].splice(j, 1);
-                                }
-                                if(this.graph.renderSettings.y2Axis.length === 0){
-                                    needsResize = true;
-                                }
-                            }
-                        }
-                        */
-
-                        // Check if all parameters have been removed from 
-                        // the first y axis
-                        /*if (this.graph.renderSettings.yAxis.length === 0){
-                            // If this is the case check if we can use one 
-                            // parameter from  second y axis
-                            var y2axLen = this.graph.renderSettings.y2Axis.length;
-                            if( y2axLen > 0){
-                                this.graph.renderSettings.yAxis.push(this.graph.renderSettings.y2Axis[y2axLen-1]);
-                                this.graph.renderSettings.y2Axis.splice(y2axLen-1, 1);
-                                needsResize = true;
-                            }
+                        // If after adding possible other default parameters
+                        // there are no plots added we add en empty plot
+                        if(renSetY.length === 0){
+                            renSetY.push([]);
+                            colAx.push([]);
+                            renSetY2.push([]);
+                            colAx2.push([]);
+                            addYT.push([]);
                         }
 
-                        // Check if new data parameter has been added and is not
-                        // part of previous parameters
-                        for (var i = 0; i < parasToCheck.length; i++) {
-                            if(idKeys.indexOf(parasToCheck[i]) !== -1 && 
-                                this.prevParams.indexOf(parasToCheck[i])=== -1 ){
-                                // New parameter is available and left y axis is empty we add it there
-                                if(this.graph.renderSettings.yAxis.length === 0){
-                                    this.graph.renderSettings.yAxis.push(parasToCheck[i]);
-                                    this.graph.renderSettings.colorAxis.push(null);
-
-                                // New parameter is available and is not selected in 
-                                // y Axis yet
-                                } else if(this.graph.renderSettings.yAxis.indexOf(parasToCheck[i]) === -1){
-                                    // If second y axis is free we can use it to render
-                                    // newly added parameter
-
-                                    if(this.graph.renderSettings.yAxis.length === 0 && 
-                                        this.graph.renderSettings.y2Axis.length === 0){
-                                        // TODO: For now we add it to yAxis, when y2 axis working correctly
-                                        // we will need to add it to y2 axis
-                                        this.graph.renderSettings.y2Axis.push(parasToCheck[i]);
-                                        this.graph.renderSettings.colorAxis.push(null);
-                                        needsResize = true;
-                                    }
-                                }
-                            }
-                            // If both y axis are empty we add the first item we encounter
-                            if(idKeys.indexOf(parasToCheck[i]) !== -1 && 
-                               this.graph.renderSettings.yAxis.length === 0 &&
-                               this.graph.renderSettings.y2Axis.length === 0){
-                                this.graph.renderSettings.yAxis.push(parasToCheck[i]);
-                                    this.graph.renderSettings.colorAxis.push(null);
-                            }
-                        }
-
-                        // Check if x selection still available in new parameters
-                        if(idKeys.indexOf(this.graph.renderSettings.xAxis) === -1){
-                            if(idKeys.indexOf('Latitude') !== -1){
-                                this.graph.renderSettings.xAxis = 'Latitude';
-                            } else if (idKeys.indexOf('latitude') !== -1){
-                                this.graph.renderSettings.xAxis = 'latitude';
-                            }
-                        }
-
-                        // Check if residuals was newly added and user is looking at magnetic data
-                        // If he is, we swap total intensity for residual value
-                        if (residuals.length > 0){
-                            // Find total intensity residual key
-                            var totkey = _.filter(idKeys, function(item) {
-                                return item.indexOf('F_res_') !== -1;
-                            });
-                            if(totkey.length === 1){
-                                var index = this.renderSettings.yAxis.indexOf('F');
-                                if(index !== -1){
-                                    this.renderSettings.yAxis[index] = totkey[0];
-                                }
-                                index = this.renderSettings.y2Axis.indexOf('F');
-                                if(index !== -1){
-                                    this.renderSettings.y2Axis[index] = totkey[0];
-                                }
-                                
-                            }
-                            
-                        }
-                        */
-
-
-                        /*localStorage.setItem('yAxisSelection', JSON.stringify(this.graph.renderSettings.yAxis));
-                        localStorage.setItem('y2AxisSelection',JSON.stringify(this.graph.renderSettings.y2Axis));
-                        localStorage.setItem('xAxisSelection', JSON.stringify(this.graph.renderSettings.xAxis));*/
-
-                    } else {// End of IF to see if data parameters have changed
-
-                        /*for (var i = this.graph.renderSettings.yAxis.length - 1; i >= 0; i--) {
-                            // Check if there is some issue with the previously loaded params
-                            if(idKeys.indexOf(this.graph.renderSettings.yAxis[i]) === -1){
-                                this.graph.renderSettings.yAxis.splice(i, 1);
-                                this.graph.renderSettings.colorAxis.splice(i, 1);
-                            }
-                        }
-                        for (var i = this.graph.renderSettings.y2Axis.length - 1; i >= 0; i--) {
-                            if(idKeys.indexOf(this.graph.renderSettings.y2Axis[i]) === -1){
-                                this.graph.renderSettings.y2Axis.splice(i, 1);
-                                var colIdx = i+this.graph.renderSettings.yAxis.length;
-                                this.graph.renderSettings.colorAxis.splice(colIdx, 1);
-                            }
-                            if(this.graph.renderSettings.y2Axis.length === 0){
-                                needsResize = true;
-                            }
-                        }#
-                        */
-                        
-
-                        /*localStorage.setItem(
-                            'yAxisSelection', 
+                        localStorage.setItem(
+                            'yAxisSelection',
                             JSON.stringify(this.graph.renderSettings.yAxis)
                         );
                         localStorage.setItem(
-                            'y2AxisSelection', 
+                            'y2AxisSelection',
                             JSON.stringify(this.graph.renderSettings.y2Axis)
-                        );*/
+                        );
+                        localStorage.setItem(
+                            'xAxisSelection',
+                            JSON.stringify(this.graph.renderSettings.xAxis)
+                        );
+
+                    } else {// End of IF to see if data parameters have changed
+
+                        // TODO: We should not need to do anything here but we 
+                        // could introduce some sanity checks if strange data
+                        // is loaded for some reason
                     }
 
                     // This should only happen here if there has been 
