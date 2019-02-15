@@ -767,10 +767,10 @@ define(['backbone.marionette',
 
                         // Go trough all plots and see if they need to be removed
                         // now that data has changed
-                        let renSetY = this.renderSettings.yAxis;
-                        let renSetY2 = this.renderSettings.y2Axis;
-                        let colAx = this.renderSettings.colorAxis;
-                        let colAx2 = this.renderSettings.colorAxis2;
+                        var renSetY = this.renderSettings.yAxis;
+                        var renSetY2 = this.renderSettings.y2Axis;
+                        var colAx = this.renderSettings.colorAxis;
+                        var colAx2 = this.renderSettings.colorAxis2;
                         var addYT = this.renderSettings.additionalYTicks;
 
                         for (var pY=renSetY.length-1; pY>=0; pY--) {
