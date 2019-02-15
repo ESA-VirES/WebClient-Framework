@@ -129,8 +129,22 @@ define(['backbone.marionette',
             });
 
 
+            // Set height of graph depending on 
+            var filtersMinimized = localStorage.getItem('filtersMinimized');
+            if(filtersMinimized === null){
+                filtersMinimized = false;
+            } else {
+                filtersMinimized = JSON.parse(filtersMinimized);
+            }
+
+            if(filtersMinimized){
+                $('#filterSelectDrop').css('opacity', 0);
+                $('#analyticsFilters').css('opacity', 0);
+                $('#graph').css('height', '99%');
+            }
+
             this.$('#filterDivContainer').append('<div id="filterSelectDrop"></div>');
- 
+
             this.reloadUOM();
 
 
@@ -468,9 +482,16 @@ define(['backbone.marionette',
                 opacity = 1.0;
                 direction = 'down';
                 $('#minimizeFilters').attr('class', 'visible');
+                localStorage.setItem(
+                    'filtersMinimized', JSON.stringify(false)
+                );
             } else {
                 $('#minimizeFilters').attr('class', 'minimized');
+                localStorage.setItem(
+                    'filtersMinimized', JSON.stringify(true)
+                );
             }
+
             $('#filterSelectDrop').animate({ opacity: opacity  }, 1000);
                 $('#analyticsFilters').animate({ opacity: opacity  }, 1000);
                 $('#graph').animate({ height: height  }, {
@@ -500,11 +521,37 @@ define(['backbone.marionette',
             });
 
 
+            // Set height of graph depending on 
+            var filtersMinimized = localStorage.getItem('filtersMinimized');
+            if(filtersMinimized === null){
+                filtersMinimized = false;
+            } else {
+                filtersMinimized = JSON.parse(filtersMinimized);
+            }
+
+            var direction = 'down';
+            if(filtersMinimized){
+                direction = 'up';
+            }
+
             $('#minimizeFilters').off();
             $('#minimizeFilters').remove();
             $('#filterDivContainer').append(
-                '<div id="minimizeFilters" class="visible"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></div>'
+                '<div id="minimizeFilters" class="visible"><i class="fa fa-chevron-circle-'+direction+'" aria-hidden="true"></i></div>'
             );
+
+            var filtersMinimized = localStorage.getItem('filtersMinimized');
+            if(filtersMinimized === null){
+                filtersMinimized = false;
+            } else {
+                filtersMinimized = JSON.parse(filtersMinimized);
+            }
+
+            if(filtersMinimized){
+                $('#minimizeFilters').addClass('minimized');
+            } else {
+                $('#minimizeFilters').addClass('visible');
+            }
 
             $('#minimizeFilters').click(this.changeFilterDisplayStatus.bind(this));
 
