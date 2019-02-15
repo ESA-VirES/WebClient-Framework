@@ -301,3 +301,9 @@ text.nvd3.nv-noData {
     text-align: center;
     margin-top: 20px;
 }
+
+
+/*For some reason the width when integrated into framework is changed*/
+#parameterSettings{
+    width: 270px!important;
+}

@@ -94,6 +94,10 @@ define(['backbone.marionette',
                             .find(":selected").text();
                         var selectedRes = $('#resolutionSelection')
                             .find(":selected").val();
+
+                        var rightNow = new Date();
+                        var res = rightNow.toISOString().slice(0,10).replace(/-/g,'');
+                        that.graph.fileSaveString='VirES_for_Swarm_'+res;
                         that.graph.saveImage(selectedType, selectedRes);
                         bodyContainer.remove();
                         saveimagedialog.close();
@@ -810,7 +814,7 @@ define(['backbone.marionette',
                                 // Check if parameter is not already selected
                                 if(!itemExists(renSetY, parasToCheck[pc]) && 
                                     !itemExists(renSetY2, parasToCheck[pc])){
-                                    
+
                                     renSetY.push([parasToCheck[pc]]);
                                     colAx.push([null]);
                                     renSetY2.push([]);
