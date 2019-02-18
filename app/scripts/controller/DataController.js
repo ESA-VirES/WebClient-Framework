@@ -274,7 +274,7 @@
             "B_NEC_res_IGRF12","B_NEC_res_SIFM","B_NEC_res_CHAOS-6-Combined",
             "B_NEC_res_Custom_Model", "F_res_IGRF12","F_res_SIFM",
             "F_res_CHAOS-6-Combined", "F_res_Custom_Model",
-            "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "GPS_Position", "LEO_Position",
+            "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle", "GPS_Position", "LEO_Position",
             "IRC", "IRC_Error", "FAC", "FAC_Error",
             "EEF", "RelErr", "OrbitNumber",
             "SunDeclination","SunRightAscension","SunHourAngle","SunAzimuthAngle","SunZenithAngle",
