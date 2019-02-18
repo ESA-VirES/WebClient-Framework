@@ -210,6 +210,8 @@ define(['backbone.marionette',
                         'selectedFilterList',
                         JSON.stringify(that.selectedFilterList)
                     );
+                    // I can modify options of w2field, but not aUOM, thus rerendering everything in list
+                    that.renderFilterList();
                 }
             });
 
@@ -315,19 +317,17 @@ define(['backbone.marionette',
             this.separateVector('B', 'B_NEC_resAC',
                 ['resAC_N', 'resAC_E', 'resAC_C'], '_'
             );
-            this.separateVector('B', 'B_NEC_res_SIFM',
-                ['N_res_SIFM', 'E_res_SIFM', 'C_res_SIFM'], '_'
-            );
-            this.separateVector('B', 'B_NEC_res_CHAOS-6-Combined',
-                ['N_res_CHAOS-6-Combined',
-                'E_res_CHAOS-6-Combined',
-                'C_res_CHAOS-6-Combined'], '_'
-            );
-            this.separateVector('B', 'B_NEC_res_Custom_Model',
-                ['N_res_Custom_Model',
-                'E_res_Custom_Model',
-                'C_res_Custom_Model'], '_'
-            );
+            
+            var models = globals.products.filter(function (p) {
+                return p.get('model');
+            });
+            var contextHolder = this;
+            _.each(models, function(key){
+              var n = key.get("name");
+              contextHolder.separateVector('B', 'B_NEC_res_' + n,
+                  ['N_res_' + n, 'E_res_' + n, 'C_res_' + n], '_');
+            });
+            
             this.separateVector('dB_other', 'dB_other', ['X', 'Y', 'Z'], '_');
             this.separateVector('dB_AOCS', 'dB_AOCS', ['X', 'Y', 'Z'], '_');
             this.separateVector('dB_Sun', 'dB_Sun', ['X', 'Y', 'Z'], '_');
