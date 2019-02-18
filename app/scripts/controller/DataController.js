@@ -12,7 +12,8 @@
     'app',
     'papaparse',
     'msgpack',
-    'graphly'
+    'graphly',
+    'underscore'
   ],
 
   function( Backbone, Communicator, globals, wps_getdataTmpl, wps_fetchDataTmpl, App, Papa) {
@@ -49,43 +50,37 @@
       checkModelValidity: function(){
         // Added some checks here to see if model is outside validity
         $(".validitywarning").remove();
+        var selected_time = this.selected_time;
         var invalid_models = [];
 
-        if(this.activeModels.length>0){
-          var that = this;
-          for (var i = this.activeModels.length - 1; i >= 0; i--) {
-            var model = globals.products.find(function(model) { return model.get('download').id == that.activeModels[i]; });
-            if(model.get("validity")){
-              var val = model.get("validity");
-              var start = new Date(val.start);
-              var end = new Date(val.end);
-              if(this.selected_time && (this.selected_time.start < start || this.selected_time.end > end)){
-                invalid_models.push({
-                  model: model.get('download').id,
-                  start: start,
-                  end: end
-                });
-              }
+        _.each(this.activeModels, function (modelId) {
+          var model = globals.models.get(modelId).attributes;
+          var validity = model.validity;
+          if (validity && selected_time) {
+            if ((selected_time.start < validity.start || selected_time.end > validity.end)) {
+              invalid_models.push(model);
             }
           }
+        });
+
+        function _iso_format(date) {
+          return getISODateTimeString(date).slice(0, -5) +'Z';
         }
 
         if(invalid_models.length>0){
-          var invalid_models_string = '';
-          for (var i = invalid_models.length - 1; i >= 0; i--) {
-            invalid_models_string += invalid_models[i].model+' validity:  ' + 
-              getISODateTimeString(invalid_models[i].start).slice(0, -5) +'Z - ' + 
-              getISODateTimeString(invalid_models[i].end).slice(0, -5) + 'Z<br>';
-          }
+          var invalid_models_string = _.map(invalid_models, function (item) {
+            return (
+              item.name + ' validity ' +
+              _iso_format(item.validity.start) + ' - ' +
+              _iso_format(item.validity.end) + '<br>'
+            );
+          }).join('');
 
           showMessage('warning', (
-            'The current time selection is outside the validity of the model, '+
-                'data is displayed for the last valid date, please take this into consideration when analysing the data.<br>'+
-                invalid_models_string+
-                'Tip: You can see the validity of the model in the time slider.'
-            
-)          , 30, 'validitywarning');
-
+            'The current time selection is outside the validity of ' +
+            'the following selected models:<br>' + invalid_models_string +
+            'Tip: You can see the validity of the model in the time slider.'
+          ), 30, 'validitywarning');
         }
       },
 
@@ -279,7 +274,7 @@
             "B_NEC_res_IGRF12","B_NEC_res_SIFM","B_NEC_res_CHAOS-6-Combined",
             "B_NEC_res_Custom_Model", "F_res_IGRF12","F_res_SIFM",
             "F_res_CHAOS-6-Combined", "F_res_Custom_Model",
-            "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "GPS_Position", "LEO_Position",
+            "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle", "GPS_Position", "LEO_Position",
             "IRC", "IRC_Error", "FAC", "FAC_Error",
             "EEF", "RelErr", "OrbitNumber",
             "SunDeclination","SunRightAscension","SunHourAngle","SunAzimuthAngle","SunZenithAngle",
@@ -293,6 +288,8 @@
             "F_res_MMA_SHA_2C-Secondary", "B_NEC_res_MMA_SHA_2C-Secondary",
             "F_res_MMA_SHA_2F-Primary", "B_NEC_res_MMA_SHA_2F-Primary",
             "F_res_MMA_SHA_2F-Secondary", "B_NEC_res_MMA_SHA_2F-Secondary",
+            "F_res_CHAOS-6-MMA-Primary", "B_NEC_res_CHAOS-6-MMA-Primary",
+            "F_res_CHAOS-6-MMA-Secondary", "B_NEC_res_CHAOS-6-MMA-Secondary",
             "F_res_MIO_SHA_2C-Primary", "B_NEC_res_MIO_SHA_2C-Primary",
             "F_res_MIO_SHA_2C-Secondary", "B_NEC_res_MIO_SHA_2C-Secondary",
             "F_res_MIO_SHA_2D-Primary", "B_NEC_res_MIO_SHA_2D-Primary",

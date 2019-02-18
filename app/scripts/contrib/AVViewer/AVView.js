@@ -18,7 +18,7 @@ define(['backbone.marionette',
             this.sp = undefined;
 
             $(window).resize(function() {
-                if(this.graph){
+                if(this.graph && $('#d3canvas').is(':visible')){
                     this.graph.resize();
                 }
             }.bind(this));
@@ -332,6 +332,9 @@ define(['backbone.marionette',
             this.separateVector('dB_AOCS', 'dB_AOCS', ['X', 'Y', 'Z'], '_');
             this.separateVector('dB_Sun', 'dB_Sun', ['X', 'Y', 'Z'], '_');
 
+            this.separateVector('GPS_Position', 'GPS_Position', ['X', 'Y', 'Z'], '_');
+            this.separateVector('LEO_Position', 'LEO_Position', ['X', 'Y', 'Z'], '_');
+
             this.sp.uom_set['MLT'] = {uom: null, name:'Magnetic Local Time'};
             this.sp.uom_set['QDLat'] = {uom: 'deg', name:'Quasi-Dipole Latitude'};
             this.sp.uom_set['QDLon'] = {uom: 'deg', name:'Quasi-Dipole Longitude'};
@@ -532,6 +535,7 @@ define(['backbone.marionette',
                         var filterstouse = [
                             'Ne', 'Te', 'Bubble_Probability',
                             'Relative_STEC_RMS', 'Relative_STEC', 'Absolute_STEC',
+                            'Absolute_VTEC', 'Elevation_Angle',
                             'IRC', 'FAC',
                             'EEF'
                         ];
@@ -592,7 +596,8 @@ define(['backbone.marionette',
                         // If previous does not contain key data and new one
                         // does we add key parameter to selection in plot
                         var parasToCheck = [
-                            'Ne', 'F', 'Bubble_Probability', 'Absolute_STEC', 'FAC', 'EEF'
+                            'Ne', 'F', 'Bubble_Probability', 'Absolute_STEC',
+                            'Absolute_VTEC', 'Elevation_Angle', 'FAC', 'EEF'
                         ];
 
                         // Check if y axis parameters are still available
@@ -643,17 +648,13 @@ define(['backbone.marionette',
                                     // If second y axis is free we can use it to render
                                     // newly added parameter
 
-                                    if(this.graph.renderSettings.y2Axis.length === 0){
+                                    if(this.graph.renderSettings.yAxis.length === 0 && 
+                                        this.graph.renderSettings.y2Axis.length === 0){
                                         // TODO: For now we add it to yAxis, when y2 axis working correctly
                                         // we will need to add it to y2 axis
                                         this.graph.renderSettings.y2Axis.push(parasToCheck[i]);
                                         this.graph.renderSettings.colorAxis.push(null);
                                         needsResize = true;
-                                    } else {
-                                        // TODO: Decide based on extent where the parameter
-                                        // fits best, right now we just add it to the first y axis
-                                        this.graph.renderSettings.yAxis.push(parasToCheck[i]);
-                                        this.graph.renderSettings.colorAxis.push(null);
                                     }
                                 }
                             }

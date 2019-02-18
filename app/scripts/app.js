@@ -6,9 +6,11 @@ var SCALAR_PARAM = [
 
 var VECTOR_PARAM = [
     "B_NEC", "SIFM", "IGRF12", "CHAOS-6-Combined", "Custom_Model",
-    "B_NEC_resAC", "GPS_Position", "LEO_Position", "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC",
+    "B_NEC_resAC", "GPS_Position", "LEO_Position",
+    "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle",
     "MCO_SHA_2C", "MCO_SHA_2D", "MCO_SHA_2F", "MLI_SHA_2C", "MLI_SHA_2D", 
     "MMA_SHA_2C-Primary", "MMA_SHA_2C-Secondary", "MMA_SHA_2F-Primary", "MMA_SHA_2F-Secondary",
+    "CHAOS-6-MMA-Primary", "CHAOS-6-MMA-Secondary",
     "MIO_SHA_2C-Primary", "MIO_SHA_2C-Secondary", "MIO_SHA_2D-Primary", "MIO_SHA_2D-Secondary",
     'dB_other', 'dB_AOCS', 'dB_Sun'
 ]
@@ -26,6 +28,8 @@ var VECTOR_BREAKDOWN = {
     'MMA_SHA_2C-Secondary': ['B_N_res_MMA_SHA_2C-Secondary','B_E_res_MMA_SHA_2C-Secondary','B_C_res_MMA_SHA_2C-Secondary'],
     'MMA_SHA_2F-Primary': ['B_N_res_MMA_SHA_2F-Primary','B_E_res_MMA_SHA_2F-Primary','B_C_res_MMA_SHA_2F-Primary'],
     'MMA_SHA_2F-Secondary': ['B_N_res_MMA_SHA_2F-Secondary','B_E_res_MMA_SHA_2F-Secondary','B_C_res_MMA_SHA_2F-Secondary'],
+    'CHAOS-6-MMA-Primary': ['B_N_res_CHAOS-6-MMA-Primary','B_E_res_CHAOS-6-MMA-Primary','B_C_res_CHAOS-6-MMA-Primary'],
+    'CHAOS-6-MMA-Secondary': ['B_N_res_CHAOS-6-MMA-Secondary','B_E_res_CHAOS-6-MMA-Secondary','B_C_res_CHAOS-6-MMA-Secondary'],
     'MIO_SHA_2C-Primary': ['B_N_res_MIO_SHA_2C-Primary','B_E_res_MIO_SHA_2C-Primary','B_C_res_MIO_SHA_2C-Primary'],
     'MIO_SHA_2C-Secondary': ['B_N_res_MIO_SHA_2C-Secondary','B_E_res_MIO_SHA_2C-Secondary','B_C_res_MIO_SHA_2C-Secondary'],
     'MIO_SHA_2D-Primary': ['B_N_res_MIO_SHA_2D-Primary','B_E_res_MIO_SHA_2D-Primary','B_C_res_MIO_SHA_2D-Primary'],
@@ -49,6 +53,8 @@ var VECTOR_BREAKDOWN = {
     'B_NEC_res_MMA_SHA_2C-Secondary': ['B_N_res_MMA_SHA_2C-Secondary','B_E_res_MMA_SHA_2C-Secondary','B_C_res_MMA_SHA_2C-Secondary'],
     'B_NEC_res_MMA_SHA_2F-Primary': ['B_N_res_MMA_SHA_2F-Primary','B_E_res_MMA_SHA_2F-Primary','B_C_res_MMA_SHA_2F-Primary'],
     'B_NEC_res_MMA_SHA_2F-Secondary': ['B_N_res_MMA_SHA_2F-Secondary','B_E_res_MMA_SHA_2F-Secondary','B_C_res_MMA_SHA_2F-Secondary'],
+    'B_NEC_res_CHAOS-6-MMA-Primary': ['B_N_res_CHAOS-6-MMA-Primary','B_E_res_CHAOS-6-MMA-Primary','B_C_res_CHAOS-6-MMA-Primary'],
+    'B_NEC_res_CHAOS-6-MMA-Secondary': ['B_N_res_CHAOS-6-MMA-Secondary','B_E_res_CHAOS-6-MMA-Secondary','B_C_res_CHAOS-6-MMA-Secondary'],
     'B_NEC_res_MIO_SHA_2C-Primary': ['B_N_res_MIO_SHA_2C-Primary','B_E_res_MIO_SHA_2C-Primary','B_C_res_MIO_SHA_2C-Primary'],
     'B_NEC_res_MIO_SHA_2C-Secondary': ['B_N_res_MIO_SHA_2C-Secondary','B_E_res_MIO_SHA_2C-Secondary','B_C_res_MIO_SHA_2C-Secondary'],
     'B_NEC_res_MIO_SHA_2D-Primary': ['B_N_res_MIO_SHA_2D-Primary','B_E_res_MIO_SHA_2D-Primary','B_C_res_MIO_SHA_2D-Primary'],
@@ -263,6 +269,11 @@ function productSortingFunction(a, b) {
                     var m_p = config.mapConfig.products;
                     for (var i = 0; i < m_p.length; i++) {
 
+                        // Always load timesliderprotocol from original config
+                        if(m_p[i].hasOwnProperty('timeSliderProtocol')){
+                            product_config[i].timeSliderProtocol = m_p[i].timeSliderProtocol;
+                        }
+
                         // Check if MAG A product has new residual parameter loaded
                         if(product_config[i].download.id === 'SW_OPER_MAGA_LR_1B'){
                             if(!product_config[i].parameters.hasOwnProperty('B_NEC_resAC')){
@@ -367,6 +378,8 @@ function productSortingFunction(a, b) {
                     }
 
                     if(lm.get('model')){
+                        // register magnetic model
+                        globals.models.add({name: lm.get('download').id});
                         lm.set('contours', defaultFor( product.contours,false));
                         lm.set('differenceTo', defaultFor( 
                             product.differenceTo, null)
@@ -374,11 +387,16 @@ function productSortingFunction(a, b) {
                     }
 
                     if(lm.get('download').id === 'Custom_Model'){
+                        globals.models.customModelId = 'Custom_Model';
                         var shcFile = localStorage.getItem('shcFile');
                         if(shcFile !== null){
                             shcFile = JSON.parse(shcFile);
                             lm.set('shc', shcFile.data);
                             lm.set('shc_name', shcFile.name);
+                            globals.models.get(lm.get('download').id).set({
+                              'shc': shcFile.data,
+                              'shc_name': shcFile.name
+                            });
                         }
                     }
                     
@@ -395,6 +413,20 @@ function productSortingFunction(a, b) {
                 var productcolors = d3.scale.ordinal().domain(domain).range(range);
 
                 globals.objects.add('productcolors', productcolors);
+
+                // periodic update magnetic models' metadata
+                globals.models.url = config.magneticModels.infoUrl;
+                globals.models.on('fetch:success', function () {
+                  if (this.customModelId && !this.get(this.customModelId))
+                  {
+                    this.add({name: this.customModelId});
+                  }
+                  Communicator.mediator.trigger('models:update');
+                });
+
+                globals.models.fetch()
+                window.setInterval(function () {globals.models.fetch();}, 900000); // refresh each 15min
+
 
                 // If there is already saved overly configuration use that
                 if(localStorage.getItem('overlaysConfig') !== null){

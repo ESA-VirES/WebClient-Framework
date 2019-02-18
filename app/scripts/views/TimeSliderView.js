@@ -38,6 +38,9 @@
                 var that = this;
 
                 this.listenTo(
+                    Communicator.mediator, 'models:update', this.refresh
+                );
+                this.listenTo(
                     Communicator.mediator, 'map:layer:change', this.changeLayer
                 );
                 this.listenTo(
@@ -291,6 +294,21 @@
                     });
             },
 
+            fetchMagneticModel: function (start, end, params, callback) {
+              var products = [];
+              var model = globals.models.get(this.id).attributes;
+              if (model.validity) {
+                products.push([
+                  model.validity.start,
+                  model.validity.end,
+                  {
+                    id: model.name,
+                    bbox: [-180., -90., 180., 90.]
+                  }
+                ]);
+              }
+              callback(products);
+            },
 
             changeLayer: function (options) {
                 if (!options.isBaseLayer){
@@ -304,7 +322,15 @@
                                 console.log('Warning: Map not initialized setting extent to default (-180,-90,180,90)')
                             }
                             var attrs;
-                            switch (product.get('timeSliderProtocol')){
+
+                            var timeSliderProtocol;
+                            if (product.get('model')) {
+                              timeSliderProtocol = 'MagneticModel';
+                            } else {
+                              timeSliderProtocol = product.get('timeSliderProtocol');
+                            }
+
+                            switch (timeSliderProtocol) {
                                 case 'WMS':
                                   this.slider.addDataset({
                                     id: product.get('view').id,
@@ -344,6 +370,18 @@
                                   // Withouth this update the first time activating a layer after the first map move
                                   // the bbox doesnt seem to be defined in the timeslider library and the points shown are wrong
                                   //this.slider.updateBBox([extent.left, extent.bottom, extent.right, extent.top], product.get('download').id);
+                                  break;
+
+                                case 'MagneticModel':
+                                  attrs = {
+                                    id: product.get('download').id,
+                                  }
+                                  this.slider.addDataset({
+                                    id: product.get('download').id,
+                                    color: product.get('color'),
+                                    records: null,
+                                    source: {fetch: this.fetchMagneticModel.bind(attrs)}
+                                  })
                                   break;
 
                                 case 'WPS-INDEX':
@@ -393,6 +431,13 @@
                 for (var i=0; i<this.activeWPSproducts.length; i++){
                     //this.slider.updateBBox([extent.left, extent.bottom, extent.right, extent.top], this.activeWPSproducts[i]);
                 }
+            },
+
+            refresh: function () {
+              Communicator.mediator.trigger('time:change', this.returnTime());
+              _.each(this.slider.datasets, _.bind(function (item) {
+                this.slider.reloadDataset(item.id);
+              }, this));
             },
 
             onCoverageSelected: function(evt){

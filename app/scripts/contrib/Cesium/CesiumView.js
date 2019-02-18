@@ -1141,6 +1141,8 @@ define([
                                     })) {
 
                                     if(tovisualize[i] === 'Absolute_STEC' ||
+                                       tovisualize[i] === 'Absolute_VTEC' ||
+                                       tovisualize[i] === 'Elevation_Angle' ||
                                        tovisualize[i] === 'Relative_STEC' ||
                                        tovisualize[i] === 'Relative_STEC_RMS'){
                                         if(lastTS === null){
@@ -2004,19 +2006,22 @@ define([
                     }
                 }else{
                     if(product.get('timeSlider')){
-                        product.set('time',string);
-                        var cesLayer = product.get('ces_layer');
-                        if(cesLayer){
-                            cesLayer.imageryProvider.updateProperties('time', string);
-                            if (cesLayer.show){
-                                var index = this.map.scene.imageryLayers.indexOf(cesLayer);
-                                this.map.scene.imageryLayers.remove(cesLayer, false);
-                                this.map.scene.imageryLayers.add(cesLayer, index);
+                        if (product.get('views')[0].protocol === 'WPS'){
+                            this.checkShc(product, product.get('visible'));
+                        } else {
+                            product.set('time',string);
+                            var cesLayer = product.get('ces_layer');
+                            if(cesLayer && 
+                               (typeof cesLayer.imageryProvider.updateProperties === 'function') ){
+                                cesLayer.imageryProvider.updateProperties('time', string);
+                                if (cesLayer.show){
+                                    var index = this.map.scene.imageryLayers.indexOf(cesLayer);
+                                    this.map.scene.imageryLayers.remove(cesLayer, false);
+                                    this.map.scene.imageryLayers.add(cesLayer, index);
+                                }
                             }
                         }
-                    }else if (product.get('views')[0].protocol === 'WPS'){
-                        this.checkShc(product, product.get('visible'));
-                    }
+                    } 
                 }
                 
             }, this);
