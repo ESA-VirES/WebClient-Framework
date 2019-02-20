@@ -852,6 +852,17 @@ define(['backbone.marionette',
                             }
                         }
 
+                        // Check if residuals have been added and add them as plot
+                        for (var ik = 0; ik < idKeys.length; ik++) {
+                            if(idKeys[ik].indexOf('F_res')!==-1){
+                                renSetY.push([idKeys[ik]]);
+                                colAx.push([null]);
+                                renSetY2.push([]);
+                                colAx2.push([]);
+                                addYT.push([]);
+                            }
+                        }
+
                         // If after adding possible other default parameters
                         // there are no plots added we add en empty plot
                         if(renSetY.length === 0){
