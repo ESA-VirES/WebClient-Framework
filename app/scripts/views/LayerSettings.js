@@ -195,7 +195,7 @@
                     }
 
 
-                    if(!(typeof this.current_model.get("coefficients_range") === 'undefined')){
+                    if(!(typeof this.current_model.get("coefficients_range") === 'undefined') && this.current_model.get("name") !== 'Composed Model'){
 
                         this.$("#coefficients_range").empty();
 
@@ -771,7 +771,6 @@
                 
                 var contextStorer = this;
                 if ($('.composed_model_operation_operand').length) {
-                    model_change = true;
                     // composed model computation from other models
                     // check for the coefficient range of all choices elements
                     $('.composed_model_operation_operand').parent().each(function() {
@@ -793,6 +792,8 @@
                         error = error || contextStorer.checkValue(coef_range_min, coef_range_min_element);
                         error = error || contextStorer.checkValue(coef_range_max, coef_range_max_element);
                     });
+                    model_change = true;
+                    //TODO: FIX: ADD CHECKING FOR MODEL CHANGE, THIS WAY COLORSCALE SETTING IS OVERWRITTEN
                 }
 
                 if(!error){
