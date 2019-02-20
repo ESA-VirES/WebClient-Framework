@@ -462,6 +462,8 @@
                   }
                   
                   globals.swarm.set({data: dat});
+                  Communicator.mediator.trigger("progress:change", false);
+                  that.xhr = null;
 
                 } else if(request.status!== 0 && request.responseText != "") {
                   globals.swarm.set({data: {}});
@@ -473,6 +475,8 @@
                   }
 
                   showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+                  Communicator.mediator.trigger("progress:change", false);
+                  that.xhr = null;
                   return;
                 }
 
@@ -484,10 +488,6 @@
                 }
             }
 
-            //that.xhr = null;
-            Communicator.mediator.trigger("progress:change", false);
-
-           
           };
 
 
