@@ -274,7 +274,7 @@
             "B_NEC_res_IGRF12","B_NEC_res_SIFM","B_NEC_res_CHAOS-6-Combined",
             "B_NEC_res_Custom_Model", "F_res_IGRF12","F_res_SIFM",
             "F_res_CHAOS-6-Combined", "F_res_Custom_Model",
-            "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "GPS_Position", "LEO_Position",
+            "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle", "GPS_Position", "LEO_Position",
             "IRC", "IRC_Error", "FAC", "FAC_Error",
             "EEF", "RelErr", "OrbitNumber", "OrbitDirection", "QDOrbitDirection",
             "SunDeclination","SunRightAscension","SunHourAngle","SunAzimuthAngle","SunZenithAngle",
@@ -288,6 +288,8 @@
             "F_res_MMA_SHA_2C-Secondary", "B_NEC_res_MMA_SHA_2C-Secondary",
             "F_res_MMA_SHA_2F-Primary", "B_NEC_res_MMA_SHA_2F-Primary",
             "F_res_MMA_SHA_2F-Secondary", "B_NEC_res_MMA_SHA_2F-Secondary",
+            "F_res_CHAOS-6-MMA-Primary", "B_NEC_res_CHAOS-6-MMA-Primary",
+            "F_res_CHAOS-6-MMA-Secondary", "B_NEC_res_CHAOS-6-MMA-Secondary",
             "F_res_MIO_SHA_2C-Primary", "B_NEC_res_MIO_SHA_2C-Primary",
             "F_res_MIO_SHA_2C-Secondary", "B_NEC_res_MIO_SHA_2C-Secondary",
             "F_res_MIO_SHA_2D-Primary", "B_NEC_res_MIO_SHA_2D-Primary",
@@ -460,6 +462,8 @@
                   }
                   
                   globals.swarm.set({data: dat});
+                  Communicator.mediator.trigger("progress:change", false);
+                  that.xhr = null;
 
                 } else if(request.status!== 0 && request.responseText != "") {
                   globals.swarm.set({data: {}});
@@ -471,6 +475,8 @@
                   }
 
                   showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+                  Communicator.mediator.trigger("progress:change", false);
+                  that.xhr = null;
                   return;
                 }
 
@@ -482,10 +488,6 @@
                 }
             }
 
-            //that.xhr = null;
-            Communicator.mediator.trigger("progress:change", false);
-
-           
           };
 
 
