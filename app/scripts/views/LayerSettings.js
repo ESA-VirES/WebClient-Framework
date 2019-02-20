@@ -11,12 +11,13 @@
         'hbs!tmpl/LayerSettings',
         'hbs!tmpl/wps_eval_model_GET',
         'hbs!tmpl/wps_eval_model',
+        'hbs!tmpl/wps_eval_composed_model',
         'hbs!tmpl/wps_eval_model_diff',
         'underscore',
         'plotty'
     ],
 
-    function( Backbone, Communicator, globals, Choices, LayerSettingsTmpl, evalModelTmpl, evalModelTmpl_POST, tmplEvalModelDiff ) {
+    function( Backbone, Communicator, globals, Choices, LayerSettingsTmpl, evalModelTmpl, evalModelTmpl_POST, evalModelTmplComposed_POST, tmplEvalModelDiff ) {
 
         var LayerSettings = Backbone.Marionette.Layout.extend({
 
@@ -237,36 +238,35 @@
                         
                     }
                     
-                    if((this.current_model.get("name") === 'Custom Model')){
-                      //custom model additional fields
-                      this.$("#custom_model_compute").empty();
-                      this.$("#custom_model_compute").append(`
+                    if((this.current_model.get("name") === 'Composed Model')){
+                      this.createApplyButton();
+                      //composed model additional fields
+                      this.$("#composed_model_compute").empty();
+                      this.$("#composed_model_compute").append(`
                       <select class="form-control" id="choices-multiple-remove-button" placeholder="Custom model compute - Choose or type" multiple>
                       </select>`)
-                      var contextStorer = this;
-                      $(document).off("click","#custom_model_compute");
-                      $(document).on("click","#custom_model_compute",function(){
-                        contextStorer.createApplyButton();
-                      });
-
+                      
                       var models = globals.products.filter(function (p) {
                           return p.get('model');
                       });
                       
                       for (var i = 0; i < models.length; i++) {
-                         //initial choices list preparation
+                         // initial choices list preparation
                           var id = models[i].get('download').id;
                           var coefficients = models[i].get('coefficients_range');
-                          // do not use custom_model for creation of a new custom_model
-                          if (id !== 'Custom_Model') {
+                          var selectedComposed = models[i].get('selectedComposed');
+                          var sign = models[i].get('sign');
+                          // do not use composed_model for creation of a new composed_model
+                          if (id !== 'Composed_Model') { //${selectedComposed?'selected':''
                               $('#choices-multiple-remove-button').append(
-                                `<option value=${id}>${id}</option>`
+                                `<option value=${id} ${selectedComposed?'selected':''}>${id}</option>`
                               );
-                              //creating a object storage structure on the holding div element through .data() for later retrieval
-                              //here through reference I am actually modifying globals.products.models, so its later saved to localstorage
-                              $('#custom_model_compute').data(id,{'sign':'+','id':id,'coefficients':coefficients}); 
+                              // creating a object storage structure on the holding div element through .data() for later retrieval
+                              // reference to models[i].attributes.coefficients changes the source, because it is a list? other immutable attributes are unmodified, thus setting them later when changes are applied
+                              $('#composed_model_compute').data(id,{'sign':sign,'id':id,'coefficients':coefficients,'selectedComposed':selectedComposed}); 
                           }
                       }
+
                       //create a Choices modified template
                       var example = new Choices('#choices-multiple-remove-button', {
                         // inline onclicks with stopPropagation etc. are there to avoid binded Choices onclick and onkeydown, which made forms unclickable
@@ -276,23 +276,25 @@
                                   item: (classNames) => {
                                     // reason for this ugly inline event stuff mentioned above
                                     var id = classNames.value;
-                                    var values = $('#custom_model_compute').data(id);
+                                    var values = $('#composed_model_compute').data(id);
                                     // prevent click from Choices, focus and select the form
                                     var onClickFunctionString = 'event.stopPropagation();event.target.focus();event.target.select();';
                                     // prevent focus and writing into search div of choices
                                     var onKeyDownFunctionString = 'event.stopPropagation();';
                                     // handle $.data() change of data holding object so template loads it properly
-                                    var onFormLeaveFunctionStringMin = 'var dataParent=$(this)[0].parentNode.getAttribute(\'data-value\');$(\'#custom_model_compute\').data(dataParent).coefficients[0]=$(this).val();'
-                                    var onFormLeaveFunctionStringMax = 'var dataParent=$(this)[0].parentNode.getAttribute(\'data-value\');$(\'#custom_model_compute\').data(dataParent).coefficients[1]=$(this).val();'
-                                    var onCustomModelOperandClick = 'event.stopPropagation();var dataParent = $(this)[0].parentNode.getAttribute(\'data-value\');var signData =$(\'#custom_model_compute\').data(dataParent).sign;var newSign=(signData===\'+\' ? \'-\' : \'+\');$(this).attr(\'value\', newSign);$(\'#custom_model_compute\').data(dataParent).sign=newSign;';
-
+                                    var onFormLeaveFunctionStringMin = 'var dataParent=$(this)[0].parentNode.getAttribute(\'data-value\');$(\'#composed_model_compute\').data(dataParent).coefficients[0]=$(this).val();'
+                                    var onFormLeaveFunctionStringMax = 'var dataParent=$(this)[0].parentNode.getAttribute(\'data-value\');$(\'#composed_model_compute\').data(dataParent).coefficients[1]=$(this).val();'
+                                    var onCustomModelOperandClick = 'event.stopPropagation();var dataParent = $(this)[0].parentNode.getAttribute(\'data-value\');var signData =$(\'#composed_model_compute\').data(dataParent).sign;var newSign=(signData===\'+\' ? \'-\' : \'+\');$(this).attr(\'value\', newSign);$(\'#composed_model_compute\').data(dataParent).sign=newSign;';
+                                    // TODO: when custom model used, add option to add SHC to template as another button next to X sign
+                                    if (id === 'Custom_Model') {
+                                    }
                                       return template(`
                                         <div class="choices__item choices__item--selectable data-item"
-                                         data-id="${classNames.id}" data-value="${classNames.value}" data-deletable"}>
-                                         <input type="button" value="${values.sign}" class="custom_model_operation_operand btn-info" onclick="${onCustomModelOperandClick}">
-                                          <span class="custom_model_operation_label">${values.id}</span>
-                                          <input type="text" class="custom_model_operation_coefficient_min" value="${values.coefficients[0]}" onclick="${onClickFunctionString}" onkeydown="${onKeyDownFunctionString}" onblur="${onFormLeaveFunctionStringMin}">
-                                          <input type="text" class="custom_model_operation_coefficient_max"  value="${values.coefficients[1]}" onclick="${onClickFunctionString}" onkeydown="${onKeyDownFunctionString}" onblur="${onFormLeaveFunctionStringMax}">	
+                                         data-id="${classNames.id}" data-value="${classNames.value}" data-deletable}>
+                                         <input type="button" value="${values.sign}" class="composed_model_operation_operand btn-info" onclick="${onCustomModelOperandClick}">
+                                          <span class="composed_model_operation_label">${values.id}</span>
+                                          <input type="text" class="composed_model_operation_coefficient_min" value="${values.coefficients[0]}" onclick="${onClickFunctionString}" onkeydown="${onKeyDownFunctionString}" onblur="${onFormLeaveFunctionStringMin}">
+                                          <input type="text" class="composed_model_operation_coefficient_max"  value="${values.coefficients[1]}" onclick="${onClickFunctionString}" onkeydown="${onKeyDownFunctionString}" onblur="${onFormLeaveFunctionStringMax}">	
                                           <button type="button" class="choices__button" data-button> Remove item </button>
                                         </div>
                                         `);
@@ -300,21 +302,17 @@
                               };
                           }
                       });
-                      
-                      $(document).off('input','.custom_model_operation_coefficient_min');     
-                      $(document).on('input','.custom_model_operation_coefficient_min', function(){
-                        contextStorer.createApplyButton();
-                      });
-                      $(document).off('input','.custom_model_operation_coefficient_max');     
-                      $(document).on('input','.custom_model_operation_coefficient_max', function(){
-                        contextStorer.createApplyButton();
-                      });
-                      $(document).off('input','.custom_model_operation_operand');     
-                      $(document).on('input','.custom_model_operation_operand', function(){
-                        contextStorer.createApplyButton();
-                      });
-                    } else{
-                      this.$("#custom_model_compute").empty();                    
+                      //save info about selected elements to data model
+                      example.passedElement.addEventListener('addItem', function(event) {
+                        var dataParent = event.detail.value;
+                        $('#composed_model_compute').data(dataParent).selectedComposed=true;
+                      }, false);
+                      example.passedElement.addEventListener('removeItem', function(event) {
+                        var dataParent = event.detail.value;
+                        $('#composed_model_compute').data(dataParent).selectedComposed=false;
+                      }, false);
+                    } else{ //another model than composed
+                      this.$("#composed_model_compute").empty();                    
                     }
 
 
@@ -772,13 +770,14 @@
                 }
                 
                 var contextStorer = this;
-                if ($('.custom_model_operation_operand').length) {
-                    // custom model computation from other models
+                if ($('.composed_model_operation_operand').length) {
+                    model_change = true;
+                    // composed model computation from other models
                     // check for the coefficient range of all choices elements
-                    $('.custom_model_operation_operand').parent().each(function() {
+                    $('.composed_model_operation_operand').parent().each(function() {
                         // "this" is the current element in the loop
-                        var coef_range_min_element = $(this).children('.custom_model_operation_coefficient_min');
-                        var coef_range_max_element = $(this).children('.custom_model_operation_coefficient_max');
+                        var coef_range_min_element = $(this).children('.composed_model_operation_coefficient_min');
+                        var coef_range_max_element = $(this).children('.composed_model_operation_coefficient_max');
                         var coef_range_min = parseFloat(coef_range_min_element.val());
                         var coef_range_max = parseFloat(coef_range_max_element.val());
 
@@ -797,8 +796,10 @@
                 }
 
                 if(!error){
-                    // Remove button
-                    $("#applychanges").empty();
+                    // Remove button only on normal models, in composed model window leave it there
+                    if((this.current_model.get("name") !== 'Composed Model')){
+                      $("#applychanges").empty();
+                    }
 
                     // If there were changes of the model parameters recalculate the color range
                     if(model_change){
@@ -806,9 +807,44 @@
 
                         var sel_time = Communicator.reqres.request('get:time');
 
-                        
+                        if((this.current_model.get("name") === 'Composed Model')){
+                            var modelsData = $('#composed_model_compute').data();
+                            var selected = _.filter(modelsData, function(model) {
+                                return model.selectedComposed === true;
+                            });
+                          // save data to selected models manually for immutable properties
+                          var models = globals.products.filter(function (p) {
+                              return p.get('model');
+                          });
+                          _.each(selected, function(selectedModel) {
+                              var globalFound = models.find(function(model) {
+                                  return model.get('download').id == selectedModel.id;
+                              });
+                            globalFound.attributes.selectedComposed = selectedModel.selectedComposed;
+                            globalFound.attributes.sign = selectedModel.sign;
+                          })
+                          // expression looks like +'Model1'(min_degree=3,max_degree=20)-'Model2'(min_degree=-1,max_degree=-1)
+                          var modelExpression = '';
+                          _.each(selected, function(selectedModel) {
+                             modelExpression += (selectedModel.sign + '"' + selectedModel.id + '"(min_degree='+selectedModel.coefficients[0]+',max_degree='+selectedModel.coefficients[1]+')')
+                           });
+                           
+                          var payload = evalModelTmplComposed_POST({
+                              'model_expression': modelExpression,
+                              "variable": this.selected,
+                              "begin_time": getISODateTimeString(sel_time.start),
+                              "end_time": getISODateTimeString(sel_time.end),
+                              "elevation": this.current_model.get("height"),
+                              "height": 24,
+                              "width": 24,
+                              "getonlyrange": true
+                          });
 
-                        if(this.current_model.attributes.hasOwnProperty("shc") && 
+                          $.post(this.current_model.get("download").url, payload)
+                              .success(this.handleRangeRespone.bind(this))
+                              .fail(this.handleRangeResponseError);
+                              
+                        } else if(this.current_model.attributes.hasOwnProperty("shc") && 
                             this.current_model.get("differenceTo") === null){
 
                             var payload = evalModelTmpl_POST({

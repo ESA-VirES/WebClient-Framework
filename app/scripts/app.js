@@ -366,6 +366,8 @@ function productSortingFunction(a, b) {
                         height: product.height,
                         outlines: product.outlines,
                         model: product.model,
+                        sign: defaultFor(product.sign, "+"),
+                        selectedComposed: defaultFor(product.selectedComposed, true),
                         coefficients_range: product.coefficients_range,
                         satellite: product.satellite,
                         tileSize: (product.tileSize) ? product.tileSize : 256,
