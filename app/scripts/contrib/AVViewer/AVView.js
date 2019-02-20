@@ -450,13 +450,42 @@ define(['backbone.marionette',
             this.separateVector('GPS_Position', 'GPS_Position', ['X', 'Y', 'Z'], '_');
             this.separateVector('LEO_Position', 'LEO_Position', ['X', 'Y', 'Z'], '_');
 
-            this.sp.uom_set['MLT'] = {uom: null, name:'Magnetic Local Time'};
-            this.sp.uom_set['QDLat'] = {uom: 'deg', name:'Quasi-Dipole Latitude'};
-            this.sp.uom_set['QDLon'] = {uom: 'deg', name:'Quasi-Dipole Longitude'};
-            this.sp.uom_set['Dst'] = {uom: null, name:'Disturbance storm time Index'};
-            this.sp.uom_set['Kp'] = {uom: null, name:'Global geomagnetic storm Index'};
-            this.sp.uom_set['F107'] = {uom: '1e-22 J/s/m^2/Hz', name:'Observed 10.7cm Solar Radio Flux'};
-            this.sp.uom_set['OrbitNumber'] = {uom: null, name:'Orbit number'};
+            this.sp.uom_set['MLT'] = {
+                uom: null, name:'Magnetic Local Time',
+                periodic: {
+                    period: 24,
+                    offset: 0
+                }
+            };
+
+            if(this.sp.uom_set.hasOwnProperty('Longitude')){
+                this.sp.uom_set['Longitude'].periodic = {
+                    period: 360,
+                    offset: -180
+                };
+            }
+            this.sp.uom_set['QDLat'] = {
+                uom: 'deg', name:'Quasi-Dipole Latitude'
+            };
+            this.sp.uom_set['QDLon'] = {
+                uom: 'deg', name:'Quasi-Dipole Longitude',
+                periodic: {
+                    period: 360,
+                    offset: -180
+                }
+            };
+            this.sp.uom_set['Dst'] = {
+                uom: null, name:'Disturbance storm time Index'
+            };
+            this.sp.uom_set['Kp'] = {
+                uom: null, name:'Global geomagnetic storm Index'
+            };
+            this.sp.uom_set['F107'] = {
+                uom: '1e-22 J/s/m^2/Hz', name:'Observed 10.7cm Solar Radio Flux'
+            };
+            this.sp.uom_set['OrbitNumber'] = {
+                uom: null, name:'Orbit number'
+            };
 
             globals.swarm.set('uom_set', this.sp.uom_set);
         },
@@ -683,8 +712,7 @@ define(['backbone.marionette',
                     // Calculate very rough estimate of rendered points
                     var dataLength = data[idKeys[0]].length;
                     var renderedPoints = (
-                        (dataLength*this.renderSettings.yAxis.length)+
-                        (dataLength*this.renderSettings.y2Axis.length)
+                        dataLength*this.renderSettings.yAxis.length
                     );
                     if(renderedPoints < 10000){
                         this.graph.debounceActive = false;
