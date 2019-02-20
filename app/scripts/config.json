@@ -1085,11 +1085,11 @@
                     "name": "Geographic longitude"
                 },
                 "Radius": {
-                    "uom": "km",
+                    "uom": "m",
                     "name": "Geographic radius"
                 },
                 "GPS_Position": {
-                    "uom": "km",
+                    "uom": "m",
                     "name": "X-,Y-,Z-coordinates (WGS84) of the GPS satellite"
                 },
                 "LEO_Position": {
@@ -1249,11 +1249,11 @@
                     "name": "Geographic longitude"
                 },
                 "Radius": {
-                    "uom": "km",
+                    "uom": "m",
                     "name": "Geographic radius"
                 },
                 "GPS_Position": {
-                    "uom": "km",
+                    "uom": "m",
                     "name": "X-,Y-,Z-coordinates (WGS84) of the GPS satellite"
                 },
                 "LEO_Position": {
@@ -1413,11 +1413,11 @@
                     "name": "Geographic longitude"
                 },
                 "Radius": {
-                    "uom": "km",
+                    "uom": "m",
                     "name": "Geographic radius"
                 },
                 "GPS_Position": {
-                    "uom": "km",
+                    "uom": "m",
                     "name": "X-,Y-,Z-coordinates (WGS84) of the GPS satellite"
                 },
                 "LEO_Position": {
@@ -4451,12 +4451,7 @@
                 "protocol": "INDEX",
                 "url": "http://localhost:9000/vires00/ows"
             },
-            "download_parameters": {
-                "dst": {
-                    "uom": null,
-                    "name": "Equivalent equatorial magnetic disturbances index"
-                }
-            },
+            "download_parameters": {},
             "index": true
         },{
             "name": "Kp Index",
@@ -4476,12 +4471,7 @@
                 "protocol": "INDEX",
                 "url": "http://localhost:9000/vires00/ows"
             },
-            "download_parameters": {
-                "kp": {
-                    "uom": null,
-                    "name": "Planetary index of geomagnetic activity"
-                }
-            },
+            "download_parameters": {},
             "index": true
         },{
             "name": "F10.7 Index",
@@ -4500,12 +4490,7 @@
                 "protocol": "INDEX",
                 "url": "http://localhost:9000/vires00/ows"
             },
-            "download_parameters": {
-                "F107": {
-                    "uom": "1e-22 J/s/m^2/Hz",
-                    "name": "Observed 10.7cm Solar Radio Flux"
-                }
-            },
+            "download_parameters": {},
             "index": true
         },{
             "name": "Digital Elevation Model",

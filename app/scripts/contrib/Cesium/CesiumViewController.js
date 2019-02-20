@@ -90,7 +90,15 @@ define([
                 Communicator.mediator, 'time:change', 
                 _.bind(this.cesiumView.onTimeChange, this.cesiumView)
             );
- 
+            this.cesiumView.listenTo(
+                Communicator.mediator, 'layout:switch:splitview', 
+                _.bind(this.cesiumView.onResize, this.cesiumView)
+            );
+            this.cesiumView.listenTo(
+                Communicator.mediator, 'layout:switch:singleview', 
+                _.bind(this.cesiumView.onResize, this.cesiumView)
+            );
+            
             Communicator.reqres.setHandler('map:get:extent', _.bind(this.cesiumView.onGetMapExtent, this.cesiumView));
             this.cesiumView.listenTo(
                 this.cesiumView.model, 'change', function(model, options) {}
