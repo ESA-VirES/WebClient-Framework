@@ -1269,6 +1269,7 @@ define([
                     var height = product.get('height');
                     var contours = product.get('contours');
                     var coeffRange = product.get('coefficients_range');
+                    var id = product.get('download').id;
                     var cesLayer;
 
                     if(product.get('views')[0].protocol === 'CZML'){
@@ -1350,8 +1351,15 @@ define([
                                 if(style){
                                     cesLayer.imageryProvider.updateProperties('styles', style);
                                 }
-                                if(coeffRange){
+                                
+                                if(coeffRange && id !== "Composed_Model"){
                                     cesLayer.imageryProvider.updateProperties('dim_coeff', (coeffRange[0]+','+coeffRange[1]));
+                                }
+                                // layers=MyNewModel;models=MyNewModel='model1'-'model2'+'model3'
+                                if(id === "Composed_Model"){
+                                    var modelExpressionHtml = $('#composed_model_compute').data("composed_model_expression");
+                                    var queryBegin = id + '=';
+                                    cesLayer.imageryProvider.updateProperties('models', queryBegin + modelExpressionHtml);
                                 }
                                 if (cesLayer.show){
                                     var index = this.map.scene.imageryLayers.indexOf(cesLayer);
