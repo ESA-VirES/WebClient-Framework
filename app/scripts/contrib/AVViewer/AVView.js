@@ -38,7 +38,7 @@ define(['backbone.marionette',
             this.overlay = null;
             this.activeWPSproducts = [];
             this.plotType = 'scatter';
-            this.prevParams = [];
+            this.prevParams = null;
             this.fieldsforfiltering = [];
 
 
@@ -723,7 +723,9 @@ define(['backbone.marionette',
                     var needsResize = false;
 
                     // If data parameters have changed
-                    if (!_.isEqual(this.prevParams, idKeys)){
+                    // if this is first data load prev params is empty so ideally
+                    // config from last time should be loaded
+                    if (!_.isEqual(this.prevParams, idKeys) && this.prevParams!== null){
                         // Define which parameters should be selected defaultwise as filtering
                         var filterstouse = [
                             'Ne', 'Te', 'Bubble_Probability',
@@ -855,11 +857,14 @@ define(['backbone.marionette',
                         // Check if residuals have been added and add them as plot
                         for (var ik = 0; ik < idKeys.length; ik++) {
                             if(idKeys[ik].indexOf('F_res')!==-1){
-                                renSetY.push([idKeys[ik]]);
-                                colAx.push([null]);
-                                renSetY2.push([]);
-                                colAx2.push([]);
-                                addYT.push([]);
+                                if(!itemExists(renSetY, idKeys[ik]) && 
+                                    !itemExists(renSetY2, idKeys[ik])){
+                                    renSetY.push([idKeys[ik]]);
+                                    colAx.push([null]);
+                                    renSetY2.push([]);
+                                    colAx2.push([]);
+                                    addYT.push([]);
+                                }
                             }
                         }
 
@@ -885,9 +890,13 @@ define(['backbone.marionette',
                             'xAxisSelection',
                             JSON.stringify(this.graph.renderSettings.xAxis)
                         );
-
-                    } else {// End of IF to see if data parameters have changed
-
+                        // End of IF to see if data parameters have changed
+                    } else if (this.prevParams === null) {
+                        // TODO: We should not need to do anything here but we 
+                        // could introduce some sanity checks if strange data
+                        // is loaded for some reason
+                        
+                    } else {
                         // TODO: We should not need to do anything here but we 
                         // could introduce some sanity checks if strange data
                         // is loaded for some reason
