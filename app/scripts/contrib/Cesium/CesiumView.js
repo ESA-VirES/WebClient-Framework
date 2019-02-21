@@ -125,7 +125,7 @@ define([
                 value = ''+value;
                 var i = _.indexOf(this._tileProvider._urlParts, property);
                 if (i>=0){
-                    this._tileProvider._urlParts[i+1] = value;
+                    this._tileProvider._urlParts[i+1] = encodeURIComponent(value);
                 }else{
                     this._tileProvider._urlParts.push(property);
                     this._tileProvider._urlParts.push(encodeURIComponent(value));
