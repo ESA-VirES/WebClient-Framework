@@ -578,6 +578,9 @@ define([
                     if(layerdesc.get('height')){
                         addParams.elevation = layerdesc.get('height');
                     }
+                    if(layerdesc.get('model_expression')){
+                        addParams.models = view.id + "=" + layerdesc.get('model_expression');
+                    }
                     params.format = layerdesc.get('views')[0].format;
                     returnLayer = new Cesium.WebMapServiceImageryProvider({
                         url: view.urls[0],
