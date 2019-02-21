@@ -278,6 +278,7 @@
             "IRC", "IRC_Error", "FAC", "FAC_Error",
             "EEF", "RelErr", "OrbitNumber",
             "SunDeclination","SunRightAscension","SunHourAngle","SunAzimuthAngle","SunZenithAngle",
+            "OrbitDirection","QDOrbitDirection",
             // New models
             "F_res_MCO_SHA_2C", "B_NEC_res_MCO_SHA_2C",
             "F_res_MCO_SHA_2D", "B_NEC_res_MCO_SHA_2D",
@@ -293,7 +294,7 @@
             "F_res_MIO_SHA_2C-Primary", "B_NEC_res_MIO_SHA_2C-Primary",
             "F_res_MIO_SHA_2C-Secondary", "B_NEC_res_MIO_SHA_2C-Secondary",
             "F_res_MIO_SHA_2D-Primary", "B_NEC_res_MIO_SHA_2D-Primary",
-            "F_res_MIO_SHA_2D-Secondary", "B_NEC_res_MIO_SHA_2D-Secondary"
+            "F_res_MIO_SHA_2D-Secondary", "B_NEC_res_MIO_SHA_2D-Secondary",
           ];
 
           // See if magnetic data actually selected if not remove residuals
@@ -422,6 +423,48 @@
                     }
                     for (var i = 0; i < dat[refKey].length; i++) {
                       dat['Radius'].push(6832000)
+                    }
+                  }
+
+                  if(dat.hasOwnProperty('Latitude') && dat.hasOwnProperty('OrbitDirection')) {
+                    dat['Latitude_periodic'] = [];
+                    for (var i = 0; i < dat.Latitude.length; i++) {
+                      if(dat.OrbitDirection[i] === 1){
+                          // range 90 -270
+                          dat.Latitude_periodic.push(dat.Latitude[i]+180);
+                      } else if (dat.OrbitDirection[i] === -1){
+                          if(dat.Latitude[i]<0){
+                              // range 0 - 90
+                              dat.Latitude_periodic.push((dat.Latitude[i]*-1));
+                          } else {
+                              // range 270 - 360
+                              dat.Latitude_periodic.push(360-dat.Latitude[i]);
+                          }
+                          
+                      } else if (dat.OrbitDirection[i] === 0){
+                          //TODO what to do here? Should in principle not happen
+                      }
+                    }
+                  }
+
+                  if(dat.hasOwnProperty('QDLat') && dat.hasOwnProperty('QDOrbitDirection')) {
+                    dat['QDLatitude_periodic'] = [];
+                    for (var i = 0; i < dat.QDLat.length; i++) {
+                      if(dat.QDOrbitDirection[i] === 1){
+                          // range 90 -270
+                          dat.QDLatitude_periodic.push(dat.QDLat[i]+180);
+                      } else if (dat.QDOrbitDirection[i] === -1){
+                          if(dat.QDLat[i]<0){
+                              // range 0 - 90
+                              dat.QDLatitude_periodic.push((dat.QDLat[i]*-1));
+                          } else {
+                              // range 270 - 360
+                              dat.QDLatitude_periodic.push(360-dat.QDLat[i]);
+                          }
+                          
+                      } else if (dat.QDOrbitDirection[i] === 0){
+                          //TODO what to do here? Should in principle not happen
+                      }
                     }
                   }
 

@@ -487,6 +487,22 @@ define(['backbone.marionette',
                 uom: null, name:'Orbit number'
             };
 
+            this.sp.uom_set['Latitude_periodic'] = {
+                periodic: {
+                    period: 360,
+                    offset: 0,
+                    specialTicks: true
+                }
+            };
+
+            this.sp.uom_set['QDLatitude_periodic'] = {
+                periodic: {
+                    period: 360,
+                    offset: 0,
+                    specialTicks: true
+                }
+            };
+
             globals.swarm.set('uom_set', this.sp.uom_set);
         },
 
