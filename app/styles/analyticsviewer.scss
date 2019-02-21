@@ -1,6 +1,11 @@
 @import "defaults";
 
 
+
+#globalSettingsContainer{
+    width: 156px!important;
+}
+
 .d3canvas {
     background-color: white;
 
@@ -205,11 +210,12 @@ text.nvd3.nv-noData {
 }
 
 #resetZoom{
-    margin-top: 45px;
+    margin-top: 7px;
     position: absolute;
     padding: 2px 7px 1px 7px;
     font-size: 20px;
     z-index: 20;
+    margin-left: 40px;
     /*/margin-left: 8px;*/
 }
 
@@ -291,4 +297,18 @@ text.nvd3.nv-noData {
     font-size: 1.9em;
     color: #444;
     text-align: center;
+}
+
+
+#typeSelectionContainer, #resolutionSelectionContainer{
+    width: 100%;
+    margin: auto;
+    text-align: center;
+    margin-top: 20px;
+}
+
+
+/*For some reason the width when integrated into framework is changed*/
+#parameterSettings{
+    width: 270px!important;
 }

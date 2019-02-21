@@ -426,7 +426,15 @@ function productSortingFunction(a, b) {
                   Communicator.mediator.trigger('models:update');
                 });
 
-                globals.models.fetch()
+                // TODO: There is one initial request where sending is not counted
+                // but the ajax response is. This sets the event counter negative
+                // for now i add the event change here but i am not sure which 
+                // request is actually responsible for this
+                Communicator.mediator.trigger("progress:change", true);
+                //globals.models.on('fetch:start', function () {
+                //});
+
+                globals.models.fetch();
                 window.setInterval(function () {globals.models.fetch();}, 900000); // refresh each 15min
 
 
@@ -914,18 +922,17 @@ function productSortingFunction(a, b) {
 
           $(document).ajaxError(function( event, request , settings, thrownError ) {
             if(settings.suppressErrors) {
-                    return;
-                    }
+                return;
+            }
+            var error_text = request.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
 
-                    var error_text = request.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
+            if (error_text && error_text.length > 1) {
+                error_text = error_text[1];
+            } else {
+                error_text = 'Please contact feedback@vires.services if issue persists.'
+            }
 
-                    if (error_text && error_text.length > 1) {
-                        error_text = error_text[1];
-                    } else {
-                        error_text = 'Please contact feedback@vires.services if issue persists.'
-                    }
-
-                    showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+            showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
           });
 
           $('.tab-header:contains(Download)').css( "font-weight", "bold" );
