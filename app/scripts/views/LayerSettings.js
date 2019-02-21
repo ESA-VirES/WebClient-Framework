@@ -10,6 +10,7 @@
         'bower_components/choices.js/assets/scripts/dist/choices.js',
         'hbs!tmpl/LayerSettings',
         'hbs!tmpl/wps_eval_model_GET',
+        'hbs!tmpl/wps_eval_composed_model_GET',
         'hbs!tmpl/wps_eval_model',
         'hbs!tmpl/wps_eval_composed_model',
         'hbs!tmpl/wps_eval_model_diff',
@@ -17,7 +18,7 @@
         'plotty'
     ],
 
-    function( Backbone, Communicator, globals, Choices, LayerSettingsTmpl, evalModelTmpl, evalModelTmpl_POST, evalModelTmplComposed_POST, tmplEvalModelDiff ) {
+    function( Backbone, Communicator, globals, Choices, LayerSettingsTmpl, evalModelTmpl,evalModelTmplComposed, evalModelTmpl_POST, evalModelTmplComposed_POST, tmplEvalModelDiff ) {
 
         var LayerSettings = Backbone.Marionette.Layout.extend({
 
@@ -539,16 +540,6 @@
                     var that = this;
 
                     var sel_time = Communicator.reqres.request('get:time');
-                    var req = evalModelTmpl({
-                        url: this.current_model.get("download").url,
-                        model: this.current_model.get("download").id,
-                        variable: this.selected,
-                        begin_time: getISODateTimeString(sel_time.start),
-                        end_time: getISODateTimeString(sel_time.end),
-                        coeff_min: this.current_model.get("coefficients_range")[0],
-                        coeff_max: this.current_model.get("coefficients_range")[1],
-                        elevation: this.current_model.get("height")
-                    });
 
                     if(this.current_model.get("views")[0].id == "shc" && 
                         this.current_model.get("differenceTo") === null){
@@ -602,7 +593,22 @@
                             $.post(this.current_model.get("download").url, payload)
                                 .success(this.handleRangeRespone.bind(this))
                                 .fail(this.handleRangeResponseError);
-                    } else {
+                    } else if (this.current_model.get("download").id === "Composed_Model"){
+
+                        var req = evalModelTmplComposed({
+                            url: this.current_model.get("download").url,
+                            model_expression: encodeURIComponent($('#composed_model_compute').data("composed_model_expression")),
+                            variable: this.selected,
+                            begin_time: getISODateTimeString(sel_time.start),
+                            end_time: getISODateTimeString(sel_time.end),
+                            elevation: this.current_model.get("height")
+                        });
+
+                        $.get(req)
+                            .success(this.handleRangeRespone.bind(this))
+                            .fail(this.handleRangeResponseError)
+                            .always(this.handleRangeChange.bind(this));
+                    }else{
 
                         var req = evalModelTmpl({
                             url: this.current_model.get("download").url,

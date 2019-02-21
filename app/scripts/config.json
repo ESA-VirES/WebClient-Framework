@@ -4246,6 +4246,8 @@
             "visible": false,
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
+            "tileSize":1024,
+            "opacity": 0.7,
             "views": [{
                 "id": "Composed_Model",
                 "protocol": "WMS",
