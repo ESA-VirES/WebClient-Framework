@@ -402,6 +402,10 @@ function productSortingFunction(a, b) {
                         }
                     }
                     
+                    if(lm.get('download').id === 'Composed_Model'){
+                        lm.set('model_expression', defaultFor(product.model_expression,''));
+                    }
+                    
                     globals.products.add(lm);
 
                     if(product.processes){

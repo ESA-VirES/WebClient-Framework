@@ -597,7 +597,7 @@
 
                         var req = evalModelTmplComposed({
                             url: this.current_model.get("download").url,
-                            model_expression: encodeURIComponent($('#composed_model_compute').data("composed_model_expression")),
+                            model_expression: encodeURIComponent(this.current_model.get("model_expression")),
                             variable: this.selected,
                             begin_time: getISODateTimeString(sel_time.start),
                             end_time: getISODateTimeString(sel_time.end),
@@ -816,7 +816,7 @@
                         var sel_time = Communicator.reqres.request('get:time');
 
                         if((this.current_model.get("name") === 'Composed Model')){
-                           var modelExpression = $('#composed_model_compute').data("composed_model_expression");
+                           var modelExpression = this.current_model.get("model_expression");
                           var payload = evalModelTmplComposed_POST({
                               'model_expression': modelExpression,
                               "variable": this.selected,
@@ -930,7 +930,7 @@
                    modelExpression += (selectedModel.sign + '"' + selectedModel.id + '"(min_degree='+selectedModel.coefficients[0]+',max_degree='+selectedModel.coefficients[1]+')')
                  });
                  //save it to data holder
-                 $('#composed_model_compute').data("composed_model_expression", modelExpression);
+                 this.current_model.attributes.model_expression = modelExpression;
             },
 
             checkValue: function(value, textfield){

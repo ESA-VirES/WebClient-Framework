@@ -1350,7 +1350,7 @@ define([
                                 }
                                 // layers=MyNewModel;models=MyNewModel='model1'-'model2'+'model3'
                                 if(id === "Composed_Model"){
-                                    var modelExpressionHtml = $('#composed_model_compute').data("composed_model_expression");
+                                    var modelExpressionHtml = product.get('model_expression');
                                     var queryBegin = id + '=';
                                     cesLayer.imageryProvider.updateProperties('models', queryBegin + modelExpressionHtml);
                                 }

@@ -4322,7 +4322,8 @@
             "coefficients_range": [-1,-1],
             "differenceTo": null,
             "selectedComposed": false,
-            "sign": "+"
+            "sign": "+",
+            "model_expression": null
             
         },{
             "name": "Custom Model",
