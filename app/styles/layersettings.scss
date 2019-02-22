@@ -63,6 +63,7 @@
 
 .composed_model_operation_label{
     font-weight: bold;
+    margin-left: 6px;
 }
 
 .degree_range_selection_input{
@@ -84,15 +85,14 @@
     display: block!important;
 }
 
-.choices__item{
+.composed_model_choices_holding_div{
     display: block!important;
     margin-bottom: 0px!important;
     width: 100%;
-    text-align: center;
     padding: 3px 4px!important;
 }
 
-.choices__button{
+.composed_model_delete_button{
     border-left: 2px solid #2B6E87!important;
     border-bottom: 2px solid #2B6E87!important;
     margin-left: 3px!important;
@@ -101,13 +101,13 @@
     width: 20px!important;
 }
 
-.choices__button,.composed_model_operation_operand{
+.composed_model_operation_operand,.composed_model_delete_button{
     background-color: #5bc0de!important;
     color:white!important;
     opacity:1!important;
     border-radius:5px;
 }
 
-.composed_model_operation_operand:hover,.choices__button:hover{
+.composed_model_operation_operand:hover,.composed_model_delete_button:hover{
     background-color: #39b3d7!important;
 }
