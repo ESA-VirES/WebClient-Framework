@@ -83,10 +83,18 @@
         if (isCustomModel && !this.has('shc')) {
           return;
         }
+        var modelId = this.id;
+        if (this.has("model_expression")){
+          if (this.get("model_expression") == null){
+            return;
+          }else{
+            modelId += "=" + this.get("model_expression");
+          }
+        }
         _.extend(options, {
           method: 'POST',
           data: wps_getModelInfoTmpl({
-            model_ids: this.id,
+            model_ids: modelId,
             shc: isCustomModel ? this.get('shc') : null,
             mimeType: 'application/json'
           })
@@ -99,11 +107,18 @@
       fetch: function (options) {
         // update models via the vires:get_model_data WPS process
         options = options ? _.clone(options) : {};
+        //throw away Custom model without shc and composed model without expression
         var modelIds = _.map(
           this.filter(_.bind(function (item) {
-            return (item.id != this.customModelId)||(item.has('shc'));
-          }, this)),
-          function (item) {return item.id;}
+            return (item.id != this.customModelId && item.get("model_expression")!==null)||(item.has('shc'));
+          }, this)),        
+          function (item) {
+            var modelId = item.id;
+            if (item.get("model_expression")){
+              modelId += "=" + item.get("model_expression");
+            }
+              return modelId;
+            }
         );
         var customModel = this.get('Custom_Model');
         _.extend(options, {

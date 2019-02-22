@@ -403,7 +403,10 @@ function productSortingFunction(a, b) {
                     }
                     
                     if(lm.get('download').id === 'Composed_Model'){
-                        lm.set('model_expression', defaultFor(product.model_expression,''));
+                        lm.set('model_expression', defaultFor(product.model_expression,null));
+                        globals.models.get(lm.get('download').id).set({
+                          'model_expression': lm.get("model_expression")
+                        })
                     }
                     
                     globals.products.add(lm);
