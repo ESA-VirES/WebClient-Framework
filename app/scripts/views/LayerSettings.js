@@ -294,9 +294,11 @@
                                          data-id="${classNames.id}" data-value="${classNames.value}" data-deletable}>
                                          <input type="button" value="${values.sign}" class="composed_model_operation_operand btn-info" onclick="${onCustomModelOperandClick}">
                                           <span class="composed_model_operation_label">${values.id}</span>
-                                          <input type="text" class="composed_model_operation_coefficient_min" value="${values.coefficients[0]}" onclick="${onClickFunctionString}" onkeydown="${onKeyDownFunctionString}" onblur="${onFormLeaveFunctionStringMin}">
-                                          <input type="text" class="composed_model_operation_coefficient_max"  value="${values.coefficients[1]}" onclick="${onClickFunctionString}" onkeydown="${onKeyDownFunctionString}" onblur="${onFormLeaveFunctionStringMax}">	
-                                          <button type="button" class="choices__button" data-button> Remove item </button>
+                                          <button type="button" class="choices__button"  data-button> Remove item </button>
+                                          <div class="degree_range_selection_input">
+                                            <input type="text" class="composed_model_operation_coefficient_min" value="${values.coefficients[0]}" onclick="${onClickFunctionString}" onkeydown="${onKeyDownFunctionString}" onblur="${onFormLeaveFunctionStringMin}">
+                                            <input type="text" class="composed_model_operation_coefficient_max"  value="${values.coefficients[1]}" onclick="${onClickFunctionString}" onkeydown="${onKeyDownFunctionString}" onblur="${onFormLeaveFunctionStringMax}">	
+                                          </div>
                                         </div>
                                         `);
                                   }
