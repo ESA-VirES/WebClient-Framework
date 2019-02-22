@@ -5,7 +5,7 @@ var SCALAR_PARAM = [
 ];
 
 var VECTOR_PARAM = [
-    "B_NEC", "SIFM", "IGRF12", "CHAOS-6-Combined", "Custom_Model",
+    "B_NEC", "SIFM", "IGRF12", "CHAOS-6-Combined", "Custom_Model", "Composed_Model", 
     "B_NEC_resAC", "GPS_Position", "LEO_Position",
     "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle",
     "MCO_SHA_2C", "MCO_SHA_2D", "MCO_SHA_2F", "MLI_SHA_2C", "MLI_SHA_2D", 
@@ -19,6 +19,7 @@ var VECTOR_BREAKDOWN = {
     'IGRF12': ['B_N_res_IGRF12','B_E_res_IGRF12','B_C_res_IGRF12'],
     'CHAOS-6-Combined': ['B_N_res_CHAOS-6-Combined','B_E_res_CHAOS-6-Combined','B_C_res_CHAOS-6-Combined'],
     'Custom_Model': ['B_N_res_Custom_Model','B_E_res_Custom_Model','B_C_res_Custom_Model'],
+    'Composed_Model': ['B_N_res_Composed_Model','B_E_res_Composed_Model','B_C_res_Composed_Model'],
     'MCO_SHA_2C': ['B_N_res_MCO_SHA_2C','B_E_res_MCO_SHA_2C','B_C_res_MCO_SHA_2C'],
     'MCO_SHA_2D': ['B_N_res_MCO_SHA_2D','B_E_res_MCO_SHA_2D','B_C_res_MCO_SHA_2D'],
     'MCO_SHA_2F': ['B_N_res_MCO_SHA_2F','B_E_res_MCO_SHA_2F','B_C_res_MCO_SHA_2F'],
@@ -44,6 +45,7 @@ var VECTOR_BREAKDOWN = {
     'B_NEC_res_IGRF12': ['B_N_res_IGRF12','B_E_res_IGRF12','B_C_res_IGRF12'],
     'B_NEC_res_CHAOS-6-Combined': ['B_N_res_CHAOS-6-Combined','B_E_res_CHAOS-6-Combined','B_C_res_CHAOS-6-Combined'],
     'B_NEC_res_Custom_Model': ['B_N_res_Custom_Model','B_E_res_Custom_Model','B_C_res_Custom_Model'],
+    'B_NEC_res_Composed_Model': ['B_N_res_Composed_Model','B_E_res_Composed_Model','B_C_res_Composed_Model'],
     'B_NEC_res_MCO_SHA_2C': ['B_N_res_MCO_SHA_2C','B_E_res_MCO_SHA_2C','B_C_res_MCO_SHA_2C'],
     'B_NEC_res_MCO_SHA_2D': ['B_N_res_MCO_SHA_2D','B_E_res_MCO_SHA_2D','B_C_res_MCO_SHA_2D'],
     'B_NEC_res_MCO_SHA_2F': ['B_N_res_MCO_SHA_2F','B_E_res_MCO_SHA_2F','B_C_res_MCO_SHA_2F'],
@@ -367,7 +369,7 @@ function productSortingFunction(a, b) {
                         outlines: product.outlines,
                         model: product.model,
                         sign: defaultFor(product.sign, "+"),
-                        selectedComposed: defaultFor(product.selectedComposed, true),
+                        selectedComposed: defaultFor(product.selectedComposed, false),
                         coefficients_range: product.coefficients_range,
                         satellite: product.satellite,
                         tileSize: (product.tileSize) ? product.tileSize : 256,
