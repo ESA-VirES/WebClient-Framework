@@ -196,7 +196,7 @@
                     }
 
 
-                    if(!(typeof this.current_model.get("coefficients_range") === 'undefined') && this.current_model.get("name") !== 'Composed Model'){
+                    if(!(typeof this.current_model.get("coefficients_range") === 'undefined') && this.current_model.get("name") !== 'Composed_Model'){
 
                         this.$("#coefficients_range").empty();
 
@@ -239,7 +239,7 @@
                         
                     }
                     
-                    if((this.current_model.get("name") === 'Composed Model')){
+                    if((this.current_model.get("name") === 'Composed_Model')){
                       this.createApplyButton();
                       //composed model additional fields
                       this.$("#composed_model_compute").empty();
@@ -258,7 +258,7 @@
                           var selectedComposed = models[i].get('selectedComposed');
                           var sign = models[i].get('sign');
                           // do not use composed_model for creation of a new composed_model
-                          if (id !== 'Composed_Model') { //${selectedComposed?'selected':''
+                          if (id !== 'Composed_Model') {
                               $('#choices-multiple-remove-button').append(
                                 `<option value=${id} ${selectedComposed?'selected':''}>${id}</option>`
                               );
@@ -807,7 +807,7 @@
 
                 if(!error){
                     // Remove button only on normal models, in composed model window leave it there
-                    if((this.current_model.get("name") !== 'Composed Model')){
+                    if((this.current_model.get("name") !== 'Composed_Model')){
                       $("#applychanges").empty();
                     }
 
@@ -817,7 +817,7 @@
 
                         var sel_time = Communicator.reqres.request('get:time');
 
-                        if((this.current_model.get("name") === 'Composed Model')){
+                        if((this.current_model.get("name") === 'Composed_Model')){
                            var modelExpression = this.current_model.get("model_expression");
                           var payload = evalModelTmplComposed_POST({
                               'model_expression': modelExpression,

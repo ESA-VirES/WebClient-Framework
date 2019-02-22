@@ -4242,7 +4242,7 @@
             "sign": "+"
 
         },{
-            "name": "Composed Model",
+            "name": "Composed_Model",
             "visible": false,
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
@@ -4326,7 +4326,7 @@
             "model_expression": null
             
         },{
-            "name": "Custom Model",
+            "name": "Custom_Model",
             "visible": false,
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
