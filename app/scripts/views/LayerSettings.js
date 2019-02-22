@@ -244,7 +244,7 @@
                       //composed model additional fields
                       this.$("#composed_model_compute").empty();
                       this.$("#composed_model_compute").append(`
-                      <select class="form-control" id="choices-multiple-remove-button" placeholder="Custom model compute - Choose or type" multiple>
+                      <select class="form-control" id="choices-multiple-remove-button" placeholder="Composed model - Choose or type" multiple>
                       </select>`)
                       
                       var models = globals.products.filter(function (p) {
@@ -283,8 +283,8 @@
                                     // prevent focus and writing into search div of choices
                                     var onKeyDownFunctionString = 'event.stopPropagation();';
                                     // handle $.data() change of data holding object so template loads it properly
-                                    var onFormLeaveFunctionStringMin = 'var dataParent=$(this)[0].parentNode.getAttribute(\'data-value\');$(\'#composed_model_compute\').data(dataParent).coefficients[0]=$(this).val();'
-                                    var onFormLeaveFunctionStringMax = 'var dataParent=$(this)[0].parentNode.getAttribute(\'data-value\');$(\'#composed_model_compute\').data(dataParent).coefficients[1]=$(this).val();'
+                                    var onFormLeaveFunctionStringMin = 'var dataParent=$(this)[0].parentNode.parentNode.getAttribute(\'data-value\');$(\'#composed_model_compute\').data(dataParent).coefficients[0]=$(this).val();'
+                                    var onFormLeaveFunctionStringMax = 'var dataParent=$(this)[0].parentNode.parentNode.getAttribute(\'data-value\');$(\'#composed_model_compute\').data(dataParent).coefficients[1]=$(this).val();'
                                     var onCustomModelOperandClick = 'event.stopPropagation();var dataParent = $(this)[0].parentNode.getAttribute(\'data-value\');var signData =$(\'#composed_model_compute\').data(dataParent).sign;var newSign=(signData===\'+\' ? \'-\' : \'+\');$(this).attr(\'value\', newSign);$(\'#composed_model_compute\').data(dataParent).sign=newSign;';
                                     // TODO: when custom model used, add option to add SHC to template as another button next to X sign
                                     if (id === 'Custom_Model') {
