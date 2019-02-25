@@ -534,7 +534,8 @@ function productSortingFunction(a, b) {
                             m.get("download").id.indexOf("SW_OPER_IBI") != -1 ||
                             m.get("download").id.indexOf("SW_OPER_TEC") != -1 ||
                             m.get("download").id.indexOf("SW_OPER_FAC") != -1 ||
-                            m.get("download").id.indexOf("SW_OPER_EEF") != -1
+                            m.get("download").id.indexOf("SW_OPER_EEF") != -1 ||
+                            m.get('model') && !["Custom_Model", "Composed_Model"].includes(m.get('download').id)
                          )
                     ){
                         return false;
