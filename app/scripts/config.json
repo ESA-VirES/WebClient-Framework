@@ -4305,6 +4305,24 @@
                     "uom":"degree",
                     "name": "Declination",
                     "colorscale": "diverging_1"
+                },
+                "X_EW": {
+                    "range": [-5, 5],
+                    "uom":"nT/km",
+                    "name": "North component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Y_EW": {
+                    "range": [-5, 5],
+                    "uom":"nT/km",
+                    "name": "East component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Z_EW": {
+                    "range": [-5, 5],
+                    "uom":"nT/km",
+                    "name": "Down component (East-West Gradient)",
+                    "colorscale": "diverging_1"
                 }
             },
             "download_parameters": {
