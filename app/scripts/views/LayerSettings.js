@@ -669,14 +669,17 @@
                 var options = this.current_model.get("parameters");
                 var resp = response.split(',');
                 var range = [Number(resp[1]), Number(resp[2])];
-                // Make range "nicer", rounding depending on extent
-                range = d3.scale.linear().domain(range).nice().domain();
-                $("#range_min").val(range[0]);
-                $("#range_max").val(range[1]);
-                options[this.selected].range = range;
-                this.current_model.set("parameters", options);
-                this.createScale();
-                Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
+                if (!isNaN(range[0]) && !isNaN(range[1])){
+                  // Make range "nicer", rounding depending on extent
+                  range = d3.scale.linear().domain(range).nice().domain();
+                  $("#range_min").val(range[0]);
+                  $("#range_max").val(range[1]);
+                  options[this.selected].range = range;
+                  this.current_model.set("parameters", options);
+                  this.createScale();
+                  Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
+                }
+                
             },
 
             handleRangeResponeSHC: function(evt, response){
