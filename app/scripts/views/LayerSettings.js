@@ -784,8 +784,9 @@
                     // check for the coefficient range of all choices elements
                     $('.composed_model_operation_operand').parent().each(function() {
                         // "this" is the current element in the loop
-                        var coef_range_min_element = $(this).children('.composed_model_operation_coefficient_min');
-                        var coef_range_max_element = $(this).children('.composed_model_operation_coefficient_max');
+                        var holding_div = $(this).children(".degree_range_selection_input");
+                        var coef_range_min_element = $(holding_div).children('.composed_model_operation_coefficient_min');
+                        var coef_range_max_element = $(holding_div).children('.composed_model_operation_coefficient_max');
                         var coef_range_min = parseFloat(coef_range_min_element.val());
                         var coef_range_max = parseFloat(coef_range_max_element.val());
 
