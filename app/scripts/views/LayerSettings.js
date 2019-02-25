@@ -802,6 +802,12 @@
                         error = error || contextStorer.checkValue(coef_range_max, coef_range_max_element);
                     });
                 }
+                if((this.current_model.get("name") === 'Composed_Model')){
+                  if ($('.composed_model_operation_operand').length === 0) {
+                    error = true;
+                    showMessage('warning','Please add at least one model to Composed model selection before hitting Apply changes.', 20);
+                  }
+                }
 
                 if(!error){
                     // Remove button only on normal models, in composed model window leave it there
@@ -946,7 +952,11 @@
                  //check if model expression is the same as before apply button clicked
                  var expressionStayedSame = modelExpression ===this.current_model.attributes.model_expression;
                  //save it to data holder
-                 this.current_model.attributes.model_expression = modelExpression;
+                 this.current_model.set("model_expression",modelExpression);
+                 var modelExpressionFromProducts = globals.models.find(function(p){
+                   return p.get("name")=== "Composed_Model";
+                 });
+                 modelExpressionFromProducts.set("model_expression",modelExpression);
                  return expressionStayedSame;
             },
 

@@ -405,6 +405,7 @@ function productSortingFunction(a, b) {
                     }
                     
                     if(lm.get('download').id === 'Composed_Model'){
+                      globals.models.composedModelId = 'Composed_Model';
                         lm.set('model_expression', defaultFor(product.model_expression,null));
                         globals.models.get(lm.get('download').id).set({
                           'model_expression': lm.get("model_expression")
@@ -432,6 +433,17 @@ function productSortingFunction(a, b) {
                   {
                     this.add({name: this.customModelId});
                   }
+                  if (this.composedModelId && !this.get("Composed_Model"))
+                  {
+                    this.add({name: "Composed_Model"});
+                    var modelExpressionFromProducts = globals.products.find(function(p){
+                      return p.get("download").id === "Composed_Model";
+                    });
+                    this.get("Composed_Model").set({
+                      'model_expression': modelExpressionFromProducts.get("model_expression")
+                    })
+                  }
+                  
                   Communicator.mediator.trigger('models:update');
                 });
 
