@@ -198,6 +198,14 @@ define(['backbone.marionette',
             if(localStorage.getItem('y2AxisSelection') !== null){
                 y2ax = JSON.parse(localStorage.getItem('y2AxisSelection'));
             }
+
+            if(localStorage.getItem('colorAxisSelection') !== null){
+                colax = JSON.parse(localStorage.getItem('colorAxisSelection'));
+            }
+
+            if(localStorage.getItem('colorAxis2Selection') !== null){
+                colax2 = JSON.parse(localStorage.getItem('colorAxis2Selection'));
+            }
             // Check if previous config used multiaxis
 
             var multipleAxis = false;
@@ -264,7 +272,7 @@ define(['backbone.marionette',
                 filterManager: this.filterManager,
                 enableFit: false,
                 multiYAxis: true,
-                margin: {top: 40, left: 90, bottom: 50, right: 30},
+                margin: {top: 40, left: 90, bottom: 50, right: 35},
                 enableSubXAxis: true,
                 enableSubYAxis: true
 
@@ -291,6 +299,23 @@ define(['backbone.marionette',
                     'y2AxisSelection',
                     JSON.stringify(this.renderSettings.y2Axis)
                 );
+
+                localStorage.setItem(
+                    'colorAxisSelection',
+                    JSON.stringify(this.renderSettings.colorAxis)
+                );
+
+                localStorage.setItem(
+                    'colorAxis2Selection',
+                    JSON.stringify(this.renderSettings.colorAxis2)
+                );
+
+                // Save parameter style changes
+                localStorage.setItem(
+                    'parameterSettings',
+                    JSON.stringify(globals.swarm.get('uom_set'))
+                );
+
             });
 
             this.graph.on('pointSelect', function(values){
@@ -502,6 +527,16 @@ define(['backbone.marionette',
                     specialTicks: true
                 }
             };
+
+            // Check if styling settings have been saved
+            if(localStorage.getItem('parameterSettings') !== null){
+                var parameterSettings =JSON.parse(localStorage.getItem('parameterSettings'));
+                for (var k in parameterSettings){
+                    if(this.sp.uom_set.hasOwnProperty(k)){
+                        this.sp.uom_set[k] = parameterSettings[k];
+                    }
+                }
+            }
 
             globals.swarm.set('uom_set', this.sp.uom_set);
         },
@@ -905,6 +940,16 @@ define(['backbone.marionette',
                         localStorage.setItem(
                             'xAxisSelection',
                             JSON.stringify(this.graph.renderSettings.xAxis)
+                        );
+
+                        localStorage.setItem(
+                            'colorAxisSelection',
+                            JSON.stringify(this.graph.renderSettings.colorAxis)
+                        );
+
+                        localStorage.setItem(
+                            'colorAxis2Selection',
+                            JSON.stringify(this.graph.renderSettings.colorAxis2)
                         );
                         // End of IF to see if data parameters have changed
                     } else if (this.prevParams === null) {
