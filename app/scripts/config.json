@@ -4036,7 +4036,7 @@
             "model": true,
             "coefficients_range": [-1,-1],
             "differenceTo": null,
-            "selectedComposed": false,
+            "selectedComposed": true,
             "sign": "+"
 
         },{
@@ -4341,7 +4341,7 @@
             "differenceTo": null,
             "selectedComposed": false,
             "sign": "+",
-            "model_expression": null
+            "model_expression": "+\"CHAOS-6-Combined\"(min_degree=-1,max_degree=-1)"
             
         },{
             "name": "Custom_Model",
