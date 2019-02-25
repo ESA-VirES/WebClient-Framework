@@ -193,6 +193,29 @@ function productSortingFunction(a, b) {
                 );
 
 
+                // Check if version of service is set and if it differs from the
+                // current version
+                if(localStorage.getItem('serviceVersion') !== null){
+                    var serviceVersion = JSON.parse(
+                        localStorage.getItem('serviceVersion')
+                    );
+                    if(serviceVersion!==globals.version){
+                        // TODO: There was a version in change, should something
+                        // be adapted?
+                    }
+                } else {
+                    localStorage.setItem(
+                        'serviceVersion',
+                        JSON.stringify(globals.version)
+                    );
+                    // TODO: There was a version in change, should something
+                    // be adapted?
+                }
+
+
+                
+
+
                 //Base Layers are loaded and added to the global collection
                 // If there are already saved baselayer config in the local
                 // storage use that instead
