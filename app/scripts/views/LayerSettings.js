@@ -779,7 +779,6 @@
                 
                 var contextStorer = this;
                 if ($('.composed_model_operation_operand').length) {
-                  contextStorer.applyComposedModelChanges();
                     // composed model computation from other models
                     // check for the coefficient range of all choices elements
                     $('.composed_model_operation_operand').parent().each(function() {
@@ -802,16 +801,19 @@
                         error = error || contextStorer.checkValue(coef_range_min, coef_range_min_element);
                         error = error || contextStorer.checkValue(coef_range_max, coef_range_max_element);
                     });
-                    model_change = true;
-                    //TODO: FIX: ADD CHECKING FOR MODEL CHANGE, THIS WAY COLORSCALE SETTING IS OVERWRITTEN
                 }
 
                 if(!error){
                     // Remove button only on normal models, in composed model window leave it there
                     if((this.current_model.get("name") !== 'Composed_Model')){
                       $("#applychanges").empty();
+                    }else{
+                      //for composed model apply changes and form expression
+                      var expressionStayedSame = this.applyComposedModelChanges();
+                      if (!expressionStayedSame) {
+                        model_change = true;
+                      }
                     }
-
                     // If there were changes of the model parameters recalculate the color range
                     if(model_change){
                         var that = this;
@@ -834,6 +836,8 @@
                           $.post(this.current_model.get("download").url, payload)
                               .success(this.handleRangeRespone.bind(this))
                               .fail(this.handleRangeResponseError);
+                          // fetch data when model changed on composed model option
+                          globals.models.get(that.current_model.get('download').id).fetch();
                               
                         } else if(this.current_model.attributes.hasOwnProperty("shc") && 
                             this.current_model.get("differenceTo") === null){
@@ -911,6 +915,7 @@
             },
 
             applyComposedModelChanges: function(){
+              //performs attribute saving for composed model, returns true if previous model expression was the same
                 var modelsData = $('#composed_model_compute').data();
                 var selected = _.filter(modelsData, function(model) {
                     return model.selectedComposed === true;
@@ -937,8 +942,12 @@
                 _.each(selected, function(selectedModel) {
                    modelExpression += (selectedModel.sign + '"' + selectedModel.id + '"(min_degree='+selectedModel.coefficients[0]+',max_degree='+selectedModel.coefficients[1]+')')
                  });
+                 
+                 //check if model expression is the same as before apply button clicked
+                 var expressionStayedSame = modelExpression ===this.current_model.attributes.model_expression;
                  //save it to data holder
                  this.current_model.attributes.model_expression = modelExpression;
+                 return expressionStayedSame;
             },
 
             checkValue: function(value, textfield){
