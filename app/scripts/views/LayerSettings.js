@@ -919,12 +919,17 @@
                 var models = globals.products.filter(function (p) {
                     return p.get('model');
                 });
-                _.each(selected, function(selectedModel) {
-                    var globalFound = models.find(function(model) {
+                _.each(models, function(model) {
+                    var selectedFound = selected.find(function(selectedModel) {
                         return model.get('download').id == selectedModel.id;
                     });
-                    globalFound.attributes.selectedComposed = selectedModel.selectedComposed;
-                    globalFound.attributes.sign = selectedModel.sign;
+                    if (selectedFound !== undefined){
+                      model.attributes.selectedComposed = true;
+                      model.attributes.sign = selectedFound.sign;
+                    }
+                    else {
+                      model.attributes.selectedComposed = false;
+                    }
                 })
                 
                 // expression looks like +'Model1'(min_degree=3,max_degree=20)-'Model2'(min_degree=-1,max_degree=-1)
