@@ -973,8 +973,15 @@
                         data: evt.target.result
                     }));
 
-                    that.$("#shc").find("#filename").remove();
-                    that.$("#shc").append('<p id="filename" style="font-size:.9em;">Selected File: '+filename+'</p>');
+                    // add shc also to custom model
+                    var customModel = globals.products.filter(function(p){
+                        return p.get('download').id === 'Custom_Model';
+                    })[0];
+
+                    customModel.set({
+                        shc: evt.target.result,
+                        shc_name: filename
+                    });
 
 
                     var sel_time = Communicator.reqres.request('get:time');
