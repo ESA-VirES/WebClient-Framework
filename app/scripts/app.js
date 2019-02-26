@@ -436,7 +436,7 @@ function productSortingFunction(a, b) {
                     });
                     
                     var productCoefficients = modelExpressionFromProducts.get("coefficients_range");
-                    if (productCoefficients[0] === -1 && productCoefficients[1] === -1){
+                    if (productCoefficients && productCoefficients[0] === -1 && productCoefficients[1] === -1){
                       modelExpressionFromProducts.set("coefficients_range", model.get("coefficients_range"));
                     }
                   })
