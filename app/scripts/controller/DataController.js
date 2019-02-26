@@ -35,7 +35,7 @@
 
         this.listenTo(Communicator.mediator, "analytics:set:filter", this.onAnalyticsFilterChanged);
         this.xhr = null;
-       
+
       },
 
       onManualInit: function(){
@@ -107,7 +107,7 @@
             }
 
             for (var i = this.activeModels.length - 1; i >= 0; i--) {
-              
+
               pars[this.activeModels[i]] = {
                   "range": [-10, 40],
                   "uom":"nT",
@@ -150,7 +150,7 @@
 
         this.checkModelValidity();
       },
-      
+
 
       multiChangeLayer: function(layers) {
         this.activeWPSproducts = [];
@@ -161,7 +161,7 @@
                 _.each(product.get("processes"), function(process){
                   this.activeWPSproducts.push(process.layer_id);
                 },this);
-              } 
+              }
           }
         }
         localStorage.setItem('swarmProductSelection', JSON.stringify(this.activeWPSproducts));
@@ -170,7 +170,7 @@
       },
 
       onSelectionChanged: function(bbox) {
-        
+
         if(bbox){
           this.selection_list.push(bbox);
           this.checkSelections();
@@ -180,7 +180,7 @@
           this.checkSelections();
         }
 
-        
+
       },
 
       onAnalyticsFilterChanged: function (filters) {
@@ -253,7 +253,7 @@
                 collections[sat] = [retrieve_data[i].layer];
               }
             }
-           
+
           }
 
           // Sort the "layers" to sort the master products based on priority
@@ -267,7 +267,7 @@
             "end_time": getISODateTimeString(this.selected_time.end)
           };
 
-          
+
           var variables = [
             "F", "F_error", "B_NEC_resAC", "B_VFM", "B_error", "B_NEC", "Ne", "Te", "Vs",
             "U_orbit", "Bubble_Probability", "Kp", "Dst", "F107", "QDLat", "QDLon", "MLT",
@@ -350,7 +350,7 @@
             var bb = this.selection_list[0];
             options["bbox"] = bb.s + "," + bb.w + "," + bb.n + "," + bb.e;
           }
-                
+
           var shc_model = _.find(globals.products.models, function(p){return p.get("shc") != null;});
 
           if(shc_model){
@@ -439,7 +439,7 @@
                               // range 270 - 360
                               dat.Latitude_periodic.push(360-dat.Latitude[i]);
                           }
-                          
+
                       } else if (dat.OrbitDirection[i] === 0){
                           //TODO what to do here? Should in principle not happen
                       }
@@ -460,7 +460,7 @@
                               // range 270 - 360
                               dat.QDLatitude_periodic.push(360-dat.QDLat[i]);
                           }
-                          
+
                       } else if (dat.QDOrbitDirection[i] === 0){
                           //TODO what to do here? Should in principle not happen
                       }
@@ -481,7 +481,7 @@
                       delete dat[key];
                     }
                   }
-                  // This should only happen here if there has been 
+                  // This should only happen here if there has been
                   // some issue with the saved filter configuration
                   // Check if current brushes are valid for current data
                   var idKeys = Object.keys(dat);
@@ -502,7 +502,7 @@
                     }
 
                   }
-                  
+
                   globals.swarm.set({data: dat});
                   Communicator.mediator.trigger("progress:change", false);
                   that.xhr = null;
