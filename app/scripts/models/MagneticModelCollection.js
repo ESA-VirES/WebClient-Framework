@@ -59,10 +59,10 @@
         // When MagneticModelModel.fetch() is called response is an array with one object.
         // When MagneticModelCollection.fetch() is called response is an object.
         if (Array.isArray(response)) {
-          if (response.lenght == 0) {
+          if (response.length == 0) {
             response = null;
           } else {
-            if (response.lenght > 0) {
+            if (response.length > 1) {
               console.warn('More than one model info items received while only one expected!');
             }
             response = response[0];
