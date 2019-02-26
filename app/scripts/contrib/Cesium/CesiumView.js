@@ -300,7 +300,16 @@ define([
                     product.set('ces_layer', imagerylayer);
                     product.set('backupLayer', imagerylayer);
 
-                    imagerylayer.show = product.get('visible');
+                    if(product.get('download').id === 'Composed_Model'){
+                        if(this.checkComposedForSHC(product)){
+                            imagerylayer.show = false;
+                        } else {
+                            imagerylayer.show = product.get('visible');
+                        }
+                    } else {
+                        imagerylayer.show = product.get('visible');
+                    }
+
                     imagerylayer.alpha = product.get('opacity');
 
                     // If product protocol is not WMS or WMTS they are
