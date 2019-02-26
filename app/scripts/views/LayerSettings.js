@@ -675,9 +675,8 @@
                   options[this.selected].range = range;
                   this.current_model.set("parameters", options);
                   this.createScale();
-                  Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
                 }
-                
+                Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));  
             },
 
             handleRangeResponeSHC: function(evt, response){
