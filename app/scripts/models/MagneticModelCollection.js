@@ -79,6 +79,7 @@
       fetch: function (options) {
         // update model via the vires:get_model_data WPS process
         options = options ? _.clone(options) : {};
+        var modelContainsSHC = false;
         var isCustomModel = this.id == this.collection.customModelId;
         if (isCustomModel && !this.has('shc')) {
           return;
@@ -95,7 +96,7 @@
           method: 'POST',
           data: wps_getModelInfoTmpl({
             model_ids: modelId,
-            shc: isCustomModel ? this.get('shc') : null,
+            shc: this.has('shc') ? this.get('shc') : null,
             mimeType: 'application/json'
           })
         });

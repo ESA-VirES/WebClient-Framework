@@ -409,7 +409,18 @@ function productSortingFunction(a, b) {
                         lm.set('model_expression', defaultFor(product.model_expression,null));
                         globals.models.get(lm.get('download').id).set({
                           'model_expression': lm.get("model_expression")
-                        })
+                        });
+
+                        var shcFile = localStorage.getItem('shcFile');
+                        if(shcFile !== null){
+                            shcFile = JSON.parse(shcFile);
+                            lm.set('shc', shcFile.data);
+                            lm.set('shc_name', shcFile.name);
+                            globals.models.get(lm.get('download').id).set({
+                              'shc': shcFile.data,
+                              'shc_name': shcFile.name
+                            });
+                        }
                     }
                     
                     globals.products.add(lm);
@@ -547,7 +558,7 @@ function productSortingFunction(a, b) {
                             m.get("download").id.indexOf("SW_OPER_TEC") != -1 ||
                             m.get("download").id.indexOf("SW_OPER_FAC") != -1 ||
                             m.get("download").id.indexOf("SW_OPER_EEF") != -1 ||
-                            m.get('model') && !["Custom_Model", "Composed_Model"].includes(m.get('download').id)
+                            m.get('model') && !["Composed_Model"].includes(m.get('download').id)
                          )
                     ){
                         return false;

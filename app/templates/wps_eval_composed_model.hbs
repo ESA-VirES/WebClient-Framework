@@ -58,6 +58,12 @@
       </wps:Data>
     </wps:Input>
     {{/if}}
+    {{#if shc}}<wps:Input>
+      <ows:Identifier>shc</ows:Identifier>
+      <wps:Data>
+        <wps:ComplexData><![CDATA[{{shc}}]]></wps:ComplexData>
+      </wps:Data>
+    </wps:Input>{{/if}}
     {{#if range_min}}<wps:Input>
       <ows:Identifier>range_min</ows:Identifier>
       <wps:Data>
