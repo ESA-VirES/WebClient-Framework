@@ -278,7 +278,6 @@
             "IRC", "IRC_Error", "FAC", "FAC_Error",
             "EEF", "RelErr", "OrbitNumber", "OrbitDirection", "QDOrbitDirection",
             "SunDeclination","SunRightAscension","SunHourAngle","SunAzimuthAngle","SunZenithAngle",
-            "OrbitDirection","QDOrbitDirection",
             // New models
             "F_res_MCO_SHA_2C", "B_NEC_res_MCO_SHA_2C",
             "F_res_MCO_SHA_2D", "B_NEC_res_MCO_SHA_2D",
