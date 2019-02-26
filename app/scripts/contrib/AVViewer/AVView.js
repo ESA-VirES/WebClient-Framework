@@ -438,7 +438,7 @@ define(['backbone.marionette',
             });
             var contextHolder = this;
             _.each(models, function(key){
-              var n = key.get("name");
+              var n = key.get("download").id;
               contextHolder.separateVector('B', 'B_NEC_res_' + n,
                   ['N_res_' + n, 'E_res_' + n, 'C_res_' + n], '_');
             });

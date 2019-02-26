@@ -858,16 +858,16 @@
         
         // composed model special case with model_expression
         var joinedActiveModels = options["model_ids"];
-        if (joinedActiveModels.indexOf("Composed_Model") !== -1){
+        if (joinedActiveModels.indexOf("Magnetic_Model") !== -1){
             var models = globals.products.filter(function (p) {
                 return p.get('model');
             });
             
             var globalFound = models.find(function(model) {
-                return model.get('download').id === "Composed_Model";
+                return model.get('download').id === "Magnetic_Model";
             }); 
             
-            var newActiveModels = joinedActiveModels.replace("Composed_Model", "Composed_Model=" + globalFound.get("model_expression"));
+            var newActiveModels = joinedActiveModels.replace("Magnetic_Model", "Magnetic_Model=" + globalFound.get("model_expression"));
 
             options["model_ids"] = newActiveModels;
         }else{

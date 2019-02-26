@@ -196,7 +196,7 @@
                     }
 
 
-                    if(!(typeof this.current_model.get("coefficients_range") === 'undefined') && this.current_model.get("name") !== 'Composed_Model'){
+                    if(!(typeof this.current_model.get("coefficients_range") === 'undefined') && this.current_model.get("download").id !== 'Magnetic_Model'){
 
                         this.$("#coefficients_range").empty();
 
@@ -218,7 +218,7 @@
                         
                     }   
 
-                    if (protocol == "WPS" || this.current_model.get("name") === 'Composed_Model'){
+                    if (protocol == "WPS" || this.current_model.get("download").id === 'Magnetic_Model'){
                         this.$("#shc").empty();
                         this.$("#shc").append(
                             '<p>Spherical Harmonics Coefficients</p>'+
@@ -239,7 +239,7 @@
                         
                     }
                     
-                    if((this.current_model.get("name") === 'Composed_Model')){
+                    if((this.current_model.get("download").id === 'Magnetic_Model')){
                       this.createApplyButton();
                       //composed model additional fields
                       this.$("#composed_model_compute").empty();
@@ -248,7 +248,15 @@
                       </select>`)
                       
                       var models = globals.products.filter(function (p) {
-                          return p.get('model');
+                        //filter out composed model and custom model without shc from choices list
+                        if (p.get("download").id === 'Magnetic_Model'){
+                          return false;
+                        }else if (p.get("download").id === ("Custom_Model") && (p.get("shc")===undefined)){
+                          return false;
+                        }
+                          else{
+                            return p.get("model");
+                          }
                       });
                       
                       for (var i = 0; i < models.length; i++) {
@@ -257,15 +265,13 @@
                           var coefficients = models[i].get('coefficients_range');
                           var selectedComposed = models[i].get('selectedComposed');
                           var sign = models[i].get('sign');
-                          // do not use composed_model for creation of a new composed_model
-                          if (id !== 'Composed_Model') {
-                              $('#choices-multiple-remove-button').append(
-                                `<option value=${id} ${selectedComposed?'selected':''}>${id}</option>`
-                              );
-                              // creating a object storage structure on the holding div element through .data() for later retrieval
-                              // reference to models[i].attributes.coefficients changes the source, because it is a list? other immutable attributes are unmodified, thus setting them later when changes are applied
-                              $('#composed_model_compute').data(id,{'sign':sign,'id':id,'coefficients':coefficients,'selectedComposed':selectedComposed});
-                          }
+                          
+                          $('#choices-multiple-remove-button').append(
+                            `<option value=${id} ${selectedComposed?'selected':''}>${id}</option>`
+                          );
+                          // creating a object storage structure on the holding div element through .data() for later retrieval
+                          // reference to models[i].attributes.coefficients changes the source, because it is a list? other immutable attributes are unmodified, thus setting them later when changes are applied
+                          $('#composed_model_compute').data(id,{'sign':sign,'id':id,'coefficients':coefficients,'selectedComposed':selectedComposed});
                       }
 
                       //create a Choices modified template
@@ -545,7 +551,7 @@
 
                     var sel_time = Communicator.reqres.request('get:time');
 
-                    if (this.current_model.get("download").id === "Composed_Model"){
+                    if (this.current_model.get("download").id === "Magnetic_Model"){
 
                         var options = {
                             url: this.current_model.get("download").url,
@@ -649,7 +655,7 @@
 
             handleRangeResponeSHC: function(evt, response){
                 this.handleRangeRespone(response);
-                var params = { name: this.current_model.get("name"), isBaseLayer: false, visible: false };
+                var params = { name: this.current_model.get("download").id, isBaseLayer: false, visible: false };
                 Communicator.mediator.trigger('map:layer:change', params);
                 Communicator.mediator.trigger("file:shc:loaded", evt.target.result);
                 Communicator.mediator.trigger("layer:activate", this.current_model.get("views")[0].id);
@@ -770,7 +776,7 @@
                         error = error || contextStorer.checkValue(coef_range_max, coef_range_max_element);
                     });
                 }
-                if((this.current_model.get("name") === 'Composed_Model')){
+                if((this.current_model.get("download").id === 'Magnetic_Model')){
                   if ($('.composed_model_operation_operand').length === 0) {
                     error = true;
                     showMessage('warning','Please add at least one model to Composed model selection before hitting Apply changes.', 20);
@@ -779,7 +785,7 @@
 
                 if(!error){
                     // Remove button only on normal models, in composed model window leave it there
-                    if((this.current_model.get("name") !== 'Composed_Model')){
+                    if((this.current_model.get("download").id !== 'Magnetic_Model')){
                       $("#applychanges").empty();
                     }else{
                       //for composed model apply changes and form expression
@@ -794,7 +800,7 @@
 
                         var sel_time = Communicator.reqres.request('get:time');
 
-                        if((this.current_model.get("name") === 'Composed_Model')){
+                        if((this.current_model.get("download").id === 'Magnetic_Model')){
 
 
                             var modelExpression = this.current_model.get("model_expression");
@@ -887,7 +893,7 @@
                  //save it to data holder
                  this.current_model.set("model_expression",modelExpression);
                  var modelExpressionFromProducts = globals.models.find(function(p){
-                   return p.get("name")=== "Composed_Model";
+                   return p.get("name")=== "Magnetic_Model";
                  });
                  modelExpressionFromProducts.set("model_expression",modelExpression);
                  return expressionStayedSame;
@@ -947,7 +953,6 @@
                         shc_name: filename,
                         selectedComposed: true
                     });
-                    $('#composed_model_compute').data("Custom_Model").selectedComposed = true;
 
                     var sel_time = Communicator.reqres.request('get:time');
 

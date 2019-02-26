@@ -5,7 +5,7 @@ var SCALAR_PARAM = [
 ];
 
 var VECTOR_PARAM = [
-    "B_NEC", "SIFM", "IGRF12", "CHAOS-6-Combined", "Custom_Model", "Composed_Model", 
+    "B_NEC", "SIFM", "IGRF12", "CHAOS-6-Combined", "Custom_Model", "Magnetic_Model", 
     "B_NEC_resAC", "GPS_Position", "LEO_Position",
     "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle",
     "MCO_SHA_2C", "MCO_SHA_2D", "MCO_SHA_2F", "MLI_SHA_2C", "MLI_SHA_2D", 
@@ -19,7 +19,7 @@ var VECTOR_BREAKDOWN = {
     'IGRF12': ['B_N_res_IGRF12','B_E_res_IGRF12','B_C_res_IGRF12'],
     'CHAOS-6-Combined': ['B_N_res_CHAOS-6-Combined','B_E_res_CHAOS-6-Combined','B_C_res_CHAOS-6-Combined'],
     'Custom_Model': ['B_N_res_Custom_Model','B_E_res_Custom_Model','B_C_res_Custom_Model'],
-    'Composed_Model': ['B_N_res_Composed_Model','B_E_res_Composed_Model','B_C_res_Composed_Model'],
+    'Magnetic_Model': ['B_N_res_Magnetic_Model','B_E_res_Magnetic_Model','B_C_res_Magnetic_Model'],
     'MCO_SHA_2C': ['B_N_res_MCO_SHA_2C','B_E_res_MCO_SHA_2C','B_C_res_MCO_SHA_2C'],
     'MCO_SHA_2D': ['B_N_res_MCO_SHA_2D','B_E_res_MCO_SHA_2D','B_C_res_MCO_SHA_2D'],
     'MCO_SHA_2F': ['B_N_res_MCO_SHA_2F','B_E_res_MCO_SHA_2F','B_C_res_MCO_SHA_2F'],
@@ -45,7 +45,7 @@ var VECTOR_BREAKDOWN = {
     'B_NEC_res_IGRF12': ['B_N_res_IGRF12','B_E_res_IGRF12','B_C_res_IGRF12'],
     'B_NEC_res_CHAOS-6-Combined': ['B_N_res_CHAOS-6-Combined','B_E_res_CHAOS-6-Combined','B_C_res_CHAOS-6-Combined'],
     'B_NEC_res_Custom_Model': ['B_N_res_Custom_Model','B_E_res_Custom_Model','B_C_res_Custom_Model'],
-    'B_NEC_res_Composed_Model': ['B_N_res_Composed_Model','B_E_res_Composed_Model','B_C_res_Composed_Model'],
+    'B_NEC_res_Magnetic_Model': ['B_N_res_Magnetic_Model','B_E_res_Magnetic_Model','B_C_res_Magnetic_Model'],
     'B_NEC_res_MCO_SHA_2C': ['B_N_res_MCO_SHA_2C','B_E_res_MCO_SHA_2C','B_C_res_MCO_SHA_2C'],
     'B_NEC_res_MCO_SHA_2D': ['B_N_res_MCO_SHA_2D','B_E_res_MCO_SHA_2D','B_C_res_MCO_SHA_2D'],
     'B_NEC_res_MCO_SHA_2F': ['B_N_res_MCO_SHA_2F','B_E_res_MCO_SHA_2F','B_C_res_MCO_SHA_2F'],
@@ -404,8 +404,8 @@ function productSortingFunction(a, b) {
                         }
                     }
                     
-                    if(lm.get('download').id === 'Composed_Model'){
-                      globals.models.composedModelId = 'Composed_Model';
+                    if(lm.get('download').id === 'Magnetic_Model'){
+                      globals.models.composedModelId = 'Magnetic_Model';
                         lm.set('model_expression', defaultFor(product.model_expression,null));
                         globals.models.get(lm.get('download').id).set({
                           'model_expression': lm.get("model_expression")
@@ -459,9 +459,9 @@ function productSortingFunction(a, b) {
                   {
                     this.add({name: this.composedModelId});
                     var modelExpressionFromProducts = globals.products.find(function(p){
-                      return p.get("download").id === "Composed_Model";
+                      return p.get("download").id === "Magnetic_Model";
                     });
-                    this.get("Composed_Model").set({
+                    this.get("Magnetic_Model").set({
                       'model_expression': modelExpressionFromProducts.get("model_expression")
                     })
                   }
@@ -569,7 +569,7 @@ function productSortingFunction(a, b) {
                             m.get("download").id.indexOf("SW_OPER_TEC") != -1 ||
                             m.get("download").id.indexOf("SW_OPER_FAC") != -1 ||
                             m.get("download").id.indexOf("SW_OPER_EEF") != -1 ||
-                            m.get('model') && !["Composed_Model"].includes(m.get('download').id)
+                            m.get('model') && !["Magnetic_Model"].includes(m.get('download').id)
                          )
                     ){
                         return false;

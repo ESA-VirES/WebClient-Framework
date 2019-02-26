@@ -300,7 +300,7 @@ define([
                     product.set('ces_layer', imagerylayer);
                     product.set('backupLayer', imagerylayer);
 
-                    if(product.get('download').id === 'Composed_Model'){
+                    if(product.get('download').id === 'Magnetic_Model'){
                         if(this.checkComposedForSHC(product)){
                             imagerylayer.show = false;
                         } else {
@@ -851,7 +851,7 @@ define([
                 // If product is compose model and no longer SHC active hide shc 
                 // related layer 
 
-                if(product.get('download').id==='Composed_Model'){
+                if(product.get('download').id === 'Magnetic_Model'){
                     // Get special layer of custom model if needed
                     var customModel = globals.products.find(function(p){
                         return p.get("download").id === "Custom_Model";
@@ -867,7 +867,7 @@ define([
 
             if(visible){
                 // Check if shc is in expresion and shc has been loaded
-                if(product.get('download').id === 'Composed_Model' &&
+                if(product.get('download').id === 'Magnetic_Model' &&
                     product.attributes.hasOwnProperty('shc') && 
                     product.get('model_expression').indexOf('Custom_Model')!==-1 &&
                     product.get('shc') !== null){
@@ -958,7 +958,7 @@ define([
             }else{
                 // If composed model has custom model in expression we deactivate
                 // layer here, as not visible any longer
-                if(product.get('download').id==='Composed_Model' &&
+                if(product.get('download').id === 'Magnetic_Model' &&
                     product.attributes.hasOwnProperty('shc') && 
                     product.get('model_expression').indexOf('Custom_Model')!==-1 &&
                     product.get('shc') !== null){
@@ -1373,11 +1373,11 @@ define([
                                     cesLayer.imageryProvider.updateProperties('styles', style);
                                 }
                                 
-                                if(coeffRange && id !== "Composed_Model"){
+                                if(coeffRange && id !== "Magnetic_Model"){
                                     cesLayer.imageryProvider.updateProperties('dim_coeff', (coeffRange[0]+','+coeffRange[1]));
                                 }
                                 // layers=MyNewModel;models=MyNewModel='model1'-'model2'+'model3'
-                                if(id === "Composed_Model"){
+                                if(id === "Magnetic_Model"){
                                     var modelExpressionHtml = product.get('model_expression');
                                     var queryBegin = id + '=';
                                     cesLayer.imageryProvider.updateProperties('models', queryBegin + modelExpressionHtml);

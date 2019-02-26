@@ -4242,14 +4242,14 @@
             "sign": "+"
 
         },{
-            "name": "Composed_Model",
+            "name": "Magnetic Model",
             "visible": false,
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "tileSize":1024,
             "opacity": 0.7,
             "views": [{
-                "id": "Composed_Model",
+                "id": "Magnetic_Model",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -4258,7 +4258,7 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "Composed_Model",
+                "id": "Magnetic_Model",
                 "protocol": "EOWCS",
                 "url": "http://localhost:9000/vires00/ows"
             },
@@ -4326,13 +4326,13 @@
                 }
             },
             "download_parameters": {
-                "B_NEC_res_Composed_Model": {
+                "B_NEC_res_Magnetic_Model": {
                     "uom":"nT",
-                    "name": "Residuals to composed model coefficients of Magnetic field vector, NEC frame"
+                    "name": "Residuals to magnetic model coefficients of Magnetic field vector, NEC frame"
                 },
-                "F_res_Composed_Model": {
+                "F_res_Magnetic_Model": {
                     "uom":"nT",
-                    "name": "Residuals of Magnetic field intensity to composed model coefficients"
+                    "name": "Residuals of Magnetic field intensity to magnetic model coefficients"
                 }
             },
             "height": 450,
