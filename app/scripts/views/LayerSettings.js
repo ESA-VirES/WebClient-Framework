@@ -218,7 +218,7 @@
                         
                     }   
 
-                    if (protocol == "WPS"){
+                    if (protocol == "WPS" || this.current_model.get("name") === 'Composed_Model'){
                         this.$("#shc").empty();
                         this.$("#shc").append(
                             '<p>Spherical Harmonics Coefficients</p>'+
@@ -264,7 +264,7 @@
                               );
                               // creating a object storage structure on the holding div element through .data() for later retrieval
                               // reference to models[i].attributes.coefficients changes the source, because it is a list? other immutable attributes are unmodified, thus setting them later when changes are applied
-                              $('#composed_model_compute').data(id,{'sign':sign,'id':id,'coefficients':coefficients,'selectedComposed':selectedComposed}); 
+                              $('#composed_model_compute').data(id,{'sign':sign,'id':id,'coefficients':coefficients,'selectedComposed':selectedComposed});
                           }
                       }
 
@@ -286,9 +286,7 @@
                                     var onFormLeaveFunctionStringMin = 'var dataParent=$(this)[0].parentNode.parentNode.getAttribute(\'data-value\');$(\'#composed_model_compute\').data(dataParent).coefficients[0]=$(this).val();'
                                     var onFormLeaveFunctionStringMax = 'var dataParent=$(this)[0].parentNode.parentNode.getAttribute(\'data-value\');$(\'#composed_model_compute\').data(dataParent).coefficients[1]=$(this).val();'
                                     var onCustomModelOperandClick = 'event.stopPropagation();var dataParent = $(this)[0].parentNode.getAttribute(\'data-value\');var signData =$(\'#composed_model_compute\').data(dataParent).sign;var newSign=(signData===\'+\' ? \'-\' : \'+\');$(this).attr(\'value\', newSign);$(\'#composed_model_compute\').data(dataParent).sign=newSign;';
-                                    // TODO: when custom model used, add option to add SHC to template as another button next to X sign
-                                    if (id === 'Custom_Model') {
-                                    }
+                                    
                                       return template(`
                                         <div class="choices__item choices__item--selectable data-item composed_model_choices_holding_div"
                                          data-id="${classNames.id}" data-value="${classNames.value}" data-deletable}>
