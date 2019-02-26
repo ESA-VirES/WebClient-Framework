@@ -286,6 +286,10 @@
                                     var onFormLeaveFunctionStringMin = 'var dataParent=$(this)[0].parentNode.parentNode.getAttribute(\'data-value\');$(\'#composed_model_compute\').data(dataParent).coefficients[0]=$(this).val();'
                                     var onFormLeaveFunctionStringMax = 'var dataParent=$(this)[0].parentNode.parentNode.getAttribute(\'data-value\');$(\'#composed_model_compute\').data(dataParent).coefficients[1]=$(this).val();'
                                     var onCustomModelOperandClick = 'event.stopPropagation();var dataParent = $(this)[0].parentNode.getAttribute(\'data-value\');var signData =$(\'#composed_model_compute\').data(dataParent).sign;var newSign=(signData===\'+\' ? \'-\' : \'+\');$(this).attr(\'value\', newSign);$(\'#composed_model_compute\').data(dataParent).sign=newSign;';
+
+                                    if(values.coefficients === undefined){
+                                        values.coefficients = [-1,-1];
+                                    }
                                     
                                       return template(`
                                         <div class="choices__item choices__item--selectable data-item composed_model_choices_holding_div"
