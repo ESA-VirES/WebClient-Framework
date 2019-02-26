@@ -278,7 +278,7 @@
             "F_Custom_Model", "B_NEC_Custom_Model", "F_res_Custom_Model", "B_NEC_res_Custom_Model",
             "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle", "GPS_Position", "LEO_Position",
             "IRC", "IRC_Error", "FAC", "FAC_Error",
-            "EEF", "RelErr", "OrbitNumber",
+            "EEF", "RelErr", "OrbitNumber", "OrbitDirection", "QDOrbitDirection",
             "SunDeclination","SunRightAscension","SunHourAngle","SunAzimuthAngle","SunZenithAngle",
             "F_MCO_SHA_2C", "B_NEC_MCO_SHA_2C", "F_res_MCO_SHA_2C", "B_NEC_res_MCO_SHA_2C",
             "F_MCO_SHA_2D", "B_NEC_MCO_SHA_2D", "F_res_MCO_SHA_2D", "B_NEC_res_MCO_SHA_2D",
@@ -427,6 +427,48 @@
                     }
                   }
 
+                  if(dat.hasOwnProperty('Latitude') && dat.hasOwnProperty('OrbitDirection')) {
+                    dat['Latitude_periodic'] = [];
+                    for (var i = 0; i < dat.Latitude.length; i++) {
+                      if(dat.OrbitDirection[i] === 1){
+                          // range 90 -270
+                          dat.Latitude_periodic.push(dat.Latitude[i]+180);
+                      } else if (dat.OrbitDirection[i] === -1){
+                          if(dat.Latitude[i]<0){
+                              // range 0 - 90
+                              dat.Latitude_periodic.push((dat.Latitude[i]*-1));
+                          } else {
+                              // range 270 - 360
+                              dat.Latitude_periodic.push(360-dat.Latitude[i]);
+                          }
+                          
+                      } else if (dat.OrbitDirection[i] === 0){
+                          //TODO what to do here? Should in principle not happen
+                      }
+                    }
+                  }
+
+                  if(dat.hasOwnProperty('QDLat') && dat.hasOwnProperty('QDOrbitDirection')) {
+                    dat['QDLatitude_periodic'] = [];
+                    for (var i = 0; i < dat.QDLat.length; i++) {
+                      if(dat.QDOrbitDirection[i] === 1){
+                          // range 90 -270
+                          dat.QDLatitude_periodic.push(dat.QDLat[i]+180);
+                      } else if (dat.QDOrbitDirection[i] === -1){
+                          if(dat.QDLat[i]<0){
+                              // range 0 - 90
+                              dat.QDLatitude_periodic.push((dat.QDLat[i]*-1));
+                          } else {
+                              // range 270 - 360
+                              dat.QDLatitude_periodic.push(360-dat.QDLat[i]);
+                          }
+                          
+                      } else if (dat.QDOrbitDirection[i] === 0){
+                          //TODO what to do here? Should in principle not happen
+                      }
+                    }
+                  }
+
                   for(var key in dat){
                     if(VECTOR_BREAKDOWN.hasOwnProperty(key)){
                       dat[VECTOR_BREAKDOWN[key][0]] = [];
@@ -464,6 +506,8 @@
                   }
                   
                   globals.swarm.set({data: dat});
+                  Communicator.mediator.trigger("progress:change", false);
+                  that.xhr = null;
 
                 } else if(request.status!== 0 && request.responseText != "") {
                   globals.swarm.set({data: {}});
@@ -475,6 +519,8 @@
                   }
 
                   showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+                  Communicator.mediator.trigger("progress:change", false);
+                  that.xhr = null;
                   return;
                 }
 
@@ -486,10 +532,6 @@
                 }
             }
 
-            //that.xhr = null;
-            Communicator.mediator.trigger("progress:change", false);
-
-           
           };
 
 

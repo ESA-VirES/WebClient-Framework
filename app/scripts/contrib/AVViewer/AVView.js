@@ -18,8 +18,8 @@ define(['backbone.marionette',
             this.sp = undefined;
 
             $(window).resize(function() {
-                if(this.graph && $('#d3canvas').is(':visible')){
-                    this.graph.resize();
+                if(this.graph && $('.d3canvas').is(':visible')){
+                    this.graph.resize(true);
                 }
             }.bind(this));
 
@@ -38,7 +38,7 @@ define(['backbone.marionette',
             this.overlay = null;
             this.activeWPSproducts = [];
             this.plotType = 'scatter';
-            this.prevParams = [];
+            this.prevParams = null;
             this.fieldsforfiltering = [];
 
 
@@ -46,8 +46,73 @@ define(['backbone.marionette',
             $('#saveRendering').remove();
             this.$el.append('<div type="button" class="btn btn-success darkbutton" id="saveRendering" title="Save as image"><i class="fa fa-floppy-o" aria-hidden="true"></i></div>');
 
+            $('#saveRendering').click(function(){
+                var bodyContainer = $('<div/>');
+
+                var typeContainer = $('<div id="typeSelectionContainer"></div>');
+                var filetypeSelection = $('<select id="filetypeSelection"></select>');
+                filetypeSelection.append($('<option/>').html('png'));
+                filetypeSelection.append($('<option/>').html('jpeg'));
+                filetypeSelection.append($('<option/>').html('svg'));
+                typeContainer.append(
+                    $('<label for="filetypeSelection" style="margin-right:10px;">Output type</label>')
+                );
+                typeContainer.append(filetypeSelection);
+                var w = $('#graph').width();
+                var h = $('#graph').height();
+
+                var resolutionContainer = $('<div id="resolutionSelectionContainer"></div>');
+                var resolutionSelection = $('<select id="resolutionSelection"></select>');
+                resolutionSelection.append($('<option/>').html('normal ('+w+'x'+h+')').val(1));
+                resolutionSelection.append($('<option/>').html('large ('+w*2+'x'+h*2+')').val(2));
+                resolutionSelection.append($('<option/>').html('very large ('+w*3+'x'+h*3+')').val(3));
+                resolutionContainer.append(
+                    $('<label for="resolutionSelection" style="margin-right:10px;">Resolution</label>')
+                );
+                resolutionContainer.append(resolutionSelection);
+
+                bodyContainer.append(typeContainer);
+                bodyContainer.append(resolutionContainer);
+
+                var okbutton = $('<button style="margin-right:5px;">Ok</button>');
+                var cancelbutton = $('<button style="margin-left:5px;">Cancel</button>');
+                var buttons = $('<div/>');
+                buttons.append(okbutton);
+                buttons.append(cancelbutton);
+
+                if (that.graph){
+                    var saveimagedialog = w2popup.open({
+                        body: bodyContainer,
+                        buttons: buttons,
+                        title       : w2utils.lang('Image configuration'),
+                        width       : 400,
+                        height      : 200
+                    });
+
+                    okbutton.click(function(){
+                        var selectedType = $('#filetypeSelection')
+                            .find(":selected").text();
+                        var selectedRes = $('#resolutionSelection')
+                            .find(":selected").val();
+
+                        var rightNow = new Date();
+                        var res = rightNow.toISOString().slice(0,10).replace(/-/g,'');
+                        that.graph.fileSaveString='VirES_for_Swarm_'+res;
+                        that.graph.saveImage(selectedType, selectedRes);
+                        bodyContainer.remove();
+                        saveimagedialog.close();
+                    });
+                    cancelbutton.click(function(){
+                        bodyContainer.remove();
+                        saveimagedialog.close();
+                    });
+                }
+            });
+
+
             $('#resetZoom').off();
             $('#resetZoom').remove();
+
             this.$el.append('<div type="button" class="btn btn-success darkbutton" id="resetZoom" title="Reset graph zoom"><i class="fa fa-refresh" aria-hidden="true"></i></div>');
 
            if (typeof this.graph === 'undefined') {
@@ -62,18 +127,28 @@ define(['backbone.marionette',
                 this.graph.resize();
             }
 
-            $('#saveRendering').click(function(){
-                that.graph.saveImage();
-            });
-
             $('#resetZoom').click(function(){
                 that.graph.initAxis();
                 that.graph.renderData();
             });
 
 
+            // Set height of graph depending on 
+            var filtersMinimized = localStorage.getItem('filtersMinimized');
+            if(filtersMinimized === null){
+                filtersMinimized = false;
+            } else {
+                filtersMinimized = JSON.parse(filtersMinimized);
+            }
+
+            if(filtersMinimized){
+                $('#filterSelectDrop').css('opacity', 0);
+                $('#analyticsFilters').css('opacity', 0);
+                $('#graph').css('height', '99%');
+            }
+
             this.$('#filterDivContainer').append('<div id="filterSelectDrop"></div>');
- 
+
             this.reloadUOM();
 
 
@@ -108,8 +183,9 @@ define(['backbone.marionette',
 
             var xax = 'Latitude';
             var yax = ['F'];
-            var y2ax = null;
-            var colax = [null];
+            var y2ax = [];
+            var colax = [];
+            var colax2 = [];
 
             if(localStorage.getItem('xAxisSelection') !== null){
                 xax =JSON.parse(localStorage.getItem('xAxisSelection'));
@@ -117,32 +193,77 @@ define(['backbone.marionette',
 
             if(localStorage.getItem('yAxisSelection') !== null){
                 yax = JSON.parse(localStorage.getItem('yAxisSelection'));
-                colax = [];
-                for (var i = yax.length - 1; i >= 0; i--) {
-                    colax.push(null);
-                }
             }
 
             if(localStorage.getItem('y2AxisSelection') !== null){
                 y2ax = JSON.parse(localStorage.getItem('y2AxisSelection'));
-                for (var i = y2ax.length - 1; i >= 0; i--) {
-                    colax.push(null);
+            }
+
+            if(localStorage.getItem('colorAxisSelection') !== null){
+                colax = JSON.parse(localStorage.getItem('colorAxisSelection'));
+            }
+
+            if(localStorage.getItem('colorAxis2Selection') !== null){
+                colax2 = JSON.parse(localStorage.getItem('colorAxis2Selection'));
+            }
+            // Check if previous config used multiaxis
+
+            var multipleAxis = false;
+            if(Array.isArray(yax) && yax.length>0){
+                for (var i = 0; i < yax.length; i++) {
+                    if(Array.isArray(yax[i])){
+                        multipleAxis = true;
+                    }
                 }
+            } else {
+                // TODO what if nothing is defined for yaxis
+            }
+
+            var multipleAxis2 = false;
+            if(Array.isArray(y2ax) && y2ax.length>0){
+                for (var i = 0; i < y2ax.length; i++) {
+                    if(Array.isArray(y2ax[i])){
+                        multipleAxis2 = true;
+                    }
+                }
+            } else {
+                // TODO what if nothing is defined for yaxis
+            }
+
+            if(!multipleAxis){
+                yax = [yax];
+            }
+            if(!multipleAxis2){
+                y2ax = [y2ax];
+            }
+
+            for (var i = 0; i < yax.length; i++) {
+                var currCols = [];
+                for (var j = 0; j < yax[i].length; j++) {
+                    currCols.push(null);
+                }
+                colax.push(currCols);
+            }
+
+            for (var i = 0; i < y2ax.length; i++) {
+                var currCols = [];
+                for (var j = 0; j < y2ax[i].length; j++) {
+                    currCols.push(null);
+                }
+                colax2.push(currCols);
             }
 
             this.renderSettings = {
                 xAxis:  xax,
                 yAxis: yax,
                 colorAxis: colax,
+                y2Axis: y2ax,
+                colorAxis2: colax2,
                 dataIdentifier: {
                     parameter: 'id',
                     identifiers: identifiers
                 }
             };
-
-            if(y2ax !== null){
-                this.renderSettings.y2Axis = y2ax;
-            }
 
             this.graph = new graphly.graphly({
                 el: '#graph',
@@ -150,8 +271,10 @@ define(['backbone.marionette',
                 renderSettings: this.renderSettings,
                 filterManager: this.filterManager,
                 enableFit: false,
-                displayColorscaleOptions: false,
-                displayAlphaOptions: false
+                multiYAxis: true,
+                margin: {top: 40, left: 90, bottom: 50, right: 35},
+                enableSubXAxis: true,
+                enableSubYAxis: true
 
             });
 
@@ -176,6 +299,23 @@ define(['backbone.marionette',
                     'y2AxisSelection',
                     JSON.stringify(this.renderSettings.y2Axis)
                 );
+
+                localStorage.setItem(
+                    'colorAxisSelection',
+                    JSON.stringify(this.renderSettings.colorAxis)
+                );
+
+                localStorage.setItem(
+                    'colorAxis2Selection',
+                    JSON.stringify(this.renderSettings.colorAxis2)
+                );
+
+                // Save parameter style changes
+                localStorage.setItem(
+                    'parameterSettings',
+                    JSON.stringify(globals.swarm.get('uom_set'))
+                );
+
             });
 
             this.graph.on('pointSelect', function(values){
@@ -335,13 +475,68 @@ define(['backbone.marionette',
             this.separateVector('GPS_Position', 'GPS_Position', ['X', 'Y', 'Z'], '_');
             this.separateVector('LEO_Position', 'LEO_Position', ['X', 'Y', 'Z'], '_');
 
-            this.sp.uom_set['MLT'] = {uom: null, name:'Magnetic Local Time'};
-            this.sp.uom_set['QDLat'] = {uom: 'deg', name:'Quasi-Dipole Latitude'};
-            this.sp.uom_set['QDLon'] = {uom: 'deg', name:'Quasi-Dipole Longitude'};
-            this.sp.uom_set['Dst'] = {uom: null, name:'Disturbance storm time Index'};
-            this.sp.uom_set['Kp'] = {uom: null, name:'Global geomagnetic storm Index'};
-            this.sp.uom_set['F107'] = {uom: '1e-22 J/s/m^2/Hz', name:'Observed 10.7cm Solar Radio Flux'};
-            this.sp.uom_set['OrbitNumber'] = {uom: null, name:'Orbit number'};
+            this.sp.uom_set['MLT'] = {
+                uom: null, name:'Magnetic Local Time',
+                periodic: {
+                    period: 24,
+                    offset: 0
+                }
+            };
+
+            if(this.sp.uom_set.hasOwnProperty('Longitude')){
+                this.sp.uom_set['Longitude'].periodic = {
+                    period: 360,
+                    offset: -180
+                };
+            }
+            this.sp.uom_set['QDLat'] = {
+                uom: 'deg', name:'Quasi-Dipole Latitude'
+            };
+            this.sp.uom_set['QDLon'] = {
+                uom: 'deg', name:'Quasi-Dipole Longitude',
+                periodic: {
+                    period: 360,
+                    offset: -180
+                }
+            };
+            this.sp.uom_set['Dst'] = {
+                uom: null, name:'Disturbance storm time Index'
+            };
+            this.sp.uom_set['Kp'] = {
+                uom: null, name:'Global geomagnetic storm Index'
+            };
+            this.sp.uom_set['F107'] = {
+                uom: '1e-22 J/s/m^2/Hz', name:'Observed 10.7cm Solar Radio Flux'
+            };
+            this.sp.uom_set['OrbitNumber'] = {
+                uom: null, name:'Orbit number'
+            };
+
+            this.sp.uom_set['Latitude_periodic'] = {
+                periodic: {
+                    period: 360,
+                    offset: 0,
+                    specialTicks: true
+                }
+            };
+
+            this.sp.uom_set['QDLatitude_periodic'] = {
+                periodic: {
+                    period: 360,
+                    offset: 0,
+                    specialTicks: true
+                }
+            };
+
+            // Check if styling settings have been saved
+            if(localStorage.getItem('parameterSettings') !== null){
+                var parameterSettings =JSON.parse(localStorage.getItem('parameterSettings'));
+                for (var k in parameterSettings){
+                    if(this.sp.uom_set.hasOwnProperty(k)){
+                        this.sp.uom_set[k] = parameterSettings[k];
+                    }
+                }
+            }
 
             globals.swarm.set('uom_set', this.sp.uom_set);
         },
@@ -371,9 +566,16 @@ define(['backbone.marionette',
                 opacity = 1.0;
                 direction = 'down';
                 $('#minimizeFilters').attr('class', 'visible');
+                localStorage.setItem(
+                    'filtersMinimized', JSON.stringify(false)
+                );
             } else {
                 $('#minimizeFilters').attr('class', 'minimized');
+                localStorage.setItem(
+                    'filtersMinimized', JSON.stringify(true)
+                );
             }
+
             $('#filterSelectDrop').animate({ opacity: opacity  }, 1000);
                 $('#analyticsFilters').animate({ opacity: opacity  }, 1000);
                 $('#graph').animate({ height: height  }, {
@@ -403,11 +605,37 @@ define(['backbone.marionette',
             });
 
 
+            // Set height of graph depending on 
+            var filtersMinimized = localStorage.getItem('filtersMinimized');
+            if(filtersMinimized === null){
+                filtersMinimized = false;
+            } else {
+                filtersMinimized = JSON.parse(filtersMinimized);
+            }
+
+            var direction = 'down';
+            if(filtersMinimized){
+                direction = 'up';
+            }
+
             $('#minimizeFilters').off();
             $('#minimizeFilters').remove();
             $('#filterDivContainer').append(
-                '<div id="minimizeFilters" class="visible"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></div>'
+                '<div id="minimizeFilters" class="visible"><i class="fa fa-chevron-circle-'+direction+'" aria-hidden="true"></i></div>'
             );
+
+            var filtersMinimized = localStorage.getItem('filtersMinimized');
+            if(filtersMinimized === null){
+                filtersMinimized = false;
+            } else {
+                filtersMinimized = JSON.parse(filtersMinimized);
+            }
+
+            if(filtersMinimized){
+                $('#minimizeFilters').addClass('minimized');
+            } else {
+                $('#minimizeFilters').addClass('visible');
+            }
 
             $('#minimizeFilters').click(this.changeFilterDisplayStatus.bind(this));
 
@@ -500,6 +728,18 @@ define(['backbone.marionette',
         },
 
         reloadData: function(model, data) {
+
+            function itemExists(itemArray, item) {
+                for (var i = 0; i < itemArray.length; ++i) {
+                    for (var j = 0; j < itemArray[i].length; ++j) {
+                        if (itemArray[i][j] == item) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
             // If element already has plot rendering
             if( $(this.el).html()){
                 var idKeys = Object.keys(data);
@@ -520,8 +760,12 @@ define(['backbone.marionette',
                         identifiers: identifiers
                     };
 
-                    //this.graph.renderSettings = this.renderSettings[idKeys[0]];
-                    if(data[idKeys[0]].length < 6000){
+                    // Calculate very rough estimate of rendered points
+                    var dataLength = data[idKeys[0]].length;
+                    var renderedPoints = (
+                        dataLength*this.renderSettings.yAxis.length
+                    );
+                    if(renderedPoints < 10000){
                         this.graph.debounceActive = false;
                     }else{
                         this.graph.debounceActive = true;
@@ -530,7 +774,9 @@ define(['backbone.marionette',
                     var needsResize = false;
 
                     // If data parameters have changed
-                    if (!_.isEqual(this.prevParams, idKeys)){
+                    // if this is first data load prev params is empty so ideally
+                    // config from last time should be loaded
+                    if (!_.isEqual(this.prevParams, idKeys) && this.prevParams!== null){
                         // Define which parameters should be selected defaultwise as filtering
                         var filterstouse = [
                             'Ne', 'Te', 'Bubble_Probability',
@@ -600,137 +846,121 @@ define(['backbone.marionette',
                             'Absolute_VTEC', 'Elevation_Angle', 'FAC', 'EEF'
                         ];
 
-                        // Check if y axis parameters are still available
-                        for (var i = this.graph.renderSettings.yAxis.length - 1; i >= 0; i--) {
-                            if(idKeys.indexOf(this.graph.renderSettings.yAxis[i]) === -1){
-                                this.graph.renderSettings.yAxis.splice(i, 1);
-                                this.graph.renderSettings.colorAxis.splice(i, 1);
-                            }
-                        }
+                        // Go trough all plots and see if they need to be removed
+                        // now that data has changed
+                        var renSetY = this.renderSettings.yAxis;
+                        var renSetY2 = this.renderSettings.y2Axis;
+                        var colAx = this.renderSettings.colorAxis;
+                        var colAx2 = this.renderSettings.colorAxis2;
+                        var addYT = this.renderSettings.additionalYTicks;
 
-                        for (var i = this.graph.renderSettings.y2Axis.length - 1; i >= 0; i--) {
-                            if(idKeys.indexOf(this.graph.renderSettings.y2Axis[i]) === -1){
-                                this.graph.renderSettings.y2Axis.splice(i, 1);
-                                var colIdx = i+this.graph.renderSettings.yAxis.length;
-                                this.graph.renderSettings.colorAxis.splice(colIdx, 1);
-                            }
-                            if(this.graph.renderSettings.y2Axis.length === 0){
-                                needsResize = true;
-                            }
-                        }
+                        for (var pY=renSetY.length-1; pY>=0; pY--) {
 
-                        // Check if all parameters have been removed from 
-                        // the first y axis
-                        if (this.graph.renderSettings.yAxis.length === 0){
-                            // If this is the case check if we can use one 
-                            // parameter from  second y axis
-                            var y2axLen = this.graph.renderSettings.y2Axis.length;
-                            if( y2axLen > 0){
-                                this.graph.renderSettings.yAxis.push(this.graph.renderSettings.y2Axis[y2axLen-1]);
-                                this.graph.renderSettings.y2Axis.splice(y2axLen-1, 1);
-                                needsResize = true;
-                            }
-                        }
-
-                        // Check if new data parameter has been added and is not
-                        // part of previous parameters
-                        for (var i = 0; i < parasToCheck.length; i++) {
-                            if(idKeys.indexOf(parasToCheck[i]) !== -1 && 
-                                this.prevParams.indexOf(parasToCheck[i])=== -1 ){
-                                // New parameter is available and left y axis is empty we add it there
-                                if(this.graph.renderSettings.yAxis.length === 0){
-                                    this.graph.renderSettings.yAxis.push(parasToCheck[i]);
-                                    this.graph.renderSettings.colorAxis.push(null);
-
-                                // New parameter is available and is not selected in 
-                                // y Axis yet
-                                } else if(this.graph.renderSettings.yAxis.indexOf(parasToCheck[i]) === -1){
-                                    // If second y axis is free we can use it to render
-                                    // newly added parameter
-
-                                    if(this.graph.renderSettings.yAxis.length === 0 && 
-                                        this.graph.renderSettings.y2Axis.length === 0){
-                                        // TODO: For now we add it to yAxis, when y2 axis working correctly
-                                        // we will need to add it to y2 axis
-                                        this.graph.renderSettings.y2Axis.push(parasToCheck[i]);
-                                        this.graph.renderSettings.colorAxis.push(null);
-                                        needsResize = true;
-                                    }
+                            // Go through all elements of plot, first left y axis
+                            // and remove them if no longer available
+                            for (var yy=renSetY[pY].length-1; yy >=0; yy--) {
+                                if(idKeys.indexOf(renSetY[pY][yy]) === -1){
+                                    renSetY[pY].splice(yy,1);
+                                    // remove corresponding cs
+                                    colAx[pY].splice(yy,1);
                                 }
                             }
-                            // If both y axis are empty we add the first item we encounter
-                            if(idKeys.indexOf(parasToCheck[i]) !== -1 && 
-                               this.graph.renderSettings.yAxis.length === 0 &&
-                               this.graph.renderSettings.y2Axis.length === 0){
-                                this.graph.renderSettings.yAxis.push(parasToCheck[i]);
-                                    this.graph.renderSettings.colorAxis.push(null);
-                            }
-                        }
 
-                        // Check if x selection still available in new parameters
-                        if(idKeys.indexOf(this.graph.renderSettings.xAxis) === -1){
-                            if(idKeys.indexOf('Latitude') !== -1){
-                                this.graph.renderSettings.xAxis = 'Latitude';
-                            } else if (idKeys.indexOf('latitude') !== -1){
-                                this.graph.renderSettings.xAxis = 'latitude';
-                            }
-                        }
-
-                        // Check if residuals was newly added and user is looking at magnetic data
-                        // If he is, we swap total intensity for residual value
-                        if (residuals.length > 0){
-                            // Find total intensity residual key
-                            var totkey = _.filter(idKeys, function(item) {
-                                return item.indexOf('F_res_') !== -1;
-                            });
-                            if(totkey.length === 1){
-                                var index = this.renderSettings.yAxis.indexOf('F');
-                                if(index !== -1){
-                                    this.renderSettings.yAxis[index] = totkey[0];
+                            // Go through all elements of plot, now right y axis
+                            // and remove them if no longer available
+                            for (var yy2=renSetY2[pY].length-1; yy2 >=0; yy2--) {
+                                if(idKeys.indexOf(renSetY2[pY][yy2]) === -1){
+                                    renSetY2[pY].splice(yy2,1);
+                                    // remove corresponding cs
+                                    colAx2[pY].splice(yy2,1);
                                 }
-                                index = this.renderSettings.y2Axis.indexOf('F');
-                                if(index !== -1){
-                                    this.renderSettings.y2Axis[index] = totkey[0];
+                            }
+
+                            // Chech if both left and right are empty we remove
+                            // the complete plot
+                            if(renSetY[pY].length === 0 && renSetY2[pY].length === 0){
+                                renSetY.splice(pY,1);
+                                renSetY2.splice(pY,1);
+                                colAx.splice(pY,1);
+                                colAx2.splice(pY,1);
+                                addYT.splice(pY,1);
+                            }
+                        }
+
+
+                        // Check if we want to add any new parameters as new 
+                        // plot that have been added in the change
+                        for (var pc = 0; pc < parasToCheck.length; pc++) {
+                            if(idKeys.indexOf(parasToCheck[pc]) !== -1){
+                                // Check if parameter is not already selected
+                                if(!itemExists(renSetY, parasToCheck[pc]) && 
+                                    !itemExists(renSetY2, parasToCheck[pc])){
+
+                                    renSetY.push([parasToCheck[pc]]);
+                                    colAx.push([null]);
+                                    renSetY2.push([]);
+                                    colAx2.push([]);
+                                    addYT.push([]);
                                 }
-                                
-                            }
-                            
-                        }
-
-
-                        localStorage.setItem('yAxisSelection', JSON.stringify(this.graph.renderSettings.yAxis));
-                        localStorage.setItem('y2AxisSelection',JSON.stringify(this.graph.renderSettings.y2Axis));
-                        localStorage.setItem('xAxisSelection', JSON.stringify(this.graph.renderSettings.xAxis));
-
-                    } else {// End of IF to see if data parameters have changed
-
-                        for (var i = this.graph.renderSettings.yAxis.length - 1; i >= 0; i--) {
-                            // Check if there is some issue with the previously loaded params
-                            if(idKeys.indexOf(this.graph.renderSettings.yAxis[i]) === -1){
-                                this.graph.renderSettings.yAxis.splice(i, 1);
-                                this.graph.renderSettings.colorAxis.splice(i, 1);
                             }
                         }
-                        for (var i = this.graph.renderSettings.y2Axis.length - 1; i >= 0; i--) {
-                            if(idKeys.indexOf(this.graph.renderSettings.y2Axis[i]) === -1){
-                                this.graph.renderSettings.y2Axis.splice(i, 1);
-                                var colIdx = i+this.graph.renderSettings.yAxis.length;
-                                this.graph.renderSettings.colorAxis.splice(colIdx, 1);
-                            }
-                            if(this.graph.renderSettings.y2Axis.length === 0){
-                                needsResize = true;
+
+                        // Check if residuals have been added and add them as plot
+                        for (var ik = 0; ik < idKeys.length; ik++) {
+                            if(idKeys[ik].indexOf('F_res')!==-1){
+                                if(!itemExists(renSetY, idKeys[ik]) && 
+                                    !itemExists(renSetY2, idKeys[ik])){
+                                    renSetY.push([idKeys[ik]]);
+                                    colAx.push([null]);
+                                    renSetY2.push([]);
+                                    colAx2.push([]);
+                                    addYT.push([]);
+                                }
                             }
                         }
-                        
+
+                        // If after adding possible other default parameters
+                        // there are no plots added we add en empty plot
+                        if(renSetY.length === 0){
+                            renSetY.push([]);
+                            colAx.push([]);
+                            renSetY2.push([]);
+                            colAx2.push([]);
+                            addYT.push([]);
+                        }
 
                         localStorage.setItem(
-                            'yAxisSelection', 
+                            'yAxisSelection',
                             JSON.stringify(this.graph.renderSettings.yAxis)
                         );
                         localStorage.setItem(
-                            'y2AxisSelection', 
+                            'y2AxisSelection',
                             JSON.stringify(this.graph.renderSettings.y2Axis)
                         );
+                        localStorage.setItem(
+                            'xAxisSelection',
+                            JSON.stringify(this.graph.renderSettings.xAxis)
+                        );
+
+                        localStorage.setItem(
+                            'colorAxisSelection',
+                            JSON.stringify(this.graph.renderSettings.colorAxis)
+                        );
+
+                        localStorage.setItem(
+                            'colorAxis2Selection',
+                            JSON.stringify(this.graph.renderSettings.colorAxis2)
+                        );
+                        // End of IF to see if data parameters have changed
+                    } else if (this.prevParams === null) {
+                        // TODO: We should not need to do anything here but we 
+                        // could introduce some sanity checks if strange data
+                        // is loaded for some reason
+                        
+                    } else {
+                        // TODO: We should not need to do anything here but we 
+                        // could introduce some sanity checks if strange data
+                        // is loaded for some reason
                     }
 
                     // This should only happen here if there has been 
