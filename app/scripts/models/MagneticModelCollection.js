@@ -59,10 +59,10 @@
         // When MagneticModelModel.fetch() is called response is an array with one object.
         // When MagneticModelCollection.fetch() is called response is an object.
         if (Array.isArray(response)) {
-          if (response.lenght == 0) {
+          if (response.length == 0) {
             response = null;
           } else {
-            if (response.lenght > 0) {
+            if (response.length > 1) {
               console.warn('More than one model info items received while only one expected!');
             }
             response = response[0];
@@ -73,6 +73,24 @@
             start: new Date(response.validity.start),
             end: new Date(response.validity.end)
           }
+        }
+        if (response.expression) {
+          // parse expression to get coefficients
+          // "- 'CHAOS-6-MMA-Secondary'(max_degree=2,min_degree=0)"
+          var stringToParse = response.expression;
+          var indices = [stringToParse.indexOf("="),
+            stringToParse.indexOf(","),
+            stringToParse.lastIndexOf("="),
+            stringToParse.indexOf(")")];
+          var coefficients = [Number(stringToParse.slice(indices[2]+1, indices[3]))
+            ,Number(stringToParse.slice(indices[0]+1, indices[1]))]
+        }
+        if (coefficients[0] > coefficients[1]){
+          //if for somewhat reason parsed wrongly, reverse order
+          coefficients.reverse();
+        }
+        if (!isNaN(coefficients[0]) && !isNaN(coefficients[1])){
+          response.coefficients_range = coefficients;
         }
         return response;
       },

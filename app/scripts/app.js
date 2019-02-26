@@ -440,13 +440,24 @@ function productSortingFunction(a, b) {
                 // periodic update magnetic models' metadata
                 globals.models.url = config.magneticModels.infoUrl;
                 globals.models.on('fetch:success', function () {
+                  // put default coefficients from server response as new config if products have -1,-1
+                  _.each(this.models, function(model){
+                    var modelExpressionFromProducts = globals.products.find(function(p){
+                      return p.get("download").id === model.get("name");
+                    });
+                    
+                    var productCoefficients = modelExpressionFromProducts.get("coefficients_range");
+                    if (productCoefficients && productCoefficients[0] === -1 && productCoefficients[1] === -1){
+                      modelExpressionFromProducts.set("coefficients_range", model.get("coefficients_range"));
+                    }
+                  })
                   if (this.customModelId && !this.get(this.customModelId))
                   {
                     this.add({name: this.customModelId});
                   }
-                  if (this.composedModelId && !this.get("Composed_Model"))
+                  if (this.composedModelId && !this.get(this.composedModelId))
                   {
-                    this.add({name: "Composed_Model"});
+                    this.add({name: this.composedModelId});
                     var modelExpressionFromProducts = globals.products.find(function(p){
                       return p.get("download").id === "Composed_Model";
                     });
