@@ -13,12 +13,11 @@
         'hbs!tmpl/wps_eval_composed_model_GET',
         'hbs!tmpl/wps_eval_model',
         'hbs!tmpl/wps_eval_composed_model',
-        'hbs!tmpl/wps_eval_model_diff',
         'underscore',
         'plotty'
     ],
 
-    function( Backbone, Communicator, globals, Choices, LayerSettingsTmpl, evalModelTmpl,evalModelTmplComposed, evalModelTmpl_POST, evalModelTmplComposed_POST, tmplEvalModelDiff ) {
+    function( Backbone, Communicator, globals, Choices, LayerSettingsTmpl, evalModelTmpl,evalModelTmplComposed, evalModelTmpl_POST, evalModelTmplComposed_POST) {
 
         var LayerSettings = Backbone.Marionette.Layout.extend({
 
@@ -559,29 +558,19 @@
                             variable: this.selected,
                             begin_time: getISODateTimeString(sel_time.start),
                             end_time: getISODateTimeString(sel_time.end),
-                            elevation: this.current_model.get("height")
+                            elevation: this.current_model.get("height"),
+                            width: 24,
+                            height: 24
                         };
 
                         if(this.current_model.get('model_expression').indexOf('Custom_Model') !== -1){
                             options.shc = this.current_model.get('shc');
-                            options.width = 24;
-                            options.height = 24;
+                        }
                             var payload = evalModelTmplComposed_POST(options);
 
                             $.post(this.current_model.get("download").url, payload)
                                 .success(this.handleRangeRespone.bind(this))
                                 .fail(this.handleRangeResponseError);
-
-                        } else {
-                            options.model = options.model_expression;
-                            var req = evalModelTmplComposed(options);
-                            $.get(req)
-                                .success(this.handleRangeRespone.bind(this))
-                                .fail(this.handleRangeResponseError)
-                                .always(this.handleRangeChange.bind(this));
-                        }
-
-                        
                     }else{
 
                         var req = evalModelTmpl({
