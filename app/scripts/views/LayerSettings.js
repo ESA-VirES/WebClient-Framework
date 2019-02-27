@@ -527,9 +527,7 @@
                 }
 
                 // request range for selected parameter if layer is of type model
-                if(this.current_model.get("model") && 
-                    this.selected != "Fieldlines" /*&& 
-                    this.current_model.get("differenceTo") === null*/){
+                if(this.current_model.get("model") && this.selected !== "Fieldlines"){
 
                     var that = this;
 
@@ -769,7 +767,7 @@
                       }
                     }
                     // If there were changes of the model parameters recalculate the color range
-                    if(model_change){
+                    if(model_change && this.selected!=='Fieldlines'){
                         var that = this;
 
                         var sel_time = Communicator.reqres.request('get:time');

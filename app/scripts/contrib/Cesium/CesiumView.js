@@ -843,6 +843,32 @@ define([
 
 
         checkComposedForSHC: function(product){
+            var cesLayer;
+            var parameters = product.get('parameters');
+            var coeffRange = product.get('coefficients_range');
+
+            if (parameters){
+                var band;
+                var keys = _.keys(parameters);
+                _.each(keys, function(key){
+                    if(parameters[key].selected){
+                        band = key;
+                    }
+                });
+                var style = parameters[band].colorscale;
+                var range = parameters[band].range;
+                if (band === 'Fieldlines'){
+                    if(product.get('visible')){
+                        this.activeFL.push(product.get('download').id);
+                    }else{
+                        if (this.activeFL.indexOf(product.get('download').id)!==-1){
+                            this.activeFL.splice(this.activeFL.indexOf(product.get('download').id), 1);
+                        }
+                    }
+                    //this.checkFieldLines();
+                }
+            }
+
             if(product.attributes.hasOwnProperty('shc') && product.attributes.hasOwnProperty('model_expression') && 
                     product.get('model_expression').indexOf('Custom_Model')!==-1 &&
                     product.get('shc') !== null){
@@ -908,6 +934,15 @@ define([
                     if (this.bboxsel !== null){
                         var bb = this.bboxsel;
                         options.bbox =  bb.join();
+                    }
+
+                    if(band === 'Fieldlines'){
+                        var customModel = globals.products.find(function(p){
+                            return p.get("download").id === "Custom_Model";
+                        });
+                        customModel.get('ces_layer').show = false;
+                        this.checkFieldLines();
+                        return;
                     }
 
                     payload = tmplEvalModel(options);
@@ -1854,9 +1889,12 @@ define([
 
         checkFieldLines: function(){
             if(this.activeFL.length>0 && this.bboxsel){
+
                 var url, modelId, color, band, style, range, logarithmic,
                     parameters, name;
+
                 globals.products.each(function(product) {
+
                     if(this.activeFL.indexOf(product.get('download').id)!==-1){
                         name = product.get('name');
                         url = product.get('views')[0].urls[0];
@@ -1869,6 +1907,7 @@ define([
                                 band = key;
                             }
                         });
+
                         style = parameters[band].colorscale;
                         range = parameters[band].range;
                         logarithmic = parameters[band].logarithmic;
@@ -1878,9 +1917,17 @@ define([
                             delete this.FLCollection[name];
                         }
 
+                        if(band !== 'Fieldlines'){
+                            return;
+                        }
+
                         var that = this;
 
-                        $.post( url, tmplGetFieldLines({
+                        if(product.get('download').id === 'Magnetic_Model'){
+                            modelId = 'Magnetic_Model=' + product.get('model_expression');
+                        }
+
+                        var options = {
                             'model_ids': modelId,
                             'begin_time': getISODateTimeString(this.beginTime),
                             'end_time': getISODateTimeString(this.endTime),
@@ -1890,7 +1937,15 @@ define([
                             'range_min': range[0],
                             'range_max': range[1],
                             'log_scale': logarithmic
-                        }))
+                        };
+
+                        if(product.get('download').id === 'Magnetic_Model'){
+                            if(product.get('shc') !== null && product.get('model_expression').indexOf('Custom_Model')!==-1){
+                                options.shc = product.get('shc');
+                            }
+                        }
+
+                        $.post( url, tmplGetFieldLines(options))
                         .done(function( data ) {
                             Papa.parse(data, {
                                 header: true,

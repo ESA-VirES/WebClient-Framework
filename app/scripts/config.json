@@ -4306,6 +4306,14 @@
                     "name": "Declination",
                     "colorscale": "diverging_1"
                 },
+                "Fieldlines":{
+                    "range": [1, 40000],
+                    "uom":"nT",
+                    "name": "Fieldlines",
+                    "description": "In order to visualize fieldlines please select an area with the bounding box tool.",
+                    "colorscale": "jet",
+                    "logarithmic": true
+                },
                 "X_EW": {
                     "range": [-5, 5],
                     "uom":"nT/km",
