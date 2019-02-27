@@ -7,15 +7,17 @@
         'backbone',
         'communicator',
         'globals',
+        'choices',
         'hbs!tmpl/LayerSettings',
         'hbs!tmpl/wps_eval_model_GET',
+        'hbs!tmpl/wps_eval_composed_model_GET',
         'hbs!tmpl/wps_eval_model',
-        'hbs!tmpl/wps_eval_model_diff',
+        'hbs!tmpl/wps_eval_composed_model',
         'underscore',
         'plotty'
     ],
 
-    function( Backbone, Communicator, globals, LayerSettingsTmpl, evalModelTmpl, evalModelTmpl_POST, tmplEvalModelDiff ) {
+    function( Backbone, Communicator, globals, Choices, LayerSettingsTmpl, evalModelTmpl,evalModelTmplComposed, evalModelTmpl_POST, evalModelTmplComposed_POST) {
 
         var LayerSettings = Backbone.Marionette.Layout.extend({
 
@@ -193,7 +195,7 @@
                     }
 
 
-                    if(!(typeof this.current_model.get("coefficients_range") === 'undefined')){
+                    if(!(typeof this.current_model.get("coefficients_range") === 'undefined') && this.current_model.get("download").id !== 'Magnetic_Model'){
 
                         this.$("#coefficients_range").empty();
 
@@ -215,7 +217,7 @@
                         
                     }   
 
-                    if (protocol == "WPS"){
+                    if (protocol == "WPS" || this.current_model.get("download").id === 'Magnetic_Model'){
                         this.$("#shc").empty();
                         this.$("#shc").append(
                             '<p>Spherical Harmonics Coefficients</p>'+
@@ -235,6 +237,81 @@
                         }
                         
                     }
+                    
+                    if((this.current_model.get("download").id === 'Magnetic_Model')){
+                      this.createApplyButton();
+                      //composed model additional fields
+                      this.$("#composed_model_compute").empty();
+                      this.$("#composed_model_compute").append('<select class="form-control" id="choices-multiple-remove-button" placeholder="Composed model - Choose or type" multiple></select>')
+                      
+                      var models = globals.products.filter(function (p) {
+                        //filter out composed model and custom model without shc from choices list
+                        if (p.get("download").id === 'Magnetic_Model'){
+                          return false;
+                        }else if (p.get("download").id === ("Custom_Model") && (p.get("shc")===undefined)){
+                          return false;
+                        }
+                          else{
+                            return p.get("model");
+                          }
+                      });
+                      
+                      for (var i = 0; i < models.length; i++) {
+                         // initial choices list preparation
+                          var id = models[i].get('download').id;
+                          var coefficients = models[i].get('coefficients_range');
+                          var selectedComposed = models[i].get('selectedComposed');
+                          var sign = models[i].get('sign');
+                          
+                          $('#choices-multiple-remove-button').append("<option value="+id+ " "+(selectedComposed?'selected':'')+">"+id+"</option>");
+                          // creating a object storage structure on the holding div element through .data() for later retrieval
+                          // reference to models[i].attributes.coefficients changes the source, because it is a list? other immutable attributes are unmodified, thus setting them later when changes are applied
+                          $('#composed_model_compute').data(id,{'sign':sign,'id':id,'coefficients':coefficients,'selectedComposed':selectedComposed});
+                      }
+
+                      //create a Choices modified template
+                      var example = new Choices('#choices-multiple-remove-button', {
+                        // inline onclicks with stopPropagation etc. are there to avoid binded Choices onclick and onkeydown, which made forms unclickable
+                          removeItemButton: true,
+                          callbackOnCreateTemplates: function(template) {
+                              return {
+                                  item: function(classNames) {
+                                    // reason for this ugly inline event stuff mentioned above
+                                    var id = classNames.value;
+                                    var values = $('#composed_model_compute').data(id);
+                                    // prevent click from Choices, focus and select the form
+                                    var onClickFunctionString = 'event.stopPropagation();event.target.focus();event.target.select();';
+                                    // prevent focus and writing into search div of choices
+                                    var onKeyDownFunctionString = 'event.stopPropagation();';
+                                    // handle $.data() change of data holding object so template loads it properly
+                                    var onFormLeaveFunctionStringMin = 'var dataParent=$(this)[0].parentNode.parentNode.getAttribute(\'data-value\');$(\'#composed_model_compute\').data(dataParent).coefficients[0]=$(this).val();$(\'#changesbutton\').addClass(\'unAppliedChanges\');';
+                                    var onFormLeaveFunctionStringMax = 'var dataParent=$(this)[0].parentNode.parentNode.getAttribute(\'data-value\');$(\'#composed_model_compute\').data(dataParent).coefficients[1]=$(this).val();$(\'#changesbutton\').addClass(\'unAppliedChanges\');';
+                                    var onCustomModelOperandClick = 'event.stopPropagation();var dataParent = $(this)[0].parentNode.getAttribute(\'data-value\');var signData =$(\'#composed_model_compute\').data(dataParent).sign;var newSign=(signData===\'+\' ? \'-\' : \'+\');$(this).attr(\'value\', newSign);$(\'#composed_model_compute\').data(dataParent).sign=newSign;$(\'#changesbutton\').addClass(\'unAppliedChanges\');';
+
+                                    if(values.coefficients === undefined){
+                                        values.coefficients = [-1,-1];
+                                    }
+                                    
+                                      return template('<div class="choices__item choices__item--selectable data-item composed_model_choices_holding_div" data-id="'+classNames.id+'" data-value="'+classNames.value+'" data-deletable><input type="button" value="'+values.sign+'" class="composed_model_operation_operand btn-info" onclick="'+onCustomModelOperandClick+'"><span class="composed_model_operation_label">'+values.id+'</span><button type="button" class="composed_model_delete_button choices__button" data-button> Remove item </button><div class="degree_range_selection_input"><input type="text" class="composed_model_operation_coefficient_min" value="'+values.coefficients[0]+'" onclick="'+onClickFunctionString+'" onkeydown="'+onKeyDownFunctionString+'" onblur="'+onFormLeaveFunctionStringMin+'"><input type="text" class="composed_model_operation_coefficient_max"  value="'+values.coefficients[1]+'" onclick="'+onClickFunctionString+'" onkeydown="'+onKeyDownFunctionString+'" onblur="'+onFormLeaveFunctionStringMax+'"></div></div>');
+                                  }
+                              };
+                          }
+                      });
+                      //save info about selected elements to data model
+                      example.passedElement.addEventListener('addItem', function(event) {
+                        var dataParent = event.detail.value;
+                        $('#composed_model_compute').data(dataParent).selectedComposed=true;
+                        $("#changesbutton").addClass("unAppliedChanges");
+                      }, false);
+                      example.passedElement.addEventListener('removeItem', function(event) {
+                        var dataParent = event.detail.value;
+                        $('#composed_model_compute').data(dataParent).selectedComposed=false;
+                        $("#changesbutton").addClass("unAppliedChanges");
+                      }, false);
+                    } else{ //another model than composed
+                      this.$("#composed_model_compute").empty();                    
+                    }
+
 
                     if(options[this.selected].hasOwnProperty("logarithmic"))
                         this.createScale(options[that.selected].logarithmic);
@@ -452,77 +529,34 @@
                 }
 
                 // request range for selected parameter if layer is of type model
-                if(this.current_model.get("model") && 
-                    this.selected != "Fieldlines" /*&& 
-                    this.current_model.get("differenceTo") === null*/){
+                if(this.current_model.get("model") && this.selected !== "Fieldlines"){
 
                     var that = this;
 
                     var sel_time = Communicator.reqres.request('get:time');
-                    var req = evalModelTmpl({
-                        url: this.current_model.get("download").url,
-                        model: this.current_model.get("download").id,
-                        variable: this.selected,
-                        begin_time: getISODateTimeString(sel_time.start),
-                        end_time: getISODateTimeString(sel_time.end),
-                        coeff_min: this.current_model.get("coefficients_range")[0],
-                        coeff_max: this.current_model.get("coefficients_range")[1],
-                        elevation: this.current_model.get("height")
-                    });
 
-                    if(this.current_model.get("views")[0].id == "shc" && 
-                        this.current_model.get("differenceTo") === null){
+                    if (this.current_model.get("download").id === "Magnetic_Model"){
 
-                        if(this.current_model.attributes.hasOwnProperty("shc")){
+                        var options = {
+                            url: this.current_model.get("download").url,
+                            model_expression: this.current_model.get("model_expression"),
+                            variable: this.selected,
+                            begin_time: getISODateTimeString(sel_time.start),
+                            end_time: getISODateTimeString(sel_time.end),
+                            elevation: this.current_model.get("height"),
+                            width: 24,
+                            height: 24
+                        };
 
-                            var payload = evalModelTmpl_POST({
-                                "model": "Custom_Model",
-                                "variable": this.selected,
-                                "begin_time": getISODateTimeString(sel_time.start),
-                                "end_time": getISODateTimeString(sel_time.end),
-                                "elevation": this.current_model.get("height"),
-                                "coeff_min": this.current_model.get("coefficients_range")[0],
-                                "coeff_max": this.current_model.get("coefficients_range")[1],
-                                "shc": this.current_model.get('shc'),
-                                "height": 24,
-                                "width": 24,
-                                "getonlyrange": true
-                            });
-
-                            $.post(this.current_model.get("download").url, payload)
-                                .success(this.handleRangeRespone.bind(this))
-                                .fail(this.handleRangeResponseError)
-                                .always(this.handleRangeChange.bind(this));
+                        if(this.current_model.get('model_expression').indexOf('Custom_Model') !== -1){
+                            options.shc = this.current_model.get('shc');
                         }
-
-                    }else if(this.current_model.get("differenceTo") !== null){
-
-                        var product = this.current_model;
-                        var refProd = globals.products.filter(function(p){
-                            return p.get('download').id === product.get('differenceTo');
-                        });
-
-                        var shc = defaultFor(refProd[0].get('shc'), product.get('shc'));
-
-                        var payload = tmplEvalModelDiff({
-                                'model': product.get("download").id,
-                                'reference_model': refProd[0].get("download").id,
-                                "variable": this.selected,
-                                "begin_time": getISODateTimeString(sel_time.start),
-                                "end_time": getISODateTimeString(sel_time.end),
-                                "elevation": this.current_model.get("height"),
-                                "coeff_min": this.current_model.get("coefficients_range")[0],
-                                "coeff_max": this.current_model.get("coefficients_range")[1],
-                                "shc": shc,
-                                "height": 24,
-                                "width": 24,
-                                "getonlyrange": true
-                            });
+                            var payload = evalModelTmplComposed_POST(options);
 
                             $.post(this.current_model.get("download").url, payload)
                                 .success(this.handleRangeRespone.bind(this))
                                 .fail(this.handleRangeResponseError);
-                    } else {
+                    }else{
 
                         var req = evalModelTmpl({
                             url: this.current_model.get("download").url,
@@ -581,19 +615,21 @@
                 var options = this.current_model.get("parameters");
                 var resp = response.split(',');
                 var range = [Number(resp[1]), Number(resp[2])];
-                // Make range "nicer", rounding depending on extent
-                range = d3.scale.linear().domain(range).nice().domain();
-                $("#range_min").val(range[0]);
-                $("#range_max").val(range[1]);
-                options[this.selected].range = range;
-                this.current_model.set("parameters", options);
-                this.createScale();
-                Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
+                if (!isNaN(range[0]) && !isNaN(range[1])){
+                  // Make range "nicer", rounding depending on extent
+                  range = d3.scale.linear().domain(range).nice().domain();
+                  $("#range_min").val(range[0]);
+                  $("#range_max").val(range[1]);
+                  options[this.selected].range = range;
+                  this.current_model.set("parameters", options);
+                  this.createScale();
+                }
+                Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));  
             },
 
             handleRangeResponeSHC: function(evt, response){
                 this.handleRangeRespone(response);
-                var params = { name: this.current_model.get("name"), isBaseLayer: false, visible: false };
+                var params = { name: this.current_model.get("download").id, isBaseLayer: false, visible: false };
                 Communicator.mediator.trigger('map:layer:change', params);
                 Communicator.mediator.trigger("file:shc:loaded", evt.target.result);
                 Communicator.mediator.trigger("layer:activate", this.current_model.get("views")[0].id);
@@ -650,10 +686,7 @@
                 // Check coefficient ranges
                 if ($("#coefficients_range_min").length && $("#coefficients_range_max").length){
                     var coef_range_min = parseFloat($("#coefficients_range_min").val());
-                    error = error || this.checkValue(coef_range_min,$("#coefficients_range_min"));
-
                     var coef_range_max = parseFloat($("#coefficients_range_max").val());
-                    error = error || this.checkValue(coef_range_max,$("#coefficients_range_max"));
 
                     if(coef_range_min>coef_range_max && coef_range_max!==-1){
                         error = true;
@@ -667,6 +700,8 @@
                         $("#coefficient_error").remove();
                     }
                 
+                    error = error || this.checkValue(coef_range_min,$("#coefficients_range_min"));
+                    error = error || this.checkValue(coef_range_max,$("#coefficients_range_max"));
 
                     if(!error){
                         if(this.current_model.get("coefficients_range")[0]!=coef_range_min || 
@@ -689,67 +724,89 @@
                         this.current_model.set("height", height);
                     }
                 }
+                
+                var contextStorer = this;
+                if ($('.composed_model_operation_operand').length) {
+                    // composed model computation from other models
+                    // check for the coefficient range of all choices elements
+                    $('.composed_model_operation_operand').parent().each(function() {
+                        // "this" is the current element in the loop
+                        var holding_div = $(this).children(".degree_range_selection_input");
+                        var coef_range_min_element = $(holding_div).children('.composed_model_operation_coefficient_min');
+                        var coef_range_max_element = $(holding_div).children('.composed_model_operation_coefficient_max');
+                        var coef_range_min = parseFloat(coef_range_min_element.val());
+                        var coef_range_max = parseFloat(coef_range_max_element.val());
+
+                        if (coef_range_min > coef_range_max && coef_range_max !== -1) {
+                            error = true;
+                            coef_range_min_element.addClass("text_error");
+                            coef_range_max_element.addClass("text_error");
+                        } else {
+                            coef_range_min_element.removeClass("text_error");
+                            coef_range_max_element.removeClass("text_error");
+                        }
+
+                        error = error || contextStorer.checkValue(coef_range_min, coef_range_min_element);
+                        error = error || contextStorer.checkValue(coef_range_max, coef_range_max_element);
+                    });
+                }
+                if((this.current_model.get("download").id === 'Magnetic_Model')){
+                  if ($('.composed_model_operation_operand').length === 0) {
+                    error = true;
+                    showMessage('warning','Please add at least one model to Composed model selection before hitting Apply changes.', 20);
+                  }
+                }
 
                 if(!error){
-                    // Remove button
-                    $("#applychanges").empty();
-
+                    // Remove button only on normal models, in composed model window leave it there
+                    if((this.current_model.get("download").id !== 'Magnetic_Model')){
+                      $("#applychanges").empty();
+                    }else{
+                      //for composed model apply changes and form expression
+                      var expressionStayedSame = this.applyComposedModelChanges();
+                      if (!expressionStayedSame) {
+                        model_change = true;
+                      }
+                      $("#changesbutton").removeClass("unAppliedChanges");
+                    }
                     // If there were changes of the model parameters recalculate the color range
-                    if(model_change){
+                    if(model_change && this.selected!=='Fieldlines'){
                         var that = this;
 
                         var sel_time = Communicator.reqres.request('get:time');
 
-                        
+                        if((this.current_model.get("download").id === 'Magnetic_Model')){
 
-                        if(this.current_model.attributes.hasOwnProperty("shc") && 
-                            this.current_model.get("differenceTo") === null){
 
-                            var payload = evalModelTmpl_POST({
-                                "model": "Custom_Model",
+                            var modelExpression = this.current_model.get("model_expression");
+                            var options = {
+                                'model_expression': modelExpression,
                                 "variable": this.selected,
                                 "begin_time": getISODateTimeString(sel_time.start),
                                 "end_time": getISODateTimeString(sel_time.end),
                                 "elevation": this.current_model.get("height"),
-                                "coeff_min": this.current_model.get("coefficients_range")[0],
-                                "coeff_max": this.current_model.get("coefficients_range")[1],
-                                "shc": this.current_model.get('shc'),
                                 "height": 24,
                                 "width": 24,
                                 "getonlyrange": true
-                            });
+                            };
+
+                            var customModel = globals.products.filter(function(p){
+                                return p.get('download').id === 'Custom_Model';
+                            })[0];
+
+                            if(customModel.attributes.hasOwnProperty("shc")){
+                                options.shc = customModel.get('shc');
+                            }
+
+                            var payload = evalModelTmplComposed_POST(options);
 
                             $.post(this.current_model.get("download").url, payload)
                                 .success(this.handleRangeRespone.bind(this))
                                 .fail(this.handleRangeResponseError);
 
-                        } else if(this.current_model.get("differenceTo") !== null){
-
-                            var product = this.current_model;
-                            var refProd = globals.products.filter(function(p){
-                                return p.get('download').id === product.get('differenceTo');
-                            });
-
-                            var shc = defaultFor(refProd[0].get('shc'), product.get('shc'));
-
-                            var payload = tmplEvalModelDiff({
-                                'model': product.get("download").id,
-                                'reference_model': refProd[0].get("download").id,
-                                "variable": this.selected,
-                                "begin_time": getISODateTimeString(sel_time.start),
-                                "end_time": getISODateTimeString(sel_time.end),
-                                "elevation": this.current_model.get("height"),
-                                "coeff_min": this.current_model.get("coefficients_range")[0],
-                                "coeff_max": this.current_model.get("coefficients_range")[1],
-                                "shc": shc,
-                                "height": 24,
-                                "width": 24,
-                                "getonlyrange": true
-                            });
-
-                            $.post(this.current_model.get("download").url, payload)
-                                .success(this.handleRangeRespone.bind(this))
-                                .fail(this.handleRangeResponseError);
+                            // fetch data when model changed on composed model option
+                            globals.models.get(that.current_model.get('download').id).fetch();
+                              
                         } else {
 
                             var req = evalModelTmpl({
@@ -775,6 +832,46 @@
                         Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
                     }
                 }
+            },
+
+            applyComposedModelChanges: function(){
+              //performs attribute saving for composed model, returns true if previous model expression was the same
+                var modelsData = $('#composed_model_compute').data();
+                var selected = _.filter(modelsData, function(model) {
+                    return model.selectedComposed === true;
+                });
+                // save data to selected models manually for immutable properties
+                var models = globals.products.filter(function (p) {
+                    return p.get('model');
+                });
+                _.each(models, function(model) {
+                    var selectedFound = selected.find(function(selectedModel) {
+                        return model.get('download').id == selectedModel.id;
+                    });
+                    if (selectedFound !== undefined){
+                      model.attributes.selectedComposed = true;
+                      model.attributes.sign = selectedFound.sign;
+                    }
+                    else {
+                      model.attributes.selectedComposed = false;
+                    }
+                })
+                
+                // expression looks like +'Model1'(min_degree=3,max_degree=20)-'Model2'(min_degree=-1,max_degree=-1)
+                var modelExpression = '';
+                _.each(selected, function(selectedModel) {
+                   modelExpression += (selectedModel.sign + '"' + selectedModel.id + '"(min_degree='+selectedModel.coefficients[0]+',max_degree='+selectedModel.coefficients[1]+')')
+                 });
+                 
+                 //check if model expression is the same as before apply button clicked
+                 var expressionStayedSame = modelExpression ===this.current_model.attributes.model_expression;
+                 //save it to data holder
+                 this.current_model.set("model_expression",modelExpression);
+                 var modelExpressionFromProducts = globals.models.find(function(p){
+                   return p.get("name")=== "Magnetic_Model";
+                 });
+                 modelExpressionFromProducts.set("model_expression",modelExpression);
+                 return expressionStayedSame;
             },
 
             checkValue: function(value, textfield){
@@ -821,9 +918,16 @@
                         data: evt.target.result
                     }));
 
-                    that.$("#shc").find("#filename").remove();
-                    that.$("#shc").append('<p id="filename" style="font-size:.9em;">Selected File: '+filename+'</p>');
+                    // add shc also to custom model
+                    var customModel = globals.products.filter(function(p){
+                        return p.get('download').id === 'Custom_Model';
+                    })[0];
 
+                    customModel.set({
+                        shc: evt.target.result,
+                        shc_name: filename,
+                        selectedComposed: true
+                    });
 
                     var sel_time = Communicator.reqres.request('get:time');
 
@@ -852,74 +956,9 @@
                                 .always(that.handleRangeChange.bind(that));
                         }
 
-                    }else if(that.current_model.get("differenceTo") !== null){
-
-                        var product = that.current_model;
-                        var refProd = globals.products.filter(function(p){
-                            return p.get('download').id === product.get('differenceTo');
-                        });
-
-                        var shc = defaultFor(refProd[0].get('shc'), product.get('shc'));
-
-                        var payload = tmplEvalModelDiff({
-                                'model': product.get("download").id,
-                                'reference_model': refProd[0].get("download").id,
-                                "variable": that.selected,
-                                "begin_time": getISODateTimeString(sel_time.start),
-                                "end_time": getISODateTimeString(sel_time.end),
-                                "elevation": that.current_model.get("height"),
-                                "coeff_min": that.current_model.get("coefficients_range")[0],
-                                "coeff_max": that.current_model.get("coefficients_range")[1],
-                                "shc": shc,
-                                "height": 24,
-                                "width": 24,
-                                "getonlyrange": true
-                            });
-
-                            $.post(that.current_model.get("download").url, payload)
-                                .success(that.handleRangeRespone.bind(that))
-                                .fail(that.handleRangeResponseError);
                     }
-
-                    /*var payload = evalModelTmpl_POST({
-                        "model": "Custom_Model",
-                        "variable": that.selected,
-                        "begin_time": getISODateTimeString(sel_time.start),
-                        "end_time": getISODateTimeString(sel_time.end),
-                        "elevation": that.current_model.get("height"),
-                        "coeff_min": that.current_model.get("coefficients_range")[0],
-                        "coeff_max": that.current_model.get("coefficients_range")[1],
-                        "shc": that.current_model.get('shc'),
-                        "height": 24,
-                        "width": 24,
-                        "getonlyrange": true
-                    });
-
-                    $.post(that.current_model.get("download").url, payload)
-                        .success(function(response){
-                            var options = that.current_model.get("parameters");
-                            var resp = response.split(',');
-                            var range = [Number(resp[1]), Number(resp[2])];
-                            // Make range "nicer", rounding depending on extent
-                            range = d3.scale.linear().domain(range).nice().domain();
-                            $("#range_min").val(range[0]);
-                            $("#range_max").val(range[1]);
-                            options[that.selected].range = range;
-                            that.current_model.set("parameters", options);
-                            that.createScale();
-                            //Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
-                            Communicator.mediator.trigger("file:shc:loaded", evt.target.result);
-
-                            var params = { name: that.current_model.get("name"), isBaseLayer: false, visible: false };
-                            Communicator.mediator.trigger('map:layer:change', params);
-                            Communicator.mediator.trigger("layer:activate", that.current_model.get("views")[0].id);
-                        })
-                        .fail(that.handleRangeResponseError);
-                        //.always(that.handleRangeChange.bind(that));*/
-
-                    
-
-
+                Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("name"));
+                that.onShow();
                 }
 
                 reader.readAsText(evt.target.files[0]);
@@ -1043,7 +1082,7 @@
                     this.$("#height").append(
                         '<form style="vertical-align: middle;">'+
                         '<label for="heightvalue" style="width: 120px;">Height</label>'+
-                        '<input id="heightvalue" type="text" style="width:30px; margin-left:8px"/>'+
+                        '<input id="heightvalue" type="text" style="width:35px; margin-left:8px"/>'+
                         '</form>'
                     );
                     this.$("#heightvalue").val(height);

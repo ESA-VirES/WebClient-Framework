@@ -7,15 +7,14 @@ define([
     'models/MapModel',
     'globals',
     'papaparse',
-    'hbs!tmpl/wps_eval_model',
-    'hbs!tmpl/wps_eval_model_diff',
+    'hbs!tmpl/wps_eval_composed_model',
     'hbs!tmpl/wps_get_field_lines',
     'cesium/Cesium',
     'drawhelper',
     'FileSaver',
     'plotty'
 ], function( Marionette, Communicator, App, MapModel, globals, Papa,
-             tmplEvalModel, tmplEvalModelDiff, tmplGetFieldLines) {
+             tmplEvalModel, tmplGetFieldLines) {
     'use strict';
     var CesiumView = Marionette.View.extend({
         model: new MapModel.MapModel(),
@@ -119,7 +118,7 @@ define([
                 value = ''+value;
                 var i = _.indexOf(this._tileProvider._urlParts, property);
                 if (i>=0){
-                    this._tileProvider._urlParts[i+1] = value;
+                    this._tileProvider._urlParts[i+1] = encodeURIComponent(value);
                 }else{
                     this._tileProvider._urlParts.push(property);
                     this._tileProvider._urlParts.push(encodeURIComponent(value));
@@ -301,7 +300,16 @@ define([
                     product.set('ces_layer', imagerylayer);
                     product.set('backupLayer', imagerylayer);
 
-                    imagerylayer.show = product.get('visible');
+                    if(product.get('download').id === 'Magnetic_Model'){
+                        if(this.checkComposedForSHC(product)){
+                            imagerylayer.show = false;
+                        } else {
+                            imagerylayer.show = product.get('visible');
+                        }
+                    } else {
+                        imagerylayer.show = product.get('visible');
+                    }
+
                     imagerylayer.alpha = product.get('opacity');
 
                     // If product protocol is not WMS or WMTS they are
@@ -578,6 +586,9 @@ define([
                     if(layerdesc.get('height')){
                         addParams.elevation = layerdesc.get('height');
                     }
+                    if(layerdesc.get('model_expression')){
+                        addParams.models = view.id + "=" + layerdesc.get('model_expression');
+                    }
                     params.format = layerdesc.get('views')[0].format;
                     returnLayer = new Cesium.WebMapServiceImageryProvider({
                         url: view.urls[0],
@@ -643,6 +654,15 @@ define([
             globals.products.each(function(product) {
                 if(product.get('download').id === options.model.get('download').id){
                     var cesLayer = product.get('ces_layer');
+
+                    // Get special layer of custom model if needed
+                    if (this.checkComposedForSHC(product)){
+                        var customModel = globals.products.find(function(p){
+                            return p.get("download").id === "Custom_Model";
+                        });
+                        cesLayer = customModel.get('ces_layer');
+                    }
+
                     // Find active parameter and satellite
                     var sat, key;
                     _.each(globals.swarm.products, function(p){
@@ -747,10 +767,11 @@ define([
                         product.set('visible', options.visible);
                         this.checkColorscale(product.get('download').id);
 
-                        if (product.get('views')[0].protocol === 'WPS'){
-                            this.checkShc(product, options.visible);
-
-                        }else if (product.get('views')[0].protocol === 'WMS' ||
+                       // Check if product contains shc file, if yes we need
+                        // to switch to wps for visualization
+                        if(this.checkComposedForSHC(product)){
+                            this.loadShc(product, product.get('visible'));
+                        } else if (product.get('views')[0].protocol === 'WMS' ||
                                   product.get('views')[0].protocol === 'WMTS' ){
                             var cesLayer;
                             var parameters = product.get('parameters');
@@ -775,15 +796,6 @@ define([
                                         }
                                     }
                                     this.checkFieldLines();
-                                }else if (product.get('differenceTo') !== null){
-                                    if(product.get('visible')){
-                                        var refProd = globals.products.filter(function(p){
-                                            return p.get('download').id === product.get('differenceTo');
-                                        });
-                                        this.checkModelDifference(product, refProd[0]);
-                                    }else{
-                                        product.get('ces_layer').show = false;
-                                    }
                                 } else {
 
                                     cesLayer = product.get('ces_layer');
@@ -830,10 +842,64 @@ define([
         }, // END of changeLayer
 
 
-        checkShc: function(product, visible){
-            if(visible){
-                if(product.get('shc') !== null){
+        checkComposedForSHC: function(product){
+            var cesLayer;
+            var parameters = product.get('parameters');
+            var coeffRange = product.get('coefficients_range');
 
+            if (parameters){
+                var band;
+                var keys = _.keys(parameters);
+                _.each(keys, function(key){
+                    if(parameters[key].selected){
+                        band = key;
+                    }
+                });
+                var style = parameters[band].colorscale;
+                var range = parameters[band].range;
+                if (band === 'Fieldlines'){
+                    if(product.get('visible')){
+                        this.activeFL.push(product.get('download').id);
+                    }else{
+                        if (this.activeFL.indexOf(product.get('download').id)!==-1){
+                            this.activeFL.splice(this.activeFL.indexOf(product.get('download').id), 1);
+                        }
+                    }
+                    //this.checkFieldLines();
+                }
+            }
+
+            if(product.attributes.hasOwnProperty('shc') && product.attributes.hasOwnProperty('model_expression') && 
+                    product.get('model_expression').indexOf('Custom_Model')!==-1 &&
+                    product.get('shc') !== null){
+                return true;
+            } else {
+                // If product is compose model and no longer SHC active hide shc 
+                // related layer 
+
+                if(product.get('download').id === 'Magnetic_Model'){
+                    // Get special layer of custom model if needed
+                    var customModel = globals.products.find(function(p){
+                        return p.get("download").id === "Custom_Model";
+                    });
+                    customModel.get('ces_layer').show = false;
+                }
+
+                return false;
+            }
+        },
+
+        loadShc: function(product, visible){
+
+            if(visible){
+                // Check if shc is in expresion and shc has been loaded
+                if(product.get('download').id === 'Magnetic_Model' &&
+                    product.attributes.hasOwnProperty('shc') && 
+                    product.get('model_expression').indexOf('Custom_Model')!==-1 &&
+                    product.get('shc') !== null){
+
+                    // If model visible and all conditions apply load layer with
+                    // WPS information, return true
                     var payload;
                     var url = product.get('views')[0].urls[0];
 
@@ -851,76 +917,55 @@ define([
                     var range = parameters[band].range;
                     var coeffRange = product.get('coefficients_range');
 
+                    var options = {
+                        'model_expression': product.get("model_expression"),
+                        'variable': band,
+                        'begin_time': getISODateTimeString(this.beginTime),
+                        'end_time': getISODateTimeString(this.endTime),
+                        'elevation': product.get('height'),
+                        'shc': product.get('shc'),
+                        'height': 512,
+                        'width': 1024,
+                        'style': style,
+                        'range_min': range[0],
+                        'range_max': range[1],
+                    };
 
-                    if(product.get('differenceTo') !== null){
-
-                        var refProd = globals.products.filter(function(p){
-                            return p.get('download').id === product.get('differenceTo');
-                        });
-                        var models = [product.get('download').id, refProd[0].get('download').id];
-
-                        var cesLayer = product.get('ces_layer');
-
-                        var reqOptions = {
-                            'model': models[0],
-                            'reference_model': models[1],
-                            'variable': band,
-                            'begin_time': getISODateTimeString(this.beginTime),
-                            'end_time': getISODateTimeString(this.endTime),
-                            'elevation': height,
-                            'coeff_min': coeffRange[0],
-                            'coeff_max': coeffRange[1],
-                            'shc': shc,
-                            'height': 512,
-                            'width': 512,
-                            'style': style,
-                            'range_min': range[0],
-                            'range_max': range[1]
-                        };
-
-                        if (this.bboxsel !== null){
-                            var bb = this.bboxsel;
-                            reqOptions.bbox =  bb.join();
-                        }
-
-                        payload = tmplEvalModelDiff(reqOptions);
-
-                    }else{
-
-                        var options = {
-                            'model': 'Custom_Model',
-                            'variable': band,
-                            'begin_time': getISODateTimeString(this.beginTime),
-                            'end_time': getISODateTimeString(this.endTime),
-                            'elevation': product.get('height'),
-                            'coeff_min': coeffRange[0],
-                            'coeff_max': coeffRange[1],
-                            'shc': product.get('shc'),
-                            'height': 512,
-                            'width': 1024,
-                            'style': style,
-                            'range_min': range[0],
-                            'range_max': range[1],
-                        };
-
-                        if (this.bboxsel !== null){
-                            var bb = this.bboxsel;
-                            options.bbox =  bb.join();
-                        }
-
-                        payload = tmplEvalModel(options);
+                    if (this.bboxsel !== null){
+                        var bb = this.bboxsel;
+                        options.bbox =  bb.join();
                     }
 
-                    this.customModelLayer = product.get('ces_layer');
-                    this.customModelLayer.show = false;
+                    if(band === 'Fieldlines'){
+                        var customModel = globals.products.find(function(p){
+                            return p.get("download").id === "Custom_Model";
+                        });
+                        customModel.get('ces_layer').show = false;
+                        this.checkFieldLines();
+                        return;
+                    }
 
-                    var map = this.map;
-                    var customModelLayer = this.customModelLayer;
-                    var index = this.map.scene.imageryLayers.indexOf(customModelLayer);
-                    this.map.scene.imageryLayers.remove(customModelLayer);
+                    payload = tmplEvalModel(options);
+
+                    // Hide current WMS layer (as now we use the WPS layer)
+                    product.get('ces_layer').show = false;
+                    var that = this;
 
                     $.post(url, payload)
                         .done(function( data ) {
+
+                            // Get special layer of custom model if needed
+                            var customModel = globals.products.find(function(p){
+                                return p.get("download").id === "Custom_Model";
+                            });
+                            that.customModelLayer = customModel.get('ces_layer');
+                            that.customModelLayer.show = false;
+
+                            var map = that.map;
+                            var customModelLayer = that.customModelLayer;
+                            var index = that.map.scene.imageryLayers.indexOf(customModelLayer);
+                            that.map.scene.imageryLayers.remove(customModelLayer);
+
                             if(index>0){
                                 var imageURI = 'data:image/gif;base64,'+data;
                                 var layerOptions = {url: imageURI};
@@ -936,16 +981,31 @@ define([
                                 var imagelayer = new Cesium.SingleTileImageryProvider(layerOptions);
                                 customModelLayer = 
                                     map.scene.imageryLayers.addImageryProvider(imagelayer, index);
-                                product.set('ces_layer', customModelLayer);
+                                customModel.set('ces_layer', customModelLayer);
                                 customModelLayer.alpha = product.get('opacity');
                                 customModelLayer.show = true;
                             }
                         });
-                } // END if product has shc
-            }else{ 
-                var cesLayer = product.get('ces_layer');
-                cesLayer.show = visible;
-            } // END of if visible
+                    return true;
+                } else {
+                    return false;
+                }
+            }else{
+                // If composed model has custom model in expression we deactivate
+                // layer here, as not visible any longer
+                if(product.get('download').id === 'Magnetic_Model' &&
+                    product.attributes.hasOwnProperty('shc') && 
+                    product.get('model_expression').indexOf('Custom_Model')!==-1 &&
+                    product.get('shc') !== null){
+
+                    // Get special layer of custom model if needed
+                    var customModel = globals.products.find(function(p){
+                        return p.get("download").id === "Custom_Model";
+                    });
+                    customModel.get('ces_layer').show = false;
+                }
+                return false;
+            }
         },
 
 
@@ -1262,14 +1322,18 @@ define([
                     var height = product.get('height');
                     var contours = product.get('contours');
                     var coeffRange = product.get('coefficients_range');
+                    var id = product.get('download').id;
                     var cesLayer;
 
                     if(product.get('views')[0].protocol === 'CZML'){
                         this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
 
                     }else if(product.get('views')[0].protocol === 'WMS'){
-
-                        if (band === 'Fieldlines' ){
+                        // Check if product contains shc file, if yes we need
+                        // to switch to wps for visualization
+                        if(this.checkComposedForSHC(product)){
+                            this.loadShc(product, product.get('visible'));
+                        }else if (band === 'Fieldlines' ){
                             if(product.get('visible')){
                                 cesLayer = product.get('ces_layer');
                                 cesLayer.show = false;
@@ -1343,8 +1407,15 @@ define([
                                 if(style){
                                     cesLayer.imageryProvider.updateProperties('styles', style);
                                 }
-                                if(coeffRange){
+                                
+                                if(coeffRange && id !== "Magnetic_Model"){
                                     cesLayer.imageryProvider.updateProperties('dim_coeff', (coeffRange[0]+','+coeffRange[1]));
+                                }
+                                // layers=MyNewModel;models=MyNewModel='model1'-'model2'+'model3'
+                                if(id === "Magnetic_Model"){
+                                    var modelExpressionHtml = product.get('model_expression');
+                                    var queryBegin = id + '=';
+                                    cesLayer.imageryProvider.updateProperties('models', queryBegin + modelExpressionHtml);
                                 }
                                 if (cesLayer.show){
                                     var index = this.map.scene.imageryLayers.indexOf(cesLayer);
@@ -1353,21 +1424,6 @@ define([
                                 }
                             }
                         }
-                    }else if (product.get('views')[0].protocol === 'WPS'){
-                        /*if (product.get('differenceTo') !== null ){
-                            if(product.get('visible')){
-                                var refProd = globals.products.filter(function(p){
-                                    return p.get('download').id === product.get('differenceTo');
-                                });
-                                this.checkModelDifference(product, refProd[0]);
-                            }else{
-                                product.get('ces_layer').show = false;
-                            }
-
-                        }else{
-                            this.checkShc(product, product.get('visible'));
-                        }*/
-                        this.checkShc(product, product.get('visible'));
                     }
                 }
             }, this);
@@ -1822,26 +1878,23 @@ define([
             }
 
             globals.products.each(function(product) {
-                if (product.get('views')[0].protocol === 'WPS'){
-                    this.checkShc(product, product.get('visible'));
+                // Check if product contains shc file, if yes we need
+                // to switch to wps for visualization
+                if(this.checkComposedForSHC(product)){
+                    this.loadShc(product, product.get('visible'));
                 }
 
-                if(product.attributes.hasOwnProperty('differenceTo') && 
-                    product.get('differenceTo') !== null){
-                    
-                    var refProd = globals.products.filter(function(p){
-                        return p.get('download').id === product.get('differenceTo');
-                    });
-                    this.checkModelDifference(product, refProd[0]);
-                }
             },this);
         },
 
         checkFieldLines: function(){
             if(this.activeFL.length>0 && this.bboxsel){
+
                 var url, modelId, color, band, style, range, logarithmic,
                     parameters, name;
+
                 globals.products.each(function(product) {
+
                     if(this.activeFL.indexOf(product.get('download').id)!==-1){
                         name = product.get('name');
                         url = product.get('views')[0].urls[0];
@@ -1854,6 +1907,7 @@ define([
                                 band = key;
                             }
                         });
+
                         style = parameters[band].colorscale;
                         range = parameters[band].range;
                         logarithmic = parameters[band].logarithmic;
@@ -1863,9 +1917,17 @@ define([
                             delete this.FLCollection[name];
                         }
 
+                        if(band !== 'Fieldlines'){
+                            return;
+                        }
+
                         var that = this;
 
-                        $.post( url, tmplGetFieldLines({
+                        if(product.get('download').id === 'Magnetic_Model'){
+                            modelId = 'Magnetic_Model=' + product.get('model_expression');
+                        }
+
+                        var options = {
                             'model_ids': modelId,
                             'begin_time': getISODateTimeString(this.beginTime),
                             'end_time': getISODateTimeString(this.endTime),
@@ -1875,7 +1937,15 @@ define([
                             'range_min': range[0],
                             'range_max': range[1],
                             'log_scale': logarithmic
-                        }))
+                        };
+
+                        if(product.get('download').id === 'Magnetic_Model'){
+                            if(product.get('shc') !== null && product.get('model_expression').indexOf('Custom_Model')!==-1){
+                                options.shc = product.get('shc');
+                            }
+                        }
+
+                        $.post( url, tmplGetFieldLines(options))
                         .done(function( data ) {
                             Papa.parse(data, {
                                 header: true,
@@ -1988,35 +2058,25 @@ define([
             this.endTime = time.end;
             globals.products.each(function(product) {
 
-                if(product.attributes.hasOwnProperty('differenceTo') && 
-                    product.get('differenceTo') !== null){
-                    var refProd = globals.products.filter(function(p){
-                        return p.get('download').id === product.get('differenceTo');
-                    });
-                    this.checkModelDifference(product, refProd[0]);
-                    if (product.get('views')[0].protocol === 'WPS'){
-                        this.checkShc(product, product.get('visible'));
-                    }
-                }else{
-                    if(product.get('timeSlider')){
-                        if (product.get('views')[0].protocol === 'WPS'){
-                            this.checkShc(product, product.get('visible'));
-                        } else {
-                            product.set('time',string);
-                            var cesLayer = product.get('ces_layer');
-                            if(cesLayer && 
-                               (typeof cesLayer.imageryProvider.updateProperties === 'function') ){
-                                cesLayer.imageryProvider.updateProperties('time', string);
-                                if (cesLayer.show){
-                                    var index = this.map.scene.imageryLayers.indexOf(cesLayer);
-                                    this.map.scene.imageryLayers.remove(cesLayer, false);
-                                    this.map.scene.imageryLayers.add(cesLayer, index);
-                                }
+                if(product.get('timeSlider')){
+                    // Check if product contains shc file, if yes we need
+                    // to switch to wps for visualization
+                    if(this.checkComposedForSHC(product)){
+                        this.loadShc(product, product.get('visible'));
+                    } else {
+                        product.set('time',string);
+                        var cesLayer = product.get('ces_layer');
+                        if(cesLayer && 
+                           (typeof cesLayer.imageryProvider.updateProperties === 'function') ){
+                            cesLayer.imageryProvider.updateProperties('time', string);
+                            if (cesLayer.show){
+                                var index = this.map.scene.imageryLayers.indexOf(cesLayer);
+                                this.map.scene.imageryLayers.remove(cesLayer, false);
+                                this.map.scene.imageryLayers.add(cesLayer, index);
                             }
                         }
-                    } 
+                    }
                 }
-                
             }, this);
             this.checkFieldLines();
         },

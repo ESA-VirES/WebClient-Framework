@@ -2504,7 +2504,9 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null
+            "differenceTo": null,
+            "selectedComposed": false,
+            "sign": "+"
 
         },{
             "name": "MCO_SHA_2D",
@@ -2611,7 +2613,9 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null
+            "differenceTo": null,
+            "selectedComposed": false,
+            "sign": "+"
 
         },{
             "name": "MCO_SHA_2F",
@@ -2718,7 +2722,9 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null
+            "differenceTo": null,
+            "selectedComposed": false,
+            "sign": "+"
 
         },{
             "name": "MLI_SHA_2C",
@@ -2825,7 +2831,9 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null
+            "differenceTo": null,
+            "selectedComposed": false,
+            "sign": "+"
 
         },{
             "name": "MLI_SHA_2D",
@@ -2932,7 +2940,9 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null
+            "differenceTo": null,
+            "selectedComposed": false,
+            "sign": "+"
 
         },{
             "name": "MIO_SHA_2C-Primary",
@@ -3039,7 +3049,9 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null
+            "differenceTo": null,
+            "selectedComposed": false,
+            "sign": "+"
 
         },{
             "name": "MIO_SHA_2C-Secondary",
@@ -3146,7 +3158,9 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null
+            "differenceTo": null,
+            "selectedComposed": false,
+            "sign": "+"
 
         },{
             "name": "MIO_SHA_2D-Primary",
@@ -3253,7 +3267,9 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null
+            "differenceTo": null,
+            "selectedComposed": false,
+            "sign": "+"
 
         },{
             "name": "MIO_SHA_2D-Secondary",
@@ -3360,7 +3376,9 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null
+            "differenceTo": null,
+            "selectedComposed": false,
+            "sign": "+"
 
         },{
             "name": "MMA_SHA_2C-Primary",
@@ -3467,7 +3485,9 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null
+            "differenceTo": null,
+            "selectedComposed": false,
+            "sign": "+"
 
         },{
             "name": "MMA_SHA_2C-Secondary",
@@ -3574,7 +3594,9 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null
+            "differenceTo": null,
+            "selectedComposed": false,
+            "sign": "+"
 
         },{
             "name": "MMA_SHA_2F-Primary",
@@ -3681,7 +3703,9 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null
+            "differenceTo": null,
+            "selectedComposed": false,
+            "sign": "+"
 
         },{
             "name": "MMA_SHA_2F-Secondary",
@@ -3788,7 +3812,9 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null
+            "differenceTo": null,
+            "selectedComposed": false,
+            "sign": "+"
 
         },{
             "name": "SIFM",
@@ -3903,7 +3929,9 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null
+            "differenceTo": null,
+            "selectedComposed": false,
+            "sign": "+"
 
         },{
             "name": "IGRF12",
@@ -4018,7 +4046,9 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null
+            "differenceTo": null,
+            "selectedComposed": false,
+            "sign": "+"
 
         },{
             "name": "CHAOS-6",
@@ -4133,7 +4163,9 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null
+            "differenceTo": null,
+            "selectedComposed": true,
+            "sign": "+"
 
         },{
             "name": "CHAOS-6-MMA-Primary",
@@ -4240,7 +4272,9 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null
+            "differenceTo": null,
+            "selectedComposed": false,
+            "sign": "+"
 
         },{
             "name": "CHAOS-6-MMA-Secondary",
@@ -4347,10 +4381,122 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null
+            "differenceTo": null,
+            "selectedComposed": false,
+            "sign": "+"
 
         },{
-            "name": "Custom Model",
+            "name": "Magnetic Model",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "tileSize":1024,
+            "opacity": 0.7,
+            "views": [{
+                "id": "Magnetic_Model",
+                "protocol": "WMS",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "Magnetic_Model",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "parameters": {
+                "F": {
+                    "range": [15000, 55000],
+                    "uom":"nT",
+                    "name": "Total field intensity",
+                    "colorscale": "jet",
+                    "selected": true
+                },
+                "H": {
+                    "range": [10000, 23000],
+                    "uom":"nT",
+                    "name": "Horizontal intensity",
+                    "colorscale": "jet"
+                },
+                "X": {
+                    "range": [10000, 23000],
+                    "uom":"nT",
+                    "name": "North component",
+                    "colorscale": "jet"
+                },
+                "Y": {
+                    "range": [-7000, 7000],
+                    "uom":"nT",
+                    "name": "East component",
+                    "colorscale": "diverging_1"
+                },
+                "Z": {
+                    "range": [-200, 200],
+                    "uom":"nT",
+                    "name": "Down component",
+                    "colorscale": "diverging_1"
+                },
+                "I": {
+                    "range": [-80, 80],
+                    "uom":"degree",
+                    "name": "Inclination",
+                    "colorscale": "diverging_1"
+                },
+                "D": {
+                    "range": [-80, 80],
+                    "uom":"degree",
+                    "name": "Declination",
+                    "colorscale": "diverging_1"
+                },
+                "Fieldlines":{
+                    "range": [1, 40000],
+                    "uom":"nT",
+                    "name": "Fieldlines",
+                    "description": "In order to visualize fieldlines please select an area with the bounding box tool.",
+                    "colorscale": "jet",
+                    "logarithmic": true
+                },
+                "X_EW": {
+                    "range": [-5, 5],
+                    "uom":"nT/km",
+                    "name": "North component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Y_EW": {
+                    "range": [-5, 5],
+                    "uom":"nT/km",
+                    "name": "East component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Z_EW": {
+                    "range": [-5, 5],
+                    "uom":"nT/km",
+                    "name": "Down component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                }
+            },
+            "download_parameters": {
+                "B_NEC_res_Magnetic_Model": {
+                    "uom":"nT",
+                    "name": "Residuals to magnetic model coefficients of Magnetic field vector, NEC frame"
+                },
+                "F_res_Magnetic_Model": {
+                    "uom":"nT",
+                    "name": "Residuals of Magnetic field intensity to magnetic model coefficients"
+                }
+            },
+            "height": 450,
+            "model": true,
+            "coefficients_range": [-1,-1],
+            "differenceTo": null,
+            "selectedComposed": false,
+            "sign": "+",
+            "model_expression": "+\"CHAOS-6-Combined\"(min_degree=-1,max_degree=-1)"
+            
+        },{
+            "name": "Custom_Model",
             "visible": false,
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
@@ -4432,7 +4578,9 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null
+            "differenceTo": null,
+            "selectedComposed": false,
+            "sign": "+"
 
         },{
             "name": "Dst Index",
@@ -4514,7 +4662,7 @@
             "view":{
                 "id": "coastline_black",
                 "protocol": "WMTS",
-                "urlTemplate": "https://{s}.tiles.maps.eox.at/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=coastline_black&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fpng",
+                "urlTemplate": "https://{s}.s2maps-tiles.eu/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=coastline_black&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fpng",
                 "subdomains": "abcdef",
                 "urls": [
                     "//a.tiles.maps.eox.at/wmts/",
@@ -4541,7 +4689,7 @@
             "view":{
                 "id": "graticules",
                 "protocol": "WMTS",
-                "urlTemplate": "https://{s}.tiles.maps.eox.at/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=graticules&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fpng",
+                "urlTemplate": "https://{s}.s2maps-tiles.eu/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=graticules&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fpng",
                 "subdomains": "abcdef",
                 "urls": [
                     "//a.tiles.maps.eox.at/wmts/",
@@ -4568,7 +4716,7 @@
             "view":{
                 "id": "magnetic_graticules",
                 "protocol": "WMTS",
-                "urlTemplate": "https://{s}.tiles.maps.eox.at/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=magnetic_graticules&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fpng",
+                "urlTemplate": "https://{s}.s2maps-tiles.eu/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=magnetic_graticules&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fpng",
                 "subdomains": "abcdef",
                 "urls": [
                     "//a.tiles.maps.eox.at/wmts/",

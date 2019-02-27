@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
-  <ows:Identifier>retrieve_field_lines</ows:Identifier>
+  <ows:Identifier>eval_model</ows:Identifier>
   <wps:DataInputs>
-    {{#if model_ids}}<wps:Input>
-      <ows:Identifier>model_ids</ows:Identifier>
+    <wps:Input>
+      <ows:Identifier>model</ows:Identifier>
       <wps:Data>
-        <wps:LiteralData>{{{model_ids}}}</wps:LiteralData>
+        <wps:LiteralData>{{{model_expression}}}</wps:LiteralData>
       </wps:Data>
-    </wps:Input>{{/if}}
+    </wps:Input>
     <wps:Input>
       <ows:Identifier>begin_time</ows:Identifier>
       <wps:Data>
@@ -26,6 +26,44 @@
         <wps:ComplexData>{{bbox}}</wps:ComplexData>
       </wps:Data>
     </wps:Input>{{/if}}
+    <wps:Input>
+      <ows:Identifier>elevation</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{elevation}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+    {{#if variable}}<wps:Input>
+      <ows:Identifier>variable</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{variable}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>{{/if}}
+    <wps:Input>
+      <ows:Identifier>width</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{width}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>height</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{height}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+    {{#if style}}
+    <wps:Input>
+      <ows:Identifier>style</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{style}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+    {{/if}}
+    {{#if shc}}<wps:Input>
+      <ows:Identifier>shc</ows:Identifier>
+      <wps:Data>
+        <wps:ComplexData><![CDATA[{{shc}}]]></wps:ComplexData>
+      </wps:Data>
+    </wps:Input>{{/if}}
     {{#if range_min}}<wps:Input>
       <ows:Identifier>range_min</ows:Identifier>
       <wps:Data>
@@ -38,28 +76,16 @@
         <wps:LiteralData>{{range_max}}</wps:LiteralData>
       </wps:Data>
     </wps:Input>{{/if}}
-    {{#if log_scale}}<wps:Input>
-      <ows:Identifier>log_scale</ows:Identifier>
-      <wps:Data>
-        <wps:ComplexData>{{log_scale}}</wps:ComplexData>
-      </wps:Data>
-    </wps:Input>{{/if}}
-    {{#if style}}<wps:Input>
-      <ows:Identifier>style</ows:Identifier>
-      <wps:Data>
-        <wps:LiteralData>{{style}}</wps:LiteralData>
-      </wps:Data>
-    </wps:Input>{{/if}}
-     {{#if shc}}<wps:Input>
-      <ows:Identifier>shc</ows:Identifier>
-      <wps:Data>
-        <wps:ComplexData>{{shc}}</wps:ComplexData>
-      </wps:Data>
-    </wps:Input>{{/if}}
   </wps:DataInputs>
   <wps:ResponseForm>
-    <wps:RawDataOutput mimeType="text/csv">
+  {{#if getonlyrange}}
+    <wps:RawDataOutput mimeType="text/plain" encoding="base64">
+      <ows:Identifier>style_range</ows:Identifier>
+    </wps:RawDataOutput>
+  {{else}}
+    <wps:RawDataOutput mimeType="image/png" encoding="base64">
       <ows:Identifier>output</ows:Identifier>
     </wps:RawDataOutput>
+  {{/if}}
   </wps:ResponseForm>
 </wps:Execute>
