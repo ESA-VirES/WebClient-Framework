@@ -1081,7 +1081,7 @@
                     this.$("#height").append(
                         '<form style="vertical-align: middle;">'+
                         '<label for="heightvalue" style="width: 120px;">Height</label>'+
-                        '<input id="heightvalue" type="text" style="width:30px; margin-left:8px"/>'+
+                        '<input id="heightvalue" type="text" style="width:35px; margin-left:8px"/>'+
                         '</form>'
                     );
                     this.$("#heightvalue").val(height);
