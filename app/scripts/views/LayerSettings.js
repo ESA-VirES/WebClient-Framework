@@ -7,7 +7,7 @@
         'backbone',
         'communicator',
         'globals',
-        'bower_components/choices.js/assets/scripts/dist/choices.js',
+        'choices',
         'hbs!tmpl/LayerSettings',
         'hbs!tmpl/wps_eval_model_GET',
         'hbs!tmpl/wps_eval_composed_model_GET',
