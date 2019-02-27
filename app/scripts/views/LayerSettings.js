@@ -284,9 +284,9 @@
                                     // prevent focus and writing into search div of choices
                                     var onKeyDownFunctionString = 'event.stopPropagation();';
                                     // handle $.data() change of data holding object so template loads it properly
-                                    var onFormLeaveFunctionStringMin = 'var dataParent=$(this)[0].parentNode.parentNode.getAttribute(\'data-value\');$(\'#composed_model_compute\').data(dataParent).coefficients[0]=$(this).val();'
-                                    var onFormLeaveFunctionStringMax = 'var dataParent=$(this)[0].parentNode.parentNode.getAttribute(\'data-value\');$(\'#composed_model_compute\').data(dataParent).coefficients[1]=$(this).val();'
-                                    var onCustomModelOperandClick = 'event.stopPropagation();var dataParent = $(this)[0].parentNode.getAttribute(\'data-value\');var signData =$(\'#composed_model_compute\').data(dataParent).sign;var newSign=(signData===\'+\' ? \'-\' : \'+\');$(this).attr(\'value\', newSign);$(\'#composed_model_compute\').data(dataParent).sign=newSign;';
+                                    var onFormLeaveFunctionStringMin = 'var dataParent=$(this)[0].parentNode.parentNode.getAttribute(\'data-value\');$(\'#composed_model_compute\').data(dataParent).coefficients[0]=$(this).val();$(\'#changesbutton\').addClass(\'unAppliedChanges\');';
+                                    var onFormLeaveFunctionStringMax = 'var dataParent=$(this)[0].parentNode.parentNode.getAttribute(\'data-value\');$(\'#composed_model_compute\').data(dataParent).coefficients[1]=$(this).val();$(\'#changesbutton\').addClass(\'unAppliedChanges\');';
+                                    var onCustomModelOperandClick = 'event.stopPropagation();var dataParent = $(this)[0].parentNode.getAttribute(\'data-value\');var signData =$(\'#composed_model_compute\').data(dataParent).sign;var newSign=(signData===\'+\' ? \'-\' : \'+\');$(this).attr(\'value\', newSign);$(\'#composed_model_compute\').data(dataParent).sign=newSign;$(\'#changesbutton\').addClass(\'unAppliedChanges\');';
 
                                     if(values.coefficients === undefined){
                                         values.coefficients = [-1,-1];
@@ -301,10 +301,12 @@
                       example.passedElement.addEventListener('addItem', function(event) {
                         var dataParent = event.detail.value;
                         $('#composed_model_compute').data(dataParent).selectedComposed=true;
+                        $("#changesbutton").addClass("unAppliedChanges");
                       }, false);
                       example.passedElement.addEventListener('removeItem', function(event) {
                         var dataParent = event.detail.value;
                         $('#composed_model_compute').data(dataParent).selectedComposed=false;
+                        $("#changesbutton").addClass("unAppliedChanges");
                       }, false);
                     } else{ //another model than composed
                       this.$("#composed_model_compute").empty();                    
@@ -767,6 +769,7 @@
                       if (!expressionStayedSame) {
                         model_change = true;
                       }
+                      $("#changesbutton").removeClass("unAppliedChanges");
                     }
                     // If there were changes of the model parameters recalculate the color range
                     if(model_change){
