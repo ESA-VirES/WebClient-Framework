@@ -242,9 +242,7 @@
                       this.createApplyButton();
                       //composed model additional fields
                       this.$("#composed_model_compute").empty();
-                      this.$("#composed_model_compute").append(`
-                      <select class="form-control" id="choices-multiple-remove-button" placeholder="Composed model - Choose or type" multiple>
-                      </select>`)
+                      this.$("#composed_model_compute").append('<select class="form-control" id="choices-multiple-remove-button" placeholder="Composed model - Choose or type" multiple></select>')
                       
                       var models = globals.products.filter(function (p) {
                         //filter out composed model and custom model without shc from choices list
@@ -265,9 +263,7 @@
                           var selectedComposed = models[i].get('selectedComposed');
                           var sign = models[i].get('sign');
                           
-                          $('#choices-multiple-remove-button').append(
-                            `<option value=${id} ${selectedComposed?'selected':''}>${id}</option>`
-                          );
+                          $('#choices-multiple-remove-button').append("<option value=${id} ${selectedComposed?'selected':''}>${id}</option>");
                           // creating a object storage structure on the holding div element through .data() for later retrieval
                           // reference to models[i].attributes.coefficients changes the source, because it is a list? other immutable attributes are unmodified, thus setting them later when changes are applied
                           $('#composed_model_compute').data(id,{'sign':sign,'id':id,'coefficients':coefficients,'selectedComposed':selectedComposed});
@@ -279,7 +275,7 @@
                           removeItemButton: true,
                           callbackOnCreateTemplates: function(template) {
                               return {
-                                  item: (classNames) => {
+                                  item: function(classNames) {
                                     // reason for this ugly inline event stuff mentioned above
                                     var id = classNames.value;
                                     var values = $('#composed_model_compute').data(id);
@@ -296,18 +292,17 @@
                                         values.coefficients = [-1,-1];
                                     }
                                     
-                                      return template(`
-                                        <div class="choices__item choices__item--selectable data-item composed_model_choices_holding_div"
-                                         data-id="${classNames.id}" data-value="${classNames.value}" data-deletable}>
-                                         <input type="button" value="${values.sign}" class="composed_model_operation_operand btn-info" onclick="${onCustomModelOperandClick}">
-                                          <span class="composed_model_operation_label">${values.id}</span>
-                                          <button type="button" class="composed_model_delete_button choices__button"  data-button> Remove item </button>
-                                          <div class="degree_range_selection_input">
-                                            <input type="text" class="composed_model_operation_coefficient_min" value="${values.coefficients[0]}" onclick="${onClickFunctionString}" onkeydown="${onKeyDownFunctionString}" onblur="${onFormLeaveFunctionStringMin}">
-                                            <input type="text" class="composed_model_operation_coefficient_max"  value="${values.coefficients[1]}" onclick="${onClickFunctionString}" onkeydown="${onKeyDownFunctionString}" onblur="${onFormLeaveFunctionStringMax}">	
-                                          </div>
-                                        </div>
-                                        `);
+                                      return template('\
+                                        <div class="choices__item choices__item--selectable data-item composed_model_choices_holding_div"\
+                                         data-id="${classNames.id}" data-value="${classNames.value}" data-deletable}>\
+                                         <input type="button" value="${values.sign}" class="composed_model_operation_operand btn-info" onclick="${onCustomModelOperandClick}">\
+                                          <span class="composed_model_operation_label">${values.id}</span>\
+                                          <button type="button" class="composed_model_delete_button choices__button"  data-button> Remove item </button>\
+                                          <div class="degree_range_selection_input">\
+                                            <input type="text" class="composed_model_operation_coefficient_min" value="${values.coefficients[0]}" onclick="${onClickFunctionString}" onkeydown="${onKeyDownFunctionString}" onblur="${onFormLeaveFunctionStringMin}">\
+                                            <input type="text" class="composed_model_operation_coefficient_max"  value="${values.coefficients[1]}" onclick="${onClickFunctionString}" onkeydown="${onKeyDownFunctionString}" onblur="${onFormLeaveFunctionStringMax}">\
+                                            </div>\
+                                        </div>');
                                   }
                               };
                           }
