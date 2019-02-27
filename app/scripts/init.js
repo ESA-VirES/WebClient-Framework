@@ -86,6 +86,7 @@
             jqueryuitouch: '../bower_components/jqueryui-touch-punch/jquery.ui.touch-punch.min',
             backbone: '../bower_components/backbone-amd/backbone-min',
             underscore: '../bower_components/underscore-amd/underscore-min',
+            choices: '../bower_components/choices.js/assets/scripts/dist/choices',
             d3: '../bower_components/d3/d3.min',
             timeslider: '../bower_components/d3.TimeSlider/d3.timeslider.min',
             libcoverage: '../bower_components/libcoverage/libcoverage.min',

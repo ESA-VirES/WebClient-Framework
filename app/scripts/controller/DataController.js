@@ -272,8 +272,8 @@
             "F", "F_error", "B_NEC_resAC", "B_VFM", "B_error", "B_NEC", "Ne", "Te", "Vs",
             "U_orbit", "Bubble_Probability", "Kp", "Dst", "F107", "QDLat", "QDLon", "MLT",
             "B_NEC_res_IGRF12","B_NEC_res_SIFM","B_NEC_res_CHAOS-6-Combined",
-            "B_NEC_res_Custom_Model", "F_res_IGRF12","F_res_SIFM",
-            "F_res_CHAOS-6-Combined", "F_res_Custom_Model",
+            "B_NEC_res_Custom_Model", "B_NEC_res_Magnetic_Model", "F_res_IGRF12","F_res_SIFM",
+            "F_res_CHAOS-6-Combined", "F_res_Custom_Model", "F_res_Magnetic_Model",
             "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle", "GPS_Position", "LEO_Position",
             "IRC", "IRC_Error", "FAC", "FAC_Error",
             "EEF", "RelErr", "OrbitNumber", "OrbitDirection", "QDOrbitDirection",
@@ -356,9 +356,25 @@
           if(shc_model){
             options["shc"] = shc_model.get("shc");
           }
-
-          if(this.activeModels.length > 0)
-            options["model_ids"] = this.activeModels.join();
+          
+          if(this.activeModels.length > 0){
+            // Magnetic_Model update for template
+            var joinedActiveModels = this.activeModels.join();
+            if (joinedActiveModels.indexOf("Magnetic_Model") !== -1){
+              var models = globals.products.filter(function (p) {
+                  return p.get('model');
+              });
+              
+              var globalFound = models.find(function(model) {
+                  return model.get('download').id === "Magnetic_Model";
+              }); 
+              
+              var newActiveModels = joinedActiveModels.replace("Magnetic_Model", "Magnetic_Model=" + globalFound.get("model_expression"));
+              options["model_ids"] = newActiveModels;
+            } else{
+              options["model_ids"] = joinedActiveModels;
+            }
+          }
 
           var req_data = wps_fetchDataTmpl(options);
 
