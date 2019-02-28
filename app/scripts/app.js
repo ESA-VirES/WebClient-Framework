@@ -219,13 +219,15 @@ function productSortingFunction(a, b) {
                         );
                     }
                 } else {
+                    // This should be the case when loading version 2.3 for the 
+                    // first time (or when the localstorage is empty)
+                    localStorage.clear();
+
                     localStorage.setItem(
                         'serviceVersion',
                         JSON.stringify(globals.version)
                     );
-                    // This should be the case when loading version 2.3 for the 
-                    // first time (or when the localstorage is empty)
-                    localStorage.clear();
+                    
                     showMessage('success',
                         'A new version ('+globals.version+') of the service has been released. '+
                         'Your configuration has been updated.</br>'+
