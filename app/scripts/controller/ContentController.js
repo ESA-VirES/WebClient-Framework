@@ -125,6 +125,10 @@
             onApplicationReset: function(){
                 if (typeof(Storage) !== "undefined") {
                     localStorage.clear();
+                    localStorage.setItem(
+                        'serviceVersion',
+                        JSON.stringify(globals.version)
+                    );
                     location.reload(true);
                 }
             }
