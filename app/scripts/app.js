@@ -202,16 +202,36 @@ function productSortingFunction(a, b) {
                         localStorage.getItem('serviceVersion')
                     );
                     if(serviceVersion!==globals.version){
-                        // TODO: There was a version in change, should something
-                        // be adapted?
+                        // A new version has been loaded, here we could 
+                        // differentiate which version was previous and which
+                        // one ist the new, for now we reset and save the new
+                        // version
+                        showMessage('success',
+                            'A new version ('+globals.version+') of the service has been released. '+
+                            'Your configuration has been updated.</br>'+
+                            'You can find information on the changes in the '+
+                            '<b><a target="_blank" href="/accounts/changelog">changelog</a></b>.', 35
+                        );
+                        localStorage.clear();
+                        localStorage.setItem(
+                            'serviceVersion',
+                            JSON.stringify(globals.version)
+                        );
                     }
                 } else {
                     localStorage.setItem(
                         'serviceVersion',
                         JSON.stringify(globals.version)
                     );
-                    // TODO: There was a version in change, should something
-                    // be adapted?
+                    // This should be the case when loading version 2.3 for the 
+                    // first time (or when the localstorage is empty)
+                    localStorage.clear();
+                    showMessage('success',
+                        'A new version ('+globals.version+') of the service has been released. '+
+                        'Your configuration has been updated.</br>'+
+                        'You can find information on the changes in the '+
+                        '<b><a target="_blank" href="/accounts/changelog">changelog</a></b>.', 35
+                    );
                 }
 
 
