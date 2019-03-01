@@ -273,8 +273,8 @@ define(['backbone.marionette',
                 enableFit: false,
                 multiYAxis: true,
                 margin: {top: 40, left: 90, bottom: 50, right: 35},
-                enableSubXAxis: true,
-                enableSubYAxis: true
+                enableSubXAxis: false,
+                enableSubYAxis: false
 
             });
 
