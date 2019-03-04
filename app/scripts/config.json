@@ -2496,7 +2496,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": false,
             "sign": "+"
 
@@ -2597,7 +2596,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": false,
             "sign": "+"
 
@@ -2698,7 +2696,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": false,
             "sign": "+"
 
@@ -2799,7 +2796,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": false,
             "sign": "+"
 
@@ -2900,7 +2896,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": false,
             "sign": "+"
 
@@ -3001,7 +2996,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": false,
             "sign": "+"
 
@@ -3102,7 +3096,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": false,
             "sign": "+"
 
@@ -3203,7 +3196,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": false,
             "sign": "+"
 
@@ -3304,7 +3296,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": false,
             "sign": "+"
 
@@ -3405,7 +3396,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": false,
             "sign": "+"
 
@@ -3506,7 +3496,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": false,
             "sign": "+"
 
@@ -3607,7 +3596,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": false,
             "sign": "+"
 
@@ -3708,7 +3696,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": false,
             "sign": "+"
 
@@ -3817,7 +3804,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": false,
             "sign": "+"
 
@@ -3926,7 +3912,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": false,
             "sign": "+"
 
@@ -4035,7 +4020,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": true,
             "sign": "+"
 
@@ -4136,7 +4120,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": false,
             "sign": "+"
 
@@ -4237,7 +4220,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": false,
             "sign": "+"
 
@@ -4346,7 +4328,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": false,
             "sign": "+",
             "model_expression": "+\"CHAOS-6-Combined\"(min_degree=-1,max_degree=-1)"
@@ -4426,7 +4407,6 @@
             "height": 450,
             "model": true,
             "coefficients_range": [-1,-1],
-            "differenceTo": null,
             "selectedComposed": false,
             "sign": "+"
 

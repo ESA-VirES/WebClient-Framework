@@ -373,46 +373,6 @@
 
                 var that = this;
 
-                if(this.model.attributes.hasOwnProperty("differenceTo")){
-                    // Add options for three satellites
-                    $("#difference_selection").off();
-                    $("#difference_selection").empty();
-                    $("#difference_selection").append('<label for="satellite_selec" style="width:120px;">Model difference </label>');
-                    $("#difference_selection").append('<select style="margin-left:4px;" name="difference_selec" id="difference_selec"></select>');
-
-
-                    var models = globals.products.filter(function (p) {
-                        return p.get('model');
-                    });
-
-                    for (var i = 0; i < models.length; i++) {
-                        var selected = '';
-                        var name = models[i].get('name');
-                        var id = models[i].get('download').id;
-                        if(this.model.get('differenceTo') === id){
-                            selected = 'selected';
-                        }
-                        if(id !== this.model.get('download').id && id!=='Custom_Model'){
-                            $('#difference_selec').append('<option value="'+id+'"'+selected+'>'+name+'</option>');
-                        }
-                    }
-                    if(this.model.get('differenceTo') === null){
-                        $('#difference_selec').prepend('<option value="none" selected>-none-</option>');
-                    }else{
-                        
-                        $('#difference_selec').prepend('<option value="none">-none-</option>');
-                    }
-
-                    $("#difference_selection").on('change', function(){
-                        var differenceModel = $("#difference_selection").find("option:selected").val();
-                        if(differenceModel==='none'){
-                            differenceModel = null;
-                        }
-                        that.model.set('differenceTo', differenceModel);
-                        that.onOptionsChanged();
-                    });
-                }
-
                 if(this.model.get("containerproduct")){
                     // Add options for three satellites
                     $("#satellite_selection").off();
@@ -946,8 +906,7 @@
 
                     var sel_time = Communicator.reqres.request('get:time');
 
-                    if(that.current_model.get("views")[0].id == "shc" && 
-                        that.current_model.get("differenceTo") === null){
+                    if(that.current_model.get("views")[0].id == "shc"){
 
                         if(that.current_model.attributes.hasOwnProperty("shc")){
 
