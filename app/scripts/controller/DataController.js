@@ -371,6 +371,10 @@
               
               var newActiveModels = joinedActiveModels.replace("Magnetic_Model", "Magnetic_Model=" + globalFound.get("model_expression"));
               options["model_ids"] = newActiveModels;
+              if (globalFound.get("model_expression").indexOf("Custom_Model") === -1){
+                  // if custom model not in model expression, omit shc from request
+                  delete options["shc"];
+              }
             } else{
               options["model_ids"] = joinedActiveModels;
             }

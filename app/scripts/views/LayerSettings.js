@@ -796,8 +796,8 @@
                             var customModel = globals.products.filter(function(p){
                                 return p.get('download').id === 'Custom_Model';
                             })[0];
-
-                            if(customModel.attributes.hasOwnProperty("shc")){
+                            
+                            if(customModel.attributes.hasOwnProperty("shc") && this.current_model.get('model_expression').indexOf('Custom_Model') !== -1){
                                 options.shc = customModel.get('shc');
                             }
 
