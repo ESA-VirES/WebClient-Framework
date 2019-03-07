@@ -148,6 +148,12 @@ define([
                 $(".twipsy").removeClass("hidden");
             })
             $("#bboxEditConfirm").click(this.submitCoordinateForms.bind(this));
+            $(".bboxEdit").keypress(function(evt){
+                // confirm forms on enter too
+                if (evt.keyCode === 13){
+                    this.submitCoordinateForms();
+                }
+            }.bind(this));
 
             var layer;
 
