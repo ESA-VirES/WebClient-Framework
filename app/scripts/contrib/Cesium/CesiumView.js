@@ -136,6 +136,19 @@ define([
             this.$el.append('<div type="button" class="btn btn-success darkbutton" id="cesium_save">Save as Image</div>');
             this.$el.append('<div type="button" class="btn btn-success darkbutton"  id="bb_selection">Select Area</div>');
 
+            this.$el.append('<input type="text" class="bboxEdit hidden"  id="bboxWestForm" placeholder="West">');
+            this.$el.append('<input type="text" class="bboxEdit hidden"  id="bboxEastForm" placeholder="East">');
+            this.$el.append('<input type="text" class="bboxEdit hidden"  id="bboxNorthForm" placeholder="North">');
+            this.$el.append('<input type="text" class="bboxEdit hidden"  id="bboxSouthForm" placeholder="South">');
+            this.$el.append('<input type="button" class="bboxEdit hidden"  id="bboxEditConfirm" value="✔">');
+            // hide cesium tooltip on hover over the forms
+            $(".bboxEdit").hover(function(){
+                $(".twipsy").addClass("hidden");
+              },function(){
+                $(".twipsy").removeClass("hidden");
+            })
+            $("#bboxEditConfirm").click(this.submitCoordinateForms.bind(this));
+
             var layer;
 
             this.colors = globals.objects.get('color');
@@ -431,6 +444,9 @@ define([
             $('#bb_selection').click(function(){
                 if($('#bb_selection').text() === 'Select Area'){
                     $('#bb_selection').html('Deactivate');
+                    $('.bboxEdit').removeClass('hidden');
+                    $('#bboxWestForm')[0].focus();
+                    $('#bboxWestForm')[0].select();
                     Communicator.mediator.trigger('selection:activated',{
                         id:'bboxSelection',
                         active:true,
@@ -438,6 +454,7 @@ define([
                     });
                 } else if ($('#bb_selection').text() === 'Deactivate'){
                     $('#bb_selection').html('Select Area');
+                    $('.bboxEdit').addClass('hidden');
                     Communicator.mediator.trigger('selection:activated', {
                         id:'bboxSelection',
                         active:false,
@@ -445,6 +462,7 @@ define([
                     });
                 } else if ($('#bb_selection').text() === 'Clear Selection'){
                     $('#bb_selection').html('Select Area');
+                    $('.bboxEdit').addClass('hidden');
                     Communicator.mediator.trigger('selection:changed', null);
                 }
             });
@@ -1821,6 +1839,7 @@ define([
                         s: Cesium.Math.toDegrees(extent.south),
                         w: Cesium.Math.toDegrees(extent.west)
                     };
+                    $('.bboxEdit').addClass('hidden');
                     Communicator.mediator.trigger('selection:changed', bbox);
                   }
                 });
@@ -2164,6 +2183,76 @@ define([
                     this.cameraLastPosition.z = c.position.z;
                 }
             }
+        },
+
+        wrapBox: function(box) {
+            // accepts bbox object{n:float, s:float, w:float, e:float} 
+            // returns bbox with numeric values fit to (-180, 180, -90, 90), performing switching n->s and w->e if necessary
+            // cant solve over-dateline jumps
+          var bbox = _.clone(box);
+          // switch north and south if necessary
+          if (bbox.n < bbox.s){
+              var temp = bbox.s;
+              bbox.s = bbox.n;
+              bbox.n = temp;
+          }
+          // fits to lat boundaries
+          bbox.n = Math.min(bbox.n, 90);
+          bbox.s = Math.max(bbox.s, -90);
+          // fits to lon max boundaries if difference greater than 360
+          if (bbox.e - bbox.w > 360){
+              bbox.w = -180;
+              bbox.e = 180;
+          }
+          // fits lon boundaries to -180,180 range
+          _.each(bbox, function(coord, key, obj){
+                while (coord > 180) {
+                    coord -= 360;
+                    obj[key] = coord;
+                }
+                while (coord < -180) {
+                    coord += 360;
+                    obj[key] = coord;
+                }
+          })
+          // switch east and west if necessary
+          if (bbox.e < bbox.w){
+              var temp = bbox.e;
+              bbox.e = bbox.w;
+              bbox.w = temp;
+          }
+          return bbox;
+        },
+
+        submitCoordinateForms: function () {
+            // coordinate form validation and event emitting
+            var w = parseFloat($('#bboxWestForm').val());
+            var e = parseFloat($('#bboxEastForm').val());
+            var n = parseFloat($('#bboxNorthForm').val());
+            var s = parseFloat($('#bboxSouthForm').val());
+            if (!isNaN(w) && !isNaN(e) && !isNaN(n) && !isNaN(s) && w !== e && n !== s){
+                // valid values inserted
+                var bbox = {
+                    "w" : w,
+                    "e" : e,
+                    "n" : n,
+                    "s" : s,
+                };
+                // fix bbox if necessary
+                var bboxFixed = this.wrapBox(bbox);
+
+                $("#bboxEditConfirm").removeClass("wrongFormInput");
+                $('.bboxEdit').addClass('hidden');
+                Communicator.mediator.trigger('selection:changed', bboxFixed);
+                Communicator.mediator.trigger('selection:activated', {
+                    id:'bboxSelection',
+                    active:false,
+                    selectionType:'single'
+                });
+             } else {
+                 // invalid input
+                  $("#bboxEditConfirm").addClass("wrongFormInput");
+             }
         },
 
         toggleDebug: function(){

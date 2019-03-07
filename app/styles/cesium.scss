@@ -51,6 +51,64 @@
   z-index: 5;
 }
 
+.bboxEdit{
+  position: absolute;
+  z-index: 5;
+  height: 24px;
+  border-radius: 4px;
+  border-width: 1px;
+  width: 60px;
+  background-color: #333;
+  border-color: #444;
+  color: white;
+  display: block;
+  padding-left: 3px;
+}
+
+.bboxEdit::placeholder{
+  color: #d4d7db;
+  font-size: 0.9em;
+}
+
+#bboxWestForm{
+  right: 186px;
+  top: 78px;
+}
+
+#bboxNorthForm{
+  right: 136px;
+  top: 48px;
+}
+
+#bboxEastForm{
+  right: 86px;
+  top: 78px;
+}
+
+#bboxSouthForm{
+  right: 136px;
+  top: 108px;
+}
+
+#bboxEditConfirm{
+  right: 60px;
+  top: 78px;
+  width: 20px;
+}
+
+#bboxEditConfirm:hover{
+  cursor: pointer;
+}
+
+.wrongFormInput{
+  background-color: #c41d1d;
+  border-color: #af1a1a;
+}
+
+.hidden{
+  display: none;
+}
+
 .cesium-viewer-geocoderContainer{
   right: 127px !important;
 }
