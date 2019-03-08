@@ -2486,32 +2486,32 @@
                     "uom": "cm -3 / s",
                     "name": "Rate of change of electron density"
                 },
-                "ROD@10s": {
-                    "range": [0, 100000],
+                "RODI10s": {
+                    "range": [0, 2500],
                     "colorscale": "jet",
                     "uom": "cm -3 / s",
                     "name": "Rate of change of electron density index (ROD std.dev. over 10 s)"
                 },
-                "ROD@20s": {
-                    "range": [0, 100000],
+                "RODI20s": {
+                    "range": [0, 5000],
                     "colorscale": "jet",
                     "uom": "cm -3 / s",
                     "name": "Rate of change of electron density index (ROD std.dev. over 20 s)"
                 },
                 "delta_Ne10s": {
-                    "range": [0, 5000000],
+                    "range": [0, 5000],
                     "colorscale": "jet",
                     "uom": "cm -3",
                     "name": "10s Ne median subtracted from Ne (< 75 km fluctuations)"
                 },
                 "delta_Ne20s": {
-                    "range": [0, 5000000],
+                    "range": [0, 10000],
                     "colorscale": "jet",
                     "uom": "cm -3",
                     "name": "20s Ne median subtracted from Ne (< 150 km fluctuations)"
                 },
                 "delta_Ne40s": {
-                    "range": [0, 5000000],
+                    "range": [0, 20000],
                     "colorscale": "jet",
                     "uom": "cm -3",
                     "name": "40s Ne median subtracted from Ne (< 300 km fluctuations)"
@@ -2534,21 +2534,21 @@
                     "uom": "TECU / s",
                     "name": "Median of rate of change of VTEC (GPS > 30 deg)"
                 },
-                "mROT10s": {
-                    "range": [-0.5, 0.5],
+                "mROTI10s": {
+                    "range": [0, 0.025],
                     "colorscale": "diverging_1",
                     "uom": "TECU / s",
                     "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 10 s)"
                 },
-                "mROT20s": {
-                    "range": [-0.5, 0.5],
+                "mROTI20s": {
+                    "range": [0, 0.025],
                     "colorscale": "diverging_1",
                     "uom": "TECU / s",
                     "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 20 s)"
                 },
                 "IBI_flag": {
-                    "range": [-1, 999],
-                    "colorscale": "viridis",
+                    "range": [-2, 2],
+                    "colorscale": "diverging_1",
                     "uom": null,
                     "name": "Plasma Bubble Index (from IBIxTMS_2F)"
                 },
@@ -2634,11 +2634,11 @@
                     "uom": "cm -3 / s",
                     "name": "Rate of change of electron density"
                 },
-                "ROD@10s": {
+                "RODI10s": {
                     "uom": "cm -3 / s",
                     "name": "Rate of change of electron density index (ROD std.dev. over 10 s)"
                 },
-                "ROD@20s": {
+                "RODI20s": {
                     "uom": "cm -3 / s",
                     "name": "Rate of change of electron density index (ROD std.dev. over 20 s)"
                 },
@@ -2666,11 +2666,11 @@
                     "uom": "TECU / s",
                     "name": "Median of rate of change of VTEC (GPS > 30 deg)"
                 },
-                "mROT10s": {
+                "mROTI10s": {
                     "uom": "TECU / s",
                     "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 10 s)"
                 },
-                "mROT20s": {
+                "mROTI20s": {
                     "uom": "TECU / s",
                     "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 20 s)"
                 },
@@ -2805,32 +2805,32 @@
                     "uom": "cm -3 / s",
                     "name": "Rate of change of electron density"
                 },
-                "ROD@10s": {
-                    "range": [0, 100000],
+                "RODI10s": {
+                    "range": [0, 2500],
                     "colorscale": "jet",
                     "uom": "cm -3 / s",
                     "name": "Rate of change of electron density index (ROD std.dev. over 10 s)"
                 },
-                "ROD@20s": {
-                    "range": [0, 100000],
+                "RODI20s": {
+                    "range": [0, 5000],
                     "colorscale": "jet",
                     "uom": "cm -3 / s",
                     "name": "Rate of change of electron density index (ROD std.dev. over 20 s)"
                 },
                 "delta_Ne10s": {
-                    "range": [0, 5000000],
+                    "range": [0, 5000],
                     "colorscale": "jet",
                     "uom": "cm -3",
                     "name": "10s Ne median subtracted from Ne (< 75 km fluctuations)"
                 },
                 "delta_Ne20s": {
-                    "range": [0, 5000000],
+                    "range": [0, 10000],
                     "colorscale": "jet",
                     "uom": "cm -3",
                     "name": "20s Ne median subtracted from Ne (< 150 km fluctuations)"
                 },
                 "delta_Ne40s": {
-                    "range": [0, 5000000],
+                    "range": [0, 20000],
                     "colorscale": "jet",
                     "uom": "cm -3",
                     "name": "40s Ne median subtracted from Ne (< 300 km fluctuations)"
@@ -2853,21 +2853,21 @@
                     "uom": "TECU / s",
                     "name": "Median of rate of change of VTEC (GPS > 30 deg)"
                 },
-                "mROT10s": {
-                    "range": [-0.5, 0.5],
+                "mROTI10s": {
+                    "range": [0, 0.025],
                     "colorscale": "diverging_1",
                     "uom": "TECU / s",
                     "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 10 s)"
                 },
-                "mROT20s": {
-                    "range": [-0.5, 0.5],
+                "mROTI20s": {
+                    "range": [0, 0.025],
                     "colorscale": "diverging_1",
                     "uom": "TECU / s",
                     "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 20 s)"
                 },
                 "IBI_flag": {
-                    "range": [-1, 999],
-                    "colorscale": "viridis",
+                    "range": [-2, 2],
+                    "colorscale": "diverging_1",
                     "uom": null,
                     "name": "Plasma Bubble Index (from IBIxTMS_2F)"
                 },
@@ -2953,11 +2953,11 @@
                     "uom": "cm -3 / s",
                     "name": "Rate of change of electron density"
                 },
-                "ROD@10s": {
+                "RODI10s": {
                     "uom": "cm -3 / s",
                     "name": "Rate of change of electron density index (ROD std.dev. over 10 s)"
                 },
-                "ROD@20s": {
+                "RODI20s": {
                     "uom": "cm -3 / s",
                     "name": "Rate of change of electron density index (ROD std.dev. over 20 s)"
                 },
@@ -2985,11 +2985,11 @@
                     "uom": "TECU / s",
                     "name": "Median of rate of change of VTEC (GPS > 30 deg)"
                 },
-                "mROT10s": {
+                "mROTI10s": {
                     "uom": "TECU / s",
                     "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 10 s)"
                 },
-                "mROT20s": {
+                "mROTI20s": {
                     "uom": "TECU / s",
                     "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 20 s)"
                 },
@@ -3124,32 +3124,32 @@
                     "uom": "cm -3 / s",
                     "name": "Rate of change of electron density"
                 },
-                "ROD@10s": {
-                    "range": [0, 100000],
+                "RODI10s": {
+                    "range": [0, 2500],
                     "colorscale": "jet",
                     "uom": "cm -3 / s",
                     "name": "Rate of change of electron density index (ROD std.dev. over 10 s)"
                 },
-                "ROD@20s": {
-                    "range": [0, 100000],
+                "RODI20s": {
+                    "range": [0, 5000],
                     "colorscale": "jet",
                     "uom": "cm -3 / s",
                     "name": "Rate of change of electron density index (ROD std.dev. over 20 s)"
                 },
                 "delta_Ne10s": {
-                    "range": [0, 5000000],
+                    "range": [0, 5000],
                     "colorscale": "jet",
                     "uom": "cm -3",
                     "name": "10s Ne median subtracted from Ne (< 75 km fluctuations)"
                 },
                 "delta_Ne20s": {
-                    "range": [0, 5000000],
+                    "range": [0, 10000],
                     "colorscale": "jet",
                     "uom": "cm -3",
                     "name": "20s Ne median subtracted from Ne (< 150 km fluctuations)"
                 },
                 "delta_Ne40s": {
-                    "range": [0, 5000000],
+                    "range": [0, 20000],
                     "colorscale": "jet",
                     "uom": "cm -3",
                     "name": "40s Ne median subtracted from Ne (< 300 km fluctuations)"
@@ -3172,21 +3172,21 @@
                     "uom": "TECU / s",
                     "name": "Median of rate of change of VTEC (GPS > 30 deg)"
                 },
-                "mROT10s": {
-                    "range": [-0.5, 0.5],
+                "mROTI10s": {
+                    "range": [0, 0.025],
                     "colorscale": "diverging_1",
                     "uom": "TECU / s",
                     "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 10 s)"
                 },
-                "mROT20s": {
-                    "range": [-0.5, 0.5],
+                "mROTI20s": {
+                    "range": [0, 0.025],
                     "colorscale": "diverging_1",
                     "uom": "TECU / s",
                     "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 20 s)"
                 },
                 "IBI_flag": {
-                    "range": [-1, 999],
-                    "colorscale": "viridis",
+                    "range": [-2, 2],
+                    "colorscale": "diverging_1",
                     "uom": null,
                     "name": "Plasma Bubble Index (from IBIxTMS_2F)"
                 },
@@ -3272,11 +3272,11 @@
                     "uom": "cm -3 / s",
                     "name": "Rate of change of electron density"
                 },
-                "ROD@10s": {
+                "RODI10s": {
                     "uom": "cm -3 / s",
                     "name": "Rate of change of electron density index (ROD std.dev. over 10 s)"
                 },
-                "ROD@20s": {
+                "RODI20s": {
                     "uom": "cm -3 / s",
                     "name": "Rate of change of electron density index (ROD std.dev. over 20 s)"
                 },
@@ -3304,11 +3304,11 @@
                     "uom": "TECU / s",
                     "name": "Median of rate of change of VTEC (GPS > 30 deg)"
                 },
-                "mROT10s": {
+                "mROTI10s": {
                     "uom": "TECU / s",
                     "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 10 s)"
                 },
-                "mROT20s": {
+                "mROTI20s": {
                     "uom": "TECU / s",
                     "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 20 s)"
                 },
