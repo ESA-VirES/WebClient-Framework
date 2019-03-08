@@ -278,6 +278,10 @@
             "IRC", "IRC_Error", "FAC", "FAC_Error",
             "EEF", "RelErr", "OrbitNumber", "OrbitDirection", "QDOrbitDirection",
             "SunDeclination","SunRightAscension","SunHourAngle","SunAzimuthAngle","SunZenithAngle",
+            "background Ne", "foreground Ne", "PCP_flag", "Grad_Ne@100km", "Grad_Ne@50km", "Grad_Ne@20km",
+            "Grad_Ne@PCP_edge", "ROD", "RODI10s", "RODI20s", "delta_Ne10s", "delta_Ne20s", "delta_Ne40s",
+            "Num_GPS_satellites", "mVTEC", "mROT", "mROTI10s", "mROTI20s", "IBI_flag",
+            "Ionpshere_region_flag", "IPIR_index", "Ne_quality_flag", "TEC_STD",
             // New models
             "F_res_MCO_SHA_2C", "B_NEC_res_MCO_SHA_2C",
             "F_res_MCO_SHA_2D", "B_NEC_res_MCO_SHA_2D",
