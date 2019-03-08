@@ -97,9 +97,9 @@
       fetch: function (options) {
         // update model via the vires:get_model_data WPS process
         options = options ? _.clone(options) : {};
-        var modelContainsSHC = false;
+        var modelContainsSHC = this.has('shc');
         var isCustomModel = this.id == this.collection.customModelId;
-        if (isCustomModel && !this.has('shc')) {
+        if (isCustomModel && !modelContainsSHC) {
           return;
         }
         var modelId = this.id;
@@ -108,13 +108,16 @@
             return;
           }else{
             modelId += "=" + this.get("model_expression");
+             if (this.get('model_expression').indexOf('Custom_Model') === -1){
+                 modelContainsSHC = false; // do not send shc when not necessary
+             }
           }
         }
         _.extend(options, {
           method: 'POST',
           data: wps_getModelInfoTmpl({
             model_ids: modelId,
-            shc: this.has('shc') ? this.get('shc') : null,
+            shc: modelContainsSHC ? this.get('shc') : null,
             mimeType: 'application/json'
           })
         });

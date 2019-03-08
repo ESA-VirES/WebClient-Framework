@@ -48,6 +48,9 @@
                 // Event handler to check if tutorial banner made changes to a model in order to redraw settings
                 // If settings open rerender view to update changes
                 this.listenTo(Communicator.mediator, "layer:settings:changed", this.onParameterChange);
+                
+                // for custom model change to apply in choices list
+                this.listenTo(Communicator.mediator, 'models:update', this.onParameterChange);
 
                 this.$(".panel-title").html('<h3 class="panel-title"><i class="fa fa-fw fa-sliders"></i> ' + this.current_model.get("name") + ' Settings</h3>');
 
@@ -793,8 +796,8 @@
                             var customModel = globals.products.filter(function(p){
                                 return p.get('download').id === 'Custom_Model';
                             })[0];
-
-                            if(customModel.attributes.hasOwnProperty("shc")){
+                            
+                            if(customModel.attributes.hasOwnProperty("shc") && this.current_model.get('model_expression').indexOf('Custom_Model') !== -1){
                                 options.shc = customModel.get('shc');
                             }
 
@@ -900,6 +903,8 @@
                 var reader = new FileReader();
                 var filename = evt.target.files[0].name;
                 reader.onloadend = function(evt) {
+                    $("#changesbutton").addClass("unAppliedChanges");
+
                     that.current_model.set('shc', evt.target.result);
                     that.current_model.set('shc_name', filename);
 
@@ -922,7 +927,17 @@
                     var customModel = globals.products.filter(function(p){
                         return p.get('download').id === 'Custom_Model';
                     })[0];
-
+                    
+                    var custom_model = globals.models.filter(function(p){
+                        return p.get('name') === 'Custom_Model';
+                    })[0];
+                    
+                    custom_model.set({
+                      shc: evt.target.result,
+                    });
+                    
+                    custom_model.fetch();
+                    
                     customModel.set({
                         shc: evt.target.result,
                         shc_name: filename,
