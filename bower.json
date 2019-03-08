@@ -28,7 +28,7 @@
     "FileSaver.js": "eligrey/FileSaver.js#~1.2.0",
     "canvas-toBlob.js": "eligrey/canvas-toBlob.js",
     "Blob.js": "eligrey/Blob.js",
-    "graphly": "EOX-A/graphly#134fadf45af72a58cc345fc9b535003d990d3460"
+    "graphly": "EOX-A/graphly#cb3d2abe6ea9bdc1f201c55e90b4727d8b21e17a"
   },
   "devDependencies": {
     "Keypress": "~2.0.0"

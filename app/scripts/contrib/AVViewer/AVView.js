@@ -232,26 +232,54 @@ define(['backbone.marionette',
 
             if(!multipleAxis){
                 yax = [yax];
+                for (var i = 0; i < yax.length; i++) {
+                    var currCols = [];
+                    for (var j = 0; j < yax[i].length; j++) {
+                        currCols.push(null);
+                    }
+                    colax.push(currCols);
+                }
             }
+
             if(!multipleAxis2){
                 y2ax = [y2ax];
+                for (var i = 0; i < y2ax.length; i++) {
+                    var currCols = [];
+                    for (var j = 0; j < y2ax[i].length; j++) {
+                        currCols.push(null);
+                    }
+                    colax2.push(currCols);
+                }
             }
 
-            for (var i = 0; i < yax.length; i++) {
-                var currCols = [];
-                for (var j = 0; j < yax[i].length; j++) {
-                    currCols.push(null);
+            // Do a sanity check for colorscale as we were saving
+            // them incorrectly
+            if(yax.length < colax.length || yax.length > colax.length){
+                //Overwrite with default values
+                colax = [];
+                for (var i = 0; i < yax.length; i++) {
+                    var currCols = [];
+                    for (var j = 0; j < yax[i].length; j++) {
+                        currCols.push(null);
+                    }
+                    colax.push(currCols);
                 }
-                colax.push(currCols);
+
             }
 
-            for (var i = 0; i < y2ax.length; i++) {
-                var currCols = [];
-                for (var j = 0; j < y2ax[i].length; j++) {
-                    currCols.push(null);
+            if(y2ax.length < colax2.length || y2ax.length > colax2.length){
+                //Overwrite with default values
+                colax2 = [];
+                for (var i = 0; i < y2ax.length; i++) {
+                    var currCols = [];
+                    for (var j = 0; j < y2ax[i].length; j++) {
+                        currCols.push(null);
+                    }
+                    colax2.push(currCols);
                 }
-                colax2.push(currCols);
-            }
+            } 
+
+
 
             this.renderSettings = {
                 xAxis:  xax,
@@ -852,7 +880,6 @@ define(['backbone.marionette',
                         var renSetY2 = this.renderSettings.y2Axis;
                         var colAx = this.renderSettings.colorAxis;
                         var colAx2 = this.renderSettings.colorAxis2;
-                        var addYT = this.renderSettings.additionalYTicks;
 
                         for (var pY=renSetY.length-1; pY>=0; pY--) {
 
@@ -883,7 +910,6 @@ define(['backbone.marionette',
                                 renSetY2.splice(pY,1);
                                 colAx.splice(pY,1);
                                 colAx2.splice(pY,1);
-                                addYT.splice(pY,1);
                             }
                         }
 
@@ -900,7 +926,6 @@ define(['backbone.marionette',
                                     colAx.push([null]);
                                     renSetY2.push([]);
                                     colAx2.push([]);
-                                    addYT.push([]);
                                 }
                             }
                         }
@@ -914,7 +939,6 @@ define(['backbone.marionette',
                                     colAx.push([null]);
                                     renSetY2.push([]);
                                     colAx2.push([]);
-                                    addYT.push([]);
                                 }
                             }
                         }
@@ -926,7 +950,6 @@ define(['backbone.marionette',
                             colAx.push([]);
                             renSetY2.push([]);
                             colAx2.push([]);
-                            addYT.push([]);
                         }
 
                         localStorage.setItem(
