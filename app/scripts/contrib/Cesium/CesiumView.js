@@ -140,6 +140,7 @@ define([
             this.$el.append('<input type="text" class="bboxEdit hidden"  id="bboxEastForm" placeholder="East">');
             this.$el.append('<input type="text" class="bboxEdit hidden"  id="bboxNorthForm" placeholder="North">');
             this.$el.append('<input type="text" class="bboxEdit hidden"  id="bboxSouthForm" placeholder="South">');
+            this.fillBboxForms();
             this.$el.append('<input type="button" class="bboxEdit hidden"  id="bboxEditConfirm" value="✔">');
             // hide cesium tooltip on hover over the forms
             $(".bboxEdit").hover(function(){
@@ -474,6 +475,16 @@ define([
             });
             return this;
         }, // END of onShow
+
+        fillBboxForms: function(){
+            if (localStorage.getItem('areaSelection') !== "null"){
+                var bbox = JSON.parse(localStorage.getItem('areaSelection'));
+                $("#bboxWestForm").val(parseFloat(bbox.w));
+                $("#bboxEastForm").val(parseFloat(bbox.e));
+                $("#bboxNorthForm").val(parseFloat(bbox.n));
+                $("#bboxSouthForm").val(parseFloat(bbox.s));
+            }
+        },
 
         connectDataEvents: function(){
             globals.swarm.on('change:data', function(model, data) {
@@ -1836,18 +1847,20 @@ define([
 
         onSelectionActivated: function(arg) {
             this.selectionType = arg.selectionType;
+            this.fillBboxForms();
             if (arg.active) {
                 this.drawhelper.startDrawingRectangle({
                     callback: function(extent) {
-                    var bbox = {
-                        n: Cesium.Math.toDegrees(extent.north),
-                        e: Cesium.Math.toDegrees(extent.east),
-                        s: Cesium.Math.toDegrees(extent.south),
-                        w: Cesium.Math.toDegrees(extent.west)
-                    };
-                    $('.bboxEdit').addClass('hidden');
-                    Communicator.mediator.trigger('selection:changed', bbox);
-                  }
+                        var bbox = {
+                            n: Cesium.Math.toDegrees(extent.north),
+                            e: Cesium.Math.toDegrees(extent.east),
+                            s: Cesium.Math.toDegrees(extent.south),
+                            w: Cesium.Math.toDegrees(extent.west)
+                        };
+                        Communicator.mediator.trigger('selection:changed', bbox);
+                        this.fillBboxForms();
+                        $('.bboxEdit').addClass('hidden');
+                    }.bind(this)
                 });
             } else {
                 //Communicator.mediator.trigger('selection:changed', null);
@@ -2232,10 +2245,10 @@ define([
 
         submitCoordinateForms: function () {
             // coordinate form validation and event emitting
-            var w = parseFloat($('#bboxWestForm').val());
-            var e = parseFloat($('#bboxEastForm').val());
-            var n = parseFloat($('#bboxNorthForm').val());
-            var s = parseFloat($('#bboxSouthForm').val());
+            var w = parseFloat($('#bboxWestForm').val().replace(',', '.'));
+            var e = parseFloat($('#bboxEastForm').val().replace(',', '.'));
+            var n = parseFloat($('#bboxNorthForm').val().replace(',', '.'));
+            var s = parseFloat($('#bboxSouthForm').val().replace(',', '.'));
             if (!isNaN(w) && !isNaN(e) && !isNaN(n) && !isNaN(s) && w !== e && n !== s){
                 // valid values inserted
                 var bbox = {
