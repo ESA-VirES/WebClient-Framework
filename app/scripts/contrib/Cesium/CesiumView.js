@@ -2247,7 +2247,7 @@ define([
                 // fix bbox if necessary
                 var bboxFixed = this.wrapBox(bbox);
 
-                $("#bboxEditConfirm").removeClass("wrongFormInput");
+                $("#bboxEditConfirm").removeClass("wrongBboxFormInput");
                 $('.bboxEdit').addClass('hidden');
                 Communicator.mediator.trigger('selection:changed', bboxFixed);
                 Communicator.mediator.trigger('selection:activated', {
@@ -2257,7 +2257,7 @@ define([
                 });
              } else {
                  // invalid input
-                  $("#bboxEditConfirm").addClass("wrongFormInput");
+                  $("#bboxEditConfirm").addClass("wrongBboxFormInput");
              }
         },
 
