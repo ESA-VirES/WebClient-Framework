@@ -272,7 +272,7 @@ define([
                     //var height = cartographic.height;
                     $('#coordinates_label').show();
                     $('#coordinates_label').html(
-                        'Lat: ' + lat.toFixed(4) + '</br>Lon: '+lon.toFixed(4)
+                        'Lat: ' + lat.toFixed(3) + '</br>Lon: '+lon.toFixed(3)
                     );
                 }
             }.bind(this), Cesium.ScreenSpaceEventType.MOUSE_MOVE);
@@ -477,7 +477,8 @@ define([
         }, // END of onShow
 
         fillBboxForms: function(){
-            if (localStorage.getItem('areaSelection') !== "null"){
+            console.log(localStorage.getItem('areaSelection'))
+            if (localStorage.getItem('areaSelection') !== "null" && localStorage.getItem('areaSelection') !== null){
                 var bbox = JSON.parse(localStorage.getItem('areaSelection'));
                 $("#bboxWestForm").val(parseFloat(bbox.w));
                 $("#bboxEastForm").val(parseFloat(bbox.e));
@@ -1852,10 +1853,10 @@ define([
                 this.drawhelper.startDrawingRectangle({
                     callback: function(extent) {
                         var bbox = {
-                            n: Cesium.Math.toDegrees(extent.north),
-                            e: Cesium.Math.toDegrees(extent.east),
-                            s: Cesium.Math.toDegrees(extent.south),
-                            w: Cesium.Math.toDegrees(extent.west)
+                            n: Cesium.Math.toDegrees(extent.north).toFixed(3),
+                            e: Cesium.Math.toDegrees(extent.east).toFixed(3),
+                            s: Cesium.Math.toDegrees(extent.south).toFixed(3),
+                            w: Cesium.Math.toDegrees(extent.west).toFixed(3)
                         };
                         Communicator.mediator.trigger('selection:changed', bbox);
                         this.fillBboxForms();
