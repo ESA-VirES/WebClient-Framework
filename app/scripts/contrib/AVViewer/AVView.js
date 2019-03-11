@@ -302,7 +302,8 @@ define(['backbone.marionette',
                 multiYAxis: true,
                 margin: {top: 40, left: 90, bottom: 50, right: 35},
                 enableSubXAxis: false,
-                enableSubYAxis: false
+                enableSubYAxis: false,
+                colorscaleOptionLabel: 'Add third variable'
 
             });
 
