@@ -163,11 +163,23 @@ define(['backbone.marionette',
             }
 
 
+            // Clone object    
+            var filtersGlobal = _.clone(globals.swarm.get('uom_set'));
+            //filter out periodic latitudes from initial filters
+            var filtersNotUsed = ['QDLatitude_periodic', 'Latitude_periodic'];
+            var filtersGlobalFiltered = _.filter(filtersGlobal, function(obj, key) {
+                if (!filtersNotUsed.some(function(filter) { return key.indexOf(filter) >= 0; })) {
+                    // Filter not found in list of not to be used ones
+                    return true;
+                } else {
+                    return false;
+                }
+            });
             this.filterManager = new FilterManager({
                 el:'#analyticsFilters',
                 filterSettings: {
                     visibleFilters: this.selectedFilterList,
-                    dataSettings: globals.swarm.get('uom_set'),
+                    dataSettings: filtersGlobalFiltered,
                     parameterMatrix:{}
                 },
                 showCloseButtons: true
@@ -670,10 +682,14 @@ define(['backbone.marionette',
 
             filCon.find('.w2ui-field').remove();
 
+            var filtersNotUsed = ['QDLatitude_periodic', 'Latitude_periodic'];
             var aUOM = {};
             // Clone object
             _.each(globals.swarm.get('uom_set'), function(obj, key){
-                aUOM[key] = obj;
+                if (!filtersNotUsed.some(function(filter) { return key.indexOf(filter) >= 0; })) {
+                    // Filter not found in list of not to be used ones
+                    aUOM[key] = obj;
+                }
             });
 
             // Remove currently visible filters from list

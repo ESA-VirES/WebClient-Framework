@@ -477,7 +477,6 @@ define([
         }, // END of onShow
 
         fillBboxForms: function(){
-            console.log(localStorage.getItem('areaSelection'))
             if (localStorage.getItem('areaSelection') !== "null" && localStorage.getItem('areaSelection') !== null){
                 var bbox = JSON.parse(localStorage.getItem('areaSelection'));
                 $("#bboxWestForm").val(parseFloat(bbox.w));
