@@ -872,7 +872,7 @@ define(['backbone.marionette',
                         // does we add key parameter to selection in plot
                         var parasToCheck = [
                             'Ne', 'F', 'Bubble_Probability', 'Absolute_STEC',
-                            'Absolute_VTEC', 'Elevation_Angle', 'FAC', 'EEF'
+                            'FAC', 'EEF'
                         ];
 
                         // Go trough all plots and see if they need to be removed
