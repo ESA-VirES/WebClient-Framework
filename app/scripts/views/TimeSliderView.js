@@ -299,9 +299,23 @@
               var products = [];
               var model = globals.models.get(this.id).attributes;
               if (model.validity) {
+                var clippedStart, clippedEnd;
+                var currExtent = end.getTime()-start.getTime();
+                // Check start and end validity to see if we can clip the range
+                // to avoid possible clipping of the browser of the rendered line
+                if(model.validity.start.getTime()<start.getTime()){
+                    clippedStart = new Date(start.getTime()-currExtent);
+                } else {
+                    clippedStart = model.validity.start;
+                }
+                if(model.validity.end.getTime()>end.getTime()){
+                    clippedEnd = new Date(end.getTime()+currExtent);
+                } else {
+                    clippedEnd = model.validity.end;
+                }
                 products.push([
-                  model.validity.start,
-                  model.validity.end,
+                  clippedStart,
+                  clippedEnd,
                   {
                     id: model.name,
                     bbox: [-180., -90., 180., 90.]

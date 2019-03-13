@@ -357,7 +357,7 @@
                     if(localStorage.getItem('areaSelection') === null || 
                        !JSON.parse(localStorage.getItem('areaSelection')) ) {
                             showMessage(
-                                'success',
+                                'warning',
                                 'In order to visualize fieldlines please select an area with the bounding box tool.',
                                  35
                             );
@@ -521,7 +521,7 @@
                     if(localStorage.getItem('areaSelection') === null || 
                        !JSON.parse(localStorage.getItem('areaSelection')) ) {
                             showMessage(
-                                'success',
+                                'warning',
                                 'In order to visualize fieldlines please select an area using the "Select Area" button in the globe view.',
                                  35
                             );
