@@ -500,10 +500,10 @@ define([
             // fill bbox forms from localstorage data
             if (localStorage.getItem('areaSelection') !== "null" && localStorage.getItem('areaSelection') !== null){
                 var bbox = JSON.parse(localStorage.getItem('areaSelection'));
-                $("#bboxWestForm").val(bbox.w);
-                $("#bboxEastForm").val(bbox.e);
-                $("#bboxNorthForm").val(bbox.n);
-                $("#bboxSouthForm").val(bbox.s);
+                $("#bboxWestForm").val(parseFloat(bbox.w).toFixed(4));
+                $("#bboxEastForm").val(parseFloat(bbox.e).toFixed(4));
+                $("#bboxNorthForm").val(parseFloat(bbox.n).toFixed(4));
+                $("#bboxSouthForm").val(parseFloat(bbox.s).toFixed(4));
             }
         },
 
@@ -1882,10 +1882,10 @@ define([
                 this.drawhelper.startDrawingRectangle({
                     callback: function(extent) {
                         var bbox = {
-                            n: Cesium.Math.toDegrees(extent.north).toFixed(4),
-                            e: Cesium.Math.toDegrees(extent.east).toFixed(4),
-                            s: Cesium.Math.toDegrees(extent.south).toFixed(4),
-                            w: Cesium.Math.toDegrees(extent.west).toFixed(4)
+                            n: Cesium.Math.toDegrees(extent.north),
+                            e: Cesium.Math.toDegrees(extent.east),
+                            s: Cesium.Math.toDegrees(extent.south),
+                            w: Cesium.Math.toDegrees(extent.west)
                         };
                         Communicator.mediator.trigger('selection:changed', bbox);
                         this.fillBboxForms();
