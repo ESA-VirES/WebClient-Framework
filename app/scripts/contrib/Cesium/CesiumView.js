@@ -272,8 +272,26 @@ define([
                     //var height = cartographic.height;
                     $('#coordinates_label').show();
                     $('#coordinates_label').html(
-                        'Lat: ' + lat.toFixed(3) + '</br>Lon: '+lon.toFixed(3)
+                        'Lat: ' + lat.toFixed(4) + '</br>Lon: '+lon.toFixed(4)
                     );
+                    // prefill coordinates in bbox edit forms when user already clicked on map to draw a rectangle
+                    if ($('#bb_selection').text() === "Deactivate"){
+                        if ($('.twipsy-inner p').length === 2){
+                            // could not find a way to hook up on events of external cesium drawing plugin, so watching for when a new tooltip appears
+                            if (this.bboxEdit === undefined){
+                                // first click on globe, save start
+                                this.bboxEdit = {};
+                                this.bboxEdit.n = lat;
+                                this.bboxEdit.w = lon;
+                            } else {
+                                // all other mouse movements, save second border, recompute bbox if necessary and save to forms
+                                this.bboxEdit.e = lon;
+                                this.bboxEdit.s = lat;
+                                this.fillBboxFormsWhileDrawing(this.bboxEdit);
+                            }
+                        }
+                        
+                    }
                 }
             }.bind(this), Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
@@ -470,20 +488,32 @@ define([
                 } else if ($('#bb_selection').text() === 'Clear Selection'){
                     $('#bb_selection').html('Select Area');
                     $('.bboxEdit').addClass('hidden');
+                    //clear selection to enable new draw save
+                    delete this.bboxEdit;
                     Communicator.mediator.trigger('selection:changed', null);
                 }
-            });
+            }.bind(this));
             return this;
         }, // END of onShow
 
         fillBboxForms: function(){
+            // fill bbox forms from localstorage data
             if (localStorage.getItem('areaSelection') !== "null" && localStorage.getItem('areaSelection') !== null){
                 var bbox = JSON.parse(localStorage.getItem('areaSelection'));
-                $("#bboxWestForm").val(parseFloat(bbox.w));
-                $("#bboxEastForm").val(parseFloat(bbox.e));
-                $("#bboxNorthForm").val(parseFloat(bbox.n));
-                $("#bboxSouthForm").val(parseFloat(bbox.s));
+                $("#bboxWestForm").val(bbox.w);
+                $("#bboxEastForm").val(bbox.e);
+                $("#bboxNorthForm").val(bbox.n);
+                $("#bboxSouthForm").val(bbox.s);
             }
+        },
+
+        fillBboxFormsWhileDrawing: function(bbox){
+            // fill bbox forms with given bbox and fix it if necessary
+            var bboxFixed = this.wrapBbox(bbox);
+            $("#bboxWestForm").val(bboxFixed.w.toFixed(4));
+            $("#bboxEastForm").val(bboxFixed.e.toFixed(4));
+            $("#bboxNorthForm").val(bboxFixed.n.toFixed(4));
+            $("#bboxSouthForm").val(bboxFixed.s.toFixed(4));
         },
 
         connectDataEvents: function(){
@@ -1852,10 +1882,10 @@ define([
                 this.drawhelper.startDrawingRectangle({
                     callback: function(extent) {
                         var bbox = {
-                            n: Cesium.Math.toDegrees(extent.north).toFixed(3),
-                            e: Cesium.Math.toDegrees(extent.east).toFixed(3),
-                            s: Cesium.Math.toDegrees(extent.south).toFixed(3),
-                            w: Cesium.Math.toDegrees(extent.west).toFixed(3)
+                            n: Cesium.Math.toDegrees(extent.north).toFixed(4),
+                            e: Cesium.Math.toDegrees(extent.east).toFixed(4),
+                            s: Cesium.Math.toDegrees(extent.south).toFixed(4),
+                            w: Cesium.Math.toDegrees(extent.west).toFixed(4)
                         };
                         Communicator.mediator.trigger('selection:changed', bbox);
                         this.fillBboxForms();
@@ -2204,7 +2234,7 @@ define([
             }
         },
 
-        wrapBox: function(box) {
+        wrapBbox: function(box) {
             // accepts bbox object{n:float, s:float, w:float, e:float} 
             // returns bbox with numeric values fit to (-180, 180, -90, 90), performing switching n->s and w->e if necessary
             // cant solve over-dateline jumps
@@ -2258,7 +2288,7 @@ define([
                     "s" : s,
                 };
                 // fix bbox if necessary
-                var bboxFixed = this.wrapBox(bbox);
+                var bboxFixed = this.wrapBbox(bbox);
 
                 $("#bboxEditConfirm").removeClass("wrongBboxFormInput");
                 $('.bboxEdit').addClass('hidden');
