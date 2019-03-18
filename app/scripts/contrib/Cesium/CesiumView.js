@@ -574,7 +574,6 @@ define([
             if(this.map._sceneModePicker){
                 var container = this.map._sceneModePicker.container;
                 var scene = this.map._sceneModePicker.viewModel._scene;
-                this.map._sceneModePicker.destroy();
                 var modepicker = new Cesium.SceneModePicker(container, scene);
                 this.map._sceneModePicker = modepicker;
             }
