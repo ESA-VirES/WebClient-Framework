@@ -136,6 +136,17 @@ define([
             this.$el.append('<div type="button" class="btn btn-success darkbutton" id="cesium_save">Save as Image</div>');
             this.$el.append('<div type="button" class="btn btn-success darkbutton"  id="bb_selection">Select Area</div>');
 
+            this.$el.append('<div id="poleViewDiv"></div>')
+            $('#poleViewDiv').append('<button class="btn btn-success darkbutton dropdown-toggle" id="poleViewButton" data-toggle="dropdown">Globe View</button>');
+            $('#poleViewDiv').append('<ul id="poleViewUl" class="dropdown-menu"></ul>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton magN poleButton">Mag N</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton magS poleButton">Mag S</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton geoN poleButton">Geo N</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton geoS poleButton">Geo S</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton" id="resetCameraView">Reset Cam</button></li>');
+
+            this.bindPolarButtons();
+
             this.$el.append('<input type="text" class="bboxEdit hidden"  id="bboxWestForm" placeholder="West">');
             this.$el.append('<input type="text" class="bboxEdit hidden"  id="bboxEastForm" placeholder="East">');
             this.$el.append('<input type="text" class="bboxEdit hidden"  id="bboxNorthForm" placeholder="North">');
@@ -207,6 +218,9 @@ define([
                 //COLUMBUS_VIEW SCENE2D SCENE3D
                 if(localStorage.getItem('sceneMode') !== null){
                     options.sceneMode = Number(localStorage.getItem('sceneMode'));
+                    if (options.sceneMode !== 3){
+                        $('#poleViewDiv').addClass("hidden");
+                    }
                 }
                 this.map = new Cesium.Viewer(this.el, options);
                 var initialCesiumLayer = this.map.imageryLayers.get(0);
@@ -233,6 +247,16 @@ define([
             this.navigationhelp = new Cesium.NavigationHelpButton({
                 container: $('.cesium-viewer-toolbar')[0]
             });
+
+            this.map.scene.morphStart.addEventListener(function(evt){
+                // change of mode event handler
+                if (this.map._sceneModePicker.viewModel.sceneMode !== 3){
+                    this.globalViewZoomReset();
+                    $('#poleViewDiv').addClass("hidden");
+                } else{
+                    $('#poleViewDiv').removeClass("hidden");
+                }
+            }.bind(this));
 
             this.map.scene.skyBox.show = mm.get('skyBox');
             this.map.scene.sun.show = mm.get('sun');
@@ -543,6 +567,7 @@ define([
         },
 
         onResize: function() {
+            this.bindPolarButtons();
             if(this.map._sceneModePicker){
                 var container = this.map._sceneModePicker.container;
                 var scene = this.map._sceneModePicker.viewModel._scene;
@@ -2302,6 +2327,108 @@ define([
                  // invalid input
                   $("#bboxEditConfirm").addClass("wrongBboxFormInput");
              }
+        },
+
+        cameraCustomZoomOnWheel: function (e){
+            var camera = this.map.scene.camera;
+            var cameraHeight = Cesium.Ellipsoid.WGS84.cartesianToCartographic(camera.position).height;
+            // make camera zoom depend on height
+            var moveRate = cameraHeight / 10.0;
+            if (e.originalEvent.deltaY < 0) {
+                // scrolling up
+                camera.moveForward(moveRate);
+            }
+            if (e.originalEvent.deltaY > 0) {
+                camera.moveBackward(moveRate);
+            }
+        },
+
+        polarViewZoom: function(){
+            $("#poleViewButton").text('Polar View');
+            $(".poleButton").removeClass("viewActive");
+            $("#poleViewButton").addClass("viewActive");
+            this.map.scene.screenSpaceCameraController.enableRotate = false;
+            this.map.scene.screenSpaceCameraController.enableTranslate = false;
+            this.map.scene.screenSpaceCameraController.enableTilt = false;
+            this.map.scene.screenSpaceCameraController.enableLook = false;
+            this.map.scene.screenSpaceCameraController.enableZoom = false;
+
+            $('.cesium-widget').off('wheel');
+            $('.cesium-widget').on('wheel', function(e){
+                this.cameraCustomZoomOnWheel(e);
+            }.bind(this))
+        },
+
+        globalViewZoomReset: function(){
+            $("#poleViewButton").text('Globe View');
+            $(".poleButton").removeClass("viewActive");
+            $("#poleViewButton").removeClass("viewActive");
+            this.map.scene.screenSpaceCameraController.enableRotate = true;
+            this.map.scene.screenSpaceCameraController.enableTranslate = true;
+            this.map.scene.screenSpaceCameraController.enableTilt = true;
+            this.map.scene.screenSpaceCameraController.enableLook = true;
+            this.map.scene.screenSpaceCameraController.enableZoom = true;
+            $('.cesium-widget').off('wheel');
+        },
+
+        bindPolarButtons: function() {
+            $('.poleButton, #resetCameraView').off('click');
+            // magnetic poles hardcoded as were in 1.1.2015 (igrf)
+            $(".magN").click(function(){
+                this.map.scene.camera.flyTo({
+                    destination : Cesium.Cartesian3.fromDegrees(-84.551, 83.075, 10000000),
+                    orientation : {
+                        direction: new Cesium.Cartesian3(-0.011449873133578228, 0.12003352097560159, -0.9927038099289358),
+                        up: new Cesium.Cartesian3(-0.2418134773341136, 0.9629699323710552, 0.11922731033143948)
+                    },
+                    complete : function(){
+                        this.polarViewZoom();
+                        $(".magN").addClass("viewActive");
+                    }.bind(this)
+                });
+            }.bind(this));
+
+            // magnetic poles hardcoded as were in 1.1.2015 (igrf)
+            $(".magS").click(function(){
+                this.map.scene.camera.flyTo({
+                    destination : Cesium.Cartesian3.fromDegrees(125.738, -74.383, 10000000),
+                    orientation : {
+                        direction: new Cesium.Cartesian3(0.1572357407963758, -0.21851202199924571, 0.963083287186532),
+                        up: new Cesium.Cartesian3(0.25309094759697687, -0.9337284667987544, -0.25317212037290326)
+                    },
+                    complete : function(){
+                        this.polarViewZoom();
+                        $(".magS").addClass("viewActive");
+                    }.bind(this)
+                });
+            }.bind(this));
+
+            $(".geoN").click(function(){
+                this.map.scene.camera.flyTo({
+                    destination : Cesium.Cartesian3.fromDegrees(0, 90, 10000000),
+                    complete : function(){
+                        this.polarViewZoom();
+                        $(".geoN").addClass("viewActive");
+                    }.bind(this)
+                });
+            }.bind(this));
+
+            $(".geoS").click(function(){
+                this.map.scene.camera.flyTo({
+                    destination : Cesium.Cartesian3.fromDegrees(0, -90, 10000000),
+                    complete : function(){
+                        this.polarViewZoom();
+                        $(".geoS").addClass("viewActive");
+                    }.bind(this)
+                });
+            }.bind(this));
+
+            $("#resetCameraView").click(function(){
+                this.map.scene.camera.flyTo({
+                    destination : Cesium.Rectangle.fromDegrees(-20.0, -15.0, 45.0, 60.0),
+                    complete: this.globalViewZoomReset.bind(this)
+                });
+            }.bind(this));
         },
 
         toggleDebug: function(){
