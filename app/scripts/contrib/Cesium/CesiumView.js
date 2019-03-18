@@ -139,11 +139,11 @@ define([
             this.$el.append('<div id="poleViewDiv"></div>')
             $('#poleViewDiv').append('<button class="btn btn-success darkbutton dropdown-toggle" id="poleViewButton" data-toggle="dropdown">Globe View</button>');
             $('#poleViewDiv').append('<ul id="poleViewUl" class="dropdown-menu"></ul>');
-            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton magN poleButton">Mag N</button></li>');
-            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton magS poleButton">Mag S</button></li>');
-            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton geoN poleButton">Geo N</button></li>');
-            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton geoS poleButton">Geo S</button></li>');
-            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton" id="resetCameraView">Reset Cam</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton magN poleButton">Mag. North</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton magS poleButton">Mag. South</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton geoN poleButton">Geo. North</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton geoS poleButton">Geo. South</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton poleButton" id="resetCameraView">Reset View</button></li>');
 
             this.bindPolarButtons();
 
@@ -2347,7 +2347,6 @@ define([
         },
 
         polarViewZoom: function(){
-            $("#poleViewButton").text('Polar View');
             $(".poleButton").removeClass("viewActive");
             $("#poleViewButton").addClass("viewActive");
             this.map.scene.screenSpaceCameraController.enableRotate = false;
@@ -2375,7 +2374,7 @@ define([
         },
 
         bindPolarButtons: function() {
-            $('.poleButton, #resetCameraView').off('click');
+            $('.poleButton').off('click');
             // magnetic poles hardcoded as were in 1.1.2015 (igrf)
             $(".magN").click(function(){
                 this.map.scene.camera.flyTo({
@@ -2386,6 +2385,7 @@ define([
                     },
                     complete : function(){
                         this.polarViewZoom();
+                        $('#poleViewButton').text('Mag. North');
                         $(".magN").addClass("viewActive");
                     }.bind(this)
                 });
@@ -2401,6 +2401,7 @@ define([
                     },
                     complete : function(){
                         this.polarViewZoom();
+                        $('#poleViewButton').text('Mag. South');
                         $(".magS").addClass("viewActive");
                     }.bind(this)
                 });
@@ -2411,6 +2412,7 @@ define([
                     destination : Cesium.Cartesian3.fromDegrees(0, 90, 10000000),
                     complete : function(){
                         this.polarViewZoom();
+                        $('#poleViewButton').text('Geo. North');
                         $(".geoN").addClass("viewActive");
                     }.bind(this)
                 });
@@ -2421,6 +2423,7 @@ define([
                     destination : Cesium.Cartesian3.fromDegrees(0, -90, 10000000),
                     complete : function(){
                         this.polarViewZoom();
+                        $('#poleViewButton').text('Geo. South');
                         $(".geoS").addClass("viewActive");
                     }.bind(this)
                 });
