@@ -248,10 +248,13 @@ define([
                 container: $('.cesium-viewer-toolbar')[0]
             });
 
-            this.map.scene.morphStart.addEventListener(function(evt){
+            this.map.scene.morphStart.addEventListener(function(){
+                this.globalViewZoomReset();
+            }.bind(this));
+
+            this.map.scene.morphComplete.addEventListener(function(){
                 // change of mode event handler
                 if (this.map._sceneModePicker.viewModel.sceneMode !== 3){
-                    this.globalViewZoomReset();
                     $('#poleViewDiv').addClass("hidden");
                 } else{
                     $('#poleViewDiv').removeClass("hidden");
@@ -571,6 +574,7 @@ define([
             if(this.map._sceneModePicker){
                 var container = this.map._sceneModePicker.container;
                 var scene = this.map._sceneModePicker.viewModel._scene;
+                this.map._sceneModePicker.destroy();
                 var modepicker = new Cesium.SceneModePicker(container, scene);
                 this.map._sceneModePicker = modepicker;
             }
