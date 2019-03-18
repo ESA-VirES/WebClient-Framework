@@ -137,7 +137,7 @@ define([
             this.$el.append('<div type="button" class="btn btn-success darkbutton"  id="bb_selection">Select Area</div>');
 
             this.$el.append('<div id="poleViewDiv"></div>')
-            $('#poleViewDiv').append('<button class="btn btn-success darkbutton dropdown-toggle" id="poleViewButton" data-toggle="dropdown">Globe View</button>');
+            $('#poleViewDiv').append('<button class="btn btn-success darkbutton dropdown-toggle" title="Pole View Selection" id="poleViewButton" data-toggle="dropdown">Globe View</button>');
             $('#poleViewDiv').append('<ul id="poleViewUl" class="dropdown-menu"></ul>');
             $('#poleViewUl').append('<li><button class="btn btn-success darkbutton magN poleButton">Mag. North</button></li>');
             $('#poleViewUl').append('<li><button class="btn btn-success darkbutton magS poleButton">Mag. South</button></li>');
