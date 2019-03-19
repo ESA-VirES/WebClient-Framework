@@ -136,6 +136,17 @@ define([
             this.$el.append('<div type="button" class="btn btn-success darkbutton" id="cesium_save">Save as Image</div>');
             this.$el.append('<div type="button" class="btn btn-success darkbutton"  id="bb_selection">Select Area</div>');
 
+            this.$el.append('<div id="poleViewDiv"></div>')
+            $('#poleViewDiv').append('<button class="btn btn-success darkbutton dropdown-toggle" title="Pole View Selection" id="poleViewButton" data-toggle="dropdown">Globe View</button>');
+            $('#poleViewDiv').append('<ul id="poleViewUl" class="dropdown-menu"></ul>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton magN poleButton">Mag. North</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton magS poleButton">Mag. South</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton geoN poleButton">Geo. North</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton geoS poleButton">Geo. South</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton poleButton" id="resetCameraView">Reset View</button></li>');
+
+            this.bindPolarButtons();
+
             this.$el.append('<input type="text" class="bboxEdit hidden"  id="bboxWestForm" placeholder="West">');
             this.$el.append('<input type="text" class="bboxEdit hidden"  id="bboxEastForm" placeholder="East">');
             this.$el.append('<input type="text" class="bboxEdit hidden"  id="bboxNorthForm" placeholder="North">');
@@ -207,6 +218,9 @@ define([
                 //COLUMBUS_VIEW SCENE2D SCENE3D
                 if(localStorage.getItem('sceneMode') !== null){
                     options.sceneMode = Number(localStorage.getItem('sceneMode'));
+                    if (options.sceneMode !== 3){
+                        $('#poleViewDiv').addClass("hidden");
+                    }
                 }
                 this.map = new Cesium.Viewer(this.el, options);
                 var initialCesiumLayer = this.map.imageryLayers.get(0);
@@ -233,6 +247,19 @@ define([
             this.navigationhelp = new Cesium.NavigationHelpButton({
                 container: $('.cesium-viewer-toolbar')[0]
             });
+
+            this.map.scene.morphStart.addEventListener(function(){
+                this.globalViewZoomReset();
+            }.bind(this));
+
+            this.map.scene.morphComplete.addEventListener(function(){
+                // change of mode event handler
+                if (this.map._sceneModePicker.viewModel.sceneMode !== 3){
+                    $('#poleViewDiv').addClass("hidden");
+                } else{
+                    $('#poleViewDiv').removeClass("hidden");
+                }
+            }.bind(this));
 
             this.map.scene.skyBox.show = mm.get('skyBox');
             this.map.scene.sun.show = mm.get('sun');
@@ -272,8 +299,26 @@ define([
                     //var height = cartographic.height;
                     $('#coordinates_label').show();
                     $('#coordinates_label').html(
-                        'Lat: ' + lat.toFixed(3) + '</br>Lon: '+lon.toFixed(3)
+                        'Lat: ' + lat.toFixed(4) + '</br>Lon: '+lon.toFixed(4)
                     );
+                    // prefill coordinates in bbox edit forms when user already clicked on map to draw a rectangle
+                    if ($('#bb_selection').text() === "Deactivate"){
+                        if ($('.twipsy-inner p').length === 2){
+                            // could not find a way to hook up on events of external cesium drawing plugin, so watching for when a new tooltip appears
+                            if (this.bboxEdit === undefined){
+                                // first click on globe, save start
+                                this.bboxEdit = {};
+                                this.bboxEdit.n = lat;
+                                this.bboxEdit.w = lon;
+                            } else {
+                                // all other mouse movements, save second border, recompute bbox if necessary and save to forms
+                                this.bboxEdit.e = lon;
+                                this.bboxEdit.s = lat;
+                                this.fillBboxFormsWhileDrawing(this.bboxEdit);
+                            }
+                        }
+                        
+                    }
                 }
             }.bind(this), Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
@@ -470,20 +515,32 @@ define([
                 } else if ($('#bb_selection').text() === 'Clear Selection'){
                     $('#bb_selection').html('Select Area');
                     $('.bboxEdit').addClass('hidden');
+                    //clear selection to enable new draw save
+                    delete this.bboxEdit;
                     Communicator.mediator.trigger('selection:changed', null);
                 }
-            });
+            }.bind(this));
             return this;
         }, // END of onShow
 
         fillBboxForms: function(){
+            // fill bbox forms from localstorage data
             if (localStorage.getItem('areaSelection') !== "null" && localStorage.getItem('areaSelection') !== null){
                 var bbox = JSON.parse(localStorage.getItem('areaSelection'));
-                $("#bboxWestForm").val(parseFloat(bbox.w));
-                $("#bboxEastForm").val(parseFloat(bbox.e));
-                $("#bboxNorthForm").val(parseFloat(bbox.n));
-                $("#bboxSouthForm").val(parseFloat(bbox.s));
+                $("#bboxWestForm").val(parseFloat(bbox.w).toFixed(4));
+                $("#bboxEastForm").val(parseFloat(bbox.e).toFixed(4));
+                $("#bboxNorthForm").val(parseFloat(bbox.n).toFixed(4));
+                $("#bboxSouthForm").val(parseFloat(bbox.s).toFixed(4));
             }
+        },
+
+        fillBboxFormsWhileDrawing: function(bbox){
+            // fill bbox forms with given bbox and fix it if necessary
+            var bboxFixed = this.wrapBbox(bbox);
+            $("#bboxWestForm").val(bboxFixed.w.toFixed(4));
+            $("#bboxEastForm").val(bboxFixed.e.toFixed(4));
+            $("#bboxNorthForm").val(bboxFixed.n.toFixed(4));
+            $("#bboxSouthForm").val(bboxFixed.s.toFixed(4));
         },
 
         connectDataEvents: function(){
@@ -513,6 +570,7 @@ define([
         },
 
         onResize: function() {
+            this.bindPolarButtons();
             if(this.map._sceneModePicker){
                 var container = this.map._sceneModePicker.container;
                 var scene = this.map._sceneModePicker.viewModel._scene;
@@ -1852,10 +1910,10 @@ define([
                 this.drawhelper.startDrawingRectangle({
                     callback: function(extent) {
                         var bbox = {
-                            n: Cesium.Math.toDegrees(extent.north).toFixed(3),
-                            e: Cesium.Math.toDegrees(extent.east).toFixed(3),
-                            s: Cesium.Math.toDegrees(extent.south).toFixed(3),
-                            w: Cesium.Math.toDegrees(extent.west).toFixed(3)
+                            n: Cesium.Math.toDegrees(extent.north),
+                            e: Cesium.Math.toDegrees(extent.east),
+                            s: Cesium.Math.toDegrees(extent.south),
+                            w: Cesium.Math.toDegrees(extent.west)
                         };
                         Communicator.mediator.trigger('selection:changed', bbox);
                         this.fillBboxForms();
@@ -2204,7 +2262,7 @@ define([
             }
         },
 
-        wrapBox: function(box) {
+        wrapBbox: function(box) {
             // accepts bbox object{n:float, s:float, w:float, e:float} 
             // returns bbox with numeric values fit to (-180, 180, -90, 90), performing switching n->s and w->e if necessary
             // cant solve over-dateline jumps
@@ -2258,7 +2316,7 @@ define([
                     "s" : s,
                 };
                 // fix bbox if necessary
-                var bboxFixed = this.wrapBox(bbox);
+                var bboxFixed = this.wrapBbox(bbox);
 
                 $("#bboxEditConfirm").removeClass("wrongBboxFormInput");
                 $('.bboxEdit').addClass('hidden');
@@ -2272,6 +2330,111 @@ define([
                  // invalid input
                   $("#bboxEditConfirm").addClass("wrongBboxFormInput");
              }
+        },
+
+        cameraCustomZoomOnWheel: function (e){
+            var camera = this.map.scene.camera;
+            var cameraHeight = Cesium.Ellipsoid.WGS84.cartesianToCartographic(camera.position).height;
+            // make camera zoom depend on height
+            var moveRate = cameraHeight / 10.0;
+            if (e.originalEvent.deltaY < 0) {
+                // scrolling up
+                camera.moveForward(moveRate);
+            }
+            if (e.originalEvent.deltaY > 0) {
+                camera.moveBackward(moveRate);
+            }
+        },
+
+        polarViewZoom: function(){
+            $(".poleButton").removeClass("viewActive");
+            $("#poleViewButton").addClass("viewActive");
+            this.map.scene.screenSpaceCameraController.enableRotate = false;
+            this.map.scene.screenSpaceCameraController.enableTranslate = false;
+            this.map.scene.screenSpaceCameraController.enableTilt = false;
+            this.map.scene.screenSpaceCameraController.enableLook = false;
+            this.map.scene.screenSpaceCameraController.enableZoom = false;
+
+            $('.cesium-widget').off('wheel');
+            $('.cesium-widget').on('wheel', function(e){
+                this.cameraCustomZoomOnWheel(e);
+            }.bind(this))
+        },
+
+        globalViewZoomReset: function(){
+            $("#poleViewButton").text('Globe View');
+            $(".poleButton").removeClass("viewActive");
+            $("#poleViewButton").removeClass("viewActive");
+            this.map.scene.screenSpaceCameraController.enableRotate = true;
+            this.map.scene.screenSpaceCameraController.enableTranslate = true;
+            this.map.scene.screenSpaceCameraController.enableTilt = true;
+            this.map.scene.screenSpaceCameraController.enableLook = true;
+            this.map.scene.screenSpaceCameraController.enableZoom = true;
+            $('.cesium-widget').off('wheel');
+        },
+
+        bindPolarButtons: function() {
+            $('.poleButton').off('click');
+            // magnetic poles hardcoded as were in 1.1.2015 (igrf)
+            $(".magN").click(function(){
+                this.map.scene.camera.flyTo({
+                    destination : Cesium.Cartesian3.fromDegrees(-84.551, 83.075, 10000000),
+                    orientation : {
+                        direction: new Cesium.Cartesian3(-0.011449873133578228, 0.12003352097560159, -0.9927038099289358),
+                        up: new Cesium.Cartesian3(-0.2418134773341136, 0.9629699323710552, 0.11922731033143948)
+                    },
+                    complete : function(){
+                        this.polarViewZoom();
+                        $('#poleViewButton').text('Mag. North');
+                        $(".magN").addClass("viewActive");
+                    }.bind(this)
+                });
+            }.bind(this));
+
+            // magnetic poles hardcoded as were in 1.1.2015 (igrf)
+            $(".magS").click(function(){
+                this.map.scene.camera.flyTo({
+                    destination : Cesium.Cartesian3.fromDegrees(125.738, -74.383, 10000000),
+                    orientation : {
+                        direction: new Cesium.Cartesian3(0.1572357407963758, -0.21851202199924571, 0.963083287186532),
+                        up: new Cesium.Cartesian3(0.25309094759697687, -0.9337284667987544, -0.25317212037290326)
+                    },
+                    complete : function(){
+                        this.polarViewZoom();
+                        $('#poleViewButton').text('Mag. South');
+                        $(".magS").addClass("viewActive");
+                    }.bind(this)
+                });
+            }.bind(this));
+
+            $(".geoN").click(function(){
+                this.map.scene.camera.flyTo({
+                    destination : Cesium.Cartesian3.fromDegrees(0, 90, 10000000),
+                    complete : function(){
+                        this.polarViewZoom();
+                        $('#poleViewButton').text('Geo. North');
+                        $(".geoN").addClass("viewActive");
+                    }.bind(this)
+                });
+            }.bind(this));
+
+            $(".geoS").click(function(){
+                this.map.scene.camera.flyTo({
+                    destination : Cesium.Cartesian3.fromDegrees(0, -90, 10000000),
+                    complete : function(){
+                        this.polarViewZoom();
+                        $('#poleViewButton').text('Geo. South');
+                        $(".geoS").addClass("viewActive");
+                    }.bind(this)
+                });
+            }.bind(this));
+
+            $("#resetCameraView").click(function(){
+                this.map.scene.camera.flyTo({
+                    destination : Cesium.Rectangle.fromDegrees(-20.0, -15.0, 45.0, 60.0),
+                    complete: this.globalViewZoomReset.bind(this)
+                });
+            }.bind(this));
         },
 
         toggleDebug: function(){
