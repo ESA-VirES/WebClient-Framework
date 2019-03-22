@@ -110,7 +110,6 @@ function productSortingFunction(a, b) {
             'controller/LoadingController',
             'controller/LayerController',
             'controller/SelectionController',
-            'controller/DifferenceController',
             'controller/DataController'
         ],
 
@@ -430,17 +429,10 @@ function productSortingFunction(a, b) {
                         showColorscale: true
                     });
 
-                    if(product.hasOwnProperty('differenceTo')){
-                        lm.set('differenceTo', product.differenceTo);
-                    }
-
                     if(lm.get('model')){
                         // register magnetic model
                         globals.models.add({name: lm.get('download').id});
                         lm.set('contours', defaultFor( product.contours,false));
-                        lm.set('differenceTo', defaultFor( 
-                            product.differenceTo, null)
-                        );
                     }
 
                     if(lm.get('download').id === 'Custom_Model'){
