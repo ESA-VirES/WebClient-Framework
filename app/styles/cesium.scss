@@ -48,7 +48,66 @@
   right: 210px;
   top: 7px;
   height: 32px;
+  width: 118px;
   z-index: 5;
+}
+
+.bboxEdit{
+  position: absolute;
+  z-index: 5;
+  height: 24px;
+  border-radius: 4px;
+  border-width: 1px;
+  width: 70px;
+  background-color: #333;
+  border-color: #444;
+  color: white;
+  display: block;
+  padding: 2px;
+}
+
+.bboxEdit::placeholder{
+  color: #d4d7db;
+  font-size: 0.9em;
+}
+
+#bboxWestForm{
+  right: 186px;
+  top: 78px;
+}
+
+#bboxNorthForm{
+  right: 136px;
+  top: 48px;
+}
+
+#bboxEastForm{
+  right: 86px;
+  top: 78px;
+}
+
+#bboxSouthForm{
+  right: 136px;
+  top: 108px;
+}
+
+#bboxEditConfirm{
+  right: 60px;
+  top: 78px;
+  width: 20px;
+}
+
+#bboxEditConfirm:hover{
+  cursor: pointer;
+}
+
+.wrongBboxFormInput{
+  background-color: #c41d1d;
+  border-color: #af1a1a;
+}
+
+.hidden{
+  display: none;
 }
 
 .cesium-viewer-geocoderContainer{
@@ -60,7 +119,7 @@
   border-color: #444 !important;
 }
 
-.darkbutton:hover{
+.darkbutton:hover, .darkbutton.viewActive{
   background-color: #48b !important;
   border-color: #aef !important;
 }
@@ -75,6 +134,9 @@
   display: none;
 }
 
+.twipsy-inner p{
+  margin: 0 0 3px;
+}
 
 #coordinates_label{
   background-color: rgba(255, 255, 255, 0.7);
@@ -91,4 +153,30 @@
   padding-left: 3px;
   padding-right: 3px;
   font-family: monospace;
+}
+
+#poleViewDiv{
+  position: absolute;
+  right: 336px;
+  top: 7px;
+  z-index: 5;
+}
+
+#poleViewButton{
+  height: 32px;
+  width: 98px;
+}
+
+#poleViewUl{
+  min-width: 90px;
+  padding: 0;
+}
+
+#poleViewUl li {
+  margin: 4px;
+  text-align: center;
+}
+
+.poleButton{
+  padding: 4px 8px!important;
 }

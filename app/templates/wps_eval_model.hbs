@@ -5,7 +5,7 @@
     <wps:Input>
       <ows:Identifier>model</ows:Identifier>
       <wps:Data>
-        <wps:LiteralData>{{model}}</wps:LiteralData>
+        <wps:LiteralData>'{{model}}'({{#if coeff_min}}min_degree={{coeff_min}}{{#if coeff_max}},{{/if}}{{/if}}{{#if coeff_max}}max_degree={{coeff_max}}{{/if}})</wps:LiteralData>
       </wps:Data>
     </wps:Input>
     <wps:Input>
@@ -36,18 +36,6 @@
       <ows:Identifier>variable</ows:Identifier>
       <wps:Data>
         <wps:LiteralData>{{variable}}</wps:LiteralData>
-      </wps:Data>
-    </wps:Input>{{/if}}
-    {{#if coeff_min}}<wps:Input>
-      <ows:Identifier>coeff_min</ows:Identifier>
-      <wps:Data>
-        <wps:LiteralData>{{coeff_min}}</wps:LiteralData>
-      </wps:Data>
-    </wps:Input>{{/if}}
-    {{#if coeff_max}}<wps:Input>
-      <ows:Identifier>coeff_max</ows:Identifier>
-      <wps:Data>
-        <wps:LiteralData>{{coeff_max}}</wps:LiteralData>
       </wps:Data>
     </wps:Input>{{/if}}
     <wps:Input>

@@ -240,13 +240,22 @@
 
                             // TODO: Here we should go through all views, or maybe only url is necessary?
                             var url = layer.get('views')[0].urls[0]+"?";
-                            
+                            //check if composed model has any expression
+                            if(this.model.get("model_expression")===null || this.model.get("model_expression")===""){
+                              showMessage('info','Please add at least one model to Composed model selection before activating this layer.', 20);
 
-                            if (url.indexOf('https') > -1){
+                              var checkbox = $( "input[type$='checkbox']", this.$el);
+                              checkbox.prop( "checked", false );
+                            }else if (url.indexOf('https') > -1){
 
                                 var layer = layer.get('views')[0].id;
                                 var req = "LAYERS=" + layer + "&TRANSPARENT=true&FORMAT=image%2Fpng&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&SRS=EPSG%3A4326";
                                 req += "&BBOX=33.75,56.25,33.80,56.50&WIDTH=2&HEIGHT=2";
+                                // append composed model query part
+                                if (this.model.get("model_expression") !== undefined){
+                                  req += ("&MODELS=" + this.model.get("download").id + "=" + encodeURIComponent(this.model.get("model_expression")));
+                                }
+                                
                                 req = url + req;
 
                                 $.ajax({

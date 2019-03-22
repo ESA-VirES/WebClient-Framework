@@ -7,15 +7,14 @@ define([
     'models/MapModel',
     'globals',
     'papaparse',
-    'hbs!tmpl/wps_eval_model',
-    'hbs!tmpl/wps_eval_model_diff',
+    'hbs!tmpl/wps_eval_composed_model',
     'hbs!tmpl/wps_get_field_lines',
     'cesium/Cesium',
     'drawhelper',
     'FileSaver',
     'plotty'
 ], function( Marionette, Communicator, App, MapModel, globals, Papa,
-             tmplEvalModel, tmplEvalModelDiff, tmplGetFieldLines) {
+             tmplEvalModel, tmplGetFieldLines) {
     'use strict';
     var CesiumView = Marionette.View.extend({
         model: new MapModel.MapModel(),
@@ -46,12 +45,6 @@ define([
             this.beginTime = null;
             this.endTime = null;
             this.plot = null;
-
-            /*$(window).resize(function() {
-                if (this.map) {
-                    this.onResize();
-                }
-            },this);*/
 
             plotty.addColorScale('redblue', ['#ff0000', '#0000ff'], [0, 1]);
             plotty.addColorScale('coolwarm', 
@@ -125,7 +118,7 @@ define([
                 value = ''+value;
                 var i = _.indexOf(this._tileProvider._urlParts, property);
                 if (i>=0){
-                    this._tileProvider._urlParts[i+1] = value;
+                    this._tileProvider._urlParts[i+1] = encodeURIComponent(value);
                 }else{
                     this._tileProvider._urlParts.push(property);
                     this._tileProvider._urlParts.push(encodeURIComponent(value));
@@ -142,6 +135,37 @@ define([
 
             this.$el.append('<div type="button" class="btn btn-success darkbutton" id="cesium_save">Save as Image</div>');
             this.$el.append('<div type="button" class="btn btn-success darkbutton"  id="bb_selection">Select Area</div>');
+
+            this.$el.append('<div id="poleViewDiv"></div>')
+            $('#poleViewDiv').append('<button class="btn btn-success darkbutton dropdown-toggle" title="Pole View Selection" id="poleViewButton" data-toggle="dropdown">Globe View</button>');
+            $('#poleViewDiv').append('<ul id="poleViewUl" class="dropdown-menu"></ul>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton magN poleButton" title="Magnetic North Pole">Mag. North</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton magS poleButton" title="Magnetic South Pole">Mag. South</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton geoN poleButton" title="Geographic North Pole">Geo. North</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton geoS poleButton" title="Geographic South Pole">Geo. South</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton poleButton" id="resetCameraView" title="Reset to the free Globe View.">Reset View</button></li>');
+
+            this.bindPolarButtons();
+
+            this.$el.append('<input type="text" class="bboxEdit hidden"  id="bboxWestForm" placeholder="West">');
+            this.$el.append('<input type="text" class="bboxEdit hidden"  id="bboxEastForm" placeholder="East">');
+            this.$el.append('<input type="text" class="bboxEdit hidden"  id="bboxNorthForm" placeholder="North">');
+            this.$el.append('<input type="text" class="bboxEdit hidden"  id="bboxSouthForm" placeholder="South">');
+            this.fillBboxForms();
+            this.$el.append('<input type="button" class="bboxEdit hidden"  id="bboxEditConfirm" value="✔">');
+            // hide cesium tooltip on hover over the forms
+            $(".bboxEdit").hover(function(){
+                $(".twipsy").addClass("hidden");
+              },function(){
+                $(".twipsy").removeClass("hidden");
+            })
+            $("#bboxEditConfirm").click(this.submitCoordinateForms.bind(this));
+            $(".bboxEdit").keypress(function(evt){
+                // confirm forms on enter too
+                if (evt.keyCode === 13){
+                    this.submitCoordinateForms();
+                }
+            }.bind(this));
 
             var layer;
 
@@ -194,6 +218,9 @@ define([
                 //COLUMBUS_VIEW SCENE2D SCENE3D
                 if(localStorage.getItem('sceneMode') !== null){
                     options.sceneMode = Number(localStorage.getItem('sceneMode'));
+                    if (options.sceneMode !== 3){
+                        $('#poleViewDiv').addClass("hidden");
+                    }
                 }
                 this.map = new Cesium.Viewer(this.el, options);
                 var initialCesiumLayer = this.map.imageryLayers.get(0);
@@ -220,6 +247,19 @@ define([
             this.navigationhelp = new Cesium.NavigationHelpButton({
                 container: $('.cesium-viewer-toolbar')[0]
             });
+
+            this.map.scene.morphStart.addEventListener(function(){
+                this.globalViewZoomReset();
+            }.bind(this));
+
+            this.map.scene.morphComplete.addEventListener(function(){
+                // change of mode event handler
+                if (this.map._sceneModePicker.viewModel.sceneMode !== 3){
+                    $('#poleViewDiv').addClass("hidden");
+                } else{
+                    $('#poleViewDiv').removeClass("hidden");
+                }
+            }.bind(this));
 
             this.map.scene.skyBox.show = mm.get('skyBox');
             this.map.scene.sun.show = mm.get('sun');
@@ -261,6 +301,24 @@ define([
                     $('#coordinates_label').html(
                         'Lat: ' + lat.toFixed(4) + '</br>Lon: '+lon.toFixed(4)
                     );
+                    // prefill coordinates in bbox edit forms when user already clicked on map to draw a rectangle
+                    if ($('#bb_selection').text() === "Deactivate"){
+                        if ($('.twipsy-inner p').length === 2){
+                            // could not find a way to hook up on events of external cesium drawing plugin, so watching for when a new tooltip appears
+                            if (this.bboxEdit === undefined){
+                                // first click on globe, save start
+                                this.bboxEdit = {};
+                                this.bboxEdit.n = lat;
+                                this.bboxEdit.w = lon;
+                            } else {
+                                // all other mouse movements, save second border, recompute bbox if necessary and save to forms
+                                this.bboxEdit.e = lon;
+                                this.bboxEdit.s = lat;
+                                this.fillBboxFormsWhileDrawing(this.bboxEdit);
+                            }
+                        }
+                        
+                    }
                 }
             }.bind(this), Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
@@ -307,7 +365,16 @@ define([
                     product.set('ces_layer', imagerylayer);
                     product.set('backupLayer', imagerylayer);
 
-                    imagerylayer.show = product.get('visible');
+                    if(product.get('download').id === 'Magnetic_Model'){
+                        if(this.checkComposedForSHC(product)){
+                            imagerylayer.show = false;
+                        } else {
+                            imagerylayer.show = product.get('visible');
+                        }
+                    } else {
+                        imagerylayer.show = product.get('visible');
+                    }
+
                     imagerylayer.alpha = product.get('opacity');
 
                     // If product protocol is not WMS or WMTS they are
@@ -429,6 +496,9 @@ define([
             $('#bb_selection').click(function(){
                 if($('#bb_selection').text() === 'Select Area'){
                     $('#bb_selection').html('Deactivate');
+                    $('.bboxEdit').removeClass('hidden');
+                    $('#bboxWestForm')[0].focus();
+                    $('#bboxWestForm')[0].select();
                     Communicator.mediator.trigger('selection:activated',{
                         id:'bboxSelection',
                         active:true,
@@ -436,6 +506,7 @@ define([
                     });
                 } else if ($('#bb_selection').text() === 'Deactivate'){
                     $('#bb_selection').html('Select Area');
+                    $('.bboxEdit').addClass('hidden');
                     Communicator.mediator.trigger('selection:activated', {
                         id:'bboxSelection',
                         active:false,
@@ -443,11 +514,34 @@ define([
                     });
                 } else if ($('#bb_selection').text() === 'Clear Selection'){
                     $('#bb_selection').html('Select Area');
+                    $('.bboxEdit').addClass('hidden');
+                    //clear selection to enable new draw save
+                    delete this.bboxEdit;
                     Communicator.mediator.trigger('selection:changed', null);
                 }
-            });
+            }.bind(this));
             return this;
         }, // END of onShow
+
+        fillBboxForms: function(){
+            // fill bbox forms from localstorage data
+            if (localStorage.getItem('areaSelection') !== "null" && localStorage.getItem('areaSelection') !== null){
+                var bbox = JSON.parse(localStorage.getItem('areaSelection'));
+                $("#bboxWestForm").val(parseFloat(bbox.w).toFixed(4));
+                $("#bboxEastForm").val(parseFloat(bbox.e).toFixed(4));
+                $("#bboxNorthForm").val(parseFloat(bbox.n).toFixed(4));
+                $("#bboxSouthForm").val(parseFloat(bbox.s).toFixed(4));
+            }
+        },
+
+        fillBboxFormsWhileDrawing: function(bbox){
+            // fill bbox forms with given bbox and fix it if necessary
+            var bboxFixed = this.wrapBbox(bbox);
+            $("#bboxWestForm").val(bboxFixed.w.toFixed(4));
+            $("#bboxEastForm").val(bboxFixed.e.toFixed(4));
+            $("#bboxNorthForm").val(bboxFixed.n.toFixed(4));
+            $("#bboxSouthForm").val(bboxFixed.s.toFixed(4));
+        },
 
         connectDataEvents: function(){
             globals.swarm.on('change:data', function(model, data) {
@@ -476,10 +570,10 @@ define([
         },
 
         onResize: function() {
+            this.bindPolarButtons();
             if(this.map._sceneModePicker){
                 var container = this.map._sceneModePicker.container;
                 var scene = this.map._sceneModePicker.viewModel._scene;
-                this.map._sceneModePicker.destroy();
                 var modepicker = new Cesium.SceneModePicker(container, scene);
                 this.map._sceneModePicker = modepicker;
             }
@@ -585,6 +679,9 @@ define([
                     if(layerdesc.get('height')){
                         addParams.elevation = layerdesc.get('height');
                     }
+                    if(layerdesc.get('model_expression')){
+                        addParams.models = view.id + "=" + layerdesc.get('model_expression');
+                    }
                     params.format = layerdesc.get('views')[0].format;
                     returnLayer = new Cesium.WebMapServiceImageryProvider({
                         url: view.urls[0],
@@ -650,6 +747,15 @@ define([
             globals.products.each(function(product) {
                 if(product.get('download').id === options.model.get('download').id){
                     var cesLayer = product.get('ces_layer');
+
+                    // Get special layer of custom model if needed
+                    if (this.checkComposedForSHC(product)){
+                        var customModel = globals.products.find(function(p){
+                            return p.get("download").id === "Custom_Model";
+                        });
+                        cesLayer = customModel.get('ces_layer');
+                    }
+
                     // Find active parameter and satellite
                     var sat, key;
                     _.each(globals.swarm.products, function(p){
@@ -754,10 +860,11 @@ define([
                         product.set('visible', options.visible);
                         this.checkColorscale(product.get('download').id);
 
-                        if (product.get('views')[0].protocol === 'WPS'){
-                            this.checkShc(product, options.visible);
-
-                        }else if (product.get('views')[0].protocol === 'WMS' ||
+                       // Check if product contains shc file, if yes we need
+                        // to switch to wps for visualization
+                        if(this.checkComposedForSHC(product)){
+                            this.loadShc(product, product.get('visible'));
+                        } else if (product.get('views')[0].protocol === 'WMS' ||
                                   product.get('views')[0].protocol === 'WMTS' ){
                             var cesLayer;
                             var parameters = product.get('parameters');
@@ -782,15 +889,6 @@ define([
                                         }
                                     }
                                     this.checkFieldLines();
-                                }else if (product.get('differenceTo') !== null){
-                                    if(product.get('visible')){
-                                        var refProd = globals.products.filter(function(p){
-                                            return p.get('download').id === product.get('differenceTo');
-                                        });
-                                        this.checkModelDifference(product, refProd[0]);
-                                    }else{
-                                        product.get('ces_layer').show = false;
-                                    }
                                 } else {
 
                                     cesLayer = product.get('ces_layer');
@@ -837,10 +935,64 @@ define([
         }, // END of changeLayer
 
 
-        checkShc: function(product, visible){
-            if(visible){
-                if(product.get('shc') !== null){
+        checkComposedForSHC: function(product){
+            var cesLayer;
+            var parameters = product.get('parameters');
+            var coeffRange = product.get('coefficients_range');
 
+            if (parameters){
+                var band;
+                var keys = _.keys(parameters);
+                _.each(keys, function(key){
+                    if(parameters[key].selected){
+                        band = key;
+                    }
+                });
+                var style = parameters[band].colorscale;
+                var range = parameters[band].range;
+                if (band === 'Fieldlines'){
+                    if(product.get('visible')){
+                        this.activeFL.push(product.get('download').id);
+                    }else{
+                        if (this.activeFL.indexOf(product.get('download').id)!==-1){
+                            this.activeFL.splice(this.activeFL.indexOf(product.get('download').id), 1);
+                        }
+                    }
+                    //this.checkFieldLines();
+                }
+            }
+
+            if(product.attributes.hasOwnProperty('shc') && product.attributes.hasOwnProperty('model_expression') && 
+                    product.get('model_expression').indexOf('Custom_Model')!==-1 &&
+                    product.get('shc') !== null){
+                return true;
+            } else {
+                // If product is compose model and no longer SHC active hide shc 
+                // related layer 
+
+                if(product.get('download').id === 'Magnetic_Model'){
+                    // Get special layer of custom model if needed
+                    var customModel = globals.products.find(function(p){
+                        return p.get("download").id === "Custom_Model";
+                    });
+                    customModel.get('ces_layer').show = false;
+                }
+
+                return false;
+            }
+        },
+
+        loadShc: function(product, visible){
+
+            if(visible){
+                // Check if shc is in expresion and shc has been loaded
+                if(product.get('download').id === 'Magnetic_Model' &&
+                    product.attributes.hasOwnProperty('shc') && 
+                    product.get('model_expression').indexOf('Custom_Model')!==-1 &&
+                    product.get('shc') !== null){
+
+                    // If model visible and all conditions apply load layer with
+                    // WPS information, return true
                     var payload;
                     var url = product.get('views')[0].urls[0];
 
@@ -858,76 +1010,55 @@ define([
                     var range = parameters[band].range;
                     var coeffRange = product.get('coefficients_range');
 
+                    var options = {
+                        'model_expression': product.get("model_expression"),
+                        'variable': band,
+                        'begin_time': getISODateTimeString(this.beginTime),
+                        'end_time': getISODateTimeString(this.endTime),
+                        'elevation': product.get('height'),
+                        'shc': product.get('shc'),
+                        'height': 512,
+                        'width': 1024,
+                        'style': style,
+                        'range_min': range[0],
+                        'range_max': range[1],
+                    };
 
-                    if(product.get('differenceTo') !== null){
-
-                        var refProd = globals.products.filter(function(p){
-                            return p.get('download').id === product.get('differenceTo');
-                        });
-                        var models = [product.get('download').id, refProd[0].get('download').id];
-
-                        var cesLayer = product.get('ces_layer');
-
-                        var reqOptions = {
-                            'model': models[0],
-                            'reference_model': models[1],
-                            'variable': band,
-                            'begin_time': getISODateTimeString(this.beginTime),
-                            'end_time': getISODateTimeString(this.endTime),
-                            'elevation': height,
-                            'coeff_min': coeffRange[0],
-                            'coeff_max': coeffRange[1],
-                            'shc': shc,
-                            'height': 512,
-                            'width': 512,
-                            'style': style,
-                            'range_min': range[0],
-                            'range_max': range[1]
-                        };
-
-                        if (this.bboxsel !== null){
-                            var bb = this.bboxsel;
-                            reqOptions.bbox =  bb.join();
-                        }
-
-                        payload = tmplEvalModelDiff(reqOptions);
-
-                    }else{
-
-                        var options = {
-                            'model': 'Custom_Model',
-                            'variable': band,
-                            'begin_time': getISODateTimeString(this.beginTime),
-                            'end_time': getISODateTimeString(this.endTime),
-                            'elevation': product.get('height'),
-                            'coeff_min': coeffRange[0],
-                            'coeff_max': coeffRange[1],
-                            'shc': product.get('shc'),
-                            'height': 512,
-                            'width': 1024,
-                            'style': style,
-                            'range_min': range[0],
-                            'range_max': range[1],
-                        };
-
-                        if (this.bboxsel !== null){
-                            var bb = this.bboxsel;
-                            options.bbox =  bb.join();
-                        }
-
-                        payload = tmplEvalModel(options);
+                    if (this.bboxsel !== null){
+                        var bb = this.bboxsel;
+                        options.bbox =  bb.join();
                     }
 
-                    this.customModelLayer = product.get('ces_layer');
-                    this.customModelLayer.show = false;
+                    if(band === 'Fieldlines'){
+                        var customModel = globals.products.find(function(p){
+                            return p.get("download").id === "Custom_Model";
+                        });
+                        customModel.get('ces_layer').show = false;
+                        this.checkFieldLines();
+                        return;
+                    }
 
-                    var map = this.map;
-                    var customModelLayer = this.customModelLayer;
-                    var index = this.map.scene.imageryLayers.indexOf(customModelLayer);
-                    this.map.scene.imageryLayers.remove(customModelLayer);
+                    payload = tmplEvalModel(options);
+
+                    // Hide current WMS layer (as now we use the WPS layer)
+                    product.get('ces_layer').show = false;
+                    var that = this;
 
                     $.post(url, payload)
                         .done(function( data ) {
+
+                            // Get special layer of custom model if needed
+                            var customModel = globals.products.find(function(p){
+                                return p.get("download").id === "Custom_Model";
+                            });
+                            that.customModelLayer = customModel.get('ces_layer');
+                            that.customModelLayer.show = false;
+
+                            var map = that.map;
+                            var customModelLayer = that.customModelLayer;
+                            var index = that.map.scene.imageryLayers.indexOf(customModelLayer);
+                            that.map.scene.imageryLayers.remove(customModelLayer);
+
                             if(index>0){
                                 var imageURI = 'data:image/gif;base64,'+data;
                                 var layerOptions = {url: imageURI};
@@ -943,16 +1074,31 @@ define([
                                 var imagelayer = new Cesium.SingleTileImageryProvider(layerOptions);
                                 customModelLayer = 
                                     map.scene.imageryLayers.addImageryProvider(imagelayer, index);
-                                product.set('ces_layer', customModelLayer);
+                                customModel.set('ces_layer', customModelLayer);
                                 customModelLayer.alpha = product.get('opacity');
                                 customModelLayer.show = true;
                             }
                         });
-                } // END if product has shc
-            }else{ 
-                var cesLayer = product.get('ces_layer');
-                cesLayer.show = visible;
-            } // END of if visible
+                    return true;
+                } else {
+                    return false;
+                }
+            }else{
+                // If composed model has custom model in expression we deactivate
+                // layer here, as not visible any longer
+                if(product.get('download').id === 'Magnetic_Model' &&
+                    product.attributes.hasOwnProperty('shc') && 
+                    product.get('model_expression').indexOf('Custom_Model')!==-1 &&
+                    product.get('shc') !== null){
+
+                    // Get special layer of custom model if needed
+                    var customModel = globals.products.find(function(p){
+                        return p.get("download").id === "Custom_Model";
+                    });
+                    customModel.get('ces_layer').show = false;
+                }
+                return false;
+            }
         },
 
 
@@ -1269,14 +1415,18 @@ define([
                     var height = product.get('height');
                     var contours = product.get('contours');
                     var coeffRange = product.get('coefficients_range');
+                    var id = product.get('download').id;
                     var cesLayer;
 
                     if(product.get('views')[0].protocol === 'CZML'){
                         this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
 
                     }else if(product.get('views')[0].protocol === 'WMS'){
-
-                        if (band === 'Fieldlines' ){
+                        // Check if product contains shc file, if yes we need
+                        // to switch to wps for visualization
+                        if(this.checkComposedForSHC(product)){
+                            this.loadShc(product, product.get('visible'));
+                        }else if (band === 'Fieldlines' ){
                             if(product.get('visible')){
                                 cesLayer = product.get('ces_layer');
                                 cesLayer.show = false;
@@ -1350,8 +1500,15 @@ define([
                                 if(style){
                                     cesLayer.imageryProvider.updateProperties('styles', style);
                                 }
-                                if(coeffRange){
+                                
+                                if(coeffRange && id !== "Magnetic_Model"){
                                     cesLayer.imageryProvider.updateProperties('dim_coeff', (coeffRange[0]+','+coeffRange[1]));
+                                }
+                                // layers=MyNewModel;models=MyNewModel='model1'-'model2'+'model3'
+                                if(id === "Magnetic_Model"){
+                                    var modelExpressionHtml = product.get('model_expression');
+                                    var queryBegin = id + '=';
+                                    cesLayer.imageryProvider.updateProperties('models', queryBegin + modelExpressionHtml);
                                 }
                                 if (cesLayer.show){
                                     var index = this.map.scene.imageryLayers.indexOf(cesLayer);
@@ -1360,21 +1517,6 @@ define([
                                 }
                             }
                         }
-                    }else if (product.get('views')[0].protocol === 'WPS'){
-                        /*if (product.get('differenceTo') !== null ){
-                            if(product.get('visible')){
-                                var refProd = globals.products.filter(function(p){
-                                    return p.get('download').id === product.get('differenceTo');
-                                });
-                                this.checkModelDifference(product, refProd[0]);
-                            }else{
-                                product.get('ces_layer').show = false;
-                            }
-
-                        }else{
-                            this.checkShc(product, product.get('visible'));
-                        }*/
-                        this.checkShc(product, product.get('visible'));
                     }
                 }
             }, this);
@@ -1763,17 +1905,20 @@ define([
 
         onSelectionActivated: function(arg) {
             this.selectionType = arg.selectionType;
+            this.fillBboxForms();
             if (arg.active) {
                 this.drawhelper.startDrawingRectangle({
                     callback: function(extent) {
-                    var bbox = {
-                        n: Cesium.Math.toDegrees(extent.north),
-                        e: Cesium.Math.toDegrees(extent.east),
-                        s: Cesium.Math.toDegrees(extent.south),
-                        w: Cesium.Math.toDegrees(extent.west)
-                    };
-                    Communicator.mediator.trigger('selection:changed', bbox);
-                  }
+                        var bbox = {
+                            n: Cesium.Math.toDegrees(extent.north),
+                            e: Cesium.Math.toDegrees(extent.east),
+                            s: Cesium.Math.toDegrees(extent.south),
+                            w: Cesium.Math.toDegrees(extent.west)
+                        };
+                        Communicator.mediator.trigger('selection:changed', bbox);
+                        this.fillBboxForms();
+                        $('.bboxEdit').addClass('hidden');
+                    }.bind(this)
                 });
             } else {
                 //Communicator.mediator.trigger('selection:changed', null);
@@ -1829,26 +1974,23 @@ define([
             }
 
             globals.products.each(function(product) {
-                if (product.get('views')[0].protocol === 'WPS'){
-                    this.checkShc(product, product.get('visible'));
+                // Check if product contains shc file, if yes we need
+                // to switch to wps for visualization
+                if(this.checkComposedForSHC(product)){
+                    this.loadShc(product, product.get('visible'));
                 }
 
-                if(product.attributes.hasOwnProperty('differenceTo') && 
-                    product.get('differenceTo') !== null){
-                    
-                    var refProd = globals.products.filter(function(p){
-                        return p.get('download').id === product.get('differenceTo');
-                    });
-                    this.checkModelDifference(product, refProd[0]);
-                }
             },this);
         },
 
         checkFieldLines: function(){
             if(this.activeFL.length>0 && this.bboxsel){
+
                 var url, modelId, color, band, style, range, logarithmic,
                     parameters, name;
+
                 globals.products.each(function(product) {
+
                     if(this.activeFL.indexOf(product.get('download').id)!==-1){
                         name = product.get('name');
                         url = product.get('views')[0].urls[0];
@@ -1861,6 +2003,7 @@ define([
                                 band = key;
                             }
                         });
+
                         style = parameters[band].colorscale;
                         range = parameters[band].range;
                         logarithmic = parameters[band].logarithmic;
@@ -1870,9 +2013,17 @@ define([
                             delete this.FLCollection[name];
                         }
 
+                        if(band !== 'Fieldlines'){
+                            return;
+                        }
+
                         var that = this;
 
-                        $.post( url, tmplGetFieldLines({
+                        if(product.get('download').id === 'Magnetic_Model'){
+                            modelId = 'Magnetic_Model=' + product.get('model_expression');
+                        }
+
+                        var options = {
                             'model_ids': modelId,
                             'begin_time': getISODateTimeString(this.beginTime),
                             'end_time': getISODateTimeString(this.endTime),
@@ -1882,7 +2033,15 @@ define([
                             'range_min': range[0],
                             'range_max': range[1],
                             'log_scale': logarithmic
-                        }))
+                        };
+
+                        if(product.get('download').id === 'Magnetic_Model'){
+                            if(product.get('shc') !== null && product.get('model_expression').indexOf('Custom_Model')!==-1){
+                                options.shc = product.get('shc');
+                            }
+                        }
+
+                        $.post( url, tmplGetFieldLines(options))
                         .done(function( data ) {
                             Papa.parse(data, {
                                 header: true,
@@ -1995,35 +2154,25 @@ define([
             this.endTime = time.end;
             globals.products.each(function(product) {
 
-                if(product.attributes.hasOwnProperty('differenceTo') && 
-                    product.get('differenceTo') !== null){
-                    var refProd = globals.products.filter(function(p){
-                        return p.get('download').id === product.get('differenceTo');
-                    });
-                    this.checkModelDifference(product, refProd[0]);
-                    if (product.get('views')[0].protocol === 'WPS'){
-                        this.checkShc(product, product.get('visible'));
-                    }
-                }else{
-                    if(product.get('timeSlider')){
-                        if (product.get('views')[0].protocol === 'WPS'){
-                            this.checkShc(product, product.get('visible'));
-                        } else {
-                            product.set('time',string);
-                            var cesLayer = product.get('ces_layer');
-                            if(cesLayer && 
-                               (typeof cesLayer.imageryProvider.updateProperties === 'function') ){
-                                cesLayer.imageryProvider.updateProperties('time', string);
-                                if (cesLayer.show){
-                                    var index = this.map.scene.imageryLayers.indexOf(cesLayer);
-                                    this.map.scene.imageryLayers.remove(cesLayer, false);
-                                    this.map.scene.imageryLayers.add(cesLayer, index);
-                                }
+                if(product.get('timeSlider')){
+                    // Check if product contains shc file, if yes we need
+                    // to switch to wps for visualization
+                    if(this.checkComposedForSHC(product)){
+                        this.loadShc(product, product.get('visible'));
+                    } else {
+                        product.set('time',string);
+                        var cesLayer = product.get('ces_layer');
+                        if(cesLayer && 
+                           (typeof cesLayer.imageryProvider.updateProperties === 'function') ){
+                            cesLayer.imageryProvider.updateProperties('time', string);
+                            if (cesLayer.show){
+                                var index = this.map.scene.imageryLayers.indexOf(cesLayer);
+                                this.map.scene.imageryLayers.remove(cesLayer, false);
+                                this.map.scene.imageryLayers.add(cesLayer, index);
                             }
                         }
-                    } 
+                    }
                 }
-                
             }, this);
             this.checkFieldLines();
         },
@@ -2111,6 +2260,181 @@ define([
                     this.cameraLastPosition.z = c.position.z;
                 }
             }
+        },
+
+        wrapBbox: function(box) {
+            // accepts bbox object{n:float, s:float, w:float, e:float} 
+            // returns bbox with numeric values fit to (-180, 180, -90, 90), performing switching n->s and w->e if necessary
+            // cant solve over-dateline jumps
+          var bbox = _.clone(box);
+          // switch north and south if necessary
+          if (bbox.n < bbox.s){
+              var temp = bbox.s;
+              bbox.s = bbox.n;
+              bbox.n = temp;
+          }
+          // fits to lat boundaries
+          bbox.n = Math.min(bbox.n, 90);
+          bbox.s = Math.max(bbox.s, -90);
+          // fits to lon max boundaries if difference greater than 360
+          if (bbox.e - bbox.w > 360){
+              bbox.w = -180;
+              bbox.e = 180;
+          }
+          // fits lon boundaries to -180,180 range
+          _.each(bbox, function(coord, key, obj){
+                while (coord > 180) {
+                    coord -= 360;
+                    obj[key] = coord;
+                }
+                while (coord < -180) {
+                    coord += 360;
+                    obj[key] = coord;
+                }
+          })
+          // switch east and west if necessary
+          if (bbox.e < bbox.w){
+              var temp = bbox.e;
+              bbox.e = bbox.w;
+              bbox.w = temp;
+          }
+          return bbox;
+        },
+
+        submitCoordinateForms: function () {
+            // coordinate form validation and event emitting
+            var w = parseFloat($('#bboxWestForm').val().replace(',', '.'));
+            var e = parseFloat($('#bboxEastForm').val().replace(',', '.'));
+            var n = parseFloat($('#bboxNorthForm').val().replace(',', '.'));
+            var s = parseFloat($('#bboxSouthForm').val().replace(',', '.'));
+            if (!isNaN(w) && !isNaN(e) && !isNaN(n) && !isNaN(s) && w !== e && n !== s){
+                // valid values inserted
+                var bbox = {
+                    "w" : w,
+                    "e" : e,
+                    "n" : n,
+                    "s" : s,
+                };
+                // fix bbox if necessary
+                var bboxFixed = this.wrapBbox(bbox);
+
+                $("#bboxEditConfirm").removeClass("wrongBboxFormInput");
+                $('.bboxEdit').addClass('hidden');
+                Communicator.mediator.trigger('selection:changed', bboxFixed);
+                Communicator.mediator.trigger('selection:activated', {
+                    id:'bboxSelection',
+                    active:false,
+                    selectionType:'single'
+                });
+             } else {
+                 // invalid input
+                  $("#bboxEditConfirm").addClass("wrongBboxFormInput");
+             }
+        },
+
+        cameraCustomZoomOnWheel: function (e){
+            var camera = this.map.scene.camera;
+            var cameraHeight = Cesium.Ellipsoid.WGS84.cartesianToCartographic(camera.position).height;
+            // make camera zoom depend on height
+            var moveRate = cameraHeight / 10.0;
+            if (e.originalEvent.deltaY < 0) {
+                // scrolling up
+                camera.moveForward(moveRate);
+            }
+            if (e.originalEvent.deltaY > 0) {
+                camera.moveBackward(moveRate);
+            }
+        },
+
+        polarViewZoom: function(){
+            $(".poleButton").removeClass("viewActive");
+            $("#poleViewButton").addClass("viewActive");
+            this.map.scene.screenSpaceCameraController.enableRotate = false;
+            this.map.scene.screenSpaceCameraController.enableTranslate = false;
+            this.map.scene.screenSpaceCameraController.enableTilt = false;
+            this.map.scene.screenSpaceCameraController.enableLook = false;
+            this.map.scene.screenSpaceCameraController.enableZoom = false;
+
+            $('.cesium-widget').off('wheel');
+            $('.cesium-widget').on('wheel', function(e){
+                this.cameraCustomZoomOnWheel(e);
+            }.bind(this))
+        },
+
+        globalViewZoomReset: function(){
+            $("#poleViewButton").text('Globe View');
+            $(".poleButton").removeClass("viewActive");
+            $("#poleViewButton").removeClass("viewActive");
+            this.map.scene.screenSpaceCameraController.enableRotate = true;
+            this.map.scene.screenSpaceCameraController.enableTranslate = true;
+            this.map.scene.screenSpaceCameraController.enableTilt = true;
+            this.map.scene.screenSpaceCameraController.enableLook = true;
+            this.map.scene.screenSpaceCameraController.enableZoom = true;
+            $('.cesium-widget').off('wheel');
+        },
+
+        bindPolarButtons: function() {
+            $('.poleButton').off('click');
+            // magnetic poles hardcoded as were in 1.1.2015 (igrf)
+            $(".magN").click(function(){
+                this.map.scene.camera.flyTo({
+                    destination : Cesium.Cartesian3.fromDegrees(-84.551, 83.075, 10000000),
+                    orientation : {
+                        direction: new Cesium.Cartesian3(-0.011449873133578228, 0.12003352097560159, -0.9927038099289358),
+                        up: new Cesium.Cartesian3(-0.2418134773341136, 0.9629699323710552, 0.11922731033143948)
+                    },
+                    complete : function(){
+                        this.polarViewZoom();
+                        $('#poleViewButton').text('Mag. North');
+                        $(".magN").addClass("viewActive");
+                    }.bind(this)
+                });
+            }.bind(this));
+
+            // magnetic poles hardcoded as were in 1.1.2015 (igrf)
+            $(".magS").click(function(){
+                this.map.scene.camera.flyTo({
+                    destination : Cesium.Cartesian3.fromDegrees(125.738, -74.383, 10000000),
+                    orientation : {
+                        direction: new Cesium.Cartesian3(0.1572357407963758, -0.21851202199924571, 0.963083287186532),
+                        up: new Cesium.Cartesian3(0.25309094759697687, -0.9337284667987544, -0.25317212037290326)
+                    },
+                    complete : function(){
+                        this.polarViewZoom();
+                        $('#poleViewButton').text('Mag. South');
+                        $(".magS").addClass("viewActive");
+                    }.bind(this)
+                });
+            }.bind(this));
+
+            $(".geoN").click(function(){
+                this.map.scene.camera.flyTo({
+                    destination : Cesium.Cartesian3.fromDegrees(0, 90, 10000000),
+                    complete : function(){
+                        this.polarViewZoom();
+                        $('#poleViewButton').text('Geo. North');
+                        $(".geoN").addClass("viewActive");
+                    }.bind(this)
+                });
+            }.bind(this));
+
+            $(".geoS").click(function(){
+                this.map.scene.camera.flyTo({
+                    destination : Cesium.Cartesian3.fromDegrees(0, -90, 10000000),
+                    complete : function(){
+                        this.polarViewZoom();
+                        $('#poleViewButton').text('Geo. South');
+                        $(".geoS").addClass("viewActive");
+                    }.bind(this)
+                });
+            }.bind(this));
+
+            $("#resetCameraView").click(function(){
+                this.map.scene.camera.flyTo({
+                    destination : Cesium.Rectangle.fromDegrees(-20.0, -15.0, 45.0, 60.0),
+                    complete: this.globalViewZoomReset.bind(this)
+                });
+            }.bind(this));
         },
 
         toggleDebug: function(){

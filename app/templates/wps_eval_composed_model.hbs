@@ -5,7 +5,7 @@
     <wps:Input>
       <ows:Identifier>model</ows:Identifier>
       <wps:Data>
-        <wps:LiteralData>'{{model}}'({{#if coeff_min}}min_degree={{coeff_min}}{{#if coeff_max}},{{/if}}{{/if}}{{#if coeff_max}}max_degree={{coeff_max}}{{/if}})-'{{reference_model}}'({{#if coeff_min}}min_degree={{coeff_min}}{{#if coeff_max}},{{/if}}{{/if}}{{#if coeff_max}}max_degree={{coeff_max}}{{/if}})</wps:LiteralData>
+        <wps:LiteralData>{{{model_expression}}}</wps:LiteralData>
       </wps:Data>
     </wps:Input>
     <wps:Input>
@@ -58,6 +58,12 @@
       </wps:Data>
     </wps:Input>
     {{/if}}
+    {{#if shc}}<wps:Input>
+      <ows:Identifier>shc</ows:Identifier>
+      <wps:Data>
+        <wps:ComplexData><![CDATA[{{shc}}]]></wps:ComplexData>
+      </wps:Data>
+    </wps:Input>{{/if}}
     {{#if range_min}}<wps:Input>
       <ows:Identifier>range_min</ows:Identifier>
       <wps:Data>
@@ -68,12 +74,6 @@
       <ows:Identifier>range_max</ows:Identifier>
       <wps:Data>
         <wps:LiteralData>{{range_max}}</wps:LiteralData>
-      </wps:Data>
-    </wps:Input>{{/if}}
-    {{#if shc}}<wps:Input>
-      <ows:Identifier>shc</ows:Identifier>
-      <wps:Data>
-        <wps:ComplexData><![CDATA[{{shc}}]]></wps:ComplexData>
       </wps:Data>
     </wps:Input>{{/if}}
   </wps:DataInputs>

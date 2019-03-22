@@ -35,7 +35,7 @@
 
         this.listenTo(Communicator.mediator, "analytics:set:filter", this.onAnalyticsFilterChanged);
         this.xhr = null;
-       
+
       },
 
       onManualInit: function(){
@@ -107,7 +107,7 @@
             }
 
             for (var i = this.activeModels.length - 1; i >= 0; i--) {
-              
+
               pars[this.activeModels[i]] = {
                   "range": [-10, 40],
                   "uom":"nT",
@@ -150,7 +150,7 @@
 
         this.checkModelValidity();
       },
-      
+
 
       multiChangeLayer: function(layers) {
         this.activeWPSproducts = [];
@@ -161,7 +161,7 @@
                 _.each(product.get("processes"), function(process){
                   this.activeWPSproducts.push(process.layer_id);
                 },this);
-              } 
+              }
           }
         }
         localStorage.setItem('swarmProductSelection', JSON.stringify(this.activeWPSproducts));
@@ -170,7 +170,7 @@
       },
 
       onSelectionChanged: function(bbox) {
-        
+
         if(bbox){
           this.selection_list.push(bbox);
           this.checkSelections();
@@ -180,7 +180,7 @@
           this.checkSelections();
         }
 
-        
+
       },
 
       onAnalyticsFilterChanged: function (filters) {
@@ -253,7 +253,7 @@
                 collections[sat] = [retrieve_data[i].layer];
               }
             }
-           
+
           }
 
           // Sort the "layers" to sort the master products based on priority
@@ -267,16 +267,16 @@
             "end_time": getISODateTimeString(this.selected_time.end)
           };
 
-          
+
           var variables = [
             "F", "F_error", "B_NEC_resAC", "B_VFM", "B_error", "B_NEC", "Ne", "Te", "Vs",
             "U_orbit", "Bubble_Probability", "Kp", "Dst", "F107", "QDLat", "QDLon", "MLT",
             "B_NEC_res_IGRF12","B_NEC_res_SIFM","B_NEC_res_CHAOS-6-Combined",
-            "B_NEC_res_Custom_Model", "F_res_IGRF12","F_res_SIFM",
-            "F_res_CHAOS-6-Combined", "F_res_Custom_Model",
+            "B_NEC_res_Custom_Model", "B_NEC_res_Magnetic_Model", "F_res_IGRF12","F_res_SIFM",
+            "F_res_CHAOS-6-Combined", "F_res_Custom_Model", "F_res_Magnetic_Model",
             "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle", "GPS_Position", "LEO_Position",
             "IRC", "IRC_Error", "FAC", "FAC_Error",
-            "EEF", "RelErr", "OrbitNumber",
+            "EEF", "RelErr", "OrbitNumber", "OrbitDirection", "QDOrbitDirection",
             "SunDeclination","SunRightAscension","SunHourAngle","SunAzimuthAngle","SunZenithAngle",
             // New models
             "F_res_MCO_SHA_2C", "B_NEC_res_MCO_SHA_2C",
@@ -293,7 +293,7 @@
             "F_res_MIO_SHA_2C-Primary", "B_NEC_res_MIO_SHA_2C-Primary",
             "F_res_MIO_SHA_2C-Secondary", "B_NEC_res_MIO_SHA_2C-Secondary",
             "F_res_MIO_SHA_2D-Primary", "B_NEC_res_MIO_SHA_2D-Primary",
-            "F_res_MIO_SHA_2D-Secondary", "B_NEC_res_MIO_SHA_2D-Secondary"
+            "F_res_MIO_SHA_2D-Secondary", "B_NEC_res_MIO_SHA_2D-Secondary",
           ];
 
           // See if magnetic data actually selected if not remove residuals
@@ -350,15 +350,35 @@
             var bb = this.selection_list[0];
             options["bbox"] = bb.s + "," + bb.w + "," + bb.n + "," + bb.e;
           }
-                
+
           var shc_model = _.find(globals.products.models, function(p){return p.get("shc") != null;});
 
           if(shc_model){
             options["shc"] = shc_model.get("shc");
           }
-
-          if(this.activeModels.length > 0)
-            options["model_ids"] = this.activeModels.join();
+          
+          if(this.activeModels.length > 0){
+            // Magnetic_Model update for template
+            var joinedActiveModels = this.activeModels.join();
+            if (joinedActiveModels.indexOf("Magnetic_Model") !== -1){
+              var models = globals.products.filter(function (p) {
+                  return p.get('model');
+              });
+              
+              var globalFound = models.find(function(model) {
+                  return model.get('download').id === "Magnetic_Model";
+              }); 
+              
+              var newActiveModels = joinedActiveModels.replace("Magnetic_Model", "Magnetic_Model=" + globalFound.get("model_expression"));
+              options["model_ids"] = newActiveModels;
+              if (globalFound.get("model_expression").indexOf("Custom_Model") === -1){
+                  // if custom model not in model expression, omit shc from request
+                  delete options["shc"];
+              }
+            } else{
+              options["model_ids"] = joinedActiveModels;
+            }
+          }
 
           var req_data = wps_fetchDataTmpl(options);
 
@@ -425,6 +445,48 @@
                     }
                   }
 
+                  if(dat.hasOwnProperty('Latitude') && dat.hasOwnProperty('OrbitDirection')) {
+                    dat['Latitude_periodic'] = [];
+                    for (var i = 0; i < dat.Latitude.length; i++) {
+                      if(dat.OrbitDirection[i] === 1){
+                          // range 90 -270
+                          dat.Latitude_periodic.push(dat.Latitude[i]+180);
+                      } else if (dat.OrbitDirection[i] === -1){
+                          if(dat.Latitude[i]<0){
+                              // range 0 - 90
+                              dat.Latitude_periodic.push((dat.Latitude[i]*-1));
+                          } else {
+                              // range 270 - 360
+                              dat.Latitude_periodic.push(360-dat.Latitude[i]);
+                          }
+
+                      } else if (dat.OrbitDirection[i] === 0){
+                          //TODO what to do here? Should in principle not happen
+                      }
+                    }
+                  }
+
+                  if(dat.hasOwnProperty('QDLat') && dat.hasOwnProperty('QDOrbitDirection')) {
+                    dat['QDLatitude_periodic'] = [];
+                    for (var i = 0; i < dat.QDLat.length; i++) {
+                      if(dat.QDOrbitDirection[i] === 1){
+                          // range 90 -270
+                          dat.QDLatitude_periodic.push(dat.QDLat[i]+180);
+                      } else if (dat.QDOrbitDirection[i] === -1){
+                          if(dat.QDLat[i]<0){
+                              // range 0 - 90
+                              dat.QDLatitude_periodic.push((dat.QDLat[i]*-1));
+                          } else {
+                              // range 270 - 360
+                              dat.QDLatitude_periodic.push(360-dat.QDLat[i]);
+                          }
+
+                      } else if (dat.QDOrbitDirection[i] === 0){
+                          //TODO what to do here? Should in principle not happen
+                      }
+                    }
+                  }
+
                   for(var key in dat){
                     if(VECTOR_BREAKDOWN.hasOwnProperty(key)){
                       dat[VECTOR_BREAKDOWN[key][0]] = [];
@@ -439,7 +501,7 @@
                       delete dat[key];
                     }
                   }
-                  // This should only happen here if there has been 
+                  // This should only happen here if there has been
                   // some issue with the saved filter configuration
                   // Check if current brushes are valid for current data
                   var idKeys = Object.keys(dat);
@@ -460,8 +522,10 @@
                     }
 
                   }
-                  
+
                   globals.swarm.set({data: dat});
+                  Communicator.mediator.trigger("progress:change", false);
+                  that.xhr = null;
 
                 } else if(request.status!== 0 && request.responseText != "") {
                   globals.swarm.set({data: {}});
@@ -473,6 +537,8 @@
                   }
 
                   showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+                  Communicator.mediator.trigger("progress:change", false);
+                  that.xhr = null;
                   return;
                 }
 
@@ -484,10 +550,6 @@
                 }
             }
 
-            //that.xhr = null;
-            Communicator.mediator.trigger("progress:change", false);
-
-           
           };
 
 
