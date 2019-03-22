@@ -139,11 +139,11 @@ define([
             this.$el.append('<div id="poleViewDiv"></div>')
             $('#poleViewDiv').append('<button class="btn btn-success darkbutton dropdown-toggle" title="Pole View Selection" id="poleViewButton" data-toggle="dropdown">Globe View</button>');
             $('#poleViewDiv').append('<ul id="poleViewUl" class="dropdown-menu"></ul>');
-            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton magN poleButton">Mag. North</button></li>');
-            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton magS poleButton">Mag. South</button></li>');
-            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton geoN poleButton">Geo. North</button></li>');
-            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton geoS poleButton">Geo. South</button></li>');
-            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton poleButton" id="resetCameraView">Reset View</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton magN poleButton" title="Magnetic North Pole">Mag. North</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton magS poleButton" title="Magnetic South Pole">Mag. South</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton geoN poleButton" title="Geographic North Pole">Geo. North</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton geoS poleButton" title="Geographic South Pole">Geo. South</button></li>');
+            $('#poleViewUl').append('<li><button class="btn btn-success darkbutton poleButton" id="resetCameraView" title="Reset to the free Globe View.">Reset View</button></li>');
 
             this.bindPolarButtons();
 
