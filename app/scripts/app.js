@@ -5,10 +5,10 @@ var SCALAR_PARAM = [
 ];
 
 var VECTOR_PARAM = [
-    "B_NEC", "SIFM", "IGRF12", "CHAOS-6-Combined", "Custom_Model", "Magnetic_Model", 
+    "B_NEC", "SIFM", "IGRF12", "CHAOS-6-Combined", "Custom_Model", "Magnetic_Model",
     "B_NEC_resAC", "GPS_Position", "LEO_Position",
     "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle",
-    "MCO_SHA_2C", "MCO_SHA_2D", "MCO_SHA_2F", "MLI_SHA_2C", "MLI_SHA_2D", 
+    "MCO_SHA_2C", "MCO_SHA_2D", "MCO_SHA_2F", "MLI_SHA_2C", "MLI_SHA_2D",
     "MMA_SHA_2C-Primary", "MMA_SHA_2C-Secondary", "MMA_SHA_2F-Primary", "MMA_SHA_2F-Secondary",
     "CHAOS-6-MMA-Primary", "CHAOS-6-MMA-Secondary",
     "MIO_SHA_2C-Primary", "MIO_SHA_2C-Secondary", "MIO_SHA_2D-Primary", "MIO_SHA_2D-Secondary",
@@ -66,7 +66,7 @@ var VECTOR_BREAKDOWN = {
     'dB_Sun': ['dB_Sun_X', 'dB_Sun_Y', 'dB_Sun_Z']
 };
 
-// Ordered from highest resolution to lowest with the exception of FAC that 
+// Ordered from highest resolution to lowest with the exception of FAC that
 // needs to be first as the master product needs to be the same
 var MASTER_PRIORITY = [
     'SW_OPER_FACATMS_2F', 'SW_OPER_FACBTMS_2F', 'SW_OPER_FACCTMS_2F', 'SW_OPER_FAC_TMS_2F',
@@ -123,11 +123,10 @@ function productSortingFunction(a, b) {
 
             configure: function(config) {
 
-
                 // Load jquery ui tooltip tool
 
                 /*$(document).ready(function() {
-                    $("body").tooltip({ 
+                    $("body").tooltip({
                         selector: '[data-toggle=tooltip]',
                         position: { my: "left+5 center", at: "right center" },
                         hide: { effect: false, duration: 0 },
@@ -136,7 +135,7 @@ function productSortingFunction(a, b) {
 
                 });*/
 
-                $("body").tooltip({ 
+                $("body").tooltip({
                     selector: '[data-toggle=tooltip]',
                     position: { my: "left+5 center", at: "right center" },
                     hide: { effect: false, duration: 0 },
@@ -202,7 +201,7 @@ function productSortingFunction(a, b) {
                         localStorage.getItem('serviceVersion')
                     );
                     if(serviceVersion!==globals.version){
-                        // A new version has been loaded, here we could 
+                        // A new version has been loaded, here we could
                         // differentiate which version was previous and which
                         // one ist the new, for now we reset and save the new
                         // version
@@ -219,7 +218,7 @@ function productSortingFunction(a, b) {
                         );
                     }
                 } else {
-                    // This should be the case when loading version 2.3 for the 
+                    // This should be the case when loading version 2.3 for the
                     // first time (or when the localstorage is empty)
                     localStorage.clear();
 
@@ -227,7 +226,7 @@ function productSortingFunction(a, b) {
                         'serviceVersion',
                         JSON.stringify(globals.version)
                     );
-                    
+
                     showMessage('success',
                         'A new version ('+globals.version+') of the service has been released. '+
                         'Your configuration has been updated.</br>'+
@@ -237,7 +236,7 @@ function productSortingFunction(a, b) {
                 }
 
 
-                
+
 
 
                 //Base Layers are loaded and added to the global collection
@@ -245,7 +244,7 @@ function productSortingFunction(a, b) {
                 // storage use that instead
 
                 if(localStorage.getItem('baseLayersConfig') !== null){
-                    // If newly added v2.1 s2 cloudless is not listed 
+                    // If newly added v2.1 s2 cloudless is not listed
                     // reload baselayer config
                     var savedConfig = JSON.parse(localStorage.getItem('baseLayersConfig'));
                     if(savedConfig.filter(function(bl){
@@ -288,7 +287,7 @@ function productSortingFunction(a, b) {
                     );
                     console.log("Added baselayer " + baselayer.id );
                 }, this);
-                
+
                 var autoColor = {
                     colors : d3.scale.category10(),
                     index : 0,
@@ -324,7 +323,7 @@ function productSortingFunction(a, b) {
                         // Check if MAG A product has new residual parameter loaded
                         if(product_config[i].download.id === 'SW_OPER_MAGA_LR_1B'){
                             if(!product_config[i].parameters.hasOwnProperty('B_NEC_resAC')){
-                                product_config[i].parameters.B_NEC_resAC = 
+                                product_config[i].parameters.B_NEC_resAC =
                                 {
                                     'range': [-600, 600],
                                     'uom':'nT',
@@ -333,7 +332,7 @@ function productSortingFunction(a, b) {
                                 };
                             }
                         }
-                        
+
                         // If old CHAOS model is available load new model
                         if(product_config[i].name === 'CHAOS-5'){
                             // Make sure corresponding config is new model
@@ -345,7 +344,7 @@ function productSortingFunction(a, b) {
 
                         if(product_config.length>i){
                             if(product_config[i].download.id != m_p[i].download.id){
-                                // If id is not the same a new product was inserted and thus 
+                                // If id is not the same a new product was inserted and thus
                                 // needs to be inserted into the old configuration of the user
                                 product_config.splice(i, 0, m_p[i]);
                             }
@@ -361,7 +360,7 @@ function productSortingFunction(a, b) {
                 // Make sure download parameters are always loaded from script
                 var mapConfProds = config.mapConfig.products;
                 for (var i = mapConfProds.length - 1; i >= 0; i--) {
-                    if(mapConfProds[i].hasOwnProperty('satellite') && 
+                    if(mapConfProds[i].hasOwnProperty('satellite') &&
                        mapConfProds[i].satellite === 'Swarm') {
 
                         mapConfProds[i].download_parameters['SunDeclination'] = {
@@ -421,68 +420,27 @@ function productSortingFunction(a, b) {
                         height: product.height,
                         outlines: product.outlines,
                         model: product.model,
-                        sign: defaultFor(product.sign, "+"),
-                        selectedComposed: defaultFor(product.selectedComposed, false),
-                        coefficients_range: product.coefficients_range,
                         satellite: product.satellite,
                         tileSize: (product.tileSize) ? product.tileSize : 256,
                         validity: product.validity,
                         showColorscale: true
                     });
 
-                    if(product.hasOwnProperty('differenceTo')){
-                        lm.set('differenceTo', product.differenceTo);
-                    }
-
                     if(lm.get('model')){
-                        // register magnetic model
-                        globals.models.add({name: lm.get('download').id});
-                        lm.set('contours', defaultFor( product.contours,false));
-                        lm.set('differenceTo', defaultFor( 
-                            product.differenceTo, null)
-                        );
-                    }
-
-                    if(lm.get('download').id === 'Custom_Model'){
-                        globals.models.customModelId = 'Custom_Model';
-                        var shcFile = localStorage.getItem('shcFile');
-                        if(shcFile !== null){
-                            shcFile = JSON.parse(shcFile);
-                            lm.set('shc', shcFile.data);
-                            lm.set('shc_name', shcFile.name);
-                            globals.models.get(lm.get('download').id).set({
-                              'shc': shcFile.data,
-                              'shc_name': shcFile.name
-                            });
-                        }
-                    }
-                    
-                    if(lm.get('download').id === 'Magnetic_Model'){
-                      globals.models.composedModelId = 'Magnetic_Model';
-                        lm.set('model_expression', defaultFor(product.model_expression,null));
-                        globals.models.get(lm.get('download').id).set({
-                          'model_expression': lm.get("model_expression")
+                        lm.set({
+                          components: defaultFor(product.components, []),
+                          editable: defaultFor(product.editable, true),
+                          contours: defaultFor(product.contours,false)
                         });
-
-                        var shcFile = localStorage.getItem('shcFile');
-                        if(shcFile !== null){
-                            shcFile = JSON.parse(shcFile);
-                            lm.set('shc', shcFile.data);
-                            lm.set('shc_name', shcFile.name);
-                            globals.models.get(lm.get('download').id).set({
-                              'shc': shcFile.data,
-                              'shc_name': shcFile.name
-                            });
-                        }
                     }
-                    
+
                     globals.products.add(lm);
 
                     if(product.processes){
                         domain.push(product.processes[0].layer_id);
                         range.push(p_color);
                     }
-                    
+
                     console.log("Added product " + product.name );
                 }, this);
 
@@ -490,45 +448,41 @@ function productSortingFunction(a, b) {
 
                 globals.objects.add('productcolors', productcolors);
 
+                // registering magnetic models
+                _.each(config.magneticModels.models, function(model_conf) {
+                    globals.models.config[model_conf.id] = model_conf;
+                    if (model_conf.isCustomModel) {
+                        // only one custom model allowed
+                        if (globals.models.customModelId) {
+                            console.error(
+                              "Multiple custom models are not allowed!" +
+                              "Model " + model_conf.id + "is skipped."
+                            );
+                            return;
+                        }
+                        globals.models.customModelId = model_conf.id;
+                        var shcFile = JSON.parse(localStorage.getItem('shcFile'));
+                        if (shcFile) {
+                            globals.models.setCustomModel(shcFile.data);
+                        }
+                        console.log("Added custom model " + model_conf.id);
+                    } else {
+                        globals.models.add({name: model_conf.id});
+                        console.log("Added model " + model_conf.id);
+                    }
+                })
+
                 // periodic update magnetic models' metadata
                 globals.models.url = config.magneticModels.infoUrl;
                 globals.models.on('fetch:success', function () {
-                  // put default coefficients from server response as new config if products have -1,-1
-                  _.each(this.models, function(model){
-                    var modelExpressionFromProducts = globals.products.find(function(p){
-                      return p.get("download").id === model.get("name");
-                    });
-                    
-                    var productCoefficients = modelExpressionFromProducts.get("coefficients_range");
-                    if (productCoefficients && productCoefficients[0] === -1 && productCoefficients[1] === -1){
-                      modelExpressionFromProducts.set("coefficients_range", model.get("coefficients_range"));
-                    }
-                  })
-                  if (this.customModelId && !this.get(this.customModelId))
-                  {
-                    this.add({name: this.customModelId});
-                  }
-                  if (this.composedModelId && !this.get(this.composedModelId))
-                  {
-                    this.add({name: this.composedModelId});
-                    var modelExpressionFromProducts = globals.products.find(function(p){
-                      return p.get("download").id === "Magnetic_Model";
-                    });
-                    this.get("Magnetic_Model").set({
-                      'model_expression': modelExpressionFromProducts.get("model_expression")
-                    })
-                  }
-                  
-                  Communicator.mediator.trigger('models:update');
+                    Communicator.mediator.trigger('models:update');
                 });
 
                 // TODO: There is one initial request where sending is not counted
                 // but the ajax response is. This sets the event counter negative
-                // for now i add the event change here but i am not sure which 
+                // for now i add the event change here but i am not sure which
                 // request is actually responsible for this
                 Communicator.mediator.trigger("progress:change", true);
-                //globals.models.on('fetch:start', function () {
-                //});
 
                 globals.models.fetch();
                 window.setInterval(function () {globals.models.fetch();}, 900000); // refresh each 15min
@@ -553,7 +507,7 @@ function productSortingFunction(a, b) {
                     }, this);
 
 
-                // If Navigation Bar is set in configuration go trhough the 
+                // If Navigation Bar is set in configuration go trhough the
                 // defined elements creating a item collection to rendered
                 // by the marionette collection view
                 if (config.navBarConfig) {
@@ -607,14 +561,14 @@ function productSortingFunction(a, b) {
                 });
 
         // We want to have the full list of products as the underlying
-                // system works in this manner but in order to accomodate the 
-                // concept of one product with three satellites we remove here 
+                // system works in this manner but in order to accomodate the
+                // concept of one product with three satellites we remove here
                 // Each three products and combine them to one, the logic for
                 // "separating" them is then done when activating one of this
                 // "special products"
 
           var filtered = globals.products.filter(function (m) {
-                    if (m && m.get("download").id && 
+                    if (m && m.get("download").id &&
                          (
                             m.get("download").id.indexOf("SW_OPER_MAG") != -1 ||
                             m.get("download").id.indexOf("SW_OPER_EFI") != -1 ||
@@ -631,7 +585,7 @@ function productSortingFunction(a, b) {
                     }
                 });
 
-                globals.swarm["satellites"] = {
+                globals.swarm.satellites = {
                     "Alpha": true,
                     "Bravo": false,
                     "Charlie": false,
@@ -645,7 +599,7 @@ function productSortingFunction(a, b) {
                     }
                 }
 
-                globals.swarm["products"] = {
+                globals.swarm.products = {
                     "MAG": {
                         "Alpha": "SW_OPER_MAGA_LR_1B",
                         "Bravo": "SW_OPER_MAGB_LR_1B",
@@ -678,8 +632,16 @@ function productSortingFunction(a, b) {
                     }
                 };
 
-                globals.swarm["activeProducts"] = [];
-                
+                globals.swarm.activeProducts = [];
+
+                // reversed collection to satellite mapping
+                globals.swarm.collection2satellite = {}
+                _.each(globals.swarm.products, function(product) {
+                    _.each(product, function (collection, satellite) {
+                        globals.swarm.collection2satellite[collection] = satellite;
+                    });
+                });
+
                 var filtered_collection = new Backbone.Collection(filtered);
 
                 var containerSelection = {
@@ -714,7 +676,7 @@ function productSortingFunction(a, b) {
                      '<b><a href="javascript:void(0);" onclick="'+clickEvent+'">here</a></b> '+
                      'or on the Reset button above.', 35);
 
-                    // Chech if succesfull login info is being shown, if yes, 
+                    // Chech if succesfull login info is being shown, if yes,
                     // add padding to not overlap messages
                     if($('.alert.alert-success.fade.in').length>0){
                         $('.alert.alert-success.fade.in').css('margin-top', '100px');
@@ -798,7 +760,7 @@ function productSortingFunction(a, b) {
                     containerproduct: true,
                     id: "MAG"
                 }, {at: 0});
-                
+
 
 
                 this.productsView = new v.LayerSelectionView({
@@ -875,8 +837,8 @@ function productSortingFunction(a, b) {
                             active: visMode.active,
                             type: "vis_mode"
                         }));
-                }, this);   
-                
+                }, this);
+
                 // Create Collection Views to hold set of views for selection tools
                 this.visualizationToolsView = new v.ToolSelectionView({
                     collection:visualizationToolsCollection,
@@ -936,7 +898,7 @@ function productSortingFunction(a, b) {
                     //globals.swarm.set('filters', JSON.parse(localStorage.getItem('filterSelection')));
                 }
 
-                
+
 
 
             },
@@ -950,7 +912,7 @@ function productSortingFunction(a, b) {
                 var splitview = this.module('SplitView').createController();
                 this.main.show(splitview.getView());
 
-                
+
                 // Show Timsliderview after creating modules to
                 // set the selected time correctly to the products
                 this.bottomBar.show(this.timeSliderView);
@@ -1036,7 +998,7 @@ function productSortingFunction(a, b) {
 
           // The tooltip is called twice at beginning and end, it seems to show the style of the
           // tooltips more consistently, there is some problem where sometimes no style is shown for tooltips
-          $("body").tooltip({ 
+          $("body").tooltip({
                     selector: '[data-toggle=tooltip]',
                     position: { my: "left+5 center", at: "right center" },
                     hide: { effect: false, duration: 0 },

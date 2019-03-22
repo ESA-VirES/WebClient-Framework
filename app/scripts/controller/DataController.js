@@ -32,10 +32,20 @@
         this.listenTo(Communicator.mediator, "selection:changed", this.onSelectionChanged);
         this.listenTo(Communicator.mediator, 'time:change', this.onTimeChange);
         this.listenTo(Communicator.mediator, 'manual:init', this.onManualInit);
+        this.listenTo(Communicator.mediator, "model:change", this.onModelChange);
 
         this.listenTo(Communicator.mediator, "analytics:set:filter", this.onAnalyticsFilterChanged);
         this.xhr = null;
+      },
 
+      getAvailableModelProducts() {
+        var availableModelProducts = {};
+        globals.products.each(function (product) {
+            if(product.get('model')) {
+                availableModelProducts[product.get('download').id] = product;
+            }
+        });
+        return availableModelProducts;
       },
 
       onManualInit: function(){
@@ -53,15 +63,17 @@
         var selected_time = this.selected_time;
         var invalid_models = [];
 
-        _.each(this.activeModels, function (modelId) {
-          var model = globals.models.get(modelId).attributes;
-          var validity = model.validity;
-          if (validity && selected_time) {
-            if ((selected_time.start < validity.start || selected_time.end > validity.end)) {
-              invalid_models.push(model);
+        if (selected_time) {
+          var availableModelProducts = this.getAvailableModelProducts();
+          invalid_models = _.filter(
+            this.activeModels,
+            function (id) {
+              var validity = availableModelProducts[id].getModelValidity();
+              if (!validity) return false;
+              return (selected_time.start < validity.start || selected_time.end > validity.end);
             }
-          }
-        });
+          );
+        }
 
         function _iso_format(date) {
           return getISODateTimeString(date).slice(0, -5) +'Z';
@@ -69,10 +81,11 @@
 
         if(invalid_models.length>0){
           var invalid_models_string = _.map(invalid_models, function (item) {
+            var validity = availableModelProducts[item].getModelValidity();
             return (
               item.name + ' validity ' +
-              _iso_format(item.validity.start) + ' - ' +
-              _iso_format(item.validity.end) + '<br>'
+              _iso_format(validity.start) + ' - ' +
+              _iso_format(validity.end) + '<br>'
             );
           }).join('');
 
@@ -180,7 +193,6 @@
           this.checkSelections();
         }
 
-
       },
 
       onAnalyticsFilterChanged: function (filters) {
@@ -204,6 +216,10 @@
         this.selected_time = time;
         this.checkSelections();
         this.checkModelValidity();
+      },
+
+      onModelChange: function (name) {
+        this.onTimeChange();
       },
 
       sendRequest: function(){
@@ -351,34 +367,26 @@
             options["bbox"] = bb.s + "," + bb.w + "," + bb.n + "," + bb.e;
           }
 
-          var shc_model = _.find(globals.products.models, function(p){return p.get("shc") != null;});
+          var availableModelProducts = this.getAvailableModelProducts();
+          var selectedModelProducts = _.filter(
+              _.map(
+                  this.activeModels,
+                  function (id) {return availableModelProducts[id];}
+              ),
+              function (item) {return item;}
+          );
 
-          if(shc_model){
-            options["shc"] = shc_model.get("shc");
-          }
-          
-          if(this.activeModels.length > 0){
-            // Magnetic_Model update for template
-            var joinedActiveModels = this.activeModels.join();
-            if (joinedActiveModels.indexOf("Magnetic_Model") !== -1){
-              var models = globals.products.filter(function (p) {
-                  return p.get('model');
-              });
-              
-              var globalFound = models.find(function(model) {
-                  return model.get('download').id === "Magnetic_Model";
-              }); 
-              
-              var newActiveModels = joinedActiveModels.replace("Magnetic_Model", "Magnetic_Model=" + globalFound.get("model_expression"));
-              options["model_ids"] = newActiveModels;
-              if (globalFound.get("model_expression").indexOf("Custom_Model") === -1){
-                  // if custom model not in model expression, omit shc from request
-                  delete options["shc"];
+          options["model_ids"] = _.map(
+              selectedModelProducts,
+              function (item) {
+                  return item.get('download').id + "=" + item.getModelExpression();
               }
-            } else{
-              options["model_ids"] = joinedActiveModels;
-            }
-          }
+          ).join(',');
+
+          options["shc"] = _.map(
+              selectedModelProducts,
+              function (item) {return item.getCustomShcIfSelected();}
+          )[0] || null
 
           var req_data = wps_fetchDataTmpl(options);
 

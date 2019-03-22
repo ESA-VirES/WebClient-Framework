@@ -76,7 +76,7 @@ define([
             );
             this.cesiumView.listenTo(
                 Communicator.mediator, 'layer:parameters:changed', 
-                _.bind(this.cesiumView.OnLayerParametersChanged, this.cesiumView)
+                _.bind(this.cesiumView.onLayerParametersChanged, this.cesiumView)
             );
             this.cesiumView.listenTo(
                 Communicator.mediator, 'layer:outlines:changed', 
@@ -98,6 +98,11 @@ define([
                 Communicator.mediator, 'layout:switch:singleview', 
                 _.bind(this.cesiumView.onResize, this.cesiumView)
             );
+
+            this.cesiumView.listenTo(
+                Communicator.mediator, 'models:update',
+                _.bind(this.cesiumView.onModelsUpdate, this.cesiumView)
+            )
             
             Communicator.reqres.setHandler('map:get:extent', _.bind(this.cesiumView.onGetMapExtent, this.cesiumView));
             this.cesiumView.listenTo(
