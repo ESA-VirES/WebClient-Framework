@@ -119,7 +119,7 @@
   border-color: #444 !important;
 }
 
-.darkbutton:hover{
+.darkbutton:hover, .darkbutton.viewActive{
   background-color: #48b !important;
   border-color: #aef !important;
 }
@@ -153,4 +153,30 @@
   padding-left: 3px;
   padding-right: 3px;
   font-family: monospace;
+}
+
+#poleViewDiv{
+  position: absolute;
+  right: 336px;
+  top: 7px;
+  z-index: 5;
+}
+
+#poleViewButton{
+  height: 32px;
+  width: 98px;
+}
+
+#poleViewUl{
+  min-width: 90px;
+  padding: 0;
+}
+
+#poleViewUl li {
+  margin: 4px;
+  text-align: center;
+}
+
+.poleButton{
+  padding: 4px 8px!important;
 }

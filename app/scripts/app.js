@@ -110,7 +110,6 @@ function productSortingFunction(a, b) {
             'controller/LoadingController',
             'controller/LayerController',
             'controller/SelectionController',
-            'controller/DifferenceController',
             'controller/DataController'
         ],
 
