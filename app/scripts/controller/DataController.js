@@ -38,7 +38,7 @@
         this.xhr = null;
       },
 
-      getAvailableModelProducts() {
+      getAvailableModelProducts: function () {
         var availableModelProducts = {};
         globals.products.each(function (product) {
             if(product.get('model')) {
