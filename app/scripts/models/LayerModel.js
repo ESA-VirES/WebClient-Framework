@@ -1,4 +1,6 @@
-(function() {
+/* global _ */
+
+(function () {
     'use strict';
 
     var root = this;
@@ -8,7 +10,7 @@
         'globals'
     ],
 
-    function(Backbone, globals) { // initializer
+    function (Backbone, globals) { // initializer
 
         var LayerModel = Backbone.Model.extend({
             name: '',
@@ -19,9 +21,9 @@
             visible: null,
             opacity: 0,
             view: {
-                id : '',
+                id: '',
                 protocol: '',
-                urls : [],
+                urls: [],
                 style: 'default',
                 isBaseLayer: null,
                 attribution: '',
@@ -38,20 +40,20 @@
                 wrapDateLine: null,
                 zoomOffset: null,
             },
-            views:[],
+            views: [],
             download: {
-                id : '',
+                id: '',
                 protocol: '',
-                url : [],
+                url: [],
             },
-            processes : [],
+            processes: [],
             unit: "",
-            parameters:[],
+            parameters: [],
             height: 0,
             model: false,
             components: [],
 
-            getModelValidity: function() {
+            getModelValidity: function () {
                 var validities = _.filter(
                     _.map(this.get('components') || [], function (item) {
                         return globals.models.get(item.id).get('validity');
@@ -66,12 +68,12 @@
                     return item.end < memo ? item.end : memo;
                 }, validities[0].end);
                 if (end < start) {
-                  start = end = new Date('0001-01-01');
+                    start = end = new Date('0001-01-01');
                 }
-                return {start: start, end: end}
+                return {start: start, end: end};
             },
 
-            getPrettyModelExpression: function() {
+            getPrettyModelExpression: function () {
                 function _default(value, defval) {
                     return (value === undefined || value === null) ? defval : value;
                 }
@@ -79,33 +81,33 @@
                 return _.map(
                     this.get('components'),
                     function (item, index) {
-                      var conf = globals.models.config[item.id];
-                      var model = globals.models.get(item.id).attributes;
-                      return [
-                        index > 0 || item.sign !== '+' ? sign[item.sign] + ' ' : '',
-                        conf.name || item.id, '[',
-                        _default(item.parameters.min_degree, model.parameters ? model.parameters.min_degree : ''),
-                        ':',
-                        _default(item.parameters.max_degree, model.parameters ? model.parameters.max_degree : ''),
-                        ']'
-                      ].join('');
+                        var conf = globals.models.config[item.id];
+                        var model = globals.models.get(item.id).attributes;
+                        return [
+                            index > 0 || item.sign !== '+' ? sign[item.sign] + ' ' : '',
+                            conf.name || item.id, '[',
+                            _default(item.parameters.min_degree, model.parameters ? model.parameters.min_degree : ''),
+                            ':',
+                            _default(item.parameters.max_degree, model.parameters ? model.parameters.max_degree : ''),
+                            ']'
+                        ].join('');
                     }
                 ).join(' ');
             },
 
-            getModelExpression: function(name) {
+            getModelExpression: function (name) {
                 var expression = _.map(
                     this.get('components'),
                     function (item) {
-                      return item.sign + '"' + item.id + '"(' + _.map(
-                        item.parameters,
-                        function (value, key) {return key + '=' + value;}
-                      ).join(',') + ')';
+                        return item.sign + '"' + item.id + '"(' + _.map(
+                            item.parameters,
+                            function (value, key) {return key + '=' + value;}
+                        ).join(',') + ')';
                     }
                 ).join('');
 
                 if (name) {
-                  expression = name + '=' + expression;
+                    expression = name + '=' + expression;
                 }
                 return expression;
             },
@@ -134,7 +136,7 @@
             }
         });
 
-        return {"LayerModel":LayerModel};
+        return {LayerModel: LayerModel};
     });
 
-}).call( this );
+}).call(this);

@@ -1,4 +1,6 @@
-(function() {
+/*global _ $ * d3 plotty showMessage getISODateTimeString */
+
+(function () {
     'use strict';
 
     var root = this;
@@ -14,33 +16,31 @@
         'plotty'
     ],
 
-    function(Backbone, Communicator, globals, Choices, LayerSettingsTmpl, evalModelTmplComposed_POST) {
+    function (Backbone, Communicator, globals, Choices, LayerSettingsTmpl, evalModelTmplComposed_POST) {
 
         var LayerSettings = Backbone.Marionette.Layout.extend({
 
             template: {type: 'handlebars', template: LayerSettingsTmpl},
             className: "panel panel-default optionscontrol not-selectable",
-            colorscaletypes : [
+            colorscaletypes: [
                 'coolwarm', 'rainbow', 'jet', 'diverging_1', 'diverging_2',
-                'blackwhite','viridis','inferno', 'hsv','hot','cool',
-                'spring', 'summer','autumn','winter','bone','copper','ylgnbu',
-                'greens','ylorrd','bluered', 'portland', 'blackbody','earth',
-                'electric','magma','plasma'
+                'blackwhite', 'viridis', 'inferno', 'hsv', 'hot', 'cool',
+                'spring', 'summer', 'autumn', 'winter', 'bone', 'copper', 'ylgnbu',
+                'greens', 'ylorrd', 'bluered', 'portland', 'blackbody', 'earth',
+                'electric', 'magma', 'plasma'
             ],
 
-            initialize: function(options) {
+            initialize: function (options) {
                 this.selected = null;
                 this.plot = new plotty.plot({
                     colorScale: 'jet',
-                    domain: [0,1]
+                    domain: [0, 1]
                 });
                 this.selected_satellite = "Alpha";
                 this.colorscaletypes = _.sortBy(this.colorscaletypes, function (c) {return c;});
             },
 
-
-            renderView: function(){
-                var that = this;
+            renderView: function () {
 
                 // Unbind first to make sure we are not binding to many times
                 this.stopListening(Communicator.mediator, "layer:settings:changed", this.onParameterChange);
@@ -63,21 +63,21 @@
                 });
 
                 var options = this.current_model.get("parameters");
-                var height = this.current_model.get("height");
+                //var height = this.current_model.get("height");
                 var outlines = this.current_model.get("outlines");
                 var showColorscale = this.current_model.get("showColorscale");
-                var protocol = this.current_model.get("views")[0].protocol;
-                var contours = this.current_model.get("contours");
+                //var protocol = this.current_model.get("views")[0].protocol;
+                //var contours = this.current_model.get("contours");
 
                 this.$("#options").empty();
                 this.$("#options").append(
                     _.map(options, function (value, key) {
-                        var selected = ""
+                        var selected = "";
                         if (value.selected) {
                             this.selected = key;
                             selected = " selected";
                         }
-                        return '<option value="'+ key + '"' + selected + '>' + value.name + '</option>';
+                        return '<option value="' + key + '"' + selected + '>' + value.name + '</option>';
                     }, this).join('')
                 );
 
@@ -86,16 +86,16 @@
                 // then the model was removed also removing the residuals parameter
                 // from the context menu.
                 // If this happens the visualized parameter needs to be changed
-                if(!options.hasOwnProperty(this.selected)) {
+                if (!options.hasOwnProperty(this.selected)) {
                     this.onOptionsChanged();
                 } else {
                     var selectedOption = options[this.selected];
 
-                    if(selectedOption.description){
+                    if (selectedOption.description) {
                         this.$("#description").text(selectedOption.description);
                     }
 
-                    if(selectedOption.hasOwnProperty("logarithmic")){
+                    if (selectedOption.hasOwnProperty("logarithmic")) {
                         this.addLogOption(options);
                     }
 
@@ -114,20 +114,20 @@
                     this.$("#style").unbind();
                     this.$("#style").empty();
                     this.$("#style").append(
-                        _.map(this.colorscaletypes, function(colorscale){
-                            var selected = ""
-                            if(selectedOption.colorscale == colorscale){
+                        _.map(this.colorscaletypes, function (colorscale) {
+                            var selected = "";
+                            if (selectedOption.colorscale == colorscale) {
                                 selected = " selected";
                             }
-                            return '<option value="'+ colorscale + '"' +  selected + '>' + colorscale + '</option>';
+                            return '<option value="' + colorscale + '"' + selected + '>' + colorscale + '</option>';
                         }).join('')
                     );
-                    this.$("#style").change(_.bind(function(evt){
+                    this.$("#style").change(_.bind(function (evt) {
                         var selected = $(evt.target).find("option:selected").text();
                         selectedOption.colorscale = selected;
                         this.current_model.set("parameters", options);
 
-                        if(selectedOption.hasOwnProperty("logarithmic")) {
+                        if (selectedOption.hasOwnProperty("logarithmic")) {
                             this.createScale(selectedOption.logarithmic);
                         } else {
                             this.createScale();
@@ -136,53 +136,54 @@
                     }, this));
 
                     this.$("#opacitysilder").unbind();
-                    this.$("#opacitysilder").val(this.current_model.get("opacity")*100);
-                    this.$("#opacitysilder").on("input change", function(){
-                        var opacity = Number(this.value)/100;
-                        that.current_model.set("opacity", opacity);
-                        Communicator.mediator.trigger('productCollection:updateOpacity', {model:that.current_model, value:opacity});
-                    });
+                    this.$("#opacitysilder").val(this.current_model.get("opacity") * 100);
+                    this.$("#opacitysilder").on("input change", _.bind(function (evt) {
+                        var opacity = Number(evt.target.value) / 100;
+                        this.current_model.set("opacity", opacity);
+                        Communicator.mediator.trigger('productCollection:updateOpacity', {model: this.current_model, value: opacity});
+                    }, this));
 
-                    if(!(typeof outlines === 'undefined')){
-                        var checked = "";
+                    var checked;
+                    if (!(typeof outlines === 'undefined')) {
+                        checked = "";
                         if (outlines)
                             checked = "checked";
 
                         $("#outlines input").unbind();
                         $("#outlines").empty();
                         this.$("#outlines").append(
-                            '<form style="vertical-align: middle;">'+
-                            '<label class="valign" for="outlines" style="width: 120px;">Outlines </label>'+
-                            '<input class="valign" style="margin-top: -5px;" type="checkbox" name="outlines" value="outlines" ' + checked + '></input>'+
+                            '<form style="vertical-align: middle;">' +
+                            '<label class="valign" for="outlines" style="width: 120px;">Outlines </label>' +
+                            '<input class="valign" style="margin-top: -5px;" type="checkbox" name="outlines" value="outlines" ' + checked + '></input>' +
                             '</form>'
                         );
 
-                        this.$("#outlines input").change(function(evt){
-                            var outlines = !that.current_model.get("outlines");
-                            that.current_model.set("outlines", outlines);
-                            Communicator.mediator.trigger("layer:outlines:changed", that.current_model.get("views")[0].id, outlines);
-                        });
+                        this.$("#outlines input").change(_.bind(function (evt) {
+                            var outlines = !this.current_model.get("outlines");
+                            this.current_model.set("outlines", outlines);
+                            Communicator.mediator.trigger("layer:outlines:changed", this.current_model.get("views")[0].id, outlines);
+                        }, this));
                     }
 
-                    if(!(typeof showColorscale === 'undefined')){
-                        var checked = "";
+                    if (!(typeof showColorscale === 'undefined')) {
+                        checked = "";
                         if (showColorscale)
                             checked = "checked";
 
                         $("#showColorscale input").unbind();
                         $("#showColorscale").empty();
                         this.$("#showColorscale").append(
-                            '<form style="vertical-align: middle;">'+
-                            '<label class="valign" for="outlines" style="width: 120px; margin">Legend </label>'+
-                            '<input class="valign" style="margin-top: -5px;" type="checkbox" name="outlines" value="outlines" ' + checked + '></input>'+
+                            '<form style="vertical-align: middle;">' +
+                            '<label class="valign" for="outlines" style="width: 120px; margin">Legend </label>' +
+                            '<input class="valign" style="margin-top: -5px;" type="checkbox" name="outlines" value="outlines" ' + checked + '></input>' +
                             '</form>'
                         );
 
-                        this.$("#showColorscale input").change(function(evt){
-                            var showColorscale = !that.current_model.get("showColorscale");
-                            that.current_model.set("showColorscale", showColorscale);
-                            Communicator.mediator.trigger("layer:colorscale:show", that.current_model.get("download").id);
-                        });
+                        this.$("#showColorscale input").change(_.bind(function (evt) {
+                            var showColorscale = !this.current_model.get("showColorscale");
+                            this.current_model.set("showColorscale", showColorscale);
+                            Communicator.mediator.trigger("layer:colorscale:show", this.current_model.get("download").id);
+                        }, this));
                     }
 
                     this.createScale(
@@ -229,13 +230,13 @@
                     // Check if there is a selection available if not, show message
 
                     // Check for possible already available selection
-                    if(localStorage.getItem('areaSelection') === null ||
+                    if (localStorage.getItem('areaSelection') === null ||
                        !JSON.parse(localStorage.getItem('areaSelection'))) {
-                            showMessage(
-                                'warning',
-                                'In order to visualize fieldlines please select an area with the bounding box tool.',
-                                 35
-                            );
+                        showMessage(
+                            'warning',
+                            'In order to visualize fieldlines please select an area with the bounding box tool.',
+                            35
+                        );
                     }
                 } else {
                     $("#coefficients_range").show();
@@ -247,12 +248,12 @@
             createCustomModelSelection: function () {
                 this.$("#shc").empty();
                 this.$("#shc").append(
-                    '<p>Spherical Harmonics Coefficients</p>'+
-                    '<div class="myfileupload-buttonbar ">'+
-                        '<label class="btn btn-default shcbutton">'+
-                        '<span><i class="fa fa-fw fa-upload"></i> Upload SHC File</span>'+
-                        '<input id="upload-selection" type="file" accept=".shc" name="files[]" />'+
-                      '</label>'+
+                    '<p>Spherical Harmonics Coefficients</p>' +
+                    '<div class="myfileupload-buttonbar ">' +
+                        '<label class="btn btn-default shcbutton">' +
+                        '<span><i class="fa fa-fw fa-upload"></i> Upload SHC File</span>' +
+                        '<input id="upload-selection" type="file" accept=".shc" name="files[]" />' +
+                      '</label>' +
                   '</div>'
                 );
 
@@ -261,47 +262,47 @@
                     _.bind(this.onCustomModelUpload, this)
                 );
 
-                if(this.current_model.get('shc_name')){
-                    that.$("#shc").append('<p id="filename" style="font-size:.9em;">Selected File: '+this.current_model.get('shc_name')+'</p>');
+                if (this.current_model.get('shc_name')) {
+                    this.$("#shc").append('<p id="filename" style="font-size:.9em;">Selected File: ' + this.current_model.get('shc_name') + '</p>');
                 }
             },
 
-            onShow: function(view){
+            onShow: function (view) {
                 var that = this;
 
-                if(this.model.get("containerproduct")){
+                if (this.model.get("containerproduct")) {
                     // Add options for three satellites
                     $("#satellite_selection").off();
                     $("#satellite_selection").empty();
                     $("#satellite_selection").append('<label for="satellite_selec" style="width:120px;">Satellite </label>');
                     $("#satellite_selection").append('<select style="margin-left:4px;" name="satellite_selec" id="satellite_selec"></select>');
 
-                    if( globals.swarm.products.hasOwnProperty(this.model.get('id')) ){
+                    if (globals.swarm.products.hasOwnProperty(this.model.get('id'))) {
                         var options = Object.keys(globals.swarm.products[this.model.get('id')]);
                         for (var i = 0; i < options.length; i++) {
                             var selected = '';
-                            if (options[i] == 'Alpha'){
+                            if (options[i] == 'Alpha') {
                                 selected = 'selected';
                             }
-                            $('#satellite_selec').append('<option value="'+options[i]+'"'+selected+'>'+options[i]+'</option>');
+                            $('#satellite_selec').append('<option value="' + options[i] + '"' + selected + '>' + options[i] + '</option>');
                         }
                     }
 
-                    $("#satellite_selec option[value="+this.selected_satellite+"]").prop("selected", "selected");
+                    $("#satellite_selec option[value=" + this.selected_satellite + "]").prop("selected", "selected");
 
                     var model = null;
-                    globals.products.forEach(function(p){
-                        if(p.get("download").id == globals.swarm.products[that.model.get("id")][that.selected_satellite]){
+                    globals.products.forEach(function (p) {
+                        if (p.get("download").id == globals.swarm.products[that.model.get("id")][that.selected_satellite]) {
                             model = p;
                         }
                     });
                     this.current_model = model;
 
-                    $("#satellite_selection").on('change', function(){
+                    $("#satellite_selection").on('change', function () {
                         that.selected_satellite = $("#satellite_selection").find("option:selected").val();
                         var model = null;
-                        globals.products.forEach(function(p){
-                            if(p.get("download").id == globals.swarm.products[that.model.get("id")][that.selected_satellite]){
+                        globals.products.forEach(function (p) {
+                            if (p.get("download").id == globals.swarm.products[that.model.get("id")][that.selected_satellite]) {
                                 model = p;
                             }
                         });
@@ -309,26 +310,26 @@
                         that.renderView();
                     });
 
-                }else{
+                } else {
                     this.current_model = this.model;
                 }
                 this.renderView();
             },
 
-            onClose: function() {
+            onClose: function () {
                 this.deleteSavedModelComponents();
                 this.close();
             },
 
-            onParameterChange: function(){
+            onParameterChange: function () {
                 this.saveModelComponents();
                 this.onShow();
             },
 
-            onOptionsChanged: function(){
+            onOptionsChanged: function () {
                 var options = this.current_model.get("parameters");
 
-                if(options.hasOwnProperty(this.selected)){
+                if (options.hasOwnProperty(this.selected)) {
                     delete options[this.selected].selected;
                 }
 
@@ -339,12 +340,12 @@
 
                 this.$("#style").empty();
                 this.$("#style").append(
-                    _.map(this.colorscaletypes, function(colorscale){
-                        var selected = ""
-                        if(selectedOption.colorscale == colorscale){
+                    _.map(this.colorscaletypes, function (colorscale) {
+                        var selected = "";
+                        if (selectedOption.colorscale == colorscale) {
                             selected = " selected";
                         }
-                        return '<option value="'+ colorscale + '"' +  selected + '>' + colorscale + '</option>';
+                        return '<option value="' + colorscale + '"' + selected + '>' + colorscale + '</option>';
                     }).join('')
                 );
 
@@ -353,39 +354,39 @@
 
                 this.createScale(); // logarithmic ?
 
-                if(selectedOption.hasOwnProperty("logarithmic")){
+                if (selectedOption.hasOwnProperty("logarithmic")) {
                     this.addLogOption(options);
-                }else{
+                } else {
                     this.$("#logarithmic").empty();
                 }
 
                 selectedOption.selected = true;
 
-                if(selectedOption.description){
+                if (selectedOption.description) {
                     this.$("#description").text(selectedOption.description);
                 }
 
                 this.createHeightTextbox(this.current_model.get("height"));
 
-                if(this.selected == "Fieldlines"){
+                if (this.selected == "Fieldlines") {
                     $("#coefficients_range").hide();
                     $("#opacitysilder").parent().hide();
                     // Check for possible already available selection
-                    if(localStorage.getItem('areaSelection') === null ||
-                       !JSON.parse(localStorage.getItem('areaSelection')) ) {
-                            showMessage(
-                                'warning',
-                                'In order to visualize fieldlines please select an area using the "Select Area" button in the globe view.',
-                                 35
-                            );
+                    if (localStorage.getItem('areaSelection') === null ||
+                       !JSON.parse(localStorage.getItem('areaSelection'))) {
+                        showMessage(
+                            'warning',
+                            'In order to visualize fieldlines please select an area using the "Select Area" button in the globe view.',
+                            35
+                        );
                     }
-                }else{
+                } else {
                     $("#coefficients_range").show();
                     $("#opacitysilder").parent().show();
                 }
 
                 // request range for selected parameter if layer is of type model
-                if(this.current_model.get("model") && this.selected !== "Fieldlines"){
+                if (this.current_model.get("model") && this.selected !== "Fieldlines") {
                     this.updateComposedModelValuesRange();
                 } else {
                     Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
@@ -393,76 +394,76 @@
 
             },
 
-            registerKeyEvents: function(el){
+            registerKeyEvents: function (el) {
                 var that = this;
-                el.keypress(function(evt) {
-                    if(evt.keyCode == 13){ //Enter pressed
+                el.keypress(function (evt) {
+                    if (evt.keyCode == 13) { //Enter pressed
                         evt.preventDefault();
                         that.applyChanges();
-                    }else{
+                    } else {
                         that.createApplyButton();
                     }
                 });
 
-                el.keyup(function(evt) {
-                    if(evt.keyCode == 8){ //Backspace clicked
+                el.keyup(function (evt) {
+                    if (evt.keyCode == 8) { //Backspace clicked
                         that.createApplyButton();
                     }
                 });
 
                 // Add click event to select text when clicking or tabbing into textfield
-                el.click(function () { $(this).select(); });
+                el.click(function () {$(this).select();});
             },
 
-            createApplyButton: function(){
+            createApplyButton: function () {
                 var that = this;
-                if($("#changesbutton").length == 0){
+                if ($("#changesbutton").length == 0) {
                     $("#applychanges").append('<button type="button" class="btn btn-default" id="changesbutton" style="width: 100%;"> Apply changes </button>');
-                    $("#changesbutton").click(function(evt){
+                    $("#changesbutton").click(function (evt) {
                         that.applyChanges();
                     });
                 }
             },
 
-            handleRangeRespone: function(response){
+            handleRangeRespone: function (response) {
                 var options = this.current_model.get("parameters");
                 var resp = response.split(',');
                 var range = [Number(resp[1]), Number(resp[2])];
-                if (!isNaN(range[0]) && !isNaN(range[1])){
-                  // Make range "nicer", rounding depending on extent
-                  range = d3.scale.linear().domain(range).nice().domain();
-                  $("#range_min").val(range[0]);
-                  $("#range_max").val(range[1]);
-                  options[this.selected].range = range;
-                  this.current_model.set("parameters", options);
-                  this.createScale();
+                if (!isNaN(range[0]) && !isNaN(range[1])) {
+                    // Make range "nicer", rounding depending on extent
+                    range = d3.scale.linear().domain(range).nice().domain();
+                    $("#range_min").val(range[0]);
+                    $("#range_max").val(range[1]);
+                    options[this.selected].range = range;
+                    this.current_model.set("parameters", options);
+                    this.createScale();
                 }
                 Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
             },
 
-            handleRangeResponeSHC: function(evt, response){
+            handleRangeResponeSHC: function (evt, response) {
                 this.handleRangeRespone(response);
-                var params = { name: this.current_model.get("download").id, isBaseLayer: false, visible: false };
+                var params = {name: this.current_model.get("download").id, isBaseLayer: false, visible: false};
                 Communicator.mediator.trigger('map:layer:change', params);
                 Communicator.mediator.trigger("file:shc:loaded", evt.target.result);
                 Communicator.mediator.trigger("layer:activate", this.current_model.get("views")[0].id);
             },
 
-            handleRangeResponseError: function(response){
+            handleRangeResponseError: function (response) {
                 showMessage(
                     'warning',
-                    'There is a problem requesting the range values for the color scale,'+
+                    'There is a problem requesting the range values for the color scale,' +
                     ' please revise and set them to adequate values if necessary.', 15
                 );
             },
 
-            handleRangeChange: function(){
+            handleRangeChange: function () {
                 var options = this.current_model.get("parameters");
                 $("#range_min").val(options[this.selected].range[0]);
                 $("#range_max").val(options[this.selected].range[1]);
 
                 this.current_model.set("parameters", options);
-                if(options[this.selected].hasOwnProperty("logarithmic"))
+                if (options[this.selected].hasOwnProperty("logarithmic"))
                     this.createScale(options[this.selected].logarithmic);
                 else
                     this.createScale();
@@ -470,7 +471,7 @@
                 Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
             },
 
-            applyChanges: function(){
+            applyChanges: function () {
                 var options = this.current_model.get("parameters");
                 var isEditableModel = (
                     this.current_model.get("model") &&
@@ -483,28 +484,28 @@
 
                 // Check color ranges
                 var range_min = parseFloat($("#range_min").val());
-                error = error || this.checkValue(range_min,$("#range_min"));
+                error = error || this.checkValue(range_min, $("#range_min"));
 
                 var range_max = parseFloat($("#range_max").val());
-                error = error || this.checkValue(range_max,$("#range_max"));
+                error = error || this.checkValue(range_max, $("#range_max"));
 
                 // Set parameters and redraw color scale
-                if(!error){
+                if (!error) {
                     options[this.selected].range = [range_min, range_max];
 
-                    if(options[this.selected].hasOwnProperty("logarithmic"))
+                    if (options[this.selected].hasOwnProperty("logarithmic"))
                         this.createScale(options[this.selected].logarithmic);
                     else
                         this.createScale();
                 }
 
                 // Check for height attribute
-                if ($("#heightvalue").length){
+                if ($("#heightvalue").length) {
                     var height = parseFloat($("#heightvalue").val());
-                    error = error || this.checkValue(height,$("#heightvalue"));
+                    error = error || this.checkValue(height, $("#heightvalue"));
 
-                    if (!error){
-                        if(this.current_model.get("height")!=height){
+                    if (!error) {
+                        if (this.current_model.get("height") != height) {
                             heightChanged = true;
                         }
                         this.current_model.set("height", height);
@@ -533,35 +534,35 @@
                 if ((modelChanged || heightChanged) && this.selected !== 'Fieldlines') {
                     this.updateComposedModelValuesRange();
                 } else {
-                  Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
+                    Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
                 }
                 if (modelChanged && this.current_model.get("visible")) {
                     Communicator.mediator.trigger("model:change", this.current_model.get("download").id);
                 }
             },
 
-            checkValue: function(value, textfield){
-                if (isNaN(value)){
+            checkValue: function (value, textfield) {
+                if (isNaN(value)) {
                     textfield.addClass("text_error");
                     return true;
-                }else{
+                } else {
                     textfield.removeClass("text_error");
                     return false;
                 }
             },
 
-            setModel: function(model){
+            setModel: function (model) {
                 this.model = model;
             },
 
-            sameModel: function(model){
+            sameModel: function (model) {
                 return this.model.get("name") == model.get("name");
             },
 
-            onCustomModelUpload: function(evt) {
+            onCustomModelUpload: function (evt) {
                 var reader = new FileReader();
                 var filename = evt.target.files[0].name;
-                reader.onloadend = _.bind(function(evt) {
+                reader.onloadend = _.bind(function (evt) {
                     $("#changesbutton").addClass("unAppliedChanges");
 
                     // save SHC file to localstorage
@@ -587,9 +588,9 @@
                 reader.readAsText(evt.target.files[0]);
             },
 
-            addLogOption: function(options){
+            addLogOption: function (options) {
                 var that = this;
-                if(options[this.selected].hasOwnProperty("logarithmic")){
+                if (options[this.selected].hasOwnProperty("logarithmic")) {
                     var checked = "";
                     if (options[this.selected].logarithmic)
                         checked = "checked";
@@ -597,20 +598,20 @@
                     this.$("#logarithmic").empty();
 
                     this.$("#logarithmic").append(
-                        '<form style="vertical-align: middle;">'+
-                        '<label class="valign" for="outlines" style="width: 100px;">Log. Scale</label>'+
-                        '<input class="valign" style="margin-top: -5px;" type="checkbox" name="logarithmic" value="logarithmic" ' + checked + '></input>'+
+                        '<form style="vertical-align: middle;">' +
+                        '<label class="valign" for="outlines" style="width: 100px;">Log. Scale</label>' +
+                        '<input class="valign" style="margin-top: -5px;" type="checkbox" name="logarithmic" value="logarithmic" ' + checked + '></input>' +
                         '</form>'
                     );
 
-                    this.$("#logarithmic input").change(function(evt){
+                    this.$("#logarithmic input").change(function (evt) {
                         var options = that.current_model.get("parameters");
                         options[that.selected].logarithmic = !options[that.selected].logarithmic;
 
                         that.current_model.set("parameters", options);
                         Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("name"));
 
-                        if(options[that.selected].hasOwnProperty("logarithmic"))
+                        if (options[that.selected].hasOwnProperty("logarithmic"))
                             that.createScale(options[that.selected].logarithmic);
                         else
                             that.createScale();
@@ -618,20 +619,21 @@
                 }
             },
 
-            createScale: function(logscale){
-
-                var superscript = "⁰¹²³⁴⁵⁶⁷⁸⁹",
-                formatPower = function(d) {
-                    if (d>=0)
-                        return (d + "").split("").map(function(c) { return superscript[c]; }).join("");
-                    else if (d<0)
-                        return "⁻"+(d + "").split("").map(function(c) { return superscript[c]; }).join("");
+            createScale: function (logscale) {
+                /*
+                var superscript = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+                var formatPower = function (d) {
+                    if (d >= 0)
+                        return (d + "").split("").map(function (c) {return superscript[c];}).join("");
+                    else if (d < 0)
+                        return "⁻" + (d + "").split("").map(function (c) {return superscript[c];}).join("");
                 };
+                */
 
                 $("#setting_colorscale").empty();
                 var margin = 20;
                 var width = $("#setting_colorscale").width();
-                var scalewidth =  width - margin *2;
+                var scalewidth = width - margin * 2;
 
                 var range_min = this.current_model.get("parameters")[this.selected].range[0];
                 var range_max = this.current_model.get("parameters")[this.selected].range[1];
@@ -639,7 +641,7 @@
                 var style = this.current_model.get("parameters")[this.selected].colorscale;
 
                 $("#setting_colorscale").append(
-                    '<div id="gradient" style="width:'+scalewidth+'px;margin-left:'+margin+'px"></div>'
+                    '<div id="gradient" style="width:' + scalewidth + 'px;margin-left:' + margin + 'px"></div>'
                 );
                 /*'<div class="'+style+'" style="width:'+scalewidth+'px; height:20px; margin-left:'+margin+'px"></div>'*/
 
@@ -654,9 +656,9 @@
 
                 var axisScale;
 
-                if(logscale){
+                if (logscale) {
                     axisScale = d3.scale.log();
-                }else{
+                } else {
                     axisScale = d3.scale.linear();
                 }
 
@@ -666,31 +668,30 @@
                 var xAxis = d3.svg.axis()
                     .scale(axisScale);
 
-                if(logscale){
+                if (logscale) {
                     var numberFormat = d3.format(",f");
-                    function logFormat(d) {
+                    xAxis.tickFormat(function logFormat(d) {
                         var x = Math.log(d) / Math.log(10) + 1e-6;
                         return Math.abs(x - Math.floor(x)) < .3 ? numberFormat(d) : "";
-                    }
-                    xAxis.tickFormat(logFormat);
+                    });
 
-                }else{
-                    var step = Number(((range_max - range_min)/5).toPrecision(3));
-                    var ticks = d3.range(range_min,range_max+step, step);
+                } else {
+                    var step = Number(((range_max - range_min) / 5).toPrecision(3));
+                    var ticks = d3.range(range_min, range_max + step, step);
                     xAxis.tickValues(ticks);
                     xAxis.tickFormat(d3.format("g"));
                 }
 
                 var g = svgContainer.append("g")
                     .attr("class", "x axis")
-                    .attr("transform", "translate(" + [margin, 3]+")")
+                    .attr("transform", "translate(" + [margin, 3] + ")")
                     .call(xAxis);
 
-                if(uom){
+                if (uom) {
                     g.append("text")
                         .style("text-anchor", "middle")
                         .style("font-size", "1.1em")
-                        .attr("transform", "translate(" + [scalewidth/2, 35]+")")
+                        .attr("transform", "translate(" + [scalewidth / 2, 35] + ")")
                         .text(uom);
                 }
 
@@ -698,13 +699,13 @@
                     .attr("stroke", "black");
             },
 
-            createHeightTextbox: function(height){
+            createHeightTextbox: function (height) {
                 this.$("#height").empty();
-                if( (height || height==0) && this.selected !== "Fieldlines"){
+                if ((height || height == 0) && this.selected !== "Fieldlines") {
                     this.$("#height").append(
-                        '<form style="vertical-align: middle;">'+
-                        '<label for="heightvalue" style="width: 120px;">Height</label>'+
-                        '<input id="heightvalue" type="text" style="width:35px; margin-left:8px"/>'+
+                        '<form style="vertical-align: middle;">' +
+                        '<label for="heightvalue" style="width: 120px;">Height</label>' +
+                        '<input id="heightvalue" type="text" style="width:35px; margin-left:8px"/>' +
                         '</form>'
                     );
                     this.$("#heightvalue").val(height);
@@ -739,14 +740,14 @@
                     .fail(this.handleRangeResponseError);
             },
 
-            createComposedModelSelection: function() {
+            createComposedModelSelection: function () {
 
                 //composed model additional fields
                 this.$("#composed_model_compute").empty();
                 this.$("#composed_model_compute").append(
-                  '<select class="form-control" id="choices-multiple-remove-button" ' +
+                    '<select class="form-control" id="choices-multiple-remove-button" ' +
                   'placeholder="Choose model or type its name." multiple></select>'
-                )
+                );
 
                 // create hash of the previous components
                 var previousSelection = {};
@@ -770,7 +771,7 @@
 
                 _.each(models, function (item) {
                     $('#choices-multiple-remove-button').append(
-                      "<option value="+item.id+ " "+(item.selected?'selected':'')+">"+item.name+"</option>"
+                        "<option value=" + item.id + " " + (item.selected ? 'selected' : '') + ">" + item.name + "</option>"
                     );
                     $('#composed_model_compute').data(item.id, item);
                 });
@@ -778,10 +779,10 @@
                 //create a Choices modified template
                 var choices = new Choices('#choices-multiple-remove-button', {
                     removeItemButton: true,
-                    callbackOnCreateTemplates: function(template) {
+                    callbackOnCreateTemplates: function (template) {
                         return {
-                            item: function(classNames, data) {
-                                var data = $('#composed_model_compute').data(classNames.value);
+                            item: function (classNames, data) {
+                                data = $('#composed_model_compute').data(classNames.value);
                                 var min_degree, max_degree;
 
                                 // make sure the required parameters are set
@@ -790,13 +791,13 @@
                                 }
 
                                 if (isDefault(data.parameters.min_degree)) {
-                                    delete data.parameters.min_degree
+                                    delete data.parameters.min_degree;
                                     min_degree = null;
                                 } else {
                                     min_degree = data.parameters.min_degree;
                                 }
                                 if (isDefault(data.parameters.max_degree)) {
-                                    delete data.parameters.max_degree
+                                    delete data.parameters.max_degree;
                                     max_degree = null;
                                 } else {
                                     max_degree = data.parameters.max_degree;
@@ -811,33 +812,33 @@
                                 // prevent focus and writing into search div of choices
                                 var onKeyDownHandler = 'event.stopPropagation();';
                                 var updateMinDegree = [
-                                  "var dataParent = $(this)[0].parentNode.parentNode.getAttribute('data-value');",
-                                  "var data = $('#composed_model_compute').data(dataParent);",
-                                  "var source = $(this).val();",
-                                  "var value = Number(source);",
-                                  "if (source === '' || isNaN(value)) {delete data.parameters.min_degree; value = '';}",
-                                  "else {data.parameters.min_degree = value = Math.max(data.defaults.min_degree, Math.min(data.parameters.max_degree, value));}",
-                                  "$(this).val(value);",
-                                  "$('#changesbutton').addClass('unAppliedChanges');"
+                                    "var dataParent = $(this)[0].parentNode.parentNode.getAttribute('data-value');",
+                                    "var data = $('#composed_model_compute').data(dataParent);",
+                                    "var source = $(this).val();",
+                                    "var value = Number(source);",
+                                    "if (source === '' || isNaN(value)) {delete data.parameters.min_degree; value = '';}",
+                                    "else {data.parameters.min_degree = value = Math.max(data.defaults.min_degree, Math.min(data.parameters.max_degree, value));}",
+                                    "$(this).val(value);",
+                                    "$('#changesbutton').addClass('unAppliedChanges');"
                                 ].join('');
                                 var updateMaxDegree = [
-                                  "var dataParent = $(this)[0].parentNode.parentNode.getAttribute('data-value');",
-                                  "var data = $('#composed_model_compute').data(dataParent);",
-                                  "var source = $(this).val();",
-                                  "var value = Number(source);",
-                                  "if (source === '' || isNaN(value)) {delete data.parameters.max_degree; value = '';}",
-                                  "else {data.parameters.max_degree = value = Math.min(data.defaults.max_degree, Math.max(data.parameters.min_degree, value));}",
-                                  "$(this).val(value);",
-                                  "$('#changesbutton').addClass('unAppliedChanges');"
+                                    "var dataParent = $(this)[0].parentNode.parentNode.getAttribute('data-value');",
+                                    "var data = $('#composed_model_compute').data(dataParent);",
+                                    "var source = $(this).val();",
+                                    "var value = Number(source);",
+                                    "if (source === '' || isNaN(value)) {delete data.parameters.max_degree; value = '';}",
+                                    "else {data.parameters.max_degree = value = Math.min(data.defaults.max_degree, Math.max(data.parameters.min_degree, value));}",
+                                    "$(this).val(value);",
+                                    "$('#changesbutton').addClass('unAppliedChanges');"
                                 ].join('');
                                 var switchSign = [
-                                  "event.stopPropagation();",
-                                  "var dataParent = $(this)[0].parentNode.getAttribute('data-value');",
-                                  "var data = $('#composed_model_compute').data(dataParent);",
-                                  "data.sign = (data.sign === '+' ? '-' : '+');",
-                                  "$(this).attr('value', (data.sign === '+' ? '+' : '&minus;'));",
-                                  "$('#changesbutton').addClass('unAppliedChanges');"
-                                ].join('')
+                                    "event.stopPropagation();",
+                                    "var dataParent = $(this)[0].parentNode.getAttribute('data-value');",
+                                    "var data = $('#composed_model_compute').data(dataParent);",
+                                    "data.sign = (data.sign === '+' ? '-' : '+');",
+                                    "$(this).attr('value', (data.sign === '+' ? '+' : '&minus;'));",
+                                    "$('#changesbutton').addClass('unAppliedChanges');"
+                                ].join('');
 
                                 return template([
                                     '<div class="choices__item choices__item--selectable data-item composed_model_choices_holding_div" data-id="', classNames.id, '" data-value="', classNames.value, '" data-deletable>',
@@ -854,11 +855,11 @@
                         };
                     }
                 });
-                choices.passedElement.addEventListener('addItem', _.bind(function(event) {
+                choices.passedElement.addEventListener('addItem', _.bind(function (event) {
                     $('#composed_model_compute').data(event.detail.value).selected = true;
                     $("#changesbutton").addClass("unAppliedChanges");
                 }, this));
-                choices.passedElement.addEventListener('removeItem', _.bind(function(event) {
+                choices.passedElement.addEventListener('removeItem', _.bind(function (event) {
                     $('#composed_model_compute').data(event.detail.value).selected = false;
                     $("#changesbutton").addClass("unAppliedChanges");
                 }, this));
@@ -873,7 +874,7 @@
                 return false;
             },
 
-            applyComposedModelChanges: function() {
+            applyComposedModelChanges: function () {
                 var newComponents = this._getSelectedComponents();
                 var modelChanged = !this._modelComponentsAreEqual(
                     this.current_model.get('components'), newComponents
@@ -905,7 +906,7 @@
                 var selectedModels = _.filter(
                     $('#composed_model_compute').data(),
                     function (item) {return item.selected;}
-                )
+                );
                 return _.map(selectedModels, function (item) {
                     return {
                         id: item.id,
@@ -934,8 +935,8 @@
             }
         });
 
-        return {"LayerSettings": LayerSettings};
+        return {LayerSettings: LayerSettings};
 
     });
 
-}).call( this );
+}).call(this);

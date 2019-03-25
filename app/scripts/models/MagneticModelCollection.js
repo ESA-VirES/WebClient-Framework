@@ -1,3 +1,5 @@
+/*global _ */
+
 (function () {
   'use strict';
   var root = this;
@@ -18,29 +20,29 @@
       var success_callback = options.success;
       var error_callback = options.error;
       _.extend(options, {
-          success: function (data, textStatus, jqXHR) {
-            _.extend(this_, {
-              lastFetch: new Date(),
-              isFetching: false,
-              fetchFailed: false
-            });
-            if (success_callback) {
-              success_callback(data, textStatus, jqXHR);
-            }
-            //this_.trigger('fetch:stop');
-            this_.trigger('fetch:success');
-          },
-          error: function (jqXHR, textStatus, errorThrown) {
-            _.extend(this_, {
-              isFetching: false,
-              fetchFailed: true
-            });
-            if (error_callback) {
-              error_callback(jqXHR, textStatus, errorThrown);
-            }
-            //this_.trigger('fetch:stop');
-            this_.trigger('fetch:error');
+        success: function (data, textStatus, jqXHR) {
+          _.extend(this_, {
+            lastFetch: new Date(),
+            isFetching: false,
+            fetchFailed: false
+          });
+          if (success_callback) {
+            success_callback(data, textStatus, jqXHR);
           }
+          //this_.trigger('fetch:stop');
+          this_.trigger('fetch:success');
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          _.extend(this_, {
+            isFetching: false,
+            fetchFailed: true
+          });
+          if (error_callback) {
+            error_callback(jqXHR, textStatus, errorThrown);
+          }
+          //this_.trigger('fetch:stop');
+          this_.trigger('fetch:error');
+        }
       });
       _.extend(this_, {
         lastFetchAtempt: new Date(),
@@ -69,11 +71,11 @@
             response = response[0];
           }
         }
-        if(response.validity) {
+        if (response.validity) {
           response.validity = {
             start: new Date(response.validity.start),
             end: new Date(response.validity.end)
-          }
+          };
         }
         response.parameters = this._parseParameters(response.expression);
         return response;
@@ -82,14 +84,14 @@
         if (!expression) return {};
         var start = expression.indexOf('(');
         if (start < 0) return {};
-        expression = expression.slice(start+1);
+        expression = expression.slice(start + 1);
         var stop = expression.indexOf(')');
         if (stop < 0) return {};
         expression = expression.slice(0, stop);
         var parameters = {};
         _.each(expression.split(","), function (string) {
-            var tmp = string.split("=");
-            parameters[tmp[0].trim()] = Number(tmp[1]);
+          var tmp = string.split("=");
+          parameters[tmp[0].trim()] = Number(tmp[1]);
         });
         return parameters;
       },
@@ -102,14 +104,14 @@
           return;
         }
         var modelId = this.id;
-        if (this.has("model_expression")){
-          if (this.get("model_expression") == null){
+        if (this.has("model_expression")) {
+          if (this.get("model_expression") == null) {
             return;
-          }else{
+          } else {
             modelId += "=" + this.get("model_expression");
-             if (this.get('model_expression').indexOf(this.collection.customModelId) === -1){
-                 modelContainsSHC = false; // do not send shc when not necessary
-             }
+            if (this.get('model_expression').indexOf(this.collection.customModelId) === -1) {
+              modelContainsSHC = false; // do not send shc when not necessary
+            }
           }
         }
         _.extend(options, {
@@ -144,13 +146,13 @@
               end: shc.decimalYearToDate(header.validity.end),
             },
             shc: data
-          }
+          };
           if (customModel) {
             // update custom model
             customModel.set(attributes);
           } else {
             // insert custom model
-            attributes.name = this.customModelId
+            attributes.name = this.customModelId;
             this.add(attributes);
           }
         } else {
@@ -166,15 +168,15 @@
         //throw away Custom model without shc and composed model without expression
         var modelIds = _.map(
           this.filter(_.bind(function (item) {
-            return (item.id != this.customModelId && item.get("model_expression")!==null)||(item.has('shc'));
+            return (item.id != this.customModelId && item.get("model_expression") !== null) || (item.has('shc'));
           }, this)),
           function (item) {
             var modelId = item.id;
-            if (item.get("model_expression")){
+            if (item.get("model_expression")) {
               modelId += "=" + item.get("model_expression");
             }
-              return modelId;
-            }
+            return modelId;
+          }
         );
         var customModel = this.getCustomModel();
         _.extend(options, {

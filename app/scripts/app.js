@@ -1,3 +1,4 @@
+/* global $ _ jQuery d3 require showMessage defaultFor */
 
 var SCALAR_PARAM = [
     "F", "Ne", "Te", "Vs", "U_orbit", "Bubble_Index", "Bubble_Probability",
@@ -13,54 +14,54 @@ var VECTOR_PARAM = [
     "CHAOS-6-MMA-Primary", "CHAOS-6-MMA-Secondary",
     "MIO_SHA_2C-Primary", "MIO_SHA_2C-Secondary", "MIO_SHA_2D-Primary", "MIO_SHA_2D-Secondary",
     'dB_other', 'dB_AOCS', 'dB_Sun'
-]
+];
 var VECTOR_BREAKDOWN = {
-    'SIFM': ['B_N_res_SIFM','B_E_res_SIFM','B_C_res_SIFM'],
-    'IGRF12': ['B_N_res_IGRF12','B_E_res_IGRF12','B_C_res_IGRF12'],
-    'CHAOS-6-Combined': ['B_N_res_CHAOS-6-Combined','B_E_res_CHAOS-6-Combined','B_C_res_CHAOS-6-Combined'],
-    'Custom_Model': ['B_N_res_Custom_Model','B_E_res_Custom_Model','B_C_res_Custom_Model'],
-    'Magnetic_Model': ['B_N_res_Magnetic_Model','B_E_res_Magnetic_Model','B_C_res_Magnetic_Model'],
-    'MCO_SHA_2C': ['B_N_res_MCO_SHA_2C','B_E_res_MCO_SHA_2C','B_C_res_MCO_SHA_2C'],
-    'MCO_SHA_2D': ['B_N_res_MCO_SHA_2D','B_E_res_MCO_SHA_2D','B_C_res_MCO_SHA_2D'],
-    'MCO_SHA_2F': ['B_N_res_MCO_SHA_2F','B_E_res_MCO_SHA_2F','B_C_res_MCO_SHA_2F'],
-    'MLI_SHA_2C': ['B_N_res_MLI_SHA_2C','B_E_res_MLI_SHA_2C','B_C_res_MLI_SHA_2C'],
-    'MLI_SHA_2D': ['B_N_res_MLI_SHA_2D','B_E_res_MLI_SHA_2D','B_C_res_MLI_SHA_2D'],
-    'MMA_SHA_2C-Primary': ['B_N_res_MMA_SHA_2C-Primary','B_E_res_MMA_SHA_2C-Primary','B_C_res_MMA_SHA_2C-Primary'],
-    'MMA_SHA_2C-Secondary': ['B_N_res_MMA_SHA_2C-Secondary','B_E_res_MMA_SHA_2C-Secondary','B_C_res_MMA_SHA_2C-Secondary'],
-    'MMA_SHA_2F-Primary': ['B_N_res_MMA_SHA_2F-Primary','B_E_res_MMA_SHA_2F-Primary','B_C_res_MMA_SHA_2F-Primary'],
-    'MMA_SHA_2F-Secondary': ['B_N_res_MMA_SHA_2F-Secondary','B_E_res_MMA_SHA_2F-Secondary','B_C_res_MMA_SHA_2F-Secondary'],
-    'CHAOS-6-MMA-Primary': ['B_N_res_CHAOS-6-MMA-Primary','B_E_res_CHAOS-6-MMA-Primary','B_C_res_CHAOS-6-MMA-Primary'],
-    'CHAOS-6-MMA-Secondary': ['B_N_res_CHAOS-6-MMA-Secondary','B_E_res_CHAOS-6-MMA-Secondary','B_C_res_CHAOS-6-MMA-Secondary'],
-    'MIO_SHA_2C-Primary': ['B_N_res_MIO_SHA_2C-Primary','B_E_res_MIO_SHA_2C-Primary','B_C_res_MIO_SHA_2C-Primary'],
-    'MIO_SHA_2C-Secondary': ['B_N_res_MIO_SHA_2C-Secondary','B_E_res_MIO_SHA_2C-Secondary','B_C_res_MIO_SHA_2C-Secondary'],
-    'MIO_SHA_2D-Primary': ['B_N_res_MIO_SHA_2D-Primary','B_E_res_MIO_SHA_2D-Primary','B_C_res_MIO_SHA_2D-Primary'],
-    'MIO_SHA_2D-Secondary': ['B_N_res_MIO_SHA_2D-Secondary','B_E_res_MIO_SHA_2D-Secondary','B_C_res_MIO_SHA_2D-Secondary'],
-    'B_NEC': ['B_N','B_E','B_C'],
-    'B_NEC_resAC': ['B_resAC_N','B_resAC_E','B_resAC_C'],
+    'SIFM': ['B_N_res_SIFM', 'B_E_res_SIFM', 'B_C_res_SIFM'],
+    'IGRF12': ['B_N_res_IGRF12', 'B_E_res_IGRF12', 'B_C_res_IGRF12'],
+    'CHAOS-6-Combined': ['B_N_res_CHAOS-6-Combined', 'B_E_res_CHAOS-6-Combined', 'B_C_res_CHAOS-6-Combined'],
+    'Custom_Model': ['B_N_res_Custom_Model', 'B_E_res_Custom_Model', 'B_C_res_Custom_Model'],
+    'Magnetic_Model': ['B_N_res_Magnetic_Model', 'B_E_res_Magnetic_Model', 'B_C_res_Magnetic_Model'],
+    'MCO_SHA_2C': ['B_N_res_MCO_SHA_2C', 'B_E_res_MCO_SHA_2C', 'B_C_res_MCO_SHA_2C'],
+    'MCO_SHA_2D': ['B_N_res_MCO_SHA_2D', 'B_E_res_MCO_SHA_2D', 'B_C_res_MCO_SHA_2D'],
+    'MCO_SHA_2F': ['B_N_res_MCO_SHA_2F', 'B_E_res_MCO_SHA_2F', 'B_C_res_MCO_SHA_2F'],
+    'MLI_SHA_2C': ['B_N_res_MLI_SHA_2C', 'B_E_res_MLI_SHA_2C', 'B_C_res_MLI_SHA_2C'],
+    'MLI_SHA_2D': ['B_N_res_MLI_SHA_2D', 'B_E_res_MLI_SHA_2D', 'B_C_res_MLI_SHA_2D'],
+    'MMA_SHA_2C-Primary': ['B_N_res_MMA_SHA_2C-Primary', 'B_E_res_MMA_SHA_2C-Primary', 'B_C_res_MMA_SHA_2C-Primary'],
+    'MMA_SHA_2C-Secondary': ['B_N_res_MMA_SHA_2C-Secondary', 'B_E_res_MMA_SHA_2C-Secondary', 'B_C_res_MMA_SHA_2C-Secondary'],
+    'MMA_SHA_2F-Primary': ['B_N_res_MMA_SHA_2F-Primary', 'B_E_res_MMA_SHA_2F-Primary', 'B_C_res_MMA_SHA_2F-Primary'],
+    'MMA_SHA_2F-Secondary': ['B_N_res_MMA_SHA_2F-Secondary', 'B_E_res_MMA_SHA_2F-Secondary', 'B_C_res_MMA_SHA_2F-Secondary'],
+    'CHAOS-6-MMA-Primary': ['B_N_res_CHAOS-6-MMA-Primary', 'B_E_res_CHAOS-6-MMA-Primary', 'B_C_res_CHAOS-6-MMA-Primary'],
+    'CHAOS-6-MMA-Secondary': ['B_N_res_CHAOS-6-MMA-Secondary', 'B_E_res_CHAOS-6-MMA-Secondary', 'B_C_res_CHAOS-6-MMA-Secondary'],
+    'MIO_SHA_2C-Primary': ['B_N_res_MIO_SHA_2C-Primary', 'B_E_res_MIO_SHA_2C-Primary', 'B_C_res_MIO_SHA_2C-Primary'],
+    'MIO_SHA_2C-Secondary': ['B_N_res_MIO_SHA_2C-Secondary', 'B_E_res_MIO_SHA_2C-Secondary', 'B_C_res_MIO_SHA_2C-Secondary'],
+    'MIO_SHA_2D-Primary': ['B_N_res_MIO_SHA_2D-Primary', 'B_E_res_MIO_SHA_2D-Primary', 'B_C_res_MIO_SHA_2D-Primary'],
+    'MIO_SHA_2D-Secondary': ['B_N_res_MIO_SHA_2D-Secondary', 'B_E_res_MIO_SHA_2D-Secondary', 'B_C_res_MIO_SHA_2D-Secondary'],
+    'B_NEC': ['B_N', 'B_E', 'B_C'],
+    'B_NEC_resAC': ['B_resAC_N', 'B_resAC_E', 'B_resAC_C'],
     'B_error': ['B_error_X', 'B_error_Y', 'B_error_Z'],
     'B_VFM': ['B_VFM_X', 'B_VFM_Y', 'B_VFM_Z'],
-    'GPS_Position':  ['GPS_Position_X','GPS_Position_Y','GPS_Position_Z'],
-    'LEO_Position':  ['LEO_Position_X','LEO_Position_Y','LEO_Position_Z'],
-    'B_NEC_res_SIFM': ['B_N_res_SIFM','B_E_res_SIFM','B_C_res_SIFM'],
-    'B_NEC_res_IGRF12': ['B_N_res_IGRF12','B_E_res_IGRF12','B_C_res_IGRF12'],
-    'B_NEC_res_CHAOS-6-Combined': ['B_N_res_CHAOS-6-Combined','B_E_res_CHAOS-6-Combined','B_C_res_CHAOS-6-Combined'],
-    'B_NEC_res_Custom_Model': ['B_N_res_Custom_Model','B_E_res_Custom_Model','B_C_res_Custom_Model'],
-    'B_NEC_res_Magnetic_Model': ['B_N_res_Magnetic_Model','B_E_res_Magnetic_Model','B_C_res_Magnetic_Model'],
-    'B_NEC_res_MCO_SHA_2C': ['B_N_res_MCO_SHA_2C','B_E_res_MCO_SHA_2C','B_C_res_MCO_SHA_2C'],
-    'B_NEC_res_MCO_SHA_2D': ['B_N_res_MCO_SHA_2D','B_E_res_MCO_SHA_2D','B_C_res_MCO_SHA_2D'],
-    'B_NEC_res_MCO_SHA_2F': ['B_N_res_MCO_SHA_2F','B_E_res_MCO_SHA_2F','B_C_res_MCO_SHA_2F'],
-    'B_NEC_res_MLI_SHA_2C': ['B_N_res_MLI_SHA_2C','B_E_res_MLI_SHA_2C','B_C_res_MLI_SHA_2C'],
-    'B_NEC_res_MLI_SHA_2D': ['B_N_res_MLI_SHA_2D','B_E_res_MLI_SHA_2D','B_C_res_MLI_SHA_2D'],
-    'B_NEC_res_MMA_SHA_2C-Primary': ['B_N_res_MMA_SHA_2C-Primary','B_E_res_MMA_SHA_2C-Primary','B_C_res_MMA_SHA_2C-Primary'],
-    'B_NEC_res_MMA_SHA_2C-Secondary': ['B_N_res_MMA_SHA_2C-Secondary','B_E_res_MMA_SHA_2C-Secondary','B_C_res_MMA_SHA_2C-Secondary'],
-    'B_NEC_res_MMA_SHA_2F-Primary': ['B_N_res_MMA_SHA_2F-Primary','B_E_res_MMA_SHA_2F-Primary','B_C_res_MMA_SHA_2F-Primary'],
-    'B_NEC_res_MMA_SHA_2F-Secondary': ['B_N_res_MMA_SHA_2F-Secondary','B_E_res_MMA_SHA_2F-Secondary','B_C_res_MMA_SHA_2F-Secondary'],
-    'B_NEC_res_CHAOS-6-MMA-Primary': ['B_N_res_CHAOS-6-MMA-Primary','B_E_res_CHAOS-6-MMA-Primary','B_C_res_CHAOS-6-MMA-Primary'],
-    'B_NEC_res_CHAOS-6-MMA-Secondary': ['B_N_res_CHAOS-6-MMA-Secondary','B_E_res_CHAOS-6-MMA-Secondary','B_C_res_CHAOS-6-MMA-Secondary'],
-    'B_NEC_res_MIO_SHA_2C-Primary': ['B_N_res_MIO_SHA_2C-Primary','B_E_res_MIO_SHA_2C-Primary','B_C_res_MIO_SHA_2C-Primary'],
-    'B_NEC_res_MIO_SHA_2C-Secondary': ['B_N_res_MIO_SHA_2C-Secondary','B_E_res_MIO_SHA_2C-Secondary','B_C_res_MIO_SHA_2C-Secondary'],
-    'B_NEC_res_MIO_SHA_2D-Primary': ['B_N_res_MIO_SHA_2D-Primary','B_E_res_MIO_SHA_2D-Primary','B_C_res_MIO_SHA_2D-Primary'],
-    'B_NEC_res_MIO_SHA_2D-Secondary': ['B_N_res_MIO_SHA_2D-Secondary','B_E_res_MIO_SHA_2D-Secondary','B_C_res_MIO_SHA_2D-Secondary'],
+    'GPS_Position': ['GPS_Position_X', 'GPS_Position_Y', 'GPS_Position_Z'],
+    'LEO_Position': ['LEO_Position_X', 'LEO_Position_Y', 'LEO_Position_Z'],
+    'B_NEC_res_SIFM': ['B_N_res_SIFM', 'B_E_res_SIFM', 'B_C_res_SIFM'],
+    'B_NEC_res_IGRF12': ['B_N_res_IGRF12', 'B_E_res_IGRF12', 'B_C_res_IGRF12'],
+    'B_NEC_res_CHAOS-6-Combined': ['B_N_res_CHAOS-6-Combined', 'B_E_res_CHAOS-6-Combined', 'B_C_res_CHAOS-6-Combined'],
+    'B_NEC_res_Custom_Model': ['B_N_res_Custom_Model', 'B_E_res_Custom_Model', 'B_C_res_Custom_Model'],
+    'B_NEC_res_Magnetic_Model': ['B_N_res_Magnetic_Model', 'B_E_res_Magnetic_Model', 'B_C_res_Magnetic_Model'],
+    'B_NEC_res_MCO_SHA_2C': ['B_N_res_MCO_SHA_2C', 'B_E_res_MCO_SHA_2C', 'B_C_res_MCO_SHA_2C'],
+    'B_NEC_res_MCO_SHA_2D': ['B_N_res_MCO_SHA_2D', 'B_E_res_MCO_SHA_2D', 'B_C_res_MCO_SHA_2D'],
+    'B_NEC_res_MCO_SHA_2F': ['B_N_res_MCO_SHA_2F', 'B_E_res_MCO_SHA_2F', 'B_C_res_MCO_SHA_2F'],
+    'B_NEC_res_MLI_SHA_2C': ['B_N_res_MLI_SHA_2C', 'B_E_res_MLI_SHA_2C', 'B_C_res_MLI_SHA_2C'],
+    'B_NEC_res_MLI_SHA_2D': ['B_N_res_MLI_SHA_2D', 'B_E_res_MLI_SHA_2D', 'B_C_res_MLI_SHA_2D'],
+    'B_NEC_res_MMA_SHA_2C-Primary': ['B_N_res_MMA_SHA_2C-Primary', 'B_E_res_MMA_SHA_2C-Primary', 'B_C_res_MMA_SHA_2C-Primary'],
+    'B_NEC_res_MMA_SHA_2C-Secondary': ['B_N_res_MMA_SHA_2C-Secondary', 'B_E_res_MMA_SHA_2C-Secondary', 'B_C_res_MMA_SHA_2C-Secondary'],
+    'B_NEC_res_MMA_SHA_2F-Primary': ['B_N_res_MMA_SHA_2F-Primary', 'B_E_res_MMA_SHA_2F-Primary', 'B_C_res_MMA_SHA_2F-Primary'],
+    'B_NEC_res_MMA_SHA_2F-Secondary': ['B_N_res_MMA_SHA_2F-Secondary', 'B_E_res_MMA_SHA_2F-Secondary', 'B_C_res_MMA_SHA_2F-Secondary'],
+    'B_NEC_res_CHAOS-6-MMA-Primary': ['B_N_res_CHAOS-6-MMA-Primary', 'B_E_res_CHAOS-6-MMA-Primary', 'B_C_res_CHAOS-6-MMA-Primary'],
+    'B_NEC_res_CHAOS-6-MMA-Secondary': ['B_N_res_CHAOS-6-MMA-Secondary', 'B_E_res_CHAOS-6-MMA-Secondary', 'B_C_res_CHAOS-6-MMA-Secondary'],
+    'B_NEC_res_MIO_SHA_2C-Primary': ['B_N_res_MIO_SHA_2C-Primary', 'B_E_res_MIO_SHA_2C-Primary', 'B_C_res_MIO_SHA_2C-Primary'],
+    'B_NEC_res_MIO_SHA_2C-Secondary': ['B_N_res_MIO_SHA_2C-Secondary', 'B_E_res_MIO_SHA_2C-Secondary', 'B_C_res_MIO_SHA_2C-Secondary'],
+    'B_NEC_res_MIO_SHA_2D-Primary': ['B_N_res_MIO_SHA_2D-Primary', 'B_E_res_MIO_SHA_2D-Primary', 'B_C_res_MIO_SHA_2D-Primary'],
+    'B_NEC_res_MIO_SHA_2D-Secondary': ['B_N_res_MIO_SHA_2D-Secondary', 'B_E_res_MIO_SHA_2D-Secondary', 'B_C_res_MIO_SHA_2D-Secondary'],
     'dB_other': ['dB_other_X', 'dB_other_Y', 'dB_other_Z'],
     'dB_AOCS': ['dB_AOCS_X', 'dB_AOCS_Y', 'dB_AOCS_Z'],
     'dB_Sun': ['dB_Sun_X', 'dB_Sun_Y', 'dB_Sun_Z']
@@ -89,40 +90,42 @@ function productSortingFunction(a, b) {
 }
 
 
-(function() {
+(function () {
     'use strict';
 
     var root = this;
 
     root.define([
-            'backbone',
-            'globals',
-            'regions/DialogRegion', 'regions/UIRegion',
-            'layouts/LayerControlLayout',
-            'layouts/ToolControlLayout',
-            'layouts/OptionsLayout',
-            'core/SplitView/WindowView',
-            'communicator',
-            'jquery', 'backbone.marionette',
-            'controller/ContentController',
-            'controller/DownloadController',
-            'controller/SelectionManagerController',
-            'controller/LoadingController',
-            'controller/LayerController',
-            'controller/SelectionController',
-            'controller/DataController'
-        ],
+        'backbone',
+        'globals',
+        'regions/DialogRegion', 'regions/UIRegion',
+        'layouts/LayerControlLayout',
+        'layouts/ToolControlLayout',
+        'layouts/OptionsLayout',
+        'core/SplitView/WindowView',
+        'communicator',
+        'jquery', 'backbone.marionette',
+        'controller/ContentController',
+        'controller/DownloadController',
+        'controller/SelectionManagerController',
+        'controller/LoadingController',
+        'controller/LayerController',
+        'controller/SelectionController',
+        'controller/DataController'
+    ],
 
-        function(Backbone, globals, DialogRegion,
-            UIRegion, LayerControlLayout, ToolControlLayout, OptionsLayout, WindowView, Communicator) {
+    function (
+        Backbone, globals, DialogRegion, UIRegion, LayerControlLayout,
+        ToolControlLayout, OptionsLayout, WindowView, Communicator
+    ) {
 
         var Application = Backbone.Marionette.Application.extend({
-            initialize: function(options) {
+            initialize: function (options) {
             },
 
-            configure: function(config) {
+            configure: function (config) {
 
-                // Load jquery ui tooltip tool
+                // Load jquery UI tooltip tool
 
                 /*$(document).ready(function() {
                     $("body").tooltip({
@@ -136,12 +139,12 @@ function productSortingFunction(a, b) {
 
                 $("body").tooltip({
                     selector: '[data-toggle=tooltip]',
-                    position: { my: "left+5 center", at: "right center" },
-                    hide: { effect: false, duration: 0 },
-                    show:{ effect: false, delay: 700}
+                    position: {my: "left+5 center", at: "right center"},
+                    hide: {effect: false, duration: 0},
+                    show: {effect: false, delay: 700}
                 });
 
-                var imagerenderercanvas = $('<canvas/>',{id: 'imagerenderercanvas'});
+                var imagerenderercanvas = $('<canvas/>', {id: 'imagerenderercanvas'});
                 $('body').append(imagerenderercanvas);
 
 
@@ -150,7 +153,7 @@ function productSortingFunction(a, b) {
                 var t = {}; //templates
 
                 // Application regions are loaded and added to the Marionette Application
-                _.each(config.regions, function(region) {
+                _.each(config.regions, function (region) {
                     var obj = {};
                     obj[region.name] = "#" + region.name;
                     this.addRegions(obj);
@@ -158,19 +161,19 @@ function productSortingFunction(a, b) {
                 }, this);
 
                 //Load all configured views
-                _.each(config.views, function(viewDef) {
+                _.each(config.views, function (viewDef) {
                     var View = require(viewDef);
                     $.extend(v, View);
                 }, this);
 
                 //Load all configured models
-                _.each(config.models, function(modelDef) {
+                _.each(config.models, function (modelDef) {
                     var Model = require(modelDef);
                     $.extend(m, Model);
                 }, this);
 
                 //Load all configured templates
-                _.each(config.templates, function(tmplDef) {
+                _.each(config.templates, function (tmplDef) {
                     var Tmpl = require(tmplDef.template);
                     t[tmplDef.id] = Tmpl;
                 }, this);
@@ -178,36 +181,34 @@ function productSortingFunction(a, b) {
                 this.templates = t;
                 this.views = v;
 
-
                 //Map attributes are loaded and added to the global map model
                 globals.objects.add('mapmodel', new m.MapModel({
-                        visualizationLibs : config.mapConfig.visualizationLibs,
-                        center: config.mapConfig.center,
-                        zoom: config.mapConfig.zoom,
-                        sun: _.has(config.mapConfig, 'showSun') ? config.mapConfig.showSun: true,
-                        moon: _.has(config.mapConfig, 'showMoon') ? config.mapConfig.showMoon: true,
-                        skyBox: _.has(config.mapConfig, 'showSkyBox') ? config.mapConfig.showSkyBox: true,
-                        skyAtmosphere: _.has(config.mapConfig, 'skyAtmosphere') ? config.mapConfig.skyAtmosphere: true,
-                        backgroundColor: _.has(config.mapConfig, 'backgroundColor') ? config.mapConfig.backgroundColor: "#000"
-                    })
+                    visualizationLibs: config.mapConfig.visualizationLibs,
+                    center: config.mapConfig.center,
+                    zoom: config.mapConfig.zoom,
+                    sun: _.has(config.mapConfig, 'showSun') ? config.mapConfig.showSun : true,
+                    moon: _.has(config.mapConfig, 'showMoon') ? config.mapConfig.showMoon : true,
+                    skyBox: _.has(config.mapConfig, 'showSkyBox') ? config.mapConfig.showSkyBox : true,
+                    skyAtmosphere: _.has(config.mapConfig, 'skyAtmosphere') ? config.mapConfig.skyAtmosphere : true,
+                    backgroundColor: _.has(config.mapConfig, 'backgroundColor') ? config.mapConfig.backgroundColor : "#000"
+                })
                 );
-
 
                 // Check if version of service is set and if it differs from the
                 // current version
-                if(localStorage.getItem('serviceVersion') !== null){
+                if (localStorage.getItem('serviceVersion') !== null) {
                     var serviceVersion = JSON.parse(
                         localStorage.getItem('serviceVersion')
                     );
-                    if(serviceVersion!==globals.version){
+                    if (serviceVersion !== globals.version) {
                         // A new version has been loaded, here we could
                         // differentiate which version was previous and which
-                        // one ist the new, for now we reset and save the new
+                        // one is the new, for now we reset and save the new
                         // version
                         showMessage('success',
-                            'A new version ('+globals.version+') of the service has been released. '+
-                            'Your configuration has been updated.</br>'+
-                            'You can find information on the changes in the '+
+                            'A new version (' + globals.version + ') of the service has been released. ' +
+                            'Your configuration has been updated.</br>' +
+                            'You can find information on the changes in the ' +
                             '<b><a target="_blank" href="/accounts/changelog">changelog</a></b>.', 35
                         );
                         localStorage.clear();
@@ -218,7 +219,7 @@ function productSortingFunction(a, b) {
                     }
                 } else {
                     // This should be the case when loading version 2.3 for the
-                    // first time (or when the localstorage is empty)
+                    // first time (or when the local storage is empty)
                     localStorage.clear();
 
                     localStorage.setItem(
@@ -227,42 +228,38 @@ function productSortingFunction(a, b) {
                     );
 
                     showMessage('success',
-                        'A new version ('+globals.version+') of the service has been released. '+
-                        'Your configuration has been updated.</br>'+
-                        'You can find information on the changes in the '+
+                        'A new version (' + globals.version + ') of the service has been released. ' +
+                        'Your configuration has been updated.</br>' +
+                        'You can find information on the changes in the ' +
                         '<b><a target="_blank" href="/accounts/changelog">changelog</a></b>.', 35
                     );
                 }
-
-
-
-
 
                 //Base Layers are loaded and added to the global collection
                 // If there are already saved baselayer config in the local
                 // storage use that instead
 
-                if(localStorage.getItem('baseLayersConfig') !== null){
+                if (localStorage.getItem('baseLayersConfig') !== null) {
                     // If newly added v2.1 s2 cloudless is not listed
                     // reload baselayer config
                     var savedConfig = JSON.parse(localStorage.getItem('baseLayersConfig'));
-                    if(savedConfig.filter(function(bl){
+                    if (savedConfig.filter(function (bl) {
                         return bl.views[0].id === 's2cloudless';
-                    }).length===0){
+                    }).length === 0) {
                         savedConfig = config.mapConfig.baseLayers;
                     }
                     config.mapConfig.baseLayers = savedConfig;
                 }
 
-                _.each(config.mapConfig.baseLayers, function(baselayer) {
+                _.each(config.mapConfig.baseLayers, function (baselayer) {
 
                     globals.baseLayers.add(
                         new m.LayerModel({
                             name: baselayer.name,
                             visible: baselayer.visible,
                             view: {
-                                id : baselayer.id,
-                                urls : baselayer.urls,
+                                id: baselayer.id,
+                                urls: baselayer.urls,
                                 protocol: baselayer.protocol,
                                 projection: baselayer.projection,
                                 attribution: baselayer.attribution,
@@ -279,22 +276,21 @@ function productSortingFunction(a, b) {
                                 isBaseLayer: true,
                                 wrapDateLine: baselayer.wrapDateLine,
                                 zoomOffset: baselayer.zoomOffset,
-                                    //time: baselayer.time // Is set in TimeSliderView on time change.
+                                //time: baselayer.time // Is set in TimeSliderView on time change.
                             },
                             views: baselayer.views
                         })
                     );
-                    console.log("Added baselayer " + baselayer.id );
+                    console.log("Added baselayer " + baselayer.id);
                 }, this);
 
                 var autoColor = {
-                    colors : d3.scale.category10(),
-                    index : 0,
-                    getColor: function () { return this.colors(this.index++) }
-                }
+                    colors: d3.scale.category10(),
+                    index: 0,
+                    getColor: function () {return this.colors(this.index++);}
+                };
 
-
-                //Productsare loaded and added to the global collection
+                //Products are loaded and added to the global collection
                 var ordinal = 0;
                 var domain = [];
                 var range = [];
@@ -305,7 +301,7 @@ function productSortingFunction(a, b) {
                 // If there are already saved product config in the local
                 // storage use that instead
 
-                if(localStorage.getItem('productsConfig') !== null){
+                if (localStorage.getItem('productsConfig') !== null) {
                     // Need to check if we need to migrate user data to new version (new data)
                     var product_config = JSON.parse(localStorage.getItem('productsConfig'));
 
@@ -315,17 +311,17 @@ function productSortingFunction(a, b) {
                     for (var i = 0; i < m_p.length; i++) {
 
                         // Always load timesliderprotocol from original config
-                        if(m_p[i].hasOwnProperty('timeSliderProtocol')){
+                        if (m_p[i].hasOwnProperty('timeSliderProtocol')) {
                             product_config[i].timeSliderProtocol = m_p[i].timeSliderProtocol;
                         }
 
                         // Check if MAG A product has new residual parameter loaded
-                        if(product_config[i].download.id === 'SW_OPER_MAGA_LR_1B'){
-                            if(!product_config[i].parameters.hasOwnProperty('B_NEC_resAC')){
+                        if (product_config[i].download.id === 'SW_OPER_MAGA_LR_1B') {
+                            if (!product_config[i].parameters.hasOwnProperty('B_NEC_resAC')) {
                                 product_config[i].parameters.B_NEC_resAC =
                                 {
                                     'range': [-600, 600],
-                                    'uom':'nT',
+                                    'uom': 'nT',
                                     'colorscale': 'jet',
                                     'name': 'Magnetic field intensity residual A - C'
                                 };
@@ -333,22 +329,21 @@ function productSortingFunction(a, b) {
                         }
 
                         // If old CHAOS model is available load new model
-                        if(product_config[i].name === 'CHAOS-5'){
+                        if (product_config[i].name === 'CHAOS-5') {
                             // Make sure corresponding config is new model
-                            if(m_p[i].name === 'CHAOS-6'){
+                            if (m_p[i].name === 'CHAOS-6') {
                                 product_config[i] = m_p[i];
                             }
                         }
 
-
-                        if(product_config.length>i){
-                            if(product_config[i].download.id != m_p[i].download.id){
+                        if (product_config.length > i) {
+                            if (product_config[i].download.id != m_p[i].download.id) {
                                 // If id is not the same a new product was inserted and thus
                                 // needs to be inserted into the old configuration of the user
                                 product_config.splice(i, 0, m_p[i]);
                             }
-                        }else{
-                            // If length of config is longer then user config new data was apended
+                        } else {
+                            // If length of config is longer then user config new data was appended
                             product_config.push(m_p[i]);
                         }
                     }
@@ -359,7 +354,7 @@ function productSortingFunction(a, b) {
                 // Make sure download parameters are always loaded from script
                 var mapConfProds = config.mapConfig.products;
                 for (var i = mapConfProds.length - 1; i >= 0; i--) {
-                    if(mapConfProds[i].hasOwnProperty('satellite') &&
+                    if (mapConfProds[i].hasOwnProperty('satellite') &&
                        mapConfProds[i].satellite === 'Swarm') {
 
                         mapConfProds[i].download_parameters['SunDeclination'] = {
@@ -393,7 +388,7 @@ function productSortingFunction(a, b) {
                     }
                 }
 
-                _.each(config.mapConfig.products, function(product) {
+                _.each(config.mapConfig.products, function (product) {
                     var p_color = product.color ? product.color : autoColor.getColor();
                     var lm = new m.LayerModel({
                         name: product.name,
@@ -425,22 +420,22 @@ function productSortingFunction(a, b) {
                         showColorscale: true
                     });
 
-                    if(lm.get('model')){
+                    if (lm.get('model')) {
                         lm.set({
-                          components: defaultFor(product.components, []),
-                          editable: defaultFor(product.editable, true),
-                          contours: defaultFor(product.contours,false)
+                            components: defaultFor(product.components, []),
+                            editable: defaultFor(product.editable, true),
+                            contours: defaultFor(product.contours, false)
                         });
                     }
 
                     globals.products.add(lm);
 
-                    if(product.processes){
+                    if (product.processes) {
                         domain.push(product.processes[0].layer_id);
                         range.push(p_color);
                     }
 
-                    console.log("Added product " + product.name );
+                    console.log("Added product " + product.name);
                 }, this);
 
                 var productcolors = d3.scale.ordinal().domain(domain).range(range);
@@ -448,13 +443,13 @@ function productSortingFunction(a, b) {
                 globals.objects.add('productcolors', productcolors);
 
                 // registering magnetic models
-                _.each(config.magneticModels.models, function(model_conf) {
+                _.each(config.magneticModels.models, function (model_conf) {
                     globals.models.config[model_conf.id] = model_conf;
                     if (model_conf.isCustomModel) {
                         // only one custom model allowed
                         if (globals.models.customModelId) {
                             console.error(
-                              "Multiple custom models are not allowed!" +
+                                "Multiple custom models are not allowed!" +
                               "Model " + model_conf.id + "is skipped."
                             );
                             return;
@@ -469,7 +464,7 @@ function productSortingFunction(a, b) {
                         globals.models.add({name: model_conf.id});
                         console.log("Added model " + model_conf.id);
                     }
-                })
+                });
 
                 // periodic update magnetic models' metadata
                 globals.models.url = config.magneticModels.infoUrl;
@@ -478,35 +473,33 @@ function productSortingFunction(a, b) {
                 });
 
                 // TODO: There is one initial request where sending is not counted
-                // but the ajax response is. This sets the event counter negative
-                // for now i add the event change here but i am not sure which
+                // but the AJAX Response is. This sets the event counter negative
+                // for now I add the event change here but I am not sure which
                 // request is actually responsible for this
                 Communicator.mediator.trigger("progress:change", true);
 
                 globals.models.fetch();
                 window.setInterval(function () {globals.models.fetch();}, 900000); // refresh each 15min
 
-
                 // If there is already saved overly configuration use that
-                if(localStorage.getItem('overlaysConfig') !== null){
+                if (localStorage.getItem('overlaysConfig') !== null) {
                     config.mapConfig.overlays = JSON.parse(localStorage.getItem('overlaysConfig'));
                 }
                 //Overlays are loaded and added to the global collection
-                _.each(config.mapConfig.overlays, function(overlay) {
+                _.each(config.mapConfig.overlays, function (overlay) {
 
-                        globals.overlays.add(
-                            new m.LayerModel({
-                                name: overlay.name,
-                                visible: overlay.visible,
-                                ordinal: ordinal,
-                                view: overlay.view
-                            })
-                        );
-                        console.log("Added overlay " + overlay.id);
-                    }, this);
+                    globals.overlays.add(
+                        new m.LayerModel({
+                            name: overlay.name,
+                            visible: overlay.visible,
+                            ordinal: ordinal,
+                            view: overlay.view
+                        })
+                    );
+                    console.log("Added overlay " + overlay.id);
+                }, this);
 
-
-                // If Navigation Bar is set in configuration go trhough the
+                // If Navigation Bar is set in configuration go through the
                 // defined elements creating a item collection to rendered
                 // by the marionette collection view
                 if (config.navBarConfig) {
@@ -515,7 +508,7 @@ function productSortingFunction(a, b) {
                     config.navBarConfig.items = config.navBarConfig.items.concat(addNavBarItems);
                     var navBarItemCollection = new m.NavBarCollection;
 
-                    _.each(config.navBarConfig.items, function(list_item){
+                    _.each(config.navBarConfig.items, function (list_item) {
                         navBarItemCollection.add(
                             new m.NavBarItemModel(list_item)
                         );
@@ -525,11 +518,11 @@ function productSortingFunction(a, b) {
                         {template: t.NavBar({
                             title: config.navBarConfig.title,
                             url: config.navBarConfig.url}),
-                        className:"navbar navbar-inverse navbar-fixed-top not-selectable",
+                        className: "navbar navbar-inverse navbar-fixed-top not-selectable",
                         itemView: v.NavBarItemView, tag: "div",
                         collection: navBarItemCollection}));
 
-                };
+                }
 
                 // Added region to test combination of backbone
                 // functionality combined with jQuery UI
@@ -550,26 +543,26 @@ function productSortingFunction(a, b) {
 
                 // Create the views - these are Marionette.CollectionViews that render ItemViews
                 this.baseLayerView = new v.BaseLayerSelectionView({
-                    collection:globals.baseLayers,
+                    collection: globals.baseLayers,
                     itemView: v.LayerItemView.extend({
                         template: {
-                            type:'handlebars',
+                            type: 'handlebars',
                             template: t.BulletLayer},
                         className: "radio-inline"
                     })
                 });
 
-        // We want to have the full list of products as the underlying
-                // system works in this manner but in order to accomodate the
+                // We want to have the full list of products as the underlying
+                // system works in this manner but in order to accommodate the
                 // concept of one product with three satellites we remove here
                 // Each three products and combine them to one, the logic for
                 // "separating" them is then done when activating one of this
                 // "special products"
 
-          var filtered = globals.products.filter(function (m) {
+                var filtered = globals.products.filter(function (m) {
                     if (m && m.get("download").id &&
                          (
-                            m.get("download").id.indexOf("SW_OPER_MAG") != -1 ||
+                             m.get("download").id.indexOf("SW_OPER_MAG") != -1 ||
                             m.get("download").id.indexOf("SW_OPER_EFI") != -1 ||
                             m.get("download").id.indexOf("SW_OPER_IBI") != -1 ||
                             m.get("download").id.indexOf("SW_OPER_TEC") != -1 ||
@@ -577,9 +570,9 @@ function productSortingFunction(a, b) {
                             m.get("download").id.indexOf("SW_OPER_EEF") != -1 ||
                             m.get('model') && !["Magnetic_Model"].includes(m.get('download').id)
                          )
-                    ){
+                    ) {
                         return false;
-                    }else{
+                    } else {
                         return true;
                     }
                 });
@@ -591,9 +584,9 @@ function productSortingFunction(a, b) {
                     "NSC": false
                 };
 
-                if(localStorage.getItem("satelliteSelection") !== null){
+                if (localStorage.getItem("satelliteSelection") !== null) {
                     globals.swarm.satellites = JSON.parse(localStorage.getItem("satelliteSelection"));
-                    if(!globals.swarm.satellites.hasOwnProperty("NSC")){
+                    if (!globals.swarm.satellites.hasOwnProperty("NSC")) {
                         globals.swarm.satellites['NSC'] = false;
                     }
                 }
@@ -604,28 +597,28 @@ function productSortingFunction(a, b) {
                         "Bravo": "SW_OPER_MAGB_LR_1B",
                         "Charlie": "SW_OPER_MAGC_LR_1B"
                     },
-                    "EFI":  {
+                    "EFI": {
                         "Alpha": "SW_OPER_EFIA_LP_1B",
                         "Bravo": "SW_OPER_EFIB_LP_1B",
                         "Charlie": "SW_OPER_EFIC_LP_1B"
                     },
-                    "IBI":  {
+                    "IBI": {
                         "Alpha": "SW_OPER_IBIATMS_2F",
                         "Bravo": "SW_OPER_IBIBTMS_2F",
                         "Charlie": "SW_OPER_IBICTMS_2F"
                     },
-                    "TEC":  {
+                    "TEC": {
                         "Alpha": "SW_OPER_TECATMS_2F",
                         "Bravo": "SW_OPER_TECBTMS_2F",
                         "Charlie": "SW_OPER_TECCTMS_2F"
                     },
-                    "FAC":  {
+                    "FAC": {
                         "Alpha": "SW_OPER_FACATMS_2F",
                         "Bravo": "SW_OPER_FACBTMS_2F",
                         "Charlie": "SW_OPER_FACCTMS_2F",
                         "NSC": "SW_OPER_FAC_TMS_2F"
                     },
-                    "EEF":  {
+                    "EEF": {
                         "Alpha": "SW_OPER_EEFATMS_2F",
                         "Bravo": "SW_OPER_EEFBTMS_2F"
                     }
@@ -634,8 +627,8 @@ function productSortingFunction(a, b) {
                 globals.swarm.activeProducts = [];
 
                 // reversed collection to satellite mapping
-                globals.swarm.collection2satellite = {}
-                _.each(globals.swarm.products, function(product) {
+                globals.swarm.collection2satellite = {};
+                _.each(globals.swarm.products, function (product) {
                     _.each(product, function (collection, satellite) {
                         globals.swarm.collection2satellite[collection] = satellite;
                     });
@@ -654,42 +647,41 @@ function productSortingFunction(a, b) {
 
                 var clickEvent = "require(['communicator'], function(Communicator){Communicator.mediator.trigger('application:reset');});";
 
-                if(localStorage.getItem("containerSelection") !== null){
+                if (localStorage.getItem("containerSelection") !== null) {
                     containerSelection = JSON.parse(localStorage.getItem("containerSelection"));
 
                     // Migration to newly available datasets
-                    if (!containerSelection.hasOwnProperty('TEC')){
+                    if (!containerSelection.hasOwnProperty('TEC')) {
                         containerSelection.TEC = false;
                     }
-                    if (!containerSelection.hasOwnProperty('FAC')){
+                    if (!containerSelection.hasOwnProperty('FAC')) {
                         containerSelection.FAC = false;
                     }
-                    if (!containerSelection.hasOwnProperty('EEF')){
+                    if (!containerSelection.hasOwnProperty('EEF')) {
                         containerSelection.EEF = false;
                     }
 
-
                     showMessage('success',
-                     'The configuration of your last visit has been loaded, '+
-                     'if you would like to reset to the default configuration click '+
-                     '<b><a href="javascript:void(0);" onclick="'+clickEvent+'">here</a></b> '+
+                        'The configuration of your last visit has been loaded, ' +
+                     'if you would like to reset to the default configuration click ' +
+                     '<b><a href="javascript:void(0);" onclick="' + clickEvent + '">here</a></b> ' +
                      'or on the Reset button above.', 35);
 
-                    // Chech if succesfull login info is being shown, if yes,
+                    // Check if successful login info is being shown, if yes,
                     // add padding to not overlap messages
-                    if($('.alert.alert-success.fade.in').length>0){
+                    if ($('.alert.alert-success.fade.in').length > 0) {
                         $('.alert.alert-success.fade.in').css('margin-top', '100px');
                     }
-                }else{
+                } else {
                     localStorage.setItem("containerSelection", JSON.stringify(containerSelection));
                 }
 
                 var csKeys = _.keys(containerSelection);
                 for (var i = csKeys.length - 1; i >= 0; i--) {
-                    if(containerSelection[csKeys[i]]){
+                    if (containerSelection[csKeys[i]]) {
                         var satKeys = _.keys(globals.swarm.products[csKeys[i]]);
                         for (var j = satKeys.length - 1; j >= 0; j--) {
-                            if(globals.swarm.satellites[satKeys[j]]){
+                            if (globals.swarm.satellites[satKeys[j]]) {
                                 globals.swarm.activeProducts.push(
                                     globals.swarm.products[csKeys[i]][satKeys[j]]
                                 );
@@ -699,19 +691,17 @@ function productSortingFunction(a, b) {
                 }
 
                 for (var i = globals.swarm.activeProducts.length - 1; i >= 0; i--) {
-                    globals.products.forEach(function(p){
-                        if(p.get("download").id == globals.swarm.activeProducts[i]){
-                            if(!p.get("visible")){
+                    globals.products.forEach(function (p) {
+                        if (p.get("download").id == globals.swarm.activeProducts[i]) {
+                            if (!p.get("visible")) {
                                 p.set("visible", true);
                             }
                         }
                     });
                 }
 
-
-
-            // Add generic product (which is container for A,B and C sats)
-            filtered_collection.add({
+                // Add generic product (which is container for A,B and C sats)
+                filtered_collection.add({
                     name: "Equatorial electric field (EEF)",
                     visible: containerSelection['EEF'],
                     color: "#b82e2e",
@@ -760,13 +750,11 @@ function productSortingFunction(a, b) {
                     id: "MAG"
                 }, {at: 0});
 
-
-
                 this.productsView = new v.LayerSelectionView({
                     collection: filtered_collection,
                     itemView: v.LayerItemView.extend({
                         template: {
-                            type:'handlebars',
+                            type: 'handlebars',
                             template: t.CheckBoxLayer},
                         className: "sortable-layer"
                     }),
@@ -786,46 +774,43 @@ function productSortingFunction(a, b) {
                     className: "check"
                 });
 
-
-
                 // Create layout that will hold the child views
                 this.layout = new LayerControlLayout();
 
-
                 // Define collection of selection tools
                 var selectionToolsCollection = new m.ToolCollection();
-                _.each(config.selectionTools, function(selTool) {
+                _.each(config.selectionTools, function (selTool) {
                     selectionToolsCollection.add(
-                            new m.ToolModel({
-                                id: selTool.id,
-                                description: selTool.description,
-                                icon:selTool.icon,
-                                enabled: true,
-                                active: false,
-                                type: "selection",
-                                selectionType: selTool.selectionType
-                            }));
+                        new m.ToolModel({
+                            id: selTool.id,
+                            description: selTool.description,
+                            icon: selTool.icon,
+                            enabled: true,
+                            active: false,
+                            type: "selection",
+                            selectionType: selTool.selectionType
+                        }));
                 }, this);
 
                 // Define collection of visualization tools
                 var visualizationToolsCollection = new m.ToolCollection();
-                _.each(config.visualizationTools, function(visTool) {
+                _.each(config.visualizationTools, function (visTool) {
                     visualizationToolsCollection.add(
-                            new m.ToolModel({
-                                id: visTool.id,
-                                eventToRaise: visTool.eventToRaise,
-                                description: visTool.description,
-                                disabledDescription: visTool.disabledDescription,
-                                icon:visTool.icon,
-                                enabled: visTool.enabled,
-                                active: visTool.active,
-                                type: "tool"
-                            }));
+                        new m.ToolModel({
+                            id: visTool.id,
+                            eventToRaise: visTool.eventToRaise,
+                            description: visTool.description,
+                            disabledDescription: visTool.disabledDescription,
+                            icon: visTool.icon,
+                            enabled: visTool.enabled,
+                            active: visTool.active,
+                            type: "tool"
+                        }));
                 }, this);
 
                 // Define collection of visualization modes
                 var visualizationModesCollection = new m.ToolCollection();
-                _.each(config.visualizationModes, function(visMode) {
+                _.each(config.visualizationModes, function (visMode) {
                     visualizationModesCollection.add(
                         new m.ToolModel({
                             id: visMode.id,
@@ -840,24 +825,23 @@ function productSortingFunction(a, b) {
 
                 // Create Collection Views to hold set of views for selection tools
                 this.visualizationToolsView = new v.ToolSelectionView({
-                    collection:visualizationToolsCollection,
+                    collection: visualizationToolsCollection,
                     itemView: v.ToolItemView.extend({
                         template: {
-                            type:'handlebars',
+                            type: 'handlebars',
                             template: t.ToolIcon}
                     })
                 });
 
                 // Create Collection Views to hold set of views for visualization tools
                 this.selectionToolsView = new v.ToolSelectionView({
-                    collection:selectionToolsCollection,
+                    collection: selectionToolsCollection,
                     itemView: v.ToolItemView.extend({
                         template: {
-                            type:'handlebars',
+                            type: 'handlebars',
                             template: t.ToolIcon}
                     })
                 });
-
 
                 // Create Collection Views to hold set of views for visualization modes
                 this.visualizationModesView = new v.ToolSelectionView({
@@ -870,7 +854,6 @@ function productSortingFunction(a, b) {
                     })
                 });
 
-
                 this.layerSettings = new v.LayerSettings();
 
                 // Create layout to hold collection views
@@ -880,15 +863,15 @@ function productSortingFunction(a, b) {
                 // Instance timeslider view
                 this.timeSliderView = new v.TimeSliderView(config.timeSlider);
 
-                var compare = function(val){
+                var compare = function (val) {
                     return val <= this[1] && val >= this[0];
                 };
 
                 // Load possible available filter selection
-                if(localStorage.getItem('filterSelection') !== null){
+                if (localStorage.getItem('filterSelection') !== null) {
                     var filters = JSON.parse(localStorage.getItem('filterSelection'));
                     var filterfunc = {};
-                    for (var f in filters){
+                    for (var f in filters) {
                         var ext = filters[f];
                         filterfunc[f] = compare.bind(ext);
                     }
@@ -896,15 +879,11 @@ function productSortingFunction(a, b) {
                     Communicator.mediator.trigger('analytics:set:filter', filters);
                     //globals.swarm.set('filters', JSON.parse(localStorage.getItem('filterSelection')));
                 }
-
-
-
-
             },
 
             // The GUI is setup after the application is started. Therefore all modules
             // are already registered and can be requested to populate the GUI.
-            setupGui: function() {
+            setupGui: function () {
 
                 // Starts the SplitView module and registers it with the Communicator.
                 this.module('SplitView').start();
@@ -921,21 +900,21 @@ function productSortingFunction(a, b) {
                     this.storyView.show(this.storyBanner);
                 }*/
 
-                if ( (typeof(Storage) !== "undefined") && localStorage.getItem("viewSelection") !== null) {
-                    if(localStorage.getItem('viewSelection') == 'split'){
+                if ((typeof(Storage) !== "undefined") && localStorage.getItem("viewSelection") !== null) {
+                    if (localStorage.getItem('viewSelection') == 'split') {
                         splitview.setSplitscreen();
                     }
-                    if(localStorage.getItem('viewSelection') == 'globe'){
+                    if (localStorage.getItem('viewSelection') == 'globe') {
                         splitview.setSinglescreen('CesiumViewer');
                     }
-                    if( localStorage.getItem('viewSelection') == 'analytics'){
+                    if (localStorage.getItem('viewSelection') == 'analytics') {
                         splitview.setSinglescreen('AVViewer');
                     }
-                }else{
+                } else {
                     splitview.setSplitscreen();
                 }
 
-                // Try to get CSRF token, if available set it for necesary ajax requests
+                // Try to get CSRF token, if available set it for necessary AJAX requests
                 function getCookie(name) {
                     var cookieValue = null;
                     if (document.cookie && document.cookie != '') {
@@ -958,9 +937,9 @@ function productSortingFunction(a, b) {
                     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
                 }
 
-                if(csrftoken){
+                if (csrftoken) {
                     $.ajaxSetup({
-                        beforeSend: function(xhr, settings) {
+                        beforeSend: function (xhr, settings) {
                             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
                             }
@@ -968,48 +947,48 @@ function productSortingFunction(a, b) {
                     });
                 }
 
-                // Add a trigger for ajax calls in order to display loading state
-          // in mouse cursor to give feedback to the user the client is busy
-          $(document).ajaxStart(function() {
-                Communicator.mediator.trigger("progress:change", true);
-          });
-
-          $(document).ajaxStop(function() {
-                Communicator.mediator.trigger("progress:change", false);
-          });
-
-          $(document).ajaxError(function( event, request , settings, thrownError ) {
-            if(settings.suppressErrors) {
-                return;
-            }
-            var error_text = request.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
-
-            if (error_text && error_text.length > 1) {
-                error_text = error_text[1];
-            } else {
-                error_text = 'Please contact feedback@vires.services if issue persists.'
-            }
-
-            showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
-          });
-
-          $('.tab-header:contains(Download)').css( "font-weight", "bold" );
-
-          // The tooltip is called twice at beginning and end, it seems to show the style of the
-          // tooltips more consistently, there is some problem where sometimes no style is shown for tooltips
-          $("body").tooltip({
-                    selector: '[data-toggle=tooltip]',
-                    position: { my: "left+5 center", at: "right center" },
-                    hide: { effect: false, duration: 0 },
-                    show:{ effect: false, delay: 700}
+                // Add a trigger for AJAX calls in order to display loading state
+                // in mouse cursor to give feedback to the user the client is busy
+                $(document).ajaxStart(function () {
+                    Communicator.mediator.trigger("progress:change", true);
                 });
 
-              // Now that products and data are loaded make sure datacontroller is correctly initialized
+                $(document).ajaxStop(function () {
+                    Communicator.mediator.trigger("progress:change", false);
+                });
+
+                $(document).ajaxError(function (event, request, settings, thrownError) {
+                    if (settings.suppressErrors) {
+                        return;
+                    }
+                    var error_text = request.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
+
+                    if (error_text && error_text.length > 1) {
+                        error_text = error_text[1];
+                    } else {
+                        error_text = 'Please contact feedback@vires.services if issue persists.';
+                    }
+
+                    showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+                });
+
+                $('.tab-header:contains(Download)').css("font-weight", "bold");
+
+                // The tooltip is called twice at beginning and end, it seems to show the style of the
+                // tooltips more consistently, there is some problem where sometimes no style is shown for tooltips
+                $("body").tooltip({
+                    selector: '[data-toggle=tooltip]',
+                    position: {my: "left+5 center", at: "right center"},
+                    hide: {effect: false, duration: 0},
+                    show: {effect: false, delay: 700}
+                });
+
+                // Now that products and data are loaded make sure datacontroller is correctly initialized
                 Communicator.mediator.trigger('manual:init');
                 this.timeSliderView.manualInit();
 
                 // Broadcast possible area selection
-                if(localStorage.getItem('areaSelection') !== null){
+                if (localStorage.getItem('areaSelection') !== null) {
                     Communicator.mediator.trigger('selection:changed', JSON.parse(localStorage.getItem('areaSelection')));
                 }
 
@@ -1018,11 +997,10 @@ function productSortingFunction(a, b) {
                 // Remove loading screen when this point is reached in the script
                 $('#loadscreen').remove();
 
-
             }
 
         });
 
         return new Application();
     });
-}).call( this );
+}).call(this);
