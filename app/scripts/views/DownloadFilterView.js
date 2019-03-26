@@ -315,9 +315,9 @@
               this.swarm_prod.push(prod);
           }
 
-          if (prod.get("model"))
+          if (prod.get("model")) {
             this.models.push(prod);
-
+          }
         }, this);
 
         var prod_div = this.$el.find("#productsList");
@@ -335,7 +335,7 @@
           mod_div.append('<ul style="padding-left:15px">');
           ul = mod_div.find("ul");
           _.each(this.models, function (prod) {
-            ul.append('<li style="list-style-type: circle; padding-left:-6px;list-style-position: initial;">' + prod.get("name") + '</li>');
+            ul.append('<li style="list-style-type: circle; padding-left:-6px;list-style-position: initial;">' + prod.getPrettyModelExpression() + '</li>');
           }, this);
         }
 
@@ -794,31 +794,13 @@
         }
 
         // models
-        options.model_ids = this.models.map(function (m) {return m.get("download").id;}).join(",");
+        options["model_ids"] = _.map(this.models, function (item) {
+          return item.getModelExpression(item.get('download').id);
+        }).join(',');
 
-        // composed model special case with model_expression
-        var joinedActiveModels = options["model_ids"];
-        if (joinedActiveModels.indexOf("Magnetic_Model") !== -1) {
-          var models = globals.products.filter(function (p) {
-            return p.get('model');
-          });
-
-          var globalFound = models.find(function (model) {
-            return model.get('download').id === "Magnetic_Model";
-          });
-
-          var newActiveModels = joinedActiveModels.replace("Magnetic_Model", "Magnetic_Model=" + globalFound.get("model_expression"));
-
-          options["model_ids"] = newActiveModels;
-        } else {
-          options["model_ids"] = joinedActiveModels;
-        }
-
-        // custom model (SHC)
-        var shc_model = _.find(globals.products.models, function (p) {return p.get("shc") != null;});
-        if (shc_model) {
-          options.shc = shc_model.get("shc");
-        }
+        options["shc"] = _.map(this.models, function (item) {
+          return item.getCustomShcIfSelected();
+        })[0] || null;
 
         // filters
         var filters = [];
