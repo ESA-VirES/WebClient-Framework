@@ -1,4 +1,5 @@
-/*global $ _ msgpack productSortingFunction showMessage getISODateTimeString VECTOR_BREAKDOWN */
+/*global $ _ msgpack */
+/*global showMessage getISODateTimeString VECTOR_BREAKDOWN */
 
 (function () {
   'use strict';
@@ -13,12 +14,16 @@
     'hbs!tmpl/wps_fetchData',
     'app',
     'papaparse',
+    'dataUtil',
     'msgpack',
     'graphly',
     'underscore'
   ],
 
-  function (Backbone, Communicator, globals, wps_getdataTmpl, wps_fetchDataTmpl, App, Papa) {
+  function (
+    Backbone, Communicator, globals, wps_getdataTmpl, wps_fetchDataTmpl, App,
+    Papa, DataUtil
+  ) {
 
     var DataController = Backbone.Marionette.Controller.extend({
 
@@ -41,13 +46,13 @@
       },
 
       getAvailableModelProducts: function () {
-        var availableModelProducts = {};
+        var modelProducts = {};
         globals.products.each(function (product) {
           if (product.get('model')) {
-            availableModelProducts[product.get('download').id] = product;
+            modelProducts[product.get('download').id] = product;
           }
         });
-        return availableModelProducts;
+        return modelProducts;
       },
 
       onManualInit: function () {
@@ -63,40 +68,45 @@
         // Added some checks here to see if model is outside validity
         $(".validitywarning").remove();
         var selected_time = this.selected_time;
-        var invalid_models = [];
 
-        if (selected_time) {
-          var availableModelProducts = this.getAvailableModelProducts();
-          invalid_models = _.filter(
-            this.activeModels,
-            function (id) {
-              var validity = availableModelProducts[id].getModelValidity();
-              if (!validity) return false;
-              return (selected_time.start < validity.start || selected_time.end > validity.end);
-            }
+        if (!selected_time) {return;}
+
+        var modelProducts = this.getAvailableModelProducts();
+
+        var invalidModels = _.filter(this.activeModels, function (id) {
+          var validity = modelProducts[id].getModelValidity();
+          if (!validity) return false;
+          return (
+            selected_time.start < validity.start ||
+            selected_time.end > validity.end
           );
-        }
+        });
 
-        function _iso_format(date) {
+        if (invalidModels.length == 0) {return;}
+
+        function isoFormat(date) {
           return getISODateTimeString(date).slice(0, -5) + 'Z';
         }
 
-        if (invalid_models.length > 0) {
-          var invalid_models_string = _.map(invalid_models, function (item) {
-            var validity = availableModelProducts[item].getModelValidity();
+        var invalidModelsString = _.map(invalidModels, function (item) {
+          var validity = modelProducts[item].getModelValidity();
+          var name = modelProducts[item].getPrettyModelExpression(false);
+          if (validity.end > validity.start) {
             return (
-              item.name + ' validity ' +
-              _iso_format(validity.start) + ' - ' +
-              _iso_format(validity.end) + '<br>'
+              name + ' validity ' +
+              isoFormat(validity.start) + ' - ' +
+              isoFormat(validity.end) + '<br>'
             );
-          }).join('');
+          } else {
+            return name + ' composed model with no validity interval<br>';
+          }
+        }).join('');
 
-          showMessage('warning', (
-            'The current time selection is outside the validity of ' +
-            'the following selected models:<br>' + invalid_models_string +
-            'Tip: You can see the validity of the model in the time slider.'
-          ), 30, 'validitywarning');
-        }
+        showMessage('warning', (
+          'The current time selection is outside the validity of ' +
+          'the following selected models:<br>' + invalidModelsString +
+          'Tip: You can see the validity of the model in the time slider.'
+        ), 30, 'validitywarning');
       },
 
       updateLayerResidualParameters: function () {
@@ -108,9 +118,8 @@
             // Get Layer parameters
             var pars = product.get("parameters");
 
+            // Find selected and remove all already added model residuals.
             var selected = null;
-
-            // Remove already added model residuals
             var keys = _.keys(pars);
             for (var i = keys.length - 1; i >= 0; i--) {
               if (pars[keys[i]].residuals) {
@@ -249,38 +258,12 @@
           }
         }, this);
 
-
         if (retrieve_data.length > 0) {
 
-          var collections = {};
-          for (var i = retrieve_data.length - 1; i >= 0; i--) {
-            var sat = false;
-            var product_keys = _.keys(globals.swarm.products);
-            for (var j = product_keys.length - 1; j >= 0; j--) {
-              var sat_keys = _.keys(globals.swarm.products[product_keys[j]]);
-              for (var k = sat_keys.length - 1; k >= 0; k--) {
-                if (globals.swarm.products[product_keys[j]][sat_keys[k]] == retrieve_data[i].layer) {
-                  sat = sat_keys[k];
-                }
-              }
-            }
-            if (sat) {
-              if (collections.hasOwnProperty(sat)) {
-                collections[sat].push(retrieve_data[i].layer);
-              } else {
-                collections[sat] = [retrieve_data[i].layer];
-              }
-            }
-
-          }
-
-          // Sort the "layers" to sort the master products based on priority
-          for (var k in collections) {
-            collections[k].sort(productSortingFunction);
-          }
+          var collections = DataUtil.parseCollections(retrieve_data);
 
           var options = {
-            "collections_ids": JSON.stringify(collections, Object.keys(collections).sort()),
+            "collections_ids": DataUtil.formatCollections(collections),
             "begin_time": getISODateTimeString(this.selected_time.start),
             "end_time": getISODateTimeString(this.selected_time.end)
           };
@@ -314,76 +297,51 @@
             "F_res_MIO_SHA_2D-Secondary", "B_NEC_res_MIO_SHA_2D-Secondary",
           ];
 
+          var collectionList = _.chain(collections)
+            .values()
+            .flatten()
+            .value();
+
           // See if magnetic data actually selected if not remove residuals
-          var magdata = false;
-          _.each(collections, function (vals) {
-            if (_.find(vals, function (v) {
-              if (v.indexOf("MAG") != -1) {
-                return true;}
-            })) {
-              magdata = true;
-            }
+          var magSelected = _.any(collectionList, function (collection) {
+            return collection.indexOf("MAG") !== -1;
           });
 
-          if (!magdata) {
+          if (!magSelected) {
             variables = _.filter(variables, function (v) {
-              if (v.indexOf("_res_") != -1) {
-                return false;
-              } else {
-                return true;
-              }
+              return v.indexOf("_res_") === -1;
             });
           }
 
-          // Remove parameters that need calculation if EEF is selected as data
-          // has no radius and can't be calculated without it
-          var eef_data = false;
-          _.each(collections, function (vals) {
-            if (_.find(vals, function (v) {
-              if (v.indexOf("EEF") != -1) {
-                return true;}
-            })) {
-              eef_data = true;
-            }
+          // Remove parameters requiring full latitude, longitude, and radius
+          // position if only EEF products are selected.
+          // EEF data have no radius and therefore these auxiliary parameters
+          // cannot be calculated.
+          var noLocation = _.all(collectionList, function (collection) {
+            return collection.indexOf("EEF") !== -1;
           });
 
-          if (eef_data) {
-            variables = _.filter(variables, function (v) {
-              if (v.indexOf("_res_") != -1 ||
-                 v.indexOf("QDLat") != -1 ||
-                 v.indexOf("QDLon") != -1 ||
-                 v.indexOf("MLT") != -1) {
-                return false;
-              } else {
-                return true;
-              }
-            });
+          if (noLocation) {
+            variables = _.difference(variables, ["QDLat", "QDLon", "MLT"]);
           }
 
           options.variables = variables.join(",");
           options.mimeType = 'application/msgpack';
 
-
           if (this.selection_list.length > 0) {
-            var bb = this.selection_list[0];
-            options["bbox"] = bb.s + "," + bb.w + "," + bb.n + "," + bb.e;
+            var bbox = this.selection_list[0];
+            options["bbox"] = [bbox.s, bbox.w, bbox.n, bbox.e].join(",");
           }
 
           var availableModelProducts = this.getAvailableModelProducts();
-          var selectedModelProducts = _.filter(
-            _.map(
-              this.activeModels,
-              function (id) {return availableModelProducts[id];}
-            ),
-            function (item) {return item;}
-          );
+          var selectedModelProducts = _.chain(this.activeModels)
+            .map(function (id) {return availableModelProducts[id];})
+            .filter(function (item) {return item;})
+            .value();
 
-          options["model_ids"] = _.map(
-            selectedModelProducts,
-            function (item) {
-              return item.get('download').id + "=" + item.getModelExpression();
-            }
-          ).join(',');
+          options["model_ids"] = _.map(selectedModelProducts, function (item) {
+            return item.getModelExpression(item.get('download').id);
+          }).join(',');
 
           options["shc"] = _.map(
             selectedModelProducts,
@@ -404,7 +362,6 @@
           this.xhr.responseType = 'arraybuffer';
           var that = this;
           var request = this.xhr;
-
 
           this.xhr.onreadystatechange = function () {
             if (request.readyState == 4) {
@@ -497,20 +454,20 @@
                   }
                 }
 
-                for (var key in dat) {
-                  if (VECTOR_BREAKDOWN.hasOwnProperty(key)) {
-                    dat[VECTOR_BREAKDOWN[key][0]] = [];
-                    dat[VECTOR_BREAKDOWN[key][1]] = [];
-                    dat[VECTOR_BREAKDOWN[key][2]] = [];
-                    for (var i = 0; i < dat[key].length; i++) {
-                      dat[key][i];
-                      dat[VECTOR_BREAKDOWN[key][0]].push(dat[key][i][0]);
-                      dat[VECTOR_BREAKDOWN[key][1]].push(dat[key][i][1]);
-                      dat[VECTOR_BREAKDOWN[key][2]].push(dat[key][i][2]);
-                    }
-                    delete dat[key];
-                  }
-                }
+                _.each(dat, function (data, key) {
+                  var components = VECTOR_BREAKDOWN[key];
+                  if (!components) {return;}
+                  dat[components[0]] = [];
+                  dat[components[1]] = [];
+                  dat[components[2]] = [];
+                  _.each(data, function (item) {
+                    dat[components[0]].push(item[0]);
+                    dat[components[1]].push(item[1]);
+                    dat[components[2]].push(item[2]);
+                  });
+                  delete dat[key];
+                });
+
                 // This should only happen here if there has been
                 // some issue with the saved filter configuration
                 // Check if current brushes are valid for current data
@@ -530,7 +487,6 @@
                     globals.swarm.set('filters', filters);
                     localStorage.setItem('filterSelection', JSON.stringify(filtersSelec));
                   }
-
                 }
 
                 globals.swarm.set({data: dat});
@@ -559,7 +515,6 @@
                 request.responseType = 'text';
               }
             }
-
           };
 
           Communicator.mediator.trigger("progress:change", true);
@@ -568,6 +523,7 @@
       },
 
     });
+
     return new DataController();
   });
 

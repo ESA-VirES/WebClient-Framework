@@ -1,6 +1,6 @@
 /*global $ _ w2confirm */
 /*global getISOTimeString isValidTime parseTime getISODateTimeString */
-/*global VECTOR_BREAKDOWN productSortingFunction */
+/*global VECTOR_BREAKDOWN */
 
 (function () {
   'use strict';
@@ -26,12 +26,16 @@
     'hbs!tmpl/wps_retrieve_data_filtered',
     'hbs!tmpl/CoverageDownloadPost',
     'hbs!tmpl/wps_fetchFilteredDataAsync',
+    'dataUtil',
     'underscore',
     'w2ui',
     'w2popup'
   ],
-  function (Backbone, Communicator, globals, m, DownloadFilterTmpl,
-    FilterTmpl, DownloadProcessTmpl, wps_requestTmpl, CoverageDownloadPostTmpl, wps_fetchFilteredDataAsync) {
+  function (
+    Backbone, Communicator, globals, m, DownloadFilterTmpl, FilterTmpl,
+    DownloadProcessTmpl, wps_requestTmpl, CoverageDownloadPostTmpl,
+    wps_fetchFilteredDataAsync, DataUtil
+  ) {
 
     var DownloadProcessView = Backbone.Marionette.ItemView.extend({
       tagName: "div",
@@ -42,12 +46,15 @@
         type: 'handlebars',
         template: DownloadProcessTmpl
       },
+
       modelEvents: {
         "change": "render"
       },
+
       onBeforeRender: function () {
         this.collapse_open = $('#collapse-' + this.model.get('id')).hasClass('in');
       },
+
       onRender: function () {
         if (this.collapse_open) {
           $('#collapse-' + this.model.get('id')).addClass('in');
@@ -80,7 +87,6 @@
       download_link: null,
 
       update: function () {
-
         var that = this;
         $.get(this.get('status_url'), 'xml')
           .done(function (doc) {
@@ -178,7 +184,6 @@
       },
 
       initialize: function (options) {
-
         this.coverages = new Backbone.Collection([]);
         this.start_picker = null;
         this.end_picker = null;
@@ -187,7 +192,6 @@
         this.loadcounter = 0;
         this.currentFilters = {};
         this.tabindex = 1;
-
       },
 
       createSubscript: function createSubscript(string) {
@@ -202,7 +206,6 @@
         } else {
           newkey = string;
         }
-
         return newkey;
       },
 
@@ -245,9 +248,7 @@
 
         this.currentFilters = filters;
 
-        //if (!$.isEmptyObject(filters)){
         this.renderFilterList();
-        //}
 
         // Check for products and models
         var products;
@@ -260,29 +261,27 @@
           dateFormat: "dd.mm.yy"
         });
 
-        var that = this;
-
         var timeinterval = this.model.get("ToI");
 
         this.start_picker = this.$('#starttime').datepicker({
-          onSelect: function () {
-            var start = that.start_picker.datepicker("getDate");
-            var end = that.end_picker.datepicker("getDate");
+          onSelect: _.bind(function () {
+            var start = this.start_picker.datepicker("getDate");
+            var end = this.end_picker.datepicker("getDate");
             if (start > end) {
-              that.end_picker.datepicker("setDate", start);
+              this.end_picker.datepicker("setDate", start);
             }
-          }
+          }, this)
         });
         this.start_picker.datepicker("setDate", timeinterval.start);
 
         this.end_picker = this.$('#endtime').datepicker({
-          onSelect: function () {
-            var start = that.start_picker.datepicker("getDate");
-            var end = that.end_picker.datepicker("getDate");
+          onSelect: _.bind(function () {
+            var start = this.start_picker.datepicker("getDate");
+            var end = this.end_picker.datepicker("getDate");
             if (end < start) {
-              that.start_picker.datepicker("setDate", end);
+              this.start_picker.datepicker("setDate", end);
             }
-          }
+          }, this)
         });
         this.end_picker.datepicker("setDate", timeinterval.end);
 
@@ -330,7 +329,6 @@
           ul.append('<li style="list-style-type: circle; padding-left:-6px;list-style-position: initial;">' + prod.get("name") + '</li>');
         }, this);
 
-
         if (this.models.length > 0) {
           var mod_div = this.$el.find("#model");
           mod_div.append('<div><b>Models</b></div>');
@@ -377,13 +375,13 @@
             '<div class="checkbox" style="margin-left:0px;"><label><input type="checkbox" value="" id="custom_time_cb">Custom time selection</label></div><div id="customtimefilter"></div>'
         );*/
 
-        this.$el.find('#custom_time_cb').click(function () {
+        this.$el.find('#custom_time_cb').click(_.bind(function () {
 
           $('#customtimefilter').empty();
 
           if ($('#custom_time_cb').is(':checked')) {
 
-            var timeinterval = that.model.get("ToI");
+            var timeinterval = this.model.get("ToI");
             var extent = [
               getISOTimeString(timeinterval.start),
               getISOTimeString(timeinterval.end)
@@ -403,7 +401,7 @@
 
           }
 
-        });
+        }, this));
 
         var selected = [];
         // Check if latitude available
@@ -445,18 +443,18 @@
           items: _.sortBy(available_parameters, 'id'), // Sort parameters alphabetically
           openOnFocus: true,
           selected: selected,
-          renderItem: function (item, index, remove) {
+          renderItem: _.bind(function (item, index, remove) {
             if (item.id == "Latitude" || item.id == "Longitude" ||
                    item.id == "Timestamp" || item.id == "Radius") {
               remove = "";
             }
-            var html = remove + that.createSubscript(item.id);
+            var html = remove + this.createSubscript(item.id);
             return html;
-          },
-          renderDrop: function (item, options) {
+          }, this),
+          renderDrop: _.bind(function (item, options) {
             $("#w2ui-overlay").addClass("downloadsection");
 
-            var html = '<b>' + that.createSubscript(item.id) + '</b>';
+            var html = '<b>' + this.createSubscript(item.id) + '</b>';
             if (item.uom != null) {
               html += ' [' + item.uom + ']';
             }
@@ -466,7 +464,7 @@
             //'<i class="fa fa-info-circle" aria-hidden="true" data-placement="right" style="margin-left:4px;" title="'+item.description+'"></i>';
 
             return html;
-          },
+          }, this),
           onRemove: function (evt) {
             if (evt.item.id == "Radius" || evt.item.id == "Latitude" ||
                  evt.item.id == "Longitude" || evt.item.id == "Timestamp") {
@@ -552,8 +550,6 @@
               toggleDownloadButton(true);
             }
           });
-
-
       },
 
       renderFilterList: function () {
@@ -594,9 +590,7 @@
               index1: this.tabindex++,
               index2: this.tabindex++,
               index3: this.tabindex++
-            })
-            );
-
+            }));
 
             fil_div.append($html);
           }
@@ -650,12 +644,10 @@
           $("#addfilter").focus();
         });
 
-        var that = this;
-
         $('#addfilter').w2field('list', {
           items: _.keys(filteroptions).sort(),
-          renderDrop: function (item, options) {
-            var html = '<b>' + that.createSubscript(item.id) + '</b>';
+          renderDrop: _.bind(function (item, options) {
+            var html = '<b>' + this.createSubscript(item.id) + '</b>';
             if (filteroptions[item.id].uom != null) {
               html += ' [' + filteroptions[item.id].uom + ']';
             }
@@ -663,19 +655,19 @@
               html += ': ' + filteroptions[item.id].name;
             }
             return html;
-          }
+          }, this)
         });
 
         $('#addfilter').change(this.handleItemSelected.bind(this));
 
         // Remove previously set click bindings
         this.$('.delete-filter').off('click');
-        this.$('.delete-filter').on('click', function (evt) {
-          var item = this.parentElement.parentElement;
-          this.parentElement.parentElement.parentElement.removeChild(item);
-          delete that.currentFilters[item.id];
-          that.renderFilterList();
-        });
+        this.$('.delete-filter').on('click', _.bind(function (evt) {
+          var item = evt.currentTarget.parentElement.parentElement;
+          item.parentElement.removeChild(item);
+          delete this.currentFilters[item.id];
+          this.renderFilterList();
+        }, this));
 
       },
 
@@ -742,24 +734,23 @@
         }
 
         // time
-        options.begin_time = this.start_picker.datepicker("getDate");
-        options.begin_time = new Date(Date.UTC(options.begin_time.getFullYear(), options.begin_time.getMonth(),
-          options.begin_time.getDate(), options.begin_time.getHours(),
-          options.begin_time.getMinutes(), options.begin_time.getSeconds()));
+        var copyUTCDate = function (date) {
+          return new Date(Date.UTC(
+            date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(),
+            date.getMinutes(), date.getSeconds()
+          ));
+        };
+
+        options.begin_time = copyUTCDate(this.start_picker.datepicker("getDate"));
         options.begin_time.setUTCHours(0, 0, 0, 0);
 
-        options.end_time = this.end_picker.datepicker("getDate");
-        options.end_time = new Date(Date.UTC(options.end_time.getFullYear(), options.end_time.getMonth(),
-          options.end_time.getDate(), options.end_time.getHours(),
-          options.end_time.getMinutes(), options.end_time.getSeconds()));
+        options.end_time = copyUTCDate(this.end_picker.datepicker("getDate"));
         options.end_time.setUTCHours(23, 59, 59, 999);
-        //options.end_time.setUTCHours(0,0,0,0);
 
         // Add time subsetting option
         if ($('#custom_subsetting_filter').length != 0) {
           options.sampling_step = $('#custom_subsetting_ta').val();
         }
-
 
         // Rewrite time for start and end date if custom time is active
         if ($("#timefilter").length != 0) {
@@ -796,44 +787,11 @@
           }
         }, this);
 
-
         if (retrieve_data.length > 0) {
-
-          var collections = {};
-          for (var i = retrieve_data.length - 1; i >= 0; i--) {
-            var sat = false;
-            var product_keys = _.keys(globals.swarm.products);
-            for (var j = product_keys.length - 1; j >= 0; j--) {
-              var sat_keys = _.keys(globals.swarm.products[product_keys[j]]);
-              for (var k = sat_keys.length - 1; k >= 0; k--) {
-                if (globals.swarm.products[product_keys[j]][sat_keys[k]] == retrieve_data[i].layer) {
-                  sat = sat_keys[k];
-                }
-              }
-            }
-            if (sat) {
-              if (collections.hasOwnProperty(sat)) {
-                collections[sat].push(retrieve_data[i].layer);
-              } else {
-                collections[sat] = [retrieve_data[i].layer];
-              }
-            }
-
-          }
-
-          var collection_keys = _.keys(collections);
-          for (var i = collection_keys.length - 1; i >= 0; i--) {
-            collections[collection_keys[i]] = collections[collection_keys[i]].reverse();
-          }
-
-          // Sort the "layers" to sort the master products based on priority
-          for (var k in collections) {
-            collections[k].sort(productSortingFunction);
-          }
-
-          options["collections_ids"] = JSON.stringify(collections, Object.keys(collections).sort());
+          options["collections_ids"] = DataUtil.formatCollections(
+            DataUtil.parseCollections(retrieve_data)
+          );
         }
-
 
         // models
         options.model_ids = this.models.map(function (m) {return m.get("download").id;}).join(",");
@@ -880,23 +838,15 @@
           extent.sort(function (a, b) {return a - b;});
 
           // Check to see if filter is on a vector component
-          var original = false;
-          var index = -1;
-          _.each(VECTOR_BREAKDOWN, function (v, key) {
-            for (var i = 0; i < v.length; i++) {
-              if (v[i] === fe.id) {
-                index = i;
-                original = key;
-              }
-            }
-
+          var variable = fe.id;
+          _.any(VECTOR_BREAKDOWN, function (components, vectorVariable) {
+            var index = _.indexOf(components, fe.id);
+            if (index === -1) {return false;}
+            variable = vectorVariable + '[' + index + ']';
+            return true;
           });
 
-          if (original) {
-            filters.push(original + "[" + index + "]:" + extent.join(","));
-          } else {
-            filters.push(fe.id + ":" + extent.join(","));
-          }
+          filters.push(variable + ':' + extent.join(","));
         });
 
         options.filters = filters.join(";");
@@ -911,38 +861,28 @@
         } else {
           // Use default parameters as described by download
           // product parameters in configuration
-          variables = [];
+          var strippedVariables = [
+            "QDLat", "QDLon", "MLT", "OrbitDirection", "QDOrbitDirection",
+            "OrbitNumber", "SunDeclination", "SunRightAscension",
+            "SunHourAngle", "SunAzimuthAngle", "SunZenithAngle",
+            "B_NEC_resAC"
+          ];
 
           // Separate models and Swarm products and add lists to ui
-          _.each(this.model.get("products"), function (prod) {
-
-            if (prod.get("download_parameters")) {
-              var par = prod.get("download_parameters");
-              if (!prod.get("model")) {
-                var new_keys = _.keys(par);
-                _.each(new_keys, function (key) {
-                  // Remove unwanted keys
-                  if (key != "QDLat" && key != "QDLon" && key != "MLT" &&
-                       key != "OrbitNumber" && key != "SunDeclination" && key != "SunRightAscension" &&
-                       key != "SunHourAngle" && key != "SunAzimuthAngle" && key != "SunZenithAngle" &&
-                       key != "B_NEC_resAC") {
-                    if (!_.find(variables, function (item) {
-                      return item == key;
-                    })) {
-                      variables.push(key);
-                    }
-                  }
-                });
-              }
-            }
-          }, this);
-          options.variables = variables;
+          options.variables = _.chain(this.model.get("products"))
+            .map(function (product) {
+              var parameters = product.get("download_parameters");
+              return parameters && !product.get("model") ? _.keys(parameters) : [];
+            })
+            .flatten()
+            .uniq()
+            .difference(strippedVariables)
+            .value();
         }
 
         // TODO: Just getting last URL here think of how different urls should be handled
         var url = this.swarm_prod.map(function (m) {return m.get("views")[0].urls[0];})[0];
         var req_data = wps_fetchFilteredDataAsync(options);
-        var that = this;
 
         // Do some sanity checks before starting process
 
@@ -950,6 +890,7 @@
         var difference_ms = et_obj.getTime() - bt_obj.getTime();
         var days = Math.round(difference_ms / (1000 * 60 * 60 * 24));
 
+        var that = this;
         var sendProcessingRequest = function () {
           toggleDownloadButton(false);
           $.post(url, req_data, 'xml')

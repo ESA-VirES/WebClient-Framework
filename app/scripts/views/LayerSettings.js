@@ -124,9 +124,8 @@
                     );
                     this.$("#style").change(_.bind(function (evt) {
                         var selected = $(evt.target).find("option:selected").text();
-                        selectedOption.colorscale = selected;
+                        options[this.selected].colorscale = selected;
                         this.current_model.set("parameters", options);
-
                         if (selectedOption.hasOwnProperty("logarithmic")) {
                             this.createScale(selectedOption.logarithmic);
                         } else {

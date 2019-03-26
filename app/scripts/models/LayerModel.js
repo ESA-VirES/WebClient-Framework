@@ -73,26 +73,33 @@
                 return {start: start, end: end};
             },
 
-            getPrettyModelExpression: function () {
+            getPrettyModelExpression: function (showDegreeRange) {
                 function _default(value, defval) {
                     return (value === undefined || value === null) ? defval : value;
                 }
+
+                showDegreeRange = _default(showDegreeRange, true);
+
                 var sign = {'+': '+', '-': '&minus'};
-                return _.map(
-                    this.get('components'),
-                    function (item, index) {
-                        var conf = globals.models.config[item.id];
-                        var model = globals.models.get(item.id).attributes;
-                        return [
-                            index > 0 || item.sign !== '+' ? sign[item.sign] + ' ' : '',
-                            conf.name || item.id, '[',
+
+                return _.map(this.get('components'), function (item, index) {
+                    var conf = globals.models.config[item.id];
+                    var model = globals.models.get(item.id).attributes;
+                    var modelString = [
+                        index > 0 || item.sign !== '+' ? sign[item.sign] + ' ' : '',
+                        conf.name || item.id,
+                    ].join('');
+                    if (showDegreeRange) {
+                        modelString += [
+                            '[',
                             _default(item.parameters.min_degree, model.parameters ? model.parameters.min_degree : ''),
                             ':',
                             _default(item.parameters.max_degree, model.parameters ? model.parameters.max_degree : ''),
                             ']'
                         ].join('');
                     }
-                ).join(' ');
+                    return modelString;
+                }).join(' ');
             },
 
             getModelExpression: function (name) {

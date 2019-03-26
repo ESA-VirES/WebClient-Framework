@@ -117,9 +117,9 @@ define([
             Cesium.WebMapServiceImageryProvider.prototype.updateProperties = function (property, value) {
                 property = '&' + property + '=';
                 value = '' + value;
-                var i = _.indexOf(this._tileProvider._urlParts, property);
-                if (i >= 0) {
-                    this._tileProvider._urlParts[i + 1] = encodeURIComponent(value);
+                var index = _.indexOf(this._tileProvider._urlParts, property);
+                if (index >= 0) {
+                    this._tileProvider._urlParts[index + 1] = encodeURIComponent(value);
                 } else {
                     this._tileProvider._urlParts.push(property);
                     this._tileProvider._urlParts.push(encodeURIComponent(value));
@@ -399,7 +399,6 @@ define([
                 }
             }, this);
 
-
             this.map.scene.morphComplete.addEventListener(function () {
                 localStorage.setItem('sceneMode', this.map.scene.mode);
                 var c = this.map.scene.camera;
@@ -562,39 +561,7 @@ define([
 
         createLayer: function (layerdesc) {
 
-            var views = layerdesc.get('views');
-            var view;
-
-            if (typeof(views) === 'undefined') {
-                view = layerdesc.get('view');
-            } else {
-
-                if (views.length === 1) {
-                    view = views[0];
-                } else {
-                    // FIXXME: this whole logic has to be replaced by a more robust method, i.e. a viewer
-                    // defines, which protocols to support and get's the corresponding views from the
-                    // config then.
-
-                    // For now: prefer WMTS over WMS, if available:
-                    var wmts = _.find(views, function (view) {
-                        return view.protocol === 'WMTS';
-                    });
-                    if (wmts) {
-                        view = wmts;
-                    } else {
-                        var wms = _.find(views, function (view) {
-                            return view.protocol === 'WMS';
-                        });
-                        if (wms) {
-                            view = wms;
-                        } else {
-                            // No supported protocol defined in config.json!
-                            return null;
-                        }
-                    }
-                }
-            }
+            var view = this.getView(layerdesc);
 
             // Manage custom attribution element (add attribution for active layers)
             if (layerdesc.get('visible')) {
@@ -611,6 +578,32 @@ define([
                 default: // No supported view available
                     return false;
             }
+        },
+
+        getView: function (layerdesc) {
+            var views = layerdesc.get('views');
+            var view = layerdesc.get('view');
+
+            if (!views && view) {return view;}
+            if (views.length === 1) {return views[0];}
+
+            // FIXXME: this whole logic has to be replaced by a more robust method, i.e. a viewer
+            // defines, which protocols to support and get's the corresponding views from the
+            // config then.
+
+            // When both available WMTS preferred over WMS.
+            view = _.find(views, function (view) {
+                return view.protocol === 'WMTS';
+            });
+            if (view) {return view;}
+
+            view = _.find(views, function (view) {
+                return view.protocol === 'WMS';
+            });
+            if (view) {return view;}
+
+            // No supported protocol defined in config.json!
+            return null;
         },
 
         createWMTSLayer: function (layerdesc, view) {
@@ -933,9 +926,7 @@ define([
                 options.bbox = boundingBox.join();
             }
 
-            var payload = tmplEvalModel(options);
-
-            $.post(product.get('views')[0].urls[0], payload)
+            $.post(product.get('views')[0].urls[0], tmplEvalModel(options))
                 .done(_.bind(function (data) {
                     var customModelLayer = product._cesiumLayerCustom;
                     customModelLayer.show = false;
@@ -987,7 +978,7 @@ define([
             }
             if (results.hasOwnProperty(refKey) && results[refKey].length > 0) {
                 // The feature collections are removed directly when a change happens
-                // because of the asynchronous behavior it can happen that a collection
+                // because of the asynchronous behaviour it can happen that a collection
                 // is added between removing it and adding another one so here we make sure
                 // it is empty before overwriting it, which would lead to a not referenced
                 // collection which is no longer deleted.
@@ -1003,36 +994,28 @@ define([
                 var settings = {};
 
                 globals.products.each(function (product) {
-                    if (product.get('visible')) {
-                        var params = product.get('parameters');
-                        for (var k in params) {
-                            if (params[k].selected) {
-                                var sat = false;
-                                var prodKeys = _.keys(globals.swarm.products);
-                                for (var i = prodKeys.length - 1; i >= 0; i--) {
-                                    var satKeys = _.keys(globals.swarm.products[prodKeys[i]]);
-                                    for (var j = satKeys.length - 1; j >= 0; j--) {
-                                        if (globals.swarm.products[prodKeys[i]][satKeys[j]] ===
-                                            product.get('views')[0].id) {
-                                            sat = satKeys[j];
-                                        }
-                                    }
-                                }
-                                if (sat) {
-                                    if (!settings.hasOwnProperty(sat)) {
-                                        settings[sat] = {};
-                                    }
-                                    if (!settings[sat].hasOwnProperty(k)) {
-                                        settings[sat][k] = product.get('parameters')[k];
-                                    }
-                                    settings[sat][k].band = k;
-                                    settings[sat][k].alpha = Math.floor(product.get('opacity') * 255);
-                                    settings[sat][k].outlines = product.get('outlines');
-                                    settings[sat][k].outline_color = product.get('color');
-                                }
-                            }
+                    if (!product.get('visible')) {return;}
+
+                    var collection = product.get('views')[0].id;
+                    var sat = globals.swarm.collection2satellite[collection];
+
+                    if (!sat) {return;}
+
+                    _.each(product.get('parameters'), function (param, name) {
+                        if (!param.selected) {return;}
+                        if (!settings.hasOwnProperty(sat)) {
+                            settings[sat] = {};
                         }
-                    }
+                        if (!settings[sat].hasOwnProperty(k)) {
+                            settings[sat][name] = _.clone(param);
+                        }
+                        _.extend(settings[sat][name], {
+                            band: name,
+                            alpha: Math.floor(product.get('opacity') * 255),
+                            outlines: product.get('outlines'),
+                            outline_color: product.get('color')
+                        });
+                    });
                 });
 
                 if (!_.isEmpty(settings)) {
@@ -1267,34 +1250,36 @@ define([
         },
 
         onLayerParametersChanged: function (layer) {
-            _.each(
-                globals.products.filter(function (product) {
-                    return product.get('name') === layer;
-                }),
-                function (product) {
-                    if (product.get('views')[0].protocol === 'CZML') {
-                        this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
-                    } else if (product.get('views')[0].protocol === 'WMS') {
-                        var variable = this.getSelectedVariable(product.get('parameters'));
-                        if (variable === 'Fieldlines') {
-                            this.hideCustomModel(product);
-                            this.hideWMSLayer(product);
-                            this.updateActiveFL(product);
-                            this.updateFieldLines();
-                        } else {
-                            this.deleteActiveFL(product);
-                            this.hideFieldLines();
 
-                            if (this.isCustomModelSelected(product)) {
-                                this.updateCustomModel(product);
-                            } else {
-                                this.hideCustomModel(product);
-                                this.updateWMSLayer(product);
-                            }
-                        }
+            var product = globals.products.find(function (product) {
+                return product.get('name') === layer;
+            });
+
+            if (product === undefined) {
+                return;
+            } else if (product.get('views')[0].protocol === 'CZML') {
+                this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
+            } else if (product.get('views')[0].protocol === 'WMS') {
+                var variable = this.getSelectedVariable(product.get('parameters'));
+
+                if (variable === 'Fieldlines') {
+                    this.hideCustomModel(product);
+                    this.hideWMSLayer(product);
+                    this.updateActiveFL(product);
+                } else {
+                    this.deleteActiveFL(product);
+                    if (this.isCustomModelSelected(product)) {
+                        this.updateCustomModel(product);
+                    } else {
+                        this.hideCustomModel(product);
+                        this.updateWMSLayer(product);
                     }
-                }, this
-            );
+                }
+
+                this.updateFieldLines();
+            }
+
+            this.checkColorscale(product.get('download').id);
         },
 
         hideWMSLayer: function (product) {
@@ -1304,8 +1289,6 @@ define([
         },
 
         updateWMSLayer: function (product) {
-            this.checkColorscale(product.get('download').id);
-
             var parameters = product.get('parameters');
             var band = this.getSelectedVariable(parameters);
             var style = parameters[band].colorscale;
@@ -1639,16 +1622,14 @@ define([
             // it creates issues in cesium picking for some reason so
             // we deactivate them again
             this.drawhelper._handlersMuted = true;
-            if (bbox) {
-                // Remove any possible selection and field lines (e.g.by tutorial)
-                if (this.extentPrimitive) {
-                    this.map.entities.remove(this.extentPrimitive);
-                }
-                _.each(_.keys(this.FLCollection), function (key) {
-                    this.map.scene.primitives.remove(this.FLCollection[key]);
-                    delete this.FLCollection[key];
-                }, this);
 
+            // Remove any possible selection and field lines (e.g.by tutorial)
+            if (this.extentPrimitive) {
+                this.map.entities.remove(this.extentPrimitive);
+            }
+            this.hideFieldLines();
+
+            if (bbox) {
                 this.bboxsel = [bbox.s, bbox.w, bbox.n, bbox.e];
                 var rectangle = Cesium.Rectangle.fromDegrees(bbox.w, bbox.s, bbox.e, bbox.n);
                 this.extentPrimitive = this.map.entities.add({
@@ -1666,22 +1647,16 @@ define([
 
             } else {
                 this.bboxsel = null;
-                if (this.extentPrimitive) {
-                    this.map.entities.remove(this.extentPrimitive);
-                }
-                _.each(_.keys(this.FLCollection), function (key) {
-                    this.map.scene.primitives.remove(this.FLCollection[key]);
-                    delete this.FLCollection[key];
-                }, this);
                 $('#bb_selection').html('Select Area');
             }
 
-            globals.products.each(function (product) {
-                if (product.get('model') && this.isCustomModelSelected(product)) {
-                    // When custom SHC selected switch to WPS visualization.
-                    this.updateCustomModel(product);
-                }
-            }, this);
+            // When custom SHC selected switch to WPS visualization.
+            _.each(
+                globals.products.filter(function (product) {
+                    return product.get('model') && this.isCustomModelSelected(product);
+                }, this),
+                this.updateCustomModel, this
+            );
         },
 
         updateFieldLines: function () {
@@ -1693,62 +1668,47 @@ define([
         },
 
         showFieldLines: function () {
-            globals.products.each(function (product) {
-                //var band, range;
-                var url, band, style, logarithmic, parameters, name;
-                var modelId = product.get('download').id;
+            _.each(
+                globals.products.filter(function (product) {
+                    return this.activeFL.indexOf(product.get('download').id) !== -1;
+                }, this),
+                function (product) {
+                    var name = product.get('name');
+                    var parameters = product.get('parameters');
+                    var variable = this.getSelectedVariable(parameters);
 
-                if (this.activeFL.indexOf(modelId) !== -1) {
-                    name = product.get('name');
-                    url = product.get('views')[0].urls[0];
-                    //color = product.get('color');
-                    //color = color.substring(1, color.length);
-                    parameters = product.get('parameters');
-                    band = this.getSelectedVariable(parameters);
-                    style = parameters[band].colorscale;
-                    //range = parameters[band].range;
-                    logarithmic = parameters[band].logarithmic;
+                    this.removeFLPrimitives(name);
 
-                    if (this.FLCollection.hasOwnProperty(name)) {
-                        this.map.scene.primitives.remove(this.FLCollection[name]);
-                        delete this.FLCollection[name];
-                    }
-
-                    if (band !== 'Fieldlines') {
-                        return;
-                    }
+                    if (variable !== 'Fieldlines') return;
 
                     var options = {
-                        model_ids: product.getModelExpression(modelId),
+                        model_ids: product.getModelExpression(product.get('download').id),
                         shc: product.getCustomShcIfSelected(),
                         begin_time: getISODateTimeString(this.beginTime),
                         end_time: getISODateTimeString(this.endTime),
                         bbox: [
                             this.bboxsel[0], this.bboxsel[1], this.bboxsel[2], this.bboxsel[3]
                         ].join(','),
-                        style: style,
-                        log_scale: logarithmic
+                        style: parameters[variable].colorscale,
+                        log_scale: parameters[variable].logarithmic
                     };
 
-                    $.post(url, tmplGetFieldLines(options))
+                    $.post(product.get('views')[0].urls[0], tmplGetFieldLines(options))
                         .done(_.bind(function (data) {
                             Papa.parse(data, {
                                 header: true,
                                 dynamicTyping: true,
                                 complete: _.bind(function (results) {
-                                    this.createPrimitives(results, name);
+                                    this.createFLPrimitives(results, name);
                                 }, this)
                             });
                         }, this));
-                }
-            }, this);
+                }, this
+            );
         },
 
         hideFieldLines: function () {
-            _.each(_.keys(this.FLCollection), function (key) {
-                this.map.scene.primitives.remove(this.FLCollection[key]);
-                delete this.FLCollection[key];
-            }, this);
+            _.each(_.keys(this.FLCollection), this.removeFLPrimitives, this);
         },
 
         getSelectedVariable: function (parameters) {
@@ -1788,47 +1748,43 @@ define([
             this.updateFieldLines();
         },
 
-        createPrimitives: function (results, name) {
-            var parseddata = {};
-            var instances = [];
+        removeFLPrimitives: function (name) {
             if (this.FLCollection.hasOwnProperty(name)) {
                 this.map.scene.primitives.remove(this.FLCollection[name]);
+                delete this.FLCollection[name];
             }
+        },
+
+        createFLPrimitives: function (results, name) {
+            this.removeFLPrimitives(name);
+
+            var parsedData = {};
             _.each(results.data, function (row) {
-                if (parseddata.hasOwnProperty(row.id)) {
-                    parseddata[row.id].colors.push(Cesium.Color.fromBytes(
-                        row.color_r, row.color_g, row.color_b, 255)
-                    );
-                    parseddata[row.id].positions.push(new Cesium.Cartesian3(
-                        row.pos_x, row.pos_y, row.pos_z)
-                    );
-                } else {
-                    parseddata[row.id] = {
-                        colors: [Cesium.Color.fromBytes(
-                            row.color_r, row.color_g, row.color_b, 255
-                        )],
-                        positions: [new Cesium.Cartesian3(
-                            row.pos_x, row.pos_y, row.pos_z)
-                        ]
-                    };
+                var data = parsedData[row.id];
+                if (data === undefined) {
+                    parsedData[row.id] = data = {colors: [], positions: []};
                 }
-            });
-            var linecnt = 0;
-            _.each(_.keys(parseddata), function (key) {
-                instances.push(
-                    new Cesium.GeometryInstance({
-                        geometry: new Cesium.PolylineGeometry({
-                            positions: parseddata[key].positions,
-                            width: 2.0,
-                            vertexFormat: Cesium.PolylineColorAppearance.VERTEX_FORMAT,
-                            colors: parseddata[key].colors,
-                            colorsPerVertex: true,
-                        }),
-                        id: 'vec_line_' + linecnt
-                    })
+                data.colors.push(
+                    Cesium.Color.fromBytes(row.color_r, row.color_g, row.color_b, 255)
                 );
-                linecnt++;
-            }, this);
+                data.positions.push(
+                    new Cesium.Cartesian3(row.pos_x, row.pos_y, row.pos_z)
+                );
+            });
+
+            var instances = _.values(parsedData).map(function (data, index) {
+                return new Cesium.GeometryInstance({
+                    id: 'vec_line_' + index,
+                    geometry: new Cesium.PolylineGeometry({
+                        positions: data.positions,
+                        width: 2.0,
+                        vertexFormat: Cesium.PolylineColorAppearance.VERTEX_FORMAT,
+                        colors: data.colors,
+                        colorsPerVertex: true,
+                    })
+                });
+            });
+
             // TODO: Possibly needed geometry instances if transparency should work for fieldlines
             this.FLCollection[name] = new Cesium.Primitive({
                 geometryInstances: instances,

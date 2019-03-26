@@ -78,17 +78,6 @@ var MASTER_PRIORITY = [
     'SW_OPER_EEFATMS_2F', 'SW_OPER_EEFBTMS_2F', 'SW_OPER_EEFCTMS_2F'
 ];
 
-function productSortingFunction(a, b) {
-    'use strict';
-    if (MASTER_PRIORITY.indexOf(a) < MASTER_PRIORITY.indexOf(b)) {
-        return -1;
-    }
-    if (MASTER_PRIORITY.indexOf(a) > MASTER_PRIORITY.indexOf(b)) {
-        return 1;
-    }
-    return 0;
-}
-
 
 (function () {
     'use strict';
