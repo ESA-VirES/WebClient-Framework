@@ -138,7 +138,7 @@
           var header = shc.parseShcHeader(data);
           var attributes = {
             parameters: {
-              min_degree: 0,
+              min_degree: header.min_degree,
               max_degree: header.max_degree
             },
             validity: {
