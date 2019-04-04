@@ -4,7 +4,7 @@
     var root = this;
 
     root.require.config({
-        urlArgs: 'bust=v2.22',
+        urlArgs: 'bust=v2.23',
 
         waitSeconds: 120,
         /* starting point for application */
