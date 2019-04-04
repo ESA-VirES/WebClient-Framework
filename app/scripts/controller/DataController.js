@@ -272,29 +272,11 @@
           var variables = [
             "F", "F_error", "B_NEC_resAC", "B_VFM", "B_error", "B_NEC", "Ne", "Te", "Vs",
             "U_orbit", "Bubble_Probability", "Kp", "Dst", "F107", "QDLat", "QDLon", "MLT",
-            "B_NEC_res_IGRF12", "B_NEC_res_SIFM", "B_NEC_res_CHAOS-6-Combined",
-            "B_NEC_res_Custom_Model", "B_NEC_res_Magnetic_Model", "F_res_IGRF12", "F_res_SIFM",
-            "F_res_CHAOS-6-Combined", "F_res_Custom_Model", "F_res_Magnetic_Model",
             "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle", "GPS_Position", "LEO_Position",
             "IRC", "IRC_Error", "FAC", "FAC_Error",
             "EEF", "RelErr", "OrbitNumber", "OrbitDirection", "QDOrbitDirection",
             "SunDeclination", "SunRightAscension", "SunHourAngle", "SunAzimuthAngle", "SunZenithAngle",
-            // New models
-            "F_res_MCO_SHA_2C", "B_NEC_res_MCO_SHA_2C",
-            "F_res_MCO_SHA_2D", "B_NEC_res_MCO_SHA_2D",
-            "F_res_MCO_SHA_2F", "B_NEC_res_MCO_SHA_2F",
-            "F_res_MLI_SHA_2C", "B_NEC_res_MLI_SHA_2C",
-            "F_res_MLI_SHA_2D", "B_NEC_res_MLI_SHA_2D",
-            "F_res_MMA_SHA_2C-Primary", "B_NEC_res_MMA_SHA_2C-Primary",
-            "F_res_MMA_SHA_2C-Secondary", "B_NEC_res_MMA_SHA_2C-Secondary",
-            "F_res_MMA_SHA_2F-Primary", "B_NEC_res_MMA_SHA_2F-Primary",
-            "F_res_MMA_SHA_2F-Secondary", "B_NEC_res_MMA_SHA_2F-Secondary",
-            "F_res_CHAOS-6-MMA-Primary", "B_NEC_res_CHAOS-6-MMA-Primary",
-            "F_res_CHAOS-6-MMA-Secondary", "B_NEC_res_CHAOS-6-MMA-Secondary",
-            "F_res_MIO_SHA_2C-Primary", "B_NEC_res_MIO_SHA_2C-Primary",
-            "F_res_MIO_SHA_2C-Secondary", "B_NEC_res_MIO_SHA_2C-Secondary",
-            "F_res_MIO_SHA_2D-Primary", "B_NEC_res_MIO_SHA_2D-Primary",
-            "F_res_MIO_SHA_2D-Secondary", "B_NEC_res_MIO_SHA_2D-Secondary",
+            "B_NEC_res_Model", "F_res_Model",
           ];
 
           var collectionList = _.chain(collections)

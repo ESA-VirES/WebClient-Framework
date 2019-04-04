@@ -2436,7 +2436,7 @@
             "tileSize":1024,
             "opacity": 0.7,
             "views": [{
-                "id": "Magnetic_Model",
+                "id": "Model",
                 "protocol": "WMS",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
@@ -2445,7 +2445,7 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "Magnetic_Model",
+                "id": "Model",
                 "protocol": "EOWCS",
                 "url": "http://localhost:9000/vires00/ows"
             },
@@ -2521,11 +2521,11 @@
                 }
             },
             "download_parameters": {
-                "B_NEC_res_Magnetic_Model": {
+                "B_NEC_res_Model": {
                     "uom":"nT",
                     "name": "Residuals to magnetic model coefficients of Magnetic field vector, NEC frame"
                 },
-                "F_res_Magnetic_Model": {
+                "F_res_Model": {
                     "uom":"nT",
                     "name": "Residuals of Magnetic field intensity to magnetic model coefficients"
                 }

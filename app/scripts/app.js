@@ -6,62 +6,20 @@ var SCALAR_PARAM = [
 ];
 
 var VECTOR_PARAM = [
-    "B_NEC", "SIFM", "IGRF12", "CHAOS-6-Combined", "Custom_Model", "Magnetic_Model",
-    "B_NEC_resAC", "GPS_Position", "LEO_Position",
+    "Model", // needed by CesiumView
+    "B_NEC", "B_NEC_resAC", "GPS_Position", "LEO_Position",
     "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle",
-    "MCO_SHA_2C", "MCO_SHA_2D", "MCO_SHA_2F", "MLI_SHA_2C", "MLI_SHA_2D",
-    "MMA_SHA_2C-Primary", "MMA_SHA_2C-Secondary", "MMA_SHA_2F-Primary", "MMA_SHA_2F-Secondary",
-    "CHAOS-6-MMA-Primary", "CHAOS-6-MMA-Secondary",
-    "MIO_SHA_2C-Primary", "MIO_SHA_2C-Secondary", "MIO_SHA_2D-Primary", "MIO_SHA_2D-Secondary",
     'dB_other', 'dB_AOCS', 'dB_Sun'
 ];
 var VECTOR_BREAKDOWN = {
-    'SIFM': ['B_N_res_SIFM', 'B_E_res_SIFM', 'B_C_res_SIFM'],
-    'IGRF12': ['B_N_res_IGRF12', 'B_E_res_IGRF12', 'B_C_res_IGRF12'],
-    'CHAOS-6-Combined': ['B_N_res_CHAOS-6-Combined', 'B_E_res_CHAOS-6-Combined', 'B_C_res_CHAOS-6-Combined'],
-    'Custom_Model': ['B_N_res_Custom_Model', 'B_E_res_Custom_Model', 'B_C_res_Custom_Model'],
-    'Magnetic_Model': ['B_N_res_Magnetic_Model', 'B_E_res_Magnetic_Model', 'B_C_res_Magnetic_Model'],
-    'MCO_SHA_2C': ['B_N_res_MCO_SHA_2C', 'B_E_res_MCO_SHA_2C', 'B_C_res_MCO_SHA_2C'],
-    'MCO_SHA_2D': ['B_N_res_MCO_SHA_2D', 'B_E_res_MCO_SHA_2D', 'B_C_res_MCO_SHA_2D'],
-    'MCO_SHA_2F': ['B_N_res_MCO_SHA_2F', 'B_E_res_MCO_SHA_2F', 'B_C_res_MCO_SHA_2F'],
-    'MLI_SHA_2C': ['B_N_res_MLI_SHA_2C', 'B_E_res_MLI_SHA_2C', 'B_C_res_MLI_SHA_2C'],
-    'MLI_SHA_2D': ['B_N_res_MLI_SHA_2D', 'B_E_res_MLI_SHA_2D', 'B_C_res_MLI_SHA_2D'],
-    'MMA_SHA_2C-Primary': ['B_N_res_MMA_SHA_2C-Primary', 'B_E_res_MMA_SHA_2C-Primary', 'B_C_res_MMA_SHA_2C-Primary'],
-    'MMA_SHA_2C-Secondary': ['B_N_res_MMA_SHA_2C-Secondary', 'B_E_res_MMA_SHA_2C-Secondary', 'B_C_res_MMA_SHA_2C-Secondary'],
-    'MMA_SHA_2F-Primary': ['B_N_res_MMA_SHA_2F-Primary', 'B_E_res_MMA_SHA_2F-Primary', 'B_C_res_MMA_SHA_2F-Primary'],
-    'MMA_SHA_2F-Secondary': ['B_N_res_MMA_SHA_2F-Secondary', 'B_E_res_MMA_SHA_2F-Secondary', 'B_C_res_MMA_SHA_2F-Secondary'],
-    'CHAOS-6-MMA-Primary': ['B_N_res_CHAOS-6-MMA-Primary', 'B_E_res_CHAOS-6-MMA-Primary', 'B_C_res_CHAOS-6-MMA-Primary'],
-    'CHAOS-6-MMA-Secondary': ['B_N_res_CHAOS-6-MMA-Secondary', 'B_E_res_CHAOS-6-MMA-Secondary', 'B_C_res_CHAOS-6-MMA-Secondary'],
-    'MIO_SHA_2C-Primary': ['B_N_res_MIO_SHA_2C-Primary', 'B_E_res_MIO_SHA_2C-Primary', 'B_C_res_MIO_SHA_2C-Primary'],
-    'MIO_SHA_2C-Secondary': ['B_N_res_MIO_SHA_2C-Secondary', 'B_E_res_MIO_SHA_2C-Secondary', 'B_C_res_MIO_SHA_2C-Secondary'],
-    'MIO_SHA_2D-Primary': ['B_N_res_MIO_SHA_2D-Primary', 'B_E_res_MIO_SHA_2D-Primary', 'B_C_res_MIO_SHA_2D-Primary'],
-    'MIO_SHA_2D-Secondary': ['B_N_res_MIO_SHA_2D-Secondary', 'B_E_res_MIO_SHA_2D-Secondary', 'B_C_res_MIO_SHA_2D-Secondary'],
     'B_NEC': ['B_N', 'B_E', 'B_C'],
     'B_NEC_resAC': ['B_resAC_N', 'B_resAC_E', 'B_resAC_C'],
+    'Model': ['B_N_res_Model', 'B_E_res_Model', 'B_C_res_Model'], // needed by CesiumView
+    'B_NEC_res_Model': ['B_N_res_Model', 'B_E_res_Model', 'B_C_res_Model'], 
     'B_error': ['B_error_X', 'B_error_Y', 'B_error_Z'],
     'B_VFM': ['B_VFM_X', 'B_VFM_Y', 'B_VFM_Z'],
     'GPS_Position': ['GPS_Position_X', 'GPS_Position_Y', 'GPS_Position_Z'],
     'LEO_Position': ['LEO_Position_X', 'LEO_Position_Y', 'LEO_Position_Z'],
-    'B_NEC_res_SIFM': ['B_N_res_SIFM', 'B_E_res_SIFM', 'B_C_res_SIFM'],
-    'B_NEC_res_IGRF12': ['B_N_res_IGRF12', 'B_E_res_IGRF12', 'B_C_res_IGRF12'],
-    'B_NEC_res_CHAOS-6-Combined': ['B_N_res_CHAOS-6-Combined', 'B_E_res_CHAOS-6-Combined', 'B_C_res_CHAOS-6-Combined'],
-    'B_NEC_res_Custom_Model': ['B_N_res_Custom_Model', 'B_E_res_Custom_Model', 'B_C_res_Custom_Model'],
-    'B_NEC_res_Magnetic_Model': ['B_N_res_Magnetic_Model', 'B_E_res_Magnetic_Model', 'B_C_res_Magnetic_Model'],
-    'B_NEC_res_MCO_SHA_2C': ['B_N_res_MCO_SHA_2C', 'B_E_res_MCO_SHA_2C', 'B_C_res_MCO_SHA_2C'],
-    'B_NEC_res_MCO_SHA_2D': ['B_N_res_MCO_SHA_2D', 'B_E_res_MCO_SHA_2D', 'B_C_res_MCO_SHA_2D'],
-    'B_NEC_res_MCO_SHA_2F': ['B_N_res_MCO_SHA_2F', 'B_E_res_MCO_SHA_2F', 'B_C_res_MCO_SHA_2F'],
-    'B_NEC_res_MLI_SHA_2C': ['B_N_res_MLI_SHA_2C', 'B_E_res_MLI_SHA_2C', 'B_C_res_MLI_SHA_2C'],
-    'B_NEC_res_MLI_SHA_2D': ['B_N_res_MLI_SHA_2D', 'B_E_res_MLI_SHA_2D', 'B_C_res_MLI_SHA_2D'],
-    'B_NEC_res_MMA_SHA_2C-Primary': ['B_N_res_MMA_SHA_2C-Primary', 'B_E_res_MMA_SHA_2C-Primary', 'B_C_res_MMA_SHA_2C-Primary'],
-    'B_NEC_res_MMA_SHA_2C-Secondary': ['B_N_res_MMA_SHA_2C-Secondary', 'B_E_res_MMA_SHA_2C-Secondary', 'B_C_res_MMA_SHA_2C-Secondary'],
-    'B_NEC_res_MMA_SHA_2F-Primary': ['B_N_res_MMA_SHA_2F-Primary', 'B_E_res_MMA_SHA_2F-Primary', 'B_C_res_MMA_SHA_2F-Primary'],
-    'B_NEC_res_MMA_SHA_2F-Secondary': ['B_N_res_MMA_SHA_2F-Secondary', 'B_E_res_MMA_SHA_2F-Secondary', 'B_C_res_MMA_SHA_2F-Secondary'],
-    'B_NEC_res_CHAOS-6-MMA-Primary': ['B_N_res_CHAOS-6-MMA-Primary', 'B_E_res_CHAOS-6-MMA-Primary', 'B_C_res_CHAOS-6-MMA-Primary'],
-    'B_NEC_res_CHAOS-6-MMA-Secondary': ['B_N_res_CHAOS-6-MMA-Secondary', 'B_E_res_CHAOS-6-MMA-Secondary', 'B_C_res_CHAOS-6-MMA-Secondary'],
-    'B_NEC_res_MIO_SHA_2C-Primary': ['B_N_res_MIO_SHA_2C-Primary', 'B_E_res_MIO_SHA_2C-Primary', 'B_C_res_MIO_SHA_2C-Primary'],
-    'B_NEC_res_MIO_SHA_2C-Secondary': ['B_N_res_MIO_SHA_2C-Secondary', 'B_E_res_MIO_SHA_2C-Secondary', 'B_C_res_MIO_SHA_2C-Secondary'],
-    'B_NEC_res_MIO_SHA_2D-Primary': ['B_N_res_MIO_SHA_2D-Primary', 'B_E_res_MIO_SHA_2D-Primary', 'B_C_res_MIO_SHA_2D-Primary'],
-    'B_NEC_res_MIO_SHA_2D-Secondary': ['B_N_res_MIO_SHA_2D-Secondary', 'B_E_res_MIO_SHA_2D-Secondary', 'B_C_res_MIO_SHA_2D-Secondary'],
     'dB_other': ['dB_other_X', 'dB_other_Y', 'dB_other_Z'],
     'dB_AOCS': ['dB_AOCS_X', 'dB_AOCS_Y', 'dB_AOCS_Z'],
     'dB_Sun': ['dB_Sun_X', 'dB_Sun_Y', 'dB_Sun_Z']
@@ -548,22 +506,11 @@ var MASTER_PRIORITY = [
                 // "separating" them is then done when activating one of this
                 // "special products"
 
-                var filtered = globals.products.filter(function (m) {
-                    if (m && m.get("download").id &&
-                         (
-                             m.get("download").id.indexOf("SW_OPER_MAG") != -1 ||
-                            m.get("download").id.indexOf("SW_OPER_EFI") != -1 ||
-                            m.get("download").id.indexOf("SW_OPER_IBI") != -1 ||
-                            m.get("download").id.indexOf("SW_OPER_TEC") != -1 ||
-                            m.get("download").id.indexOf("SW_OPER_FAC") != -1 ||
-                            m.get("download").id.indexOf("SW_OPER_EEF") != -1 ||
-                            m.get('model') && !["Magnetic_Model"].includes(m.get('download').id)
-                         )
-                    ) {
-                        return false;
-                    } else {
-                        return true;
-                    }
+                var filtered = globals.products.filter(function (product) {
+                    var id = product.get("download").id;
+                    return !(id && id.match(
+                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF)[ABC_]/
+                    ));
                 });
 
                 globals.swarm.satellites = {
