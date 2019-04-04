@@ -28,7 +28,10 @@
             {"id": "SIFM"},
             {"id": "IGRF12"},
             {"id": "CHAOS-6-Core"},
-            {"id": "CHAOS-6-Static"},
+            {
+                "id": "CHAOS-6-Static",
+                "name": "CHAOS-6-Crust"
+            },
             {"id": "CHAOS-6-MMA-Primary"},
             {"id": "CHAOS-6-MMA-Secondary"},
             {
