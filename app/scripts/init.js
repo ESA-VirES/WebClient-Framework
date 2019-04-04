@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     var root = this;
@@ -12,10 +12,10 @@
 
         shim: {
             jqueryui: {
-                deps:['jquery']
+                deps: ['jquery']
             },
             jqueryuitouch: {
-                deps:['jqueryui']
+                deps: ['jqueryui']
             },
             handlebars: {
                 exports: 'Handlebars'
@@ -40,7 +40,7 @@
                 deps: ['canvas-toBlob', 'Blob'],
                 exports: 'saveAs'
             },
-            lm:{
+            lm: {
                 exports: 'lm'
             },
             timeslider: {
@@ -71,7 +71,7 @@
             graphly: {
                 deps: ['d3', 'plotty', 'msgpack']
             },
-            
+
         },
 
         paths: {
@@ -101,7 +101,7 @@
 
             /* alias all marionette libs */
             'backbone.marionette': '../bower_components/backbone.marionette/lib/core/amd/backbone.marionette.min',
-            'backbone.wreqr': '../bower_components/backbone.wreqr/lib/amd/backbone.wreqr.min', 
+            'backbone.wreqr': '../bower_components/backbone.wreqr/lib/amd/backbone.wreqr.min',
             'backbone.babysitter': '../bower_components/backbone.babysitter/lib/amd/backbone.babysitter.min',
 
             /* alias the bootstrap js lib */
@@ -141,4 +141,4 @@
             disableI18n: true
         }
     });
-}).call( this );
+}).call(this);
