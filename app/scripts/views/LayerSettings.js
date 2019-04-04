@@ -18,6 +18,86 @@
 
     function (Backbone, Communicator, globals, Choices, LayerSettingsTmpl, evalModelTmplComposed_POST) {
 
+        var ModelComponentParameters = function (model, parameters) {
+            var source = parameters || {};
+            _.extend(this, {
+                id: model.id,
+                name: globals.models.config[model.id].name || model.id,
+                selected: Boolean(parameters),
+                sign: source.sign || "+",
+                parameters: source.parameters ? _.clone(source.parameters) : {},
+                defaults: model.get("parameters") || {},
+            });
+            this.sanitizeParameters();
+        };
+
+        _.extend(ModelComponentParameters.prototype, {
+
+            signToHtml: {'+': '+', '-': '&minus;'},
+
+            sanitizeParameters: function () {
+                if (this.isDefault(this.parameters.min_degree)) {
+                    delete this.parameters.min_degree;
+                }
+
+                if (this.isDefault(this.parameters.max_degree)) {
+                    delete this.parameters.max_degree;
+                }
+            },
+
+            getMinDegree: function () {
+                return this.parameters.min_degree;
+            },
+
+            getMaxDegree: function () {
+                return this.parameters.max_degree;
+            },
+
+            setMinDegree: function (source) {
+                var value = Number(source);
+                if (source === '' || isNaN(value)) {
+                    delete this.parameters.min_degree;
+                } else {
+                    this.parameters.min_degree = Math.max(
+                        this.defaults.min_degree,
+                        Math.min(value, (
+                            this.parameters.hasOwnProperty('max_degree') ?
+                                this.parameters.max_degree :
+                                this.defaults.max_degree
+                        ))
+                    );
+                }
+                return this.parameters.min_degree;
+            },
+
+            setMaxDegree: function (source) {
+                var value = Number(source);
+                if (source === '' || isNaN(value)) {
+                    delete this.parameters.max_degree;
+                } else {
+                    this.parameters.max_degree = Math.min(
+                        this.defaults.max_degree,
+                        Math.max(value, (
+                            this.parameters.hasOwnProperty('min_degree') ?
+                                this.parameters.min_degree :
+                                this.defaults.min_degree
+                        ))
+                    );
+                }
+                return this.parameters.max_degree;
+            },
+
+            toggleSign: function () {
+                this.sign = (this.sign === '+' ? '-' : '+');
+                return this.sign;
+            },
+
+            isDefault: function (value) {
+                return (value === undefined || value === -1 || isNaN(value));
+            }
+        });
+
+
         var LayerSettings = Backbone.Marionette.Layout.extend({
 
             template: {type: 'handlebars', template: LayerSettingsTmpl},
@@ -757,15 +837,7 @@
                 this.deleteSavedModelComponents();
 
                 var models = globals.models.map(function (model) {
-                    var last = previousSelection[model.id] || {};
-                    return {
-                        id: model.id,
-                        name: globals.models.config[model.id].name || model.id,
-                        selected: Boolean(previousSelection[model.id]),
-                        sign: last.sign || "+",
-                        parameters: last.parameters ? _.clone(last.parameters) : {},
-                        defaults: model.get("parameters") || {}
-                    };
+                    return new ModelComponentParameters(model, previousSelection[model.id]);
                 });
 
                 _.each(models, function (item) {
@@ -782,25 +854,6 @@
                         return {
                             item: function (classNames, data) {
                                 data = $('#composed_model_compute').data(classNames.value);
-                                var min_degree, max_degree;
-
-                                // make sure the required parameters are set
-                                function isDefault(value) {
-                                    return (value === undefined || value === -1 || isNaN(value));
-                                }
-
-                                if (isDefault(data.parameters.min_degree)) {
-                                    delete data.parameters.min_degree;
-                                    min_degree = null;
-                                } else {
-                                    min_degree = data.parameters.min_degree;
-                                }
-                                if (isDefault(data.parameters.max_degree)) {
-                                    delete data.parameters.max_degree;
-                                    max_degree = null;
-                                } else {
-                                    max_degree = data.parameters.max_degree;
-                                }
 
                                 // NOTE: The inline onclicks with stopPropagation event handlers
                                 // are needed to prevent execution of the bound Choices' onclick
@@ -813,40 +866,34 @@
                                 var updateMinDegree = [
                                     "var dataParent = $(this)[0].parentNode.parentNode.getAttribute('data-value');",
                                     "var data = $('#composed_model_compute').data(dataParent);",
-                                    "var source = $(this).val();",
-                                    "var value = Number(source);",
-                                    "if (source === '' || isNaN(value)) {delete data.parameters.min_degree; value = '';}",
-                                    "else {data.parameters.min_degree = value = Math.max(data.defaults.min_degree, Math.min(data.parameters.max_degree, value));}",
-                                    "$(this).val(value);",
-                                    "$('#changesbutton').addClass('unAppliedChanges');"
+                                    "var _old, _new;",
+                                    "$(this).val(_new = data.setMinDegree(_old = $(this).val()));",
+                                    "if (_old != _new) {$('#changesbutton').addClass('unAppliedChanges');}"
                                 ].join('');
                                 var updateMaxDegree = [
                                     "var dataParent = $(this)[0].parentNode.parentNode.getAttribute('data-value');",
                                     "var data = $('#composed_model_compute').data(dataParent);",
-                                    "var source = $(this).val();",
-                                    "var value = Number(source);",
-                                    "if (source === '' || isNaN(value)) {delete data.parameters.max_degree; value = '';}",
-                                    "else {data.parameters.max_degree = value = Math.min(data.defaults.max_degree, Math.max(data.parameters.min_degree, value));}",
-                                    "$(this).val(value);",
-                                    "$('#changesbutton').addClass('unAppliedChanges');"
+                                    "var _old, _new;",
+                                    "$(this).val(_new = data.setMaxDegree(_old = $(this).val()));",
+                                    "if (_old != _new) {$('#changesbutton').addClass('unAppliedChanges');}"
                                 ].join('');
                                 var switchSign = [
                                     "event.stopPropagation();",
                                     "var dataParent = $(this)[0].parentNode.getAttribute('data-value');",
                                     "var data = $('#composed_model_compute').data(dataParent);",
-                                    "data.sign = (data.sign === '+' ? '-' : '+');",
-                                    "$(this).attr('value', (data.sign === '+' ? '+' : '&minus;'));",
-                                    "$('#changesbutton').addClass('unAppliedChanges');"
+                                    "$(this).attr('value', {'+': '+', '-': '&minus;'}[data.toggleSign()]);",
+                                    "$('#changesbutton').addClass('unAppliedChanges');",
+                                    "console.log(data.id, data.sign, data.parameters)"
                                 ].join('');
 
                                 return template([
                                     '<div class="choices__item choices__item--selectable data-item composed_model_choices_holding_div" data-id="', classNames.id, '" data-value="', classNames.value, '" data-deletable>',
-                                    '<input type="button" value="', data.sign, '" class="composed_model_operation_operand btn-info" onclick="', switchSign, '">',
+                                    '<input type="button" value="', data.signToHtml[data.sign], '" class="composed_model_operation_operand btn-info" onclick="', switchSign, '">',
                                     '<span class="composed_model_operation_label">', data.name, '</span>',
                                     '<button type="button" class="composed_model_delete_button choices__button" data-button>Remove item</button>',
                                     '<div class="degree_range_selection_input">',
-                                    '<input type="text" placeholder="', data.defaults.min_degree, '" value="', min_degree, '" onclick="', onClickHandler, '" onkeydown="', onKeyDownHandler, '" onblur="', updateMinDegree, '" class="composed_model_operation_coefficient_min" title="Minimum model degree.">',
-                                    '<input type="text" placeholder="', data.defaults.max_degree, '" value="', max_degree, '" onclick="', onClickHandler, '" onkeydown="', onKeyDownHandler, '" onblur="', updateMaxDegree, '" class="composed_model_operation_coefficient_max" title="Maximum model degree.">',
+                                    '<input type="text" placeholder="', data.defaults.min_degree, '" value="', data.getMinDegree(), '" onclick="', onClickHandler, '" onkeydown="', onKeyDownHandler, '" onblur="', updateMinDegree, '" class="composed_model_operation_coefficient_min" title="Minimum model degree.">',
+                                    '<input type="text" placeholder="', data.defaults.max_degree, '" value="', data.getMaxDegree(), '" onclick="', onClickHandler, '" onkeydown="', onKeyDownHandler, '" onblur="', updateMaxDegree, '" class="composed_model_operation_coefficient_max" title="Maximum model degree.">',
                                     '</div>',
                                     '</div>'
                                 ].join(''));
