@@ -73,6 +73,38 @@
                 return {start: start, end: end};
             },
 
+            getTruncatedPrettyModelExpression: function (allowedLength, showDegreeRange) {
+                var text = this.getPrettyModelExpression(showDegreeRange);
+                var position = 0;
+                var visibleLength = 0;
+
+                var _process_single_character = function () {
+                    if (text[position] == '&') {
+                        while (text[position] != ';' && position < text.length) {
+                            ++position;
+                        }
+                    }
+                    ++position;
+                    ++visibleLength;
+                };
+
+                // process the string to get the trimming position
+                while (position < text.length && visibleLength < allowedLength - 2) {
+                    _process_single_character();
+                }
+                var trimPosition = position;
+                // process the rest of the string to get the visible length
+                while (position < text.length) {
+                    _process_single_character();
+                }
+
+                if (visibleLength - 2 > allowedLength) {
+                    text = text.substring(0, trimPosition) + " &hellip;";
+                }
+
+                return text;
+            },
+
             getPrettyModelExpression: function (showDegreeRange) {
                 function _default(value, defval) {
                     return (value === undefined || value === null) ? defval : value;
@@ -80,7 +112,7 @@
 
                 showDegreeRange = _default(showDegreeRange, true);
 
-                var sign = {'+': '+', '-': '&minus'};
+                var sign = {'+': '+', '-': '&minus;'};
 
                 return _.map(this.get('components'), function (item, index) {
                     var conf = globals.models.config[item.id];

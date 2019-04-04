@@ -1520,7 +1520,13 @@ define([
                     // Add layer info
                     var info;
                     if (product.get('model')) {
-                        info = product.getPrettyModelExpression();
+                        info = product.getTruncatedPrettyModelExpression(42);
+                        _.each(
+                            {'\u2212': /&minus;/, '\u2026': /&hellip;/},
+                            function (regex, newString) {
+                                info = info.replace(regex, newString);
+                            }
+                        );
                     } else {
                         info = product.get('name');
                     }
