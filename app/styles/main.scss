@@ -347,6 +347,10 @@ button[active=active] {
   height: 100%;
 }
 
+#modal-start-download{
+  z-index:1005;
+}
+
 .delete-filter{
   border-top-left-radius: 0 !important;
   border-bottom-left-radius: 0 !important;

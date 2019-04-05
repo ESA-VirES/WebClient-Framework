@@ -163,11 +163,23 @@ define(['backbone.marionette',
             }
 
 
+            // Clone object    
+            var filtersGlobal = _.clone(globals.swarm.get('uom_set'));
+            //filter out periodic latitudes from initial filters
+            var filtersNotUsed = ['QDLatitude_periodic', 'Latitude_periodic'];
+            var filtersGlobalFiltered = _.filter(filtersGlobal, function(obj, key) {
+                if (!filtersNotUsed.some(function(filter) { return key.indexOf(filter) >= 0; })) {
+                    // Filter not found in list of not to be used ones
+                    return true;
+                } else {
+                    return false;
+                }
+            });
             this.filterManager = new FilterManager({
                 el:'#analyticsFilters',
                 filterSettings: {
                     visibleFilters: this.selectedFilterList,
-                    dataSettings: globals.swarm.get('uom_set'),
+                    dataSettings: filtersGlobalFiltered,
                     parameterMatrix:{}
                 },
                 showCloseButtons: true
@@ -232,26 +244,54 @@ define(['backbone.marionette',
 
             if(!multipleAxis){
                 yax = [yax];
+                for (var i = 0; i < yax.length; i++) {
+                    var currCols = [];
+                    for (var j = 0; j < yax[i].length; j++) {
+                        currCols.push(null);
+                    }
+                    colax.push(currCols);
+                }
             }
+
             if(!multipleAxis2){
                 y2ax = [y2ax];
+                for (var i = 0; i < y2ax.length; i++) {
+                    var currCols = [];
+                    for (var j = 0; j < y2ax[i].length; j++) {
+                        currCols.push(null);
+                    }
+                    colax2.push(currCols);
+                }
             }
 
-            for (var i = 0; i < yax.length; i++) {
-                var currCols = [];
-                for (var j = 0; j < yax[i].length; j++) {
-                    currCols.push(null);
+            // Do a sanity check for colorscale as we were saving
+            // them incorrectly
+            if(yax.length < colax.length || yax.length > colax.length){
+                //Overwrite with default values
+                colax = [];
+                for (var i = 0; i < yax.length; i++) {
+                    var currCols = [];
+                    for (var j = 0; j < yax[i].length; j++) {
+                        currCols.push(null);
+                    }
+                    colax.push(currCols);
                 }
-                colax.push(currCols);
+
             }
 
-            for (var i = 0; i < y2ax.length; i++) {
-                var currCols = [];
-                for (var j = 0; j < y2ax[i].length; j++) {
-                    currCols.push(null);
+            if(y2ax.length < colax2.length || y2ax.length > colax2.length){
+                //Overwrite with default values
+                colax2 = [];
+                for (var i = 0; i < y2ax.length; i++) {
+                    var currCols = [];
+                    for (var j = 0; j < y2ax[i].length; j++) {
+                        currCols.push(null);
+                    }
+                    colax2.push(currCols);
                 }
-                colax2.push(currCols);
-            }
+            } 
+
+
 
             this.renderSettings = {
                 xAxis:  xax,
@@ -274,7 +314,8 @@ define(['backbone.marionette',
                 multiYAxis: true,
                 margin: {top: 40, left: 90, bottom: 50, right: 35},
                 enableSubXAxis: false,
-                enableSubYAxis: false
+                enableSubYAxis: false,
+                colorscaleOptionLabel: 'Add third variable'
 
             });
 
@@ -641,10 +682,14 @@ define(['backbone.marionette',
 
             filCon.find('.w2ui-field').remove();
 
+            var filtersNotUsed = ['QDLatitude_periodic', 'Latitude_periodic'];
             var aUOM = {};
             // Clone object
             _.each(globals.swarm.get('uom_set'), function(obj, key){
-                aUOM[key] = obj;
+                if (!filtersNotUsed.some(function(filter) { return key.indexOf(filter) >= 0; })) {
+                    // Filter not found in list of not to be used ones
+                    aUOM[key] = obj;
+                }
             });
 
             // Remove currently visible filters from list
@@ -843,7 +888,7 @@ define(['backbone.marionette',
                         // does we add key parameter to selection in plot
                         var parasToCheck = [
                             'Ne', 'F', 'Bubble_Probability', 'Absolute_STEC',
-                            'Absolute_VTEC', 'Elevation_Angle', 'FAC', 'EEF'
+                            'FAC', 'EEF'
                         ];
 
                         // Go trough all plots and see if they need to be removed
@@ -852,7 +897,6 @@ define(['backbone.marionette',
                         var renSetY2 = this.renderSettings.y2Axis;
                         var colAx = this.renderSettings.colorAxis;
                         var colAx2 = this.renderSettings.colorAxis2;
-                        var addYT = this.renderSettings.additionalYTicks;
 
                         for (var pY=renSetY.length-1; pY>=0; pY--) {
 
@@ -883,7 +927,6 @@ define(['backbone.marionette',
                                 renSetY2.splice(pY,1);
                                 colAx.splice(pY,1);
                                 colAx2.splice(pY,1);
-                                addYT.splice(pY,1);
                             }
                         }
 
@@ -900,7 +943,6 @@ define(['backbone.marionette',
                                     colAx.push([null]);
                                     renSetY2.push([]);
                                     colAx2.push([]);
-                                    addYT.push([]);
                                 }
                             }
                         }
@@ -914,7 +956,6 @@ define(['backbone.marionette',
                                     colAx.push([null]);
                                     renSetY2.push([]);
                                     colAx2.push([]);
-                                    addYT.push([]);
                                 }
                             }
                         }
@@ -926,7 +967,6 @@ define(['backbone.marionette',
                             colAx.push([]);
                             renSetY2.push([]);
                             colAx2.push([]);
-                            addYT.push([]);
                         }
 
                         localStorage.setItem(

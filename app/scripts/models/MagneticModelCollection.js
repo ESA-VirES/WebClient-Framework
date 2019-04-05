@@ -1,13 +1,16 @@
+/*global _ */
+
 (function () {
   'use strict';
   var root = this;
   var dependencies = [
     'backbone',
     'hbs!tmpl/wps_getModelInfo',
+    'shc',
     'underscore'
   ];
 
-  function init(Backbone, wps_getModelInfoTmpl) {
+  function init(Backbone, wps_getModelInfoTmpl, shc) {
 
     function _fetch_wrapper(this_, options) {
       if (this_.isFetching) {
@@ -17,29 +20,29 @@
       var success_callback = options.success;
       var error_callback = options.error;
       _.extend(options, {
-          success: function (data, textStatus, jqXHR) {
-            _.extend(this_, {
-              lastFetch: new Date(),
-              isFetching: false,
-              fetchFailed: false
-            });
-            if (success_callback) {
-              success_callback(data, textStatus, jqXHR);
-            }
-            //this_.trigger('fetch:stop');
-            this_.trigger('fetch:success');
-          },
-          error: function (jqXHR, textStatus, errorThrown) {
-            _.extend(this_, {
-              isFetching: false,
-              fetchFailed: true
-            });
-            if (error_callback) {
-              error_callback(jqXHR, textStatus, errorThrown);
-            }
-            //this_.trigger('fetch:stop');
-            this_.trigger('fetch:error');
+        success: function (data, textStatus, jqXHR) {
+          _.extend(this_, {
+            lastFetch: new Date(),
+            isFetching: false,
+            fetchFailed: false
+          });
+          if (success_callback) {
+            success_callback(data, textStatus, jqXHR);
           }
+          //this_.trigger('fetch:stop');
+          this_.trigger('fetch:success');
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          _.extend(this_, {
+            isFetching: false,
+            fetchFailed: true
+          });
+          if (error_callback) {
+            error_callback(jqXHR, textStatus, errorThrown);
+          }
+          //this_.trigger('fetch:stop');
+          this_.trigger('fetch:error');
+        }
       });
       _.extend(this_, {
         lastFetchAtempt: new Date(),
@@ -68,31 +71,29 @@
             response = response[0];
           }
         }
-        if(response.validity) {
+        if (response.validity) {
           response.validity = {
             start: new Date(response.validity.start),
             end: new Date(response.validity.end)
-          }
+          };
         }
-        if (response.expression) {
-          // parse expression to get coefficients
-          // "- 'CHAOS-6-MMA-Secondary'(max_degree=2,min_degree=0)"
-          var stringToParse = response.expression;
-          var indices = [stringToParse.indexOf("="),
-            stringToParse.indexOf(","),
-            stringToParse.lastIndexOf("="),
-            stringToParse.indexOf(")")];
-          var coefficients = [Number(stringToParse.slice(indices[2]+1, indices[3]))
-            ,Number(stringToParse.slice(indices[0]+1, indices[1]))]
-        }
-        if (coefficients[0] > coefficients[1]){
-          //if for somewhat reason parsed wrongly, reverse order
-          coefficients.reverse();
-        }
-        if (!isNaN(coefficients[0]) && !isNaN(coefficients[1])){
-          response.coefficients_range = coefficients;
-        }
+        response.parameters = this._parseParameters(response.expression);
         return response;
+      },
+      _parseParameters: function (expression) {
+        if (!expression) return {};
+        var start = expression.indexOf('(');
+        if (start < 0) return {};
+        expression = expression.slice(start + 1);
+        var stop = expression.indexOf(')');
+        if (stop < 0) return {};
+        expression = expression.slice(0, stop);
+        var parameters = {};
+        _.each(expression.split(","), function (string) {
+          var tmp = string.split("=");
+          parameters[tmp[0].trim()] = Number(tmp[1]);
+        });
+        return parameters;
       },
       fetch: function (options) {
         // update model via the vires:get_model_data WPS process
@@ -103,14 +104,14 @@
           return;
         }
         var modelId = this.id;
-        if (this.has("model_expression")){
-          if (this.get("model_expression") == null){
+        if (this.has("model_expression")) {
+          if (this.get("model_expression") == null) {
             return;
-          }else{
+          } else {
             modelId += "=" + this.get("model_expression");
-             if (this.get('model_expression').indexOf('Custom_Model') === -1){
-                 modelContainsSHC = false; // do not send shc when not necessary
-             }
+            if (this.get('model_expression').indexOf(this.collection.customModelId) === -1) {
+              modelContainsSHC = false; // do not send shc when not necessary
+            }
           }
         }
         _.extend(options, {
@@ -126,23 +127,58 @@
     });
 
     var MagneticModelCollection = Backbone.Collection.extend({
+      config: {},
+      customModelId: null,
+      getCustomModel: function () {
+        return this.get(this.customModelId);
+      },
+      setCustomModel: function (data) {
+        var customModel = this.getCustomModel();
+        if (data) {
+          var header = shc.parseShcHeader(data);
+          var attributes = {
+            parameters: {
+              min_degree: header.min_degree,
+              max_degree: header.max_degree
+            },
+            validity: {
+              start: shc.decimalYearToDate(header.validity.start),
+              end: shc.decimalYearToDate(header.validity.end),
+            },
+            shc: data
+          };
+          if (customModel) {
+            // update custom model
+            customModel.set(attributes);
+          } else {
+            // insert custom model
+            attributes.name = this.customModelId;
+            this.add(attributes);
+          }
+        } else {
+          if (customModel) {
+            // remove custom model
+            this.remove(this.customModelId);
+          }
+        }
+      },
       fetch: function (options) {
         // update models via the vires:get_model_data WPS process
         options = options ? _.clone(options) : {};
         //throw away Custom model without shc and composed model without expression
         var modelIds = _.map(
           this.filter(_.bind(function (item) {
-            return (item.id != this.customModelId && item.get("model_expression")!==null)||(item.has('shc'));
-          }, this)),        
+            return (item.id != this.customModelId && item.get("model_expression") !== null) || (item.has('shc'));
+          }, this)),
           function (item) {
             var modelId = item.id;
-            if (item.get("model_expression")){
+            if (item.get("model_expression")) {
               modelId += "=" + item.get("model_expression");
             }
-              return modelId;
-            }
+            return modelId;
+          }
         );
-        var customModel = this.get('Custom_Model');
+        var customModel = this.getCustomModel();
         _.extend(options, {
           method: 'POST',
           data: wps_getModelInfoTmpl({
