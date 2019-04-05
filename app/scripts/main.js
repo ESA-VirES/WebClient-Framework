@@ -28,17 +28,18 @@ function defaultFor(arg, val) {return typeof arg !== 'undefined' ? arg : val;}
         'app',
         'communicator',
         'globals',
+        "text!config.json",
         'backbone.marionette',
         'regionManager',
         'jquery',
         'jqueryui',
         'jqueryuitouch',
-        "text!config.json",
         "util",
         "libcoverage",
         'core/SplitView/SplitViewModule'
     ],
-    function (Backbone, App, Communicator, globals) {
+    function (Backbone, App, Communicator, globals, configJson) {
+
         // FIXXME: MH: that took me a while:
         // document.getElementsByTagName() returns a NodeList. However, if x3dom.js is included together with OpenLayers.js
         // it is magically returning an Array. The OpenLayers.Map constructor tries to access the returned value with ret.item(i),
@@ -57,8 +58,7 @@ function defaultFor(arg, val) {return typeof arg !== 'undefined' ? arg : val;}
         //  console.log("link: " + nodes.item(i).href);
         // }
 
-        var configurl = defaultFor(CONFIG_URL, "scripts/config.json");
-        $.get(configurl, function (values) {
+        (function (values) {
 
             // Configure Debug options
             setuplogging(values.debug);
@@ -127,6 +127,7 @@ function defaultFor(arg, val) {return typeof arg !== 'undefined' ? arg : val;}
                 // Global settings:
                 App.isMapPanning = false;
             });
-        });
+        }).call(this, JSON.parse(configJson));
+
     });
 }).call(this);
