@@ -215,7 +215,7 @@
         return {
           message: this.getMessage(),
           download_url: download.url,
-          details: this.getInputs()
+          details: this.getJobParameters()
         };
       },
 
@@ -234,9 +234,11 @@
         }
       },
 
-      getInputs: function () {
+      getJobParameters: function () {
         var inputs = this.model.get('inputs');
         var output_defs = this.model.get('output_defs');
+        var outputs = this.model.get('outputs');
+
         var info = _.chain(this.DISPLAYED_INPUTS)
           .filter(function (inputId) {return inputs[inputId];})
           .map(function (inputId) {
@@ -251,6 +253,13 @@
 
         if (output_defs.output && output_defs.output.mimeType) {
           info.push({label: 'Output format', body: output_defs.output.mimeType});
+        }
+
+        if (outputs.source_products && outputs.source_products.url) {
+          info.push({
+            label: 'List of source products',
+            body: '<a href="' + outputs.source_products.url + ' " target="_blank" download="">download</a>'
+          });
         }
 
         return info;
