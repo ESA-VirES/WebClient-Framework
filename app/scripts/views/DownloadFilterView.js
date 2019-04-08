@@ -5,15 +5,6 @@
 (function () {
   'use strict';
 
-  var INPUT_DESCRIPTIONS = {
-    collection_ids: 'Products',
-    model_ids: 'Models',
-    begin_time: 'Start time',
-    end_time: 'End time',
-    filters: 'Filters'
-  };
-
-
   var root = this;
   root.define([
     'backbone',
@@ -36,6 +27,151 @@
     DownloadProcessTmpl, wps_requestTmpl, CoverageDownloadPostTmpl,
     wps_fetchFilteredDataAsync, DataUtil
   ) {
+
+    var DownloadProcessModel = Backbone.Model.extend({
+      refreshTime: 2000, // refresh time in ms
+      defaults: {
+        id: null,
+        creation_time: null,
+        status_url: null,
+        status: null,
+        percentage: 0,
+        error: null,
+        inputs: {},
+        outputs: {},
+        output_defs: {}
+      },
+
+      url: function () {
+        return this.get('status_url');
+      },
+
+      fetch: function (options) {
+        options = _.extend(options || {}, {dataType: 'xml'});
+        return this.constructor.__super__.fetch.call(this, options);
+      },
+
+      parse: function (response) {
+        var statusInfo = this.parseStatus(response);
+
+        var attributes = _.extend(_.clone(this.attributes), {
+          status_url: this.parseStatusUrl(response) || this.get('status_url'),
+          status: statusInfo.status,
+          percentage: statusInfo.progress,
+          error: statusInfo.error || null,
+          inputs: this.parseInputs(response),
+          outputs: this.parseOutputs(response),
+          output_defs: this.parseOutputDefinitions(response)
+        });
+
+        if (isActive(statusInfo.status)) {
+          setTimeout(_.bind(this.fetch, this), this.refreshTime);
+        }
+
+        return attributes;
+      },
+
+      parseStatusUrl: function (xml) {
+        return $(xml).attr('statusLocation');
+      },
+
+      parseStatus: function (xml) {
+        var status_ = $(xml).find('wps\\:Status > *')[0];
+        if (!status_) {return;}
+        switch (splitQName(status_.nodeName).name) {
+          case 'ProcessSucceeded':
+            return {
+              status: 'SUCCEEDED',
+              progress: 100
+            };
+          case 'ProcessFailed':
+            var exception = $(status_).find('ExceptionText, ows\\:ExceptionText');
+            return {
+              status: 'FAILED',
+              progress: 0,
+              error: exception ? exception.text() : ""
+            };
+          case 'ProcessStarted':
+            return {
+              status: 'STARTED',
+              progress: Number($(status_).attr('percentCompleted') || 0)
+            };
+          case 'ProcessAccepted':
+            return {
+              status: 'ACCEPTED',
+              progress: 0
+            };
+        }
+      },
+
+      parseInputs: function (xml) {
+        function parseComplexData($data) {
+          var mimeType = $data.attr('mimeType');
+          var data;
+          if (mimeType === 'application/json') {
+            data = JSON.parse($data.text());
+          } else {
+            data = $data.text();
+          }
+          return {data: data, mimeType: mimeType};
+        }
+
+        var inputData = {};
+        $(xml)
+          .find('wps\\:DataInputs > wps\\:Input')
+          .each(function () {
+            var id = $(this).find('ows\\:Identifier').text();
+            var data = $(this).find('wps\\:Data > *')[0];
+            if (!data) {return;}
+            switch (splitQName(data.nodeName).name) {
+              case 'LiteralData':
+                inputData[id] = {
+                  data: $(data).text(),
+                  dataType: $(data).attr('dataType')
+                };
+                break;
+              case 'ComplexData':
+                inputData[id] = parseComplexData($(data));
+                break;
+              default:
+                return;
+            }
+          });
+        return inputData;
+      },
+
+      parseOutputDefinitions: function (xml) {
+        var outputDefinitions = {};
+        $(xml)
+          .find('wps\\:OutputDefinitions > wps\\:Output')
+          .each(function () {
+            var id = $(this).find('ows\\:Identifier').text();
+            var def = {};
+            $.each(this.attributes, function () {
+              if (this.specified) {def[this.name] = this.value;}
+            });
+            outputDefinitions[id] = def;
+          });
+        return outputDefinitions;
+      },
+
+      parseOutputs: function (xml) {
+        var outputData = {};
+        $(xml)
+          .find('wps\\:ProcessOutputs > wps\\:Output')
+          .each(function () {
+            var id = $(this).find('ows\\:Identifier').text();
+            var ref = $(this).find('wps\\:Reference')[0];
+            if (!ref) {return;}
+            outputData[id] = {
+              url: $(ref).attr('href'),
+              dataType: $(ref).attr('dataType')
+            };
+          });
+        return outputData;
+      }
+
+    });
 
     var DownloadProcessView = Backbone.Marionette.ItemView.extend({
       tagName: "div",
@@ -60,119 +196,128 @@
           $('#collapse-' + this.model.get('id')).addClass('in');
           $('#' + this.model.get('id') + ' a').removeClass('collapsed');
         }
+
+        var currentStatus = this.model.get('status');
+        var previousStatus = this.model.previous('status');
+
+        if (isActive(currentStatus)) {
+          disableDownloadButton();
+        } else if (isActive(previousStatus)) {
+          enableDownloadButton();
+        }
       },
 
       initialize: function (options) {},
-      onShow: function (view) {}
+      onShow: function (view) {},
+
+      templateHelpers: function (options) {
+        var download = this.model.get('outputs').output || {};
+        return {
+          message: this.getMessage(),
+          download_url: download.url,
+          details: this.getInputs()
+        };
+      },
+
+      getMessage: function () {
+        switch (this.model.get('status')) {
+          case 'SUCCEEDED':
+            return 'Ready';
+          case 'FAILED':
+            return 'Error while processing';
+          case 'STARTED':
+            return this.model.get('percentage') + '%';
+          case 'ACCEPTED':
+            return 'Starting process ...';
+          default:
+            return 'Loading ...';
+        }
+      },
+
+      getInputs: function () {
+        var inputs = this.model.get('inputs');
+        var output_defs = this.model.get('output_defs');
+        var info = _.chain(this.DISPLAYED_INPUTS)
+          .filter(function (inputId) {return inputs[inputId];})
+          .map(function (inputId) {
+            var input = inputs[inputId];
+            var formatter = this.inputFormatters[inputId];
+            if (formatter) {
+              return formatter(input);
+            }
+            return {label: inputId, body: input.data};
+          }, this)
+          .value();
+
+        if (output_defs.output && output_defs.output.mimeType) {
+          info.push({label: 'Output format', body: output_defs.output.mimeType});
+        }
+
+        return info;
+      },
+
+      DISPLAYED_INPUTS: [
+        'collection_ids', 'model_ids', 'begin_time', 'end_time', 'filters',
+      ],
+
+      inputFormatters: {
+        collection_ids: function (input) {
+          return {
+            label: 'Selected products',
+            body: _.map(_.keys(input.data).sort(), function (key) {
+              return '<br>&nbsp;&nbsp;&nbsp;&nbsp;' + key + ': ' + input.data[key].join(', ');
+            }).join('')
+          };
+        },
+        model_ids: function (input) {
+          return {
+            label: 'Models',
+            body: input.data,
+          };
+        },
+        begin_time: function (input) {
+          return {
+            label: 'Start time',
+            body: input.data,
+          };
+        },
+        end_time: function (input) {
+          return {
+            label: 'End time',
+            body: input.data,
+          };
+        },
+        filters: function (input) {
+          return {
+            label: 'Filters',
+            body: input.data,
+          };
+        },
+      }
     });
 
-    function toggleDownloadButton(activate) {
-      if (!activate) {
-        $('#btn-start-download').prop('disabled', true);
-        $('#btn-start-download').attr('title', 'Please wait until previous process is finished');
+    function enableDownloadButton() {
+      $('#btn-start-download').prop('disabled', false);
+      $('#btn-start-download').removeAttr('title');
+    }
+
+    function disableDownloadButton() {
+      $('#btn-start-download').prop('disabled', true);
+      $('#btn-start-download').attr('title', 'Please wait until previous process is finished');
+    }
+
+    function splitQName(name) {
+      var tmp = name.split(':');
+      if (tmp.length > 1) {
+        return {prefix: tmp[0], name: tmp[1]};
       } else {
-        $('#btn-start-download').prop('disabled', false);
-        $('#btn-start-download').removeAttr('title');
+        return {name: tmp[0]};
       }
     }
 
-    var DownloadProcessModel = Backbone.Model.extend({
-      id: null,
-      status_url: null,
-      percentage: 0,
-      percentage_descriptor: 'Loading ...',
-      status: null,
-      datainputs: null,
-      creation_time: null,
-      download_link: null,
-
-      update: function () {
-        var that = this;
-        $.get(this.get('status_url'), 'xml')
-          .done(function (doc) {
-
-            // Collect and fill data input information
-            var datainputs = {};
-            $(doc).find('DataInputs, wps\\:DataInputs').children().each(function () {
-              var id = $(this).find('Identifier, ows\\:Identifier').text();
-
-              if (id && INPUT_DESCRIPTIONS.hasOwnProperty(id)) {
-                var data = $(this).find('LiteralData, wps\\:LiteralData').text();
-                if (data) {
-                  datainputs[INPUT_DESCRIPTIONS[id]] = data;
-                } else {
-                  data = $(this).find('ComplexData, wps\\:ComplexData').text();
-                  if (data) {
-                    data = data.slice(1, -1);
-                    datainputs[INPUT_DESCRIPTIONS[id]] = data;
-                  }
-                }
-              }
-            });
-
-            var outf = $(doc).find('OutputDefinitions, wps\\:OutputDefinitions');
-            if (outf) {
-              var mt = $(outf).find('Output, wps\\:Output').attr('mimeType');
-              if (mt) {
-                datainputs['Output format'] = mt;
-              }
-            }
-
-            var status = $(doc).find('Status, wps\\:Status');
-            if (status && status.children().length > 0) {
-              if (status.children()[0].nodeName === 'wps:ProcessSucceeded') {
-                if (that.get('status') == 'ACCEPTED' || that.get('status') == 'STARTED') {
-                  // Previous status was still processing loading now finished
-                  that.set('status', 'SUCCEEDED');
-                  toggleDownloadButton(true);
-                }
-                that.set('percentage', 100);
-                that.set('percentage_descriptor', 'Ready');
-                var download_link = $(doc).find('Output, wps\\:Output').find('Reference, wps\\:Reference').attr('href');
-                if (download_link) {
-                  that.set('download_link', download_link);
-                }
-              }
-              if (status.children()[0].nodeName === 'wps:ProcessFailed') {
-                if (that.get('status') == 'ACCEPTED' || that.get('status') == 'STARTED') {
-                  // Previous status was still processing loading now finished
-                  that.set('status', 'FAILED');
-                  toggleDownloadButton(true);
-                }
-                var errmsg = $(doc).find('ExceptionText, ows\\:ExceptionText');
-                if (errmsg) {
-                  datainputs['Error Message'] = errmsg.text();
-                }
-
-                that.set('percentage', 0);
-                that.set('percentage_descriptor', 'Error while processing');
-              }
-
-              if (status.children().attr('percentCompleted') !== undefined) {
-                //toggleDownloadButton(false);
-                var p = status.children().attr('percentCompleted');
-                that.set('percentage', p);
-                that.set('percentage_descriptor', (p + '%'));
-                // Only update model if download view is open
-                if (!$('#viewContent').is(':empty')) {
-                  setTimeout(function () {that.update();}, 2000);
-                }
-              } else if (status.children()[0].nodeName === 'wps:ProcessAccepted') {
-                //toggleDownloadButton(false);
-                that.set('percentage', 0);
-                that.set('percentage_descriptor', 'Starting process ...');
-                if (!$('#viewContent').is(':empty')) {
-                  setTimeout(function () {that.update();}, 2000);
-                }
-              }
-
-            }
-            if (datainputs && Object.keys(datainputs).length > 0) {
-              that.set('datainputs', datainputs);
-            }
-          });
-      }
-    });
+    function isActive(status) {
+      return status && (status !== 'SUCCEEDED') && (status !== 'FAILED');
+    }
 
     var DownloadFilterView = Backbone.Marionette.ItemView.extend({
       tagName: "div",
@@ -306,7 +451,6 @@
                 });
               }
             });
-
           }
 
           if (prod.get("processes")) {
@@ -376,19 +520,14 @@
         );*/
 
         this.$el.find('#custom_time_cb').click(_.bind(function () {
-
           $('#customtimefilter').empty();
-
           if ($('#custom_time_cb').is(':checked')) {
-
             var timeinterval = this.model.get("ToI");
             var extent = [
               getISOTimeString(timeinterval.start),
               getISOTimeString(timeinterval.end)
             ];
-
             var name = "Time (hh:mm:ss.fff)";
-
             var $html = $(FilterTmpl({
               id: "timefilter",
               name: name,
@@ -398,9 +537,7 @@
             $('#customtimefilter').append($html);
             $('#customtimefilter .input-group-btn button').removeClass();
             $('#customtimefilter .input-group-btn button').attr('class', 'btn disabled');
-
           }
-
         }, this));
 
         var selected = [];
@@ -501,25 +638,21 @@
               var processes_to_save = 2;
               processes = processes['vires:fetch_filtered_data_async'];
 
-              // Check if any process is active
-              var active_processes = false;
-              for (var i = 0; i < processes.length; i++) {
-                if (processes[i].hasOwnProperty('status')) {
-                  if (processes[i]['status'] == 'ACCEPTED' || processes[i]['status'] == 'STARTED') {
-                    active_processes = true;
-                  }
-                }
-              }
-
               // Button will be enabled/disabled depending if there are active jobs
-              toggleDownloadButton(!active_processes);
+              var has_active_process = _.any(processes, function (process) {
+                return isActive(process.status);
+              });
 
-              var removal_processes = processes.splice(0, processes.length - processes_to_save);
-
-              for (var i = 0; i < removal_processes.length; i++) {
-                var remove_url = '/ows?service=WPS&request=Execute&identifier=removeJob&DataInputs=job_id=' + removal_processes[i].id;
-                $.get(remove_url);
+              if (has_active_process) {
+                disableDownloadButton();
+              } else {
+                enableDownloadButton();
               }
+
+              var removed_processes = processes.splice(0, processes.length - processes_to_save);
+              _.each(removed_processes, function (process) {
+                $.get('/ows?service=WPS&request=Execute&identifier=removeJob&DataInputs=job_id=' + process.id);
+              });
 
               if (processes.length > 0) {
                 $('#download_processes').append('<div><b>Download links</b> (Process runs in background, panel can be closed and reopened at any time)</div>');
@@ -529,25 +662,28 @@
                 $('#download_processes').append('<div style="float: left; margin-left:110px;"><b>Link</b></div>');
               }
 
-              for (var i = processes.length - 1; i >= 0; i--) {
-                var m = new DownloadProcessModel({
-                  id: processes[i].id,
-                  creation_time: processes[i].created.slice(0, -13),
-                  status_url: processes[i].url,
-                  status: processes[i].status
+              _.each(processes.reverse(), function (process) {
+                var model = new DownloadProcessModel({
+                  id: process.id,
+                  creation_time: process.created.slice(0, -13),
+                  status_url: process.url,
+                  status: process.status
                 });
-                var el = $('<div></div>');
-                $('#download_processes').append(el);
-                var proc_view = new DownloadProcessView({
-                  el: el,
-                  model: m
+
+                var element = $('<div></div>');
+                $('#download_processes').append(element);
+
+                var view = new DownloadProcessView({
+                  el: element,
+                  model: model,
                 });
-                proc_view.render();
-                m.update();
-              }
+
+                view.render();
+                model.fetch();
+              });
             } else {
               // If there are no processes activate button
-              toggleDownloadButton(true);
+              enableDownloadButton();
             }
           });
       },
@@ -874,13 +1010,13 @@
 
         var that = this;
         var sendProcessingRequest = function () {
-          toggleDownloadButton(false);
+          disableDownloadButton();
           $.post(url, req_data, 'xml')
             .done(function (response) {
               that.updateJobs();
             })
             .error(function (resp) {
-              toggleDownloadButton(true);
+              enableDownloadButton();
             });
         };
 
