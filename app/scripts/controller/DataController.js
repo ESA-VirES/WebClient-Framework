@@ -358,6 +358,10 @@
                   '-': 'NSC'
                 };
 
+                var metadata = dat.__info__ || {};
+                delete dat.__info__;
+                console.log((metadata.sources || []).join('\n'));
+
                 if (dat.hasOwnProperty('Spacecraft')) {
                   dat['id'] = [];
                   for (var i = 0; i < dat.Timestamp.length; i++) {
