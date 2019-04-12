@@ -969,6 +969,18 @@ define(['backbone.marionette',
                             colAx2.push([]);
                         }
 
+                        // Check if x axis selection is still available
+                        if(idKeys.indexOf(this.graph.renderSettings.xAxis) === -1) {
+                            // If not available check as default for timestamp
+                            if(idKeys.indexOf('Timestamp') !== -1) {
+                                this.graph.renderSettings.xAxis = 'Timestamp';
+                            } else if(idKeys.length > 0){
+                                // TODO: If timestamp not available just take 
+                                //       first key?
+                                this.graph.renderSettings.xAxis = idKeys[0];
+                            }
+                        }
+
                         localStorage.setItem(
                             'yAxisSelection',
                             JSON.stringify(this.graph.renderSettings.yAxis)
