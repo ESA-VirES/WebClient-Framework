@@ -971,14 +971,20 @@ define(['backbone.marionette',
 
                         // Check if x axis selection is still available
                         if(idKeys.indexOf(this.graph.renderSettings.xAxis) === -1) {
-                            // If not available check as default for timestamp
+                            var oldXVariable = this.graph.renderSettings.xAxis;
+                            // If not available try Timestamp.
                             if(idKeys.indexOf('Timestamp') !== -1) {
                                 this.graph.renderSettings.xAxis = 'Timestamp';
                             } else if(idKeys.length > 0){
-                                // TODO: If timestamp not available just take 
-                                //       first key?
+                                // If Timestamp not available default to the first key.
                                 this.graph.renderSettings.xAxis = idKeys[0];
                             }
+                            showMessage('warning', (
+                                "The variable <b>" + oldXVariable + "</b> " +
+                                "is no longer provided by the selected layers. " +
+                                "The plot x-axis has been changed to the default <b>"
+                                + this.graph.renderSettings.xAxis + "<b>."
+                            ), 30);
                         }
 
                         localStorage.setItem(
