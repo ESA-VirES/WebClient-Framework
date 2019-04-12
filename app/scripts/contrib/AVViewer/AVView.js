@@ -1,3 +1,4 @@
+/* global $ _ define w2popup w2utils showMessage graphly FilterManager */
 define(['backbone.marionette',
     'communicator',
     'app',
@@ -6,19 +7,19 @@ define(['backbone.marionette',
     'd3',
     'graphly',
     'analytics'
-], function(Marionette, Communicator, App, AVModel, globals) {
+], function (Marionette, Communicator, App, AVModel, globals) {
     'use strict';
     var AVView = Marionette.View.extend({
         model: new AVModel.AVModel(),
         className: 'analytics',
-        initialize: function() {
+        initialize: function () {
             this.isClosed = true;
             this.requestUrl = '';
             this.plotType = 'scatter';
             this.sp = undefined;
 
-            $(window).resize(function() {
-                if(this.graph && $('.d3canvas').is(':visible')){
+            $(window).resize(function () {
+                if (this.graph && $('.d3canvas').is(':visible')) {
                     this.graph.resize(true);
                 }
             }.bind(this));
@@ -26,7 +27,7 @@ define(['backbone.marionette',
             this.connectDataEvents();
         },
 
-        onShow: function() {
+        onShow: function () {
             var that = this;
             this.stopListening(Communicator.mediator, 'change:axis:parameters', this.onChangeAxisParameters);
             this.listenTo(Communicator.mediator, 'change:axis:parameters', this.onChangeAxisParameters);
@@ -46,7 +47,7 @@ define(['backbone.marionette',
             $('#saveRendering').remove();
             this.$el.append('<div type="button" class="btn btn-success darkbutton" id="saveRendering" title="Save as image"><i class="fa fa-floppy-o" aria-hidden="true"></i></div>');
 
-            $('#saveRendering').click(function(){
+            $('#saveRendering').click(function () {
                 var bodyContainer = $('<div/>');
 
                 var typeContainer = $('<div id="typeSelectionContainer"></div>');
@@ -63,9 +64,9 @@ define(['backbone.marionette',
 
                 var resolutionContainer = $('<div id="resolutionSelectionContainer"></div>');
                 var resolutionSelection = $('<select id="resolutionSelection"></select>');
-                resolutionSelection.append($('<option/>').html('normal ('+w+'x'+h+')').val(1));
-                resolutionSelection.append($('<option/>').html('large ('+w*2+'x'+h*2+')').val(2));
-                resolutionSelection.append($('<option/>').html('very large ('+w*3+'x'+h*3+')').val(3));
+                resolutionSelection.append($('<option/>').html('normal (' + w + 'x' + h + ')').val(1));
+                resolutionSelection.append($('<option/>').html('large (' + w * 2 + 'x' + h * 2 + ')').val(2));
+                resolutionSelection.append($('<option/>').html('very large (' + w * 3 + 'x' + h * 3 + ')').val(3));
                 resolutionContainer.append(
                     $('<label for="resolutionSelection" style="margin-right:10px;">Resolution</label>')
                 );
@@ -80,29 +81,29 @@ define(['backbone.marionette',
                 buttons.append(okbutton);
                 buttons.append(cancelbutton);
 
-                if (that.graph){
+                if (that.graph) {
                     var saveimagedialog = w2popup.open({
                         body: bodyContainer,
                         buttons: buttons,
-                        title       : w2utils.lang('Image configuration'),
-                        width       : 400,
-                        height      : 200
+                        title: w2utils.lang('Image configuration'),
+                        width: 400,
+                        height: 200
                     });
 
-                    okbutton.click(function(){
+                    okbutton.click(function () {
                         var selectedType = $('#filetypeSelection')
                             .find(":selected").text();
                         var selectedRes = $('#resolutionSelection')
                             .find(":selected").val();
 
                         var rightNow = new Date();
-                        var res = rightNow.toISOString().slice(0,10).replace(/-/g,'');
-                        that.graph.fileSaveString='VirES_for_Swarm_'+res;
+                        var res = rightNow.toISOString().slice(0, 10).replace(/-/g, '');
+                        that.graph.fileSaveString = 'VirES_for_Swarm_' + res;
                         that.graph.saveImage(selectedType, selectedRes);
                         bodyContainer.remove();
                         saveimagedialog.close();
                     });
-                    cancelbutton.click(function(){
+                    cancelbutton.click(function () {
                         bodyContainer.remove();
                         saveimagedialog.close();
                     });
@@ -115,33 +116,33 @@ define(['backbone.marionette',
 
             this.$el.append('<div type="button" class="btn btn-success darkbutton" id="resetZoom" title="Reset graph zoom"><i class="fa fa-refresh" aria-hidden="true"></i></div>');
 
-           if (typeof this.graph === 'undefined') {
+            if (typeof this.graph === 'undefined') {
                 this.$el.append('<div class="d3canvas"></div>');
                 this.$('.d3canvas').append('<div id="graph"></div>');
                 this.$('.d3canvas').append('<div id="filterDivContainer"></div>');
                 this.$('#filterDivContainer').append('<div id="analyticsFilters"></div>');
                 this.$el.append('<div id="nodataavailable"></div>');
                 $('#nodataavailable').text('No data available for current selection');
-                
-            }else if(this.graph){
+
+            } else if (this.graph) {
                 this.graph.resize();
             }
 
-            $('#resetZoom').click(function(){
+            $('#resetZoom').click(function () {
                 that.graph.initAxis();
                 that.graph.renderData();
             });
 
 
-            // Set height of graph depending on 
+            // Set height of graph depending on
             var filtersMinimized = localStorage.getItem('filtersMinimized');
-            if(filtersMinimized === null){
+            if (filtersMinimized === null) {
                 filtersMinimized = false;
             } else {
                 filtersMinimized = JSON.parse(filtersMinimized);
             }
 
-            if(filtersMinimized){
+            if (filtersMinimized) {
                 $('#filterSelectDrop').css('opacity', 0);
                 $('#analyticsFilters').css('opacity', 0);
                 $('#graph').css('height', '99%');
@@ -151,24 +152,23 @@ define(['backbone.marionette',
 
             this.reloadUOM();
 
-
-            var swarmdata = globals.swarm.get('data');
+            //var swarmdata = globals.swarm.get('data'); // not used
 
             var filterList = localStorage.getItem('selectedFilterList');
-            if(filterList !== null){
+            if (filterList !== null) {
                 filterList = JSON.parse(filterList);
                 this.selectedFilterList = filterList;
             } else {
-                this.selectedFilterList = ['F','B_N', 'B_E', 'B_C', 'Dst', 'QDLat','MLT'];
+                this.selectedFilterList = ['F', 'B_N', 'B_E', 'B_C', 'Dst', 'QDLat', 'MLT'];
             }
 
 
-            // Clone object    
+            // Clone object
             var filtersGlobal = _.clone(globals.swarm.get('uom_set'));
             //filter out periodic latitudes from initial filters
             var filtersNotUsed = ['QDLatitude_periodic', 'Latitude_periodic'];
-            var filtersGlobalFiltered = _.filter(filtersGlobal, function(obj, key) {
-                if (!filtersNotUsed.some(function(filter) { return key.indexOf(filter) >= 0; })) {
+            var filtersGlobalFiltered = _.filter(filtersGlobal, function (obj, key) {
+                if (!filtersNotUsed.some(function (filter) {return key.indexOf(filter) >= 0;})) {
                     // Filter not found in list of not to be used ones
                     return true;
                 } else {
@@ -176,11 +176,11 @@ define(['backbone.marionette',
                 }
             });
             this.filterManager = new FilterManager({
-                el:'#analyticsFilters',
+                el: '#analyticsFilters',
                 filterSettings: {
                     visibleFilters: this.selectedFilterList,
                     dataSettings: filtersGlobalFiltered,
-                    parameterMatrix:{}
+                    parameterMatrix: {}
                 },
                 showCloseButtons: true
             });
@@ -188,7 +188,7 @@ define(['backbone.marionette',
 
             var identifiers = [];
             for (var key in globals.swarm.satellites) {
-                if(globals.swarm.satellites[key]){
+                if (globals.swarm.satellites[key]) {
                     identifiers.push(key);
                 }
             }
@@ -199,31 +199,31 @@ define(['backbone.marionette',
             var colax = [];
             var colax2 = [];
 
-            if(localStorage.getItem('xAxisSelection') !== null){
-                xax =JSON.parse(localStorage.getItem('xAxisSelection'));
+            if (localStorage.getItem('xAxisSelection') !== null) {
+                xax = JSON.parse(localStorage.getItem('xAxisSelection'));
             }
 
-            if(localStorage.getItem('yAxisSelection') !== null){
+            if (localStorage.getItem('yAxisSelection') !== null) {
                 yax = JSON.parse(localStorage.getItem('yAxisSelection'));
             }
 
-            if(localStorage.getItem('y2AxisSelection') !== null){
+            if (localStorage.getItem('y2AxisSelection') !== null) {
                 y2ax = JSON.parse(localStorage.getItem('y2AxisSelection'));
             }
 
-            if(localStorage.getItem('colorAxisSelection') !== null){
+            if (localStorage.getItem('colorAxisSelection') !== null) {
                 colax = JSON.parse(localStorage.getItem('colorAxisSelection'));
             }
 
-            if(localStorage.getItem('colorAxis2Selection') !== null){
+            if (localStorage.getItem('colorAxis2Selection') !== null) {
                 colax2 = JSON.parse(localStorage.getItem('colorAxis2Selection'));
             }
             // Check if previous config used multiaxis
 
             var multipleAxis = false;
-            if(Array.isArray(yax) && yax.length>0){
+            if (Array.isArray(yax) && yax.length > 0) {
                 for (var i = 0; i < yax.length; i++) {
-                    if(Array.isArray(yax[i])){
+                    if (Array.isArray(yax[i])) {
                         multipleAxis = true;
                     }
                 }
@@ -232,9 +232,9 @@ define(['backbone.marionette',
             }
 
             var multipleAxis2 = false;
-            if(Array.isArray(y2ax) && y2ax.length>0){
+            if (Array.isArray(y2ax) && y2ax.length > 0) {
                 for (var i = 0; i < y2ax.length; i++) {
-                    if(Array.isArray(y2ax[i])){
+                    if (Array.isArray(y2ax[i])) {
                         multipleAxis2 = true;
                     }
                 }
@@ -242,7 +242,7 @@ define(['backbone.marionette',
                 // TODO what if nothing is defined for yaxis
             }
 
-            if(!multipleAxis){
+            if (!multipleAxis) {
                 yax = [yax];
                 for (var i = 0; i < yax.length; i++) {
                     var currCols = [];
@@ -253,7 +253,7 @@ define(['backbone.marionette',
                 }
             }
 
-            if(!multipleAxis2){
+            if (!multipleAxis2) {
                 y2ax = [y2ax];
                 for (var i = 0; i < y2ax.length; i++) {
                     var currCols = [];
@@ -266,7 +266,7 @@ define(['backbone.marionette',
 
             // Do a sanity check for colorscale as we were saving
             // them incorrectly
-            if(yax.length < colax.length || yax.length > colax.length){
+            if (yax.length < colax.length || yax.length > colax.length) {
                 //Overwrite with default values
                 colax = [];
                 for (var i = 0; i < yax.length; i++) {
@@ -279,7 +279,7 @@ define(['backbone.marionette',
 
             }
 
-            if(y2ax.length < colax2.length || y2ax.length > colax2.length){
+            if (y2ax.length < colax2.length || y2ax.length > colax2.length) {
                 //Overwrite with default values
                 colax2 = [];
                 for (var i = 0; i < y2ax.length; i++) {
@@ -289,12 +289,12 @@ define(['backbone.marionette',
                     }
                     colax2.push(currCols);
                 }
-            } 
+            }
 
 
 
             this.renderSettings = {
-                xAxis:  xax,
+                xAxis: xax,
                 yAxis: yax,
                 colorAxis: colax,
                 y2Axis: y2ax,
@@ -319,7 +319,7 @@ define(['backbone.marionette',
 
             });
 
-            if(localStorage.getItem('filterSelection') !== null){
+            if (localStorage.getItem('filterSelection') !== null) {
                 var filters = JSON.parse(localStorage.getItem('filterSelection'));
                 this.filterManager.brushes = filters;
                 this.graph.filters = globals.swarm.get('filters');
@@ -327,7 +327,7 @@ define(['backbone.marionette',
             }
 
 
-            this.graph.on('axisChange', function(){
+            this.graph.on('axisChange', function () {
                 localStorage.setItem(
                     'xAxisSelection',
                     JSON.stringify(this.renderSettings.xAxis)
@@ -359,30 +359,30 @@ define(['backbone.marionette',
 
             });
 
-            this.graph.on('pointSelect', function(values){
-                if (values !== null){
+            this.graph.on('pointSelect', function (values) {
+                if (values !== null) {
                     Communicator.mediator.trigger(
                         'cesium:highlight:point',
                         [values.Latitude, values.Longitude, values.Radius]
                     );
-                }else{
+                } else {
                     Communicator.mediator.trigger('cesium:highlight:removeAll');
                 }
             });
 
-            this.filterManager.on('filterChange', function(filters){
+            this.filterManager.on('filterChange', function (filters) {
                 localStorage.setItem('filterSelection', JSON.stringify(this.brushes));
                 Communicator.mediator.trigger('analytics:set:filter', this.brushes);
                 globals.swarm.set({filters: filters});
 
             });
 
-            this.filterManager.on('removeFilter', function(filter){
+            this.filterManager.on('removeFilter', function (filter) {
                 var index = that.selectedFilterList.indexOf(filter);
-                if(index !== -1){
+                if (index !== -1) {
                     that.selectedFilterList.splice(index, 1);
                     // Check if filter was set
-                    if (that.graph.filterManager.filters.hasOwnProperty(filter)){
+                    if (that.graph.filterManager.filters.hasOwnProperty(filter)) {
                         delete that.graph.filterManager.filters[filter];
                         delete that.graph.filterManager.brushes[filter];
                     }
@@ -397,7 +397,7 @@ define(['backbone.marionette',
             });
 
             var data = globals.swarm.get('data');
-            if(Object.keys(data).length > 0){
+            if (Object.keys(data).length > 0) {
                 this.graph.loadData(data);
                 this.filterManager.loadData(data);
                 $('#nodataavailable').hide();
@@ -412,78 +412,78 @@ define(['backbone.marionette',
             return this;
         }, //onShow end
 
-        connectDataEvents: function(){
+        connectDataEvents: function () {
             globals.swarm.on('change:data', this.reloadData.bind(this));
         },
 
-        separateVector: function(key, previousKey, vectorChars, separator){
-            if (this.sp.uom_set.hasOwnProperty(previousKey)){
-                _.each(vectorChars, function(k){
-                    this.sp.uom_set[key+separator+k] = 
+        separateVector: function (key, previousKey, vectorChars, separator) {
+            if (this.sp.uom_set.hasOwnProperty(previousKey)) {
+                _.each(vectorChars, function (k) {
+                    this.sp.uom_set[key + separator + k] =
                         $.extend({}, this.sp.uom_set[previousKey]);
-                    this.sp.uom_set[key+separator+k].name = 
-                        'Component of '+this.sp.uom_set[previousKey].name;
+                    this.sp.uom_set[key + separator + k].name =
+                        'Component of ' + this.sp.uom_set[previousKey].name;
                 }, this);
             }
-            if (this.activeParameters.hasOwnProperty(previousKey)){
-                _.each(vectorChars, function(k){
-                    this.activeParameters[key+separator+k] = 
+            if (this.activeParameters.hasOwnProperty(previousKey)) {
+                _.each(vectorChars, function (k) {
+                    this.activeParameters[key + separator + k] =
                         $.extend({}, this.activeParameters[previousKey]);
-                    this.activeParameters[key+separator+k].name = 
-                        'Component of '+this.activeParameters[previousKey].name;
+                    this.activeParameters[key + separator + k].name =
+                        'Component of ' + this.activeParameters[previousKey].name;
                 }, this);
                 delete this.activeParameters[previousKey];
             }
 
         },
 
-        createSubscript: function createSubscript(string){
+        createSubscript: function createSubscript(string) {
             // Adding subscript elements to string which contain underscores
             var newkey = "";
             var parts = string.split("_");
-            if (parts.length>1){
+            if (parts.length > 1) {
                 newkey = parts[0];
-                for (var i=1; i<parts.length; i++){
-                    newkey+=(" "+parts[i]).sub();
+                for (var i = 1; i < parts.length; i++) {
+                    newkey += (" " + parts[i]).sub();
                 }
-            }else{
+            } else {
                 newkey = string;
             }
             return newkey;
         },
 
-        reloadUOM: function(){
+        reloadUOM: function () {
             // Prepare to create list of available parameters
             var availableParameters = {};
             var activeParameters = {};
             this.sp = {
                 uom_set: {}
             };
-            globals.products.each(function(prod) {
-                if(prod.get('download_parameters')){
+            globals.products.each(function (prod) {
+                if (prod.get('download_parameters')) {
                     var par = prod.get('download_parameters');
                     var newKeys = _.keys(par);
-                    _.each(newKeys, function(key){
+                    _.each(newKeys, function (key) {
                         availableParameters[key] = par[key];
-                        if(prod.get('visible')){
+                        if (prod.get('visible')) {
                             activeParameters[key] = par[key];
                         }
                     });
-                    
+
                 }
             });
             this.sp.uom_set = availableParameters;
             this.activeParameters = activeParameters;
 
             // Remove uom of time
-            if(this.sp.uom_set.hasOwnProperty('Timestamp')){
+            if (this.sp.uom_set.hasOwnProperty('Timestamp')) {
                 this.sp.uom_set['Timestamp'].uom = null;
                 this.sp.uom_set['Timestamp'].scaleFormat = 'time';
-            }else{
+            } else {
                 this.sp.uom_set['Timestamp'] = {scaleFormat: 'time'};
             }
             // Remove uom of time
-            if(this.sp.uom_set.hasOwnProperty('timestamp')){
+            if (this.sp.uom_set.hasOwnProperty('timestamp')) {
                 this.sp.uom_set['timestamp'].uom = null;
                 this.sp.uom_set['timestamp'].scaleFormat = 'time';
             } else {
@@ -498,17 +498,17 @@ define(['backbone.marionette',
             this.separateVector('B', 'B_NEC_resAC',
                 ['resAC_N', 'resAC_E', 'resAC_C'], '_'
             );
-            
+
             var models = globals.products.filter(function (p) {
                 return p.get('model');
             });
             var contextHolder = this;
-            _.each(models, function(key){
-              var n = key.get("download").id;
-              contextHolder.separateVector('B', 'B_NEC_res_' + n,
-                  ['N_res_' + n, 'E_res_' + n, 'C_res_' + n], '_');
+            _.each(models, function (key) {
+                var n = key.get("download").id;
+                contextHolder.separateVector('B', 'B_NEC_res_' + n,
+                    ['N_res_' + n, 'E_res_' + n, 'C_res_' + n], '_');
             });
-            
+
             this.separateVector('dB_other', 'dB_other', ['X', 'Y', 'Z'], '_');
             this.separateVector('dB_AOCS', 'dB_AOCS', ['X', 'Y', 'Z'], '_');
             this.separateVector('dB_Sun', 'dB_Sun', ['X', 'Y', 'Z'], '_');
@@ -517,40 +517,40 @@ define(['backbone.marionette',
             this.separateVector('LEO_Position', 'LEO_Position', ['X', 'Y', 'Z'], '_');
 
             this.sp.uom_set['MLT'] = {
-                uom: null, name:'Magnetic Local Time',
+                uom: null, name: 'Magnetic Local Time',
                 periodic: {
                     period: 24,
                     offset: 0
                 }
             };
 
-            if(this.sp.uom_set.hasOwnProperty('Longitude')){
+            if (this.sp.uom_set.hasOwnProperty('Longitude')) {
                 this.sp.uom_set['Longitude'].periodic = {
                     period: 360,
                     offset: -180
                 };
             }
             this.sp.uom_set['QDLat'] = {
-                uom: 'deg', name:'Quasi-Dipole Latitude'
+                uom: 'deg', name: 'Quasi-Dipole Latitude'
             };
             this.sp.uom_set['QDLon'] = {
-                uom: 'deg', name:'Quasi-Dipole Longitude',
+                uom: 'deg', name: 'Quasi-Dipole Longitude',
                 periodic: {
                     period: 360,
                     offset: -180
                 }
             };
             this.sp.uom_set['Dst'] = {
-                uom: null, name:'Disturbance storm time Index'
+                uom: null, name: 'Disturbance storm time Index'
             };
             this.sp.uom_set['Kp'] = {
-                uom: null, name:'Global geomagnetic storm Index'
+                uom: null, name: 'Global geomagnetic storm Index'
             };
             this.sp.uom_set['F107'] = {
-                uom: '1e-22 J/s/m^2/Hz', name:'Observed 10.7cm Solar Radio Flux'
+                uom: '1e-22 J/s/m^2/Hz', name: 'Observed 10.7cm Solar Radio Flux'
             };
             this.sp.uom_set['OrbitNumber'] = {
-                uom: null, name:'Orbit number'
+                uom: null, name: 'Orbit number'
             };
 
             this.sp.uom_set['Latitude_periodic'] = {
@@ -570,10 +570,10 @@ define(['backbone.marionette',
             };
 
             // Check if styling settings have been saved
-            if(localStorage.getItem('parameterSettings') !== null){
-                var parameterSettings =JSON.parse(localStorage.getItem('parameterSettings'));
-                for (var k in parameterSettings){
-                    if(this.sp.uom_set.hasOwnProperty(k)){
+            if (localStorage.getItem('parameterSettings') !== null) {
+                var parameterSettings = JSON.parse(localStorage.getItem('parameterSettings'));
+                for (var k in parameterSettings) {
+                    if (this.sp.uom_set.hasOwnProperty(k)) {
                         this.sp.uom_set[k] = parameterSettings[k];
                     }
                 }
@@ -582,9 +582,9 @@ define(['backbone.marionette',
             globals.swarm.set('uom_set', this.sp.uom_set);
         },
 
-        handleItemSelected: function handleItemSelected(evt){
+        handleItemSelected: function handleItemSelected(evt) {
             var selected = $('#inputAnalyticsAddfilter').val();
-            if(selected !== ''){
+            if (selected !== '') {
                 this.selectedFilterList.push(selected);
                 var setts = this.graph.filterManager.filterSettings;
                 setts.visibleFilters = this.selectedFilterList;
@@ -597,13 +597,13 @@ define(['backbone.marionette',
             }
         },
 
-        changeFilterDisplayStatus: function changeFilterDisplayStatus(){
+        changeFilterDisplayStatus: function changeFilterDisplayStatus() {
             var that = this;
             var height = '99%';
             var opacity = 0.0;
             var direction = 'up';
-            if($('#minimizeFilters').hasClass('minimized')){
-                height = ($('#graph').height() - 270)+'px';
+            if ($('#minimizeFilters').hasClass('minimized')) {
+                height = ($('#graph').height() - 270) + 'px';
                 opacity = 1.0;
                 direction = 'down';
                 $('#minimizeFilters').attr('class', 'visible');
@@ -617,20 +617,20 @@ define(['backbone.marionette',
                 );
             }
 
-            $('#filterSelectDrop').animate({ opacity: opacity  }, 1000);
-                $('#analyticsFilters').animate({ opacity: opacity  }, 1000);
-                $('#graph').animate({ height: height  }, {
-                    step: function( now, fx ) {
-                        //that.graph.resize();
-                    },
-                    done: function(){
-                        $('#minimizeFilters i').attr('class', 
-                            'fa fa-chevron-circle-'+direction
-                        );
-                        that.graph.resize();
-                    }
-                },1000);
-                //that.graph.resize();
+            $('#filterSelectDrop').animate({opacity: opacity}, 1000);
+            $('#analyticsFilters').animate({opacity: opacity}, 1000);
+            $('#graph').animate({height: height}, {
+                step: function (now, fx) {
+                    //that.graph.resize();
+                },
+                done: function () {
+                    $('#minimizeFilters i').attr('class',
+                        'fa fa-chevron-circle-' + direction
+                    );
+                    that.graph.resize();
+                }
+            }, 1000);
+            //that.graph.resize();
         },
 
         renderFilterList: function renderFilterList() {
@@ -641,38 +641,38 @@ define(['backbone.marionette',
 
             $('#resetFilters').off();
             filCon.append('<button id="resetFilters" type="button" class="btn btn-success darkbutton">Reset filters</button>');
-            $('#resetFilters').click(function(){
+            $('#resetFilters').click(function () {
                 that.graph.filterManager.resetManager();
             });
 
 
-            // Set height of graph depending on 
+            // Set height of graph depending on
             var filtersMinimized = localStorage.getItem('filtersMinimized');
-            if(filtersMinimized === null){
+            if (filtersMinimized === null) {
                 filtersMinimized = false;
             } else {
                 filtersMinimized = JSON.parse(filtersMinimized);
             }
 
             var direction = 'down';
-            if(filtersMinimized){
+            if (filtersMinimized) {
                 direction = 'up';
             }
 
             $('#minimizeFilters').off();
             $('#minimizeFilters').remove();
             $('#filterDivContainer').append(
-                '<div id="minimizeFilters" class="visible"><i class="fa fa-chevron-circle-'+direction+'" aria-hidden="true"></i></div>'
+                '<div id="minimizeFilters" class="visible"><i class="fa fa-chevron-circle-' + direction + '" aria-hidden="true"></i></div>'
             );
 
             var filtersMinimized = localStorage.getItem('filtersMinimized');
-            if(filtersMinimized === null){
+            if (filtersMinimized === null) {
                 filtersMinimized = false;
             } else {
                 filtersMinimized = JSON.parse(filtersMinimized);
             }
 
-            if(filtersMinimized){
+            if (filtersMinimized) {
                 $('#minimizeFilters').addClass('minimized');
             } else {
                 $('#minimizeFilters').addClass('visible');
@@ -685,8 +685,8 @@ define(['backbone.marionette',
             var filtersNotUsed = ['QDLatitude_periodic', 'Latitude_periodic'];
             var aUOM = {};
             // Clone object
-            _.each(globals.swarm.get('uom_set'), function(obj, key){
-                if (!filtersNotUsed.some(function(filter) { return key.indexOf(filter) >= 0; })) {
+            _.each(globals.swarm.get('uom_set'), function (obj, key) {
+                if (!filtersNotUsed.some(function (filter) {return key.indexOf(filter) >= 0;})) {
                     // Filter not found in list of not to be used ones
                     aUOM[key] = obj;
                 }
@@ -694,33 +694,33 @@ define(['backbone.marionette',
 
             // Remove currently visible filters from list
             for (var i = 0; i < this.selectedFilterList.length; i++) {
-              if(aUOM.hasOwnProperty(this.selectedFilterList[i])){
-                delete aUOM[this.selectedFilterList[i]];
-              }
+                if (aUOM.hasOwnProperty(this.selectedFilterList[i])) {
+                    delete aUOM[this.selectedFilterList[i]];
+                }
             }
 
             // Show only filters for currently available data
             for (var key in aUOM) {
-              if(this.currentKeys && this.currentKeys.indexOf(key) === -1){
-                delete aUOM[key];
-              }
+                if (this.currentKeys && this.currentKeys.indexOf(key) === -1) {
+                    delete aUOM[key];
+                }
             }
 
 
             // Remove unwanted parameters
-            if(aUOM.hasOwnProperty('Timestamp')){delete aUOM.Timestamp;}
-            if(aUOM.hasOwnProperty('timestamp')){delete aUOM.timestamp;}
-            if(aUOM.hasOwnProperty('q_NEC_CRF')){delete aUOM.q_NEC_CRF;}
-            if(aUOM.hasOwnProperty('GPS_Position')){delete aUOM.GPS_Position;}
-            if(aUOM.hasOwnProperty('LEO_Position')){delete aUOM.LEO_Position;}
-            if(aUOM.hasOwnProperty('Spacecraft')){delete aUOM.Spacecraft;}
-            if(aUOM.hasOwnProperty('id')){delete aUOM.id;}
+            if (aUOM.hasOwnProperty('Timestamp')) {delete aUOM.Timestamp;}
+            if (aUOM.hasOwnProperty('timestamp')) {delete aUOM.timestamp;}
+            if (aUOM.hasOwnProperty('q_NEC_CRF')) {delete aUOM.q_NEC_CRF;}
+            if (aUOM.hasOwnProperty('GPS_Position')) {delete aUOM.GPS_Position;}
+            if (aUOM.hasOwnProperty('LEO_Position')) {delete aUOM.LEO_Position;}
+            if (aUOM.hasOwnProperty('Spacecraft')) {delete aUOM.Spacecraft;}
+            if (aUOM.hasOwnProperty('id')) {delete aUOM.id;}
 
             $('#filterSelectDrop').prepend(
-              '<div class="w2ui-field"> <button id="analyticsAddFilter" type="button" class="btn btn-success darkbutton dropdown-toggle">Add filter <span class="caret"></span></button> <input type="list" id="inputAnalyticsAddfilter"></div>'
+                '<div class="w2ui-field"> <button id="analyticsAddFilter" type="button" class="btn btn-success darkbutton dropdown-toggle">Add filter <span class="caret"></span></button> <input type="list" id="inputAnalyticsAddfilter"></div>'
             );
 
-            $( "#analyticsAddFilter" ).click(function(){
+            $("#analyticsAddFilter").click(function () {
                 $('.w2ui-field-helper input').css('text-indent', '0em');
                 $("#inputAnalyticsAddfilter").focus();
             });
@@ -728,42 +728,42 @@ define(['backbone.marionette',
             var that = this;
             $('#inputAnalyticsAddfilter').off();
 
-            $('#inputAnalyticsAddfilter').w2field('list', { 
-              items: _.keys(aUOM).sort(),
-              renderDrop: function (item, options) {
-                var html = '<b>'+that.createSubscript(item.id)+'</b>';
-                if(aUOM[item.id].uom != null){
-                  html += ' ['+aUOM[item.id].uom+']';
-                }
-                if(aUOM[item.id].name != null){
-                  html+= ': '+aUOM[item.id].name;
-                }
-                return html;
-              },
-              compare: function(item){
-                var userIn = $('.w2ui-field-helper input').val();
-                //console.log(item, $('.w2ui-field-helper input').val());
-                if (userIn.length === 0){
-                    return true;
-                } else {
-                    userIn = userIn.toLowerCase();
-                    var par = aUOM[item.id];
-                    var inputInId = item.id.toLowerCase().replace(/[^a-zA-Z0-9]/g, '')
-                        .includes(userIn.replace(/[^a-zA-Z0-9]/g, ''));
-                    var inputInUOM = par.hasOwnProperty('uom') && 
-                        par.uom !== null && 
-                        par.uom.toLowerCase().includes(userIn);
-                    var inputInName = par.hasOwnProperty('name') && 
-                        par.name !== null && 
-                        par.name.toLowerCase().includes(userIn);
-                    if(inputInId || inputInUOM || inputInName){
+            $('#inputAnalyticsAddfilter').w2field('list', {
+                items: _.keys(aUOM).sort(),
+                renderDrop: function (item, options) {
+                    var html = '<b>' + that.createSubscript(item.id) + '</b>';
+                    if (aUOM[item.id].uom != null) {
+                        html += ' [' + aUOM[item.id].uom + ']';
+                    }
+                    if (aUOM[item.id].name != null) {
+                        html += ': ' + aUOM[item.id].name;
+                    }
+                    return html;
+                },
+                compare: function (item) {
+                    var userIn = $('.w2ui-field-helper input').val();
+                    //console.log(item, $('.w2ui-field-helper input').val());
+                    if (userIn.length === 0) {
                         return true;
                     } else {
-                        return false;
+                        userIn = userIn.toLowerCase();
+                        var par = aUOM[item.id];
+                        var inputInId = item.id.toLowerCase().replace(/[^a-zA-Z0-9]/g, '')
+                            .includes(userIn.replace(/[^a-zA-Z0-9]/g, ''));
+                        var inputInUOM = par.hasOwnProperty('uom') &&
+                        par.uom !== null &&
+                        par.uom.toLowerCase().includes(userIn);
+                        var inputInName = par.hasOwnProperty('name') &&
+                        par.name !== null &&
+                        par.name.toLowerCase().includes(userIn);
+                        if (inputInId || inputInUOM || inputInName) {
+                            return true;
+                        } else {
+                            return false;
+                        }
                     }
+
                 }
-                
-              }
             });
 
             $('.w2ui-field-helper input').attr('placeholder', 'Type to search');
@@ -772,7 +772,7 @@ define(['backbone.marionette',
 
         },
 
-        reloadData: function(model, data) {
+        reloadData: function (model, data) {
 
             function itemExists(itemArray, item) {
                 for (var i = 0; i < itemArray.length; ++i) {
@@ -786,16 +786,16 @@ define(['backbone.marionette',
             }
 
             // If element already has plot rendering
-            if( $(this.el).html()){
+            if ($(this.el).html()) {
                 var idKeys = Object.keys(data);
                 this.currentKeys = idKeys;
-                if(idKeys.length >0 && data[idKeys[0]].length > 0){
+                if (idKeys.length > 0 && data[idKeys[0]].length > 0) {
                     $('#nodataavailable').hide();
                     $('.d3canvas').show();
 
                     var identifiers = [];
                     for (var key in globals.swarm.satellites) {
-                        if(globals.swarm.satellites[key]){
+                        if (globals.swarm.satellites[key]) {
                             identifiers.push(key);
                         }
                     }
@@ -808,11 +808,11 @@ define(['backbone.marionette',
                     // Calculate very rough estimate of rendered points
                     var dataLength = data[idKeys[0]].length;
                     var renderedPoints = (
-                        dataLength*this.renderSettings.yAxis.length
+                        dataLength * this.renderSettings.yAxis.length
                     );
-                    if(renderedPoints < 10000){
+                    if (renderedPoints < 10000) {
                         this.graph.debounceActive = false;
-                    }else{
+                    } else {
                         this.graph.debounceActive = true;
                     }
 
@@ -821,7 +821,7 @@ define(['backbone.marionette',
                     // If data parameters have changed
                     // if this is first data load prev params is empty so ideally
                     // config from last time should be loaded
-                    if (!_.isEqual(this.prevParams, idKeys) && this.prevParams!== null){
+                    if (!_.isEqual(this.prevParams, idKeys) && this.prevParams !== null) {
                         // Define which parameters should be selected defaultwise as filtering
                         var filterstouse = [
                             'Ne', 'Te', 'Bubble_Probability',
@@ -832,42 +832,42 @@ define(['backbone.marionette',
                         ];
 
                         filterstouse = filterstouse.concat(['MLT']);
-                        var residuals = _.filter(idKeys, function(item) {
+                        var residuals = _.filter(idKeys, function (item) {
                             return item.indexOf('_res_') !== -1;
                         });
                         // If new datasets contains residuals add those instead of normal components
-                        if(residuals.length > 0){
+                        if (residuals.length > 0) {
                             filterstouse = filterstouse.concat(residuals);
-                        }else{
-                            if(filterstouse.indexOf('F') === -1){
-                              filterstouse.push('F');
+                        } else {
+                            if (filterstouse.indexOf('F') === -1) {
+                                filterstouse.push('F');
                             }
-                            if(filterstouse.indexOf('F_error') === -1){
+                            if (filterstouse.indexOf('F_error') === -1) {
                                 filterstouse.push('F_error');
                             }
                         }
 
                         // Check if configured filters apply to new data
-                        for (var fKey in this.graph.filterManager.brushes){
-                            if(idKeys.indexOf(fKey) === -1){
+                        for (var fKey in this.graph.filterManager.brushes) {
+                            if (idKeys.indexOf(fKey) === -1) {
                                 delete this.graph.filterManager.brushes[fKey];
                             }
                         }
 
-                        for(var filKey in this.graph.filterManager.filters){
-                            if(idKeys.indexOf(filKey) === -1){
+                        for (var filKey in this.graph.filterManager.filters) {
+                            if (idKeys.indexOf(filKey) === -1) {
                                 delete this.graph.filterManager.filters[fKey];
                             }
                         }
 
-                        for(var filgraphKey in this.graph.filters){
-                            if(idKeys.indexOf(filgraphKey) === -1){
+                        for (var filgraphKey in this.graph.filters) {
+                            if (idKeys.indexOf(filgraphKey) === -1) {
                                 delete this.graph.filters[fKey];
                             }
                         }
 
                         for (var i = filterstouse.length - 1; i >= 0; i--) {
-                            if(this.selectedFilterList.indexOf(filterstouse[i]) === -1){
+                            if (this.selectedFilterList.indexOf(filterstouse[i]) === -1) {
                                 this.selectedFilterList.push(filterstouse[i]);
                             }
                         }
@@ -898,46 +898,46 @@ define(['backbone.marionette',
                         var colAx = this.renderSettings.colorAxis;
                         var colAx2 = this.renderSettings.colorAxis2;
 
-                        for (var pY=renSetY.length-1; pY>=0; pY--) {
+                        for (var pY = renSetY.length - 1; pY >= 0; pY--) {
 
                             // Go through all elements of plot, first left y axis
                             // and remove them if no longer available
-                            for (var yy=renSetY[pY].length-1; yy >=0; yy--) {
-                                if(idKeys.indexOf(renSetY[pY][yy]) === -1){
-                                    renSetY[pY].splice(yy,1);
+                            for (var yy = renSetY[pY].length - 1; yy >= 0; yy--) {
+                                if (idKeys.indexOf(renSetY[pY][yy]) === -1) {
+                                    renSetY[pY].splice(yy, 1);
                                     // remove corresponding cs
-                                    colAx[pY].splice(yy,1);
+                                    colAx[pY].splice(yy, 1);
                                 }
                             }
 
                             // Go through all elements of plot, now right y axis
                             // and remove them if no longer available
-                            for (var yy2=renSetY2[pY].length-1; yy2 >=0; yy2--) {
-                                if(idKeys.indexOf(renSetY2[pY][yy2]) === -1){
-                                    renSetY2[pY].splice(yy2,1);
+                            for (var yy2 = renSetY2[pY].length - 1; yy2 >= 0; yy2--) {
+                                if (idKeys.indexOf(renSetY2[pY][yy2]) === -1) {
+                                    renSetY2[pY].splice(yy2, 1);
                                     // remove corresponding cs
-                                    colAx2[pY].splice(yy2,1);
+                                    colAx2[pY].splice(yy2, 1);
                                 }
                             }
 
                             // Chech if both left and right are empty we remove
                             // the complete plot
-                            if(renSetY[pY].length === 0 && renSetY2[pY].length === 0){
-                                renSetY.splice(pY,1);
-                                renSetY2.splice(pY,1);
-                                colAx.splice(pY,1);
-                                colAx2.splice(pY,1);
+                            if (renSetY[pY].length === 0 && renSetY2[pY].length === 0) {
+                                renSetY.splice(pY, 1);
+                                renSetY2.splice(pY, 1);
+                                colAx.splice(pY, 1);
+                                colAx2.splice(pY, 1);
                             }
                         }
 
 
-                        // Check if we want to add any new parameters as new 
+                        // Check if we want to add any new parameters as new
                         // plot that have been added in the change
                         for (var pc = 0; pc < parasToCheck.length; pc++) {
-                            if(idKeys.indexOf(parasToCheck[pc]) !== -1){
+                            if (idKeys.indexOf(parasToCheck[pc]) !== -1) {
                                 // Check if parameter is not already selected
-                                if(!itemExists(renSetY, parasToCheck[pc]) && 
-                                    !itemExists(renSetY2, parasToCheck[pc])){
+                                if (!itemExists(renSetY, parasToCheck[pc]) &&
+                                    !itemExists(renSetY2, parasToCheck[pc])) {
 
                                     renSetY.push([parasToCheck[pc]]);
                                     colAx.push([null]);
@@ -949,9 +949,9 @@ define(['backbone.marionette',
 
                         // Check if residuals have been added and add them as plot
                         for (var ik = 0; ik < idKeys.length; ik++) {
-                            if(idKeys[ik].indexOf('F_res')!==-1){
-                                if(!itemExists(renSetY, idKeys[ik]) && 
-                                    !itemExists(renSetY2, idKeys[ik])){
+                            if (idKeys[ik].indexOf('F_res') !== -1) {
+                                if (!itemExists(renSetY, idKeys[ik]) &&
+                                    !itemExists(renSetY2, idKeys[ik])) {
                                     renSetY.push([idKeys[ik]]);
                                     colAx.push([null]);
                                     renSetY2.push([]);
@@ -962,7 +962,7 @@ define(['backbone.marionette',
 
                         // If after adding possible other default parameters
                         // there are no plots added we add en empty plot
-                        if(renSetY.length === 0){
+                        if (renSetY.length === 0) {
                             renSetY.push([]);
                             colAx.push([]);
                             renSetY2.push([]);
@@ -970,12 +970,12 @@ define(['backbone.marionette',
                         }
 
                         // Check if x axis selection is still available
-                        if(idKeys.indexOf(this.graph.renderSettings.xAxis) === -1) {
+                        if (idKeys.indexOf(this.graph.renderSettings.xAxis) === -1) {
                             var oldXVariable = this.graph.renderSettings.xAxis;
                             // If not available try Timestamp.
-                            if(idKeys.indexOf('Timestamp') !== -1) {
+                            if (idKeys.indexOf('Timestamp') !== -1) {
                                 this.graph.renderSettings.xAxis = 'Timestamp';
-                            } else if(idKeys.length > 0){
+                            } else if (idKeys.length > 0) {
                                 // If Timestamp not available default to the first key.
                                 this.graph.renderSettings.xAxis = idKeys[0];
                             }
@@ -1011,21 +1011,21 @@ define(['backbone.marionette',
                         );
                         // End of IF to see if data parameters have changed
                     } else if (this.prevParams === null) {
-                        // TODO: We should not need to do anything here but we 
+                        // TODO: We should not need to do anything here but we
                         // could introduce some sanity checks if strange data
                         // is loaded for some reason
-                        
+
                     } else {
-                        // TODO: We should not need to do anything here but we 
+                        // TODO: We should not need to do anything here but we
                         // could introduce some sanity checks if strange data
                         // is loaded for some reason
                     }
 
-                    // This should only happen here if there has been 
+                    // This should only happen here if there has been
                     // some issue with the saved filter configuration
                     // Check if current brushes are valid for current data
-                    for (var fKey in this.graph.filterManager.brushes){
-                        if(idKeys.indexOf(fKey) === -1){
+                    for (var fKey in this.graph.filterManager.brushes) {
+                        if (idKeys.indexOf(fKey) === -1) {
                             delete this.graph.filterManager.brushes[fKey];
                         }
                     }
@@ -1037,7 +1037,7 @@ define(['backbone.marionette',
                     this.$('#filterDivContainer').append('<div id="filterSelectDrop"></div>');
 
                     this.graph.loadData(data);
-                    if(needsResize){
+                    if (needsResize) {
                         this.graph.resize();
                     }
                     this.filterManager.loadData(data);
@@ -1050,18 +1050,16 @@ define(['backbone.marionette',
         },
 
         onChangeAxisParameters: function (selection) {
-            this.sp.sel_y=selection;
+            this.sp.sel_y = selection;
             this.sp.render();
         },
 
-        onResize: function(){
-            //if(typeof this.graph !== 'undefined' && this.isClosed === false){
-                this.graph.resize();
-            //}
+        onResize: function () {
+            this.graph.resize();
         },
 
-        close: function() {
-            if(this.graph){
+        close: function () {
+            if (this.graph) {
                 this.graph.destroy();
             }
             delete this.graph;
