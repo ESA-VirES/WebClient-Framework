@@ -1,20 +1,13 @@
-
 <div class="input-group" id={{id}} style="margin:7px">
-
   <span class="form-control">
       {{creation_time}}
   </span>
-
- 
-
   <span class="input-group-addon">
     <div class="progress" style="margin-bottom:0px!important; width:250px;">
-      <div class="progress-bar" role="progressbar" aria-valuenow="70"
-      aria-valuemin="0" aria-valuemax="100" style="width:{{percentage}}%"></div>
-      <span>{{percentage_descriptor}}</span>
+      <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:{{percentage}}%"></div>
+      <span>{{message}}</span>
     </div>
   </span>
-
   <span class="input-group-addon">
     <a class="collapse_object collapsed" style="text-decoration:none" data-toggle="collapse" href="#collapse-{{id}}">
       <i class="fa fa-chevron-down" aria-hidden="true"></i> 
@@ -22,23 +15,21 @@
       Process details
     </a>
   </span>
-  
-
   <span class="input-group-btn">
-      <a class="btn btn-primary {{#if download_link}}{{else}}disabled{{/if}}" role="button" href="{{download_link}}">
-          <i class="fa fa-download"></i> Download
-      </a>
+    <a class="btn btn-primary {{#if download_url}}{{else}}disabled{{/if}}" role="button"{{#if download_url}} href="{{download_url}}"{{/if}}>
+      <i class="fa fa-download"></i> Download
+    </a>
   </span>
 </div>
 <div id="collapse-{{id}}" class="panel-collapse collapse">
   <div class="panel-body">
     <ul>
-    {{#each datainputs}}
-        <li><b>{{@key}}:</b> {{this}}</li>
+    {{#if error}}
+    <li><b>Error:</b> {{error}}<hr></li>
+    {{/if}}
+    {{#each details}}
+      <li><b>{{this.label}}:</b> {{{this.body}}}</li>
     {{/each}}
     </ul>
   </div>
 </div>
-
-
-    
