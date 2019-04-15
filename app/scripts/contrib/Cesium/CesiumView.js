@@ -1,4 +1,4 @@
-/*global $ _ define d3 Cesium plotty DrawHelper saveAs */
+/*global $ _ define d3 Cesium msgpack plotty DrawHelper saveAs showMessage */
 /*global defaultFor getISODateTimeString */
 /*global SCALAR_PARAM VECTOR_PARAM VECTOR_BREAKDOWN */
 
@@ -8,16 +8,26 @@ define([
     'app',
     'models/MapModel',
     'globals',
-    'papaparse',
+    'httpRequest',
     'hbs!tmpl/wps_eval_composed_model',
     'hbs!tmpl/wps_get_field_lines',
     'cesium/Cesium',
     'drawhelper',
     'FileSaver',
+    'msgpack',
     'plotty'
-], function (Marionette, Communicator, App, MapModel, globals, Papa,
-    tmplEvalModel, tmplGetFieldLines) {
+], function (
+    Marionette, Communicator, App, MapModel, globals, httpRequest,
+    tmplEvalModel, tmplGetFieldLines
+) {
     'use strict';
+
+    // Special 'ellipsoid' for conversion from geocentric spherical coordinates.
+    // This datum is a sphere with radius of 1mm.
+    var GEOCENTRIC_SPHERICAL = {
+        radiiSquared: new Cesium.Cartesian3(1e-6, 1e-6, 1e-6)
+    };
+
     var CesiumView = Marionette.View.extend({
         model: new MapModel.MapModel(),
 
@@ -1696,19 +1706,35 @@ define([
                             this.bboxsel[0], this.bboxsel[1], this.bboxsel[2], this.bboxsel[3]
                         ].join(','),
                         style: parameters[variable].colorscale,
+                        range_min: parameters[variable].range[0],
+                        range_max: parameters[variable].range[1],
                         log_scale: parameters[variable].logarithmic
                     };
 
-                    $.post(product.get('views')[0].urls[0], tmplGetFieldLines(options))
-                        .done(_.bind(function (data) {
-                            Papa.parse(data, {
-                                header: true,
-                                dynamicTyping: true,
-                                complete: _.bind(function (results) {
-                                    this.createFLPrimitives(results, name);
-                                }, this)
-                            });
-                        }, this));
+                    httpRequest.asyncHttpRequest({
+                        context: this,
+                        type: 'POST',
+                        url: product.get('views')[0].urls[0],
+                        data: tmplGetFieldLines(options),
+                        responseType: 'arraybuffer',
+                        parse: function (data, xhr) {
+                            return msgpack.decode(new Uint8Array(data));
+                        },
+                        success: function (data, xhr) {
+                            this.createFLPrimitives(data, name);
+                        },
+                        error: function (xhr) {
+                            if (xhr.responseText === "") {return;}
+                            var error_text = xhr.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
+                            if (error_text && error_text.length > 1) {
+                                error_text = error_text[1];
+                            } else {
+                                error_text = 'Please contact feedback@vires.services if issue persists.';
+                            }
+                            showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+                        }
+                    });
+
                 }, this
             );
         },
@@ -1761,37 +1787,49 @@ define([
             }
         },
 
-        createFLPrimitives: function (results, name) {
+        createFLPrimitives: function (data, name) {
+            // TODO: implement client-side colouring and avoid new request for each style change
+            // FIXME: remove console logging
+
             this.removeFLPrimitives(name);
 
-            var parsedData = {};
-            _.each(results.data, function (row) {
-                var data = parsedData[row.id];
-                if (data === undefined) {
-                    parsedData[row.id] = data = {colors: [], positions: []};
-                }
-                data.colors.push(
-                    Cesium.Color.fromBytes(row.color_r, row.color_g, row.color_b, 255)
-                );
-                data.positions.push(
-                    new Cesium.Cartesian3(row.pos_x, row.pos_y, row.pos_z)
-                );
-            });
+            console.log('fieldlines', data.info);
+            var instances = _.chain(data.fieldlines)
+                .map(function (fieldlines, modelId) {
+                    return _.map(fieldlines, function (fieldline, index) {
+                        // Note that all coordinates are in Geocentric Spherical CS,
+                        // i.e., [latitude, longitude, radius]
+                        // The angles are in degrees and lengths in meters.
+                        console.log(modelId, index, fieldline)
+                        console.log('apex points', fieldline.apex_point)
+                        console.log('apex height', fieldline.apex_height)
+                        console.log('ground points', fieldline.ground_points)
+                        // fieldline.values contains the actual F values
+                        var positions = _.map(fieldline.coordinates, function (coords) {
+                            return Cesium.Cartesian3.fromDegrees(
+                                coords[1], coords[0], coords[2], GEOCENTRIC_SPHERICAL
+                            );
+                        });
 
-            var instances = _.values(parsedData).map(function (data, index) {
-                return new Cesium.GeometryInstance({
-                    id: 'vec_line_' + index,
-                    geometry: new Cesium.PolylineGeometry({
-                        positions: data.positions,
-                        width: 2.0,
-                        vertexFormat: Cesium.PolylineColorAppearance.VERTEX_FORMAT,
-                        colors: data.colors,
-                        colorsPerVertex: true,
-                    })
-                });
-            });
+                        var colors = _.map(fieldline.colors, function (color) {
+                            return Cesium.Color.fromBytes(color[0], color[1], color[2], 255);
+                        });
 
-            // TODO: Possibly needed geometry instances if transparency should work for fieldlines
+                        return new Cesium.GeometryInstance({
+                            id: 'vec_line_' + modelId + '_' + index,
+                            geometry: new Cesium.PolylineGeometry({
+                                width: 2.0,
+                                vertexFormat: Cesium.PolylineColorAppearance.VERTEX_FORMAT,
+                                colorsPerVertex: true,
+                                positions: positions,
+                                colors: colors,
+                            })
+                        });
+                    }, this);
+                }, this)
+                .flatten()
+                .value();
+
             this.FLCollection[name] = new Cesium.Primitive({
                 geometryInstances: instances,
                 appearance: new Cesium.PolylineColorAppearance()
