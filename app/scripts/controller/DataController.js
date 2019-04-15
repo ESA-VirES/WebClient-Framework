@@ -13,7 +13,7 @@
     'hbs!tmpl/wps_getdata',
     'hbs!tmpl/wps_fetchData',
     'app',
-    'papaparse',
+    'httpRequest',
     'dataUtil',
     'msgpack',
     'graphly',
@@ -22,7 +22,7 @@
 
   function (
     Backbone, Communicator, globals, wps_getdataTmpl, wps_fetchDataTmpl, App,
-    Papa, DataUtil
+    httpRequest, DataUtil
   ) {
 
     var DataController = Backbone.Marionette.Controller.extend({
@@ -330,8 +330,6 @@
             function (item) {return item.getCustomShcIfSelected();}
           )[0] || null;
 
-          var req_data = wps_fetchDataTmpl(options);
-
           if (this.xhr !== null) {
             // A request has been sent that is not yet been returned so we need to cancel it
             Communicator.mediator.trigger("progress:change", false);
@@ -339,168 +337,163 @@
             this.xhr = null;
           }
 
-          this.xhr = new XMLHttpRequest();
-          this.xhr.open('POST', retrieve_data[0].url, true);
-          this.xhr.responseType = 'arraybuffer';
-          var that = this;
-          var request = this.xhr;
+          this.xhr = httpRequest.asyncHttpRequest({
+            context: this,
+            type: 'POST',
+            url: retrieve_data[0].url,
+            data: wps_fetchDataTmpl(options),
+            responseType: 'arraybuffer',
 
-          this.xhr.onreadystatechange = function () {
-            if (request.readyState == 4) {
-              if (request.status == 200) {
-                var tmp = new Uint8Array(request.response);
-                var dat = msgpack.decode(tmp);
+            parse: function (data, xhr) {
+              return msgpack.decode(new Uint8Array(data));
+            },
 
-                var ids = {
-                  'A': 'Alpha',
-                  'B': 'Bravo',
-                  'C': 'Charlie',
-                  '-': 'NSC'
-                };
+            opened: function () {
+              Communicator.mediator.trigger("progress:change", true);
+            },
 
-                if (dat.hasOwnProperty('Spacecraft')) {
-                  dat['id'] = [];
-                  for (var i = 0; i < dat.Timestamp.length; i++) {
-                    dat.id.push(ids[dat.Spacecraft[i]]);
-                  }
-                }
+            completed: function () {
+              this.xhr = null;
+              Communicator.mediator.trigger("progress:change", false);
+            },
 
-                if (dat.hasOwnProperty('Timestamp')) {
-                  for (var i = 0; i < dat.Timestamp.length; i++) {
-                    dat.Timestamp[i] = new Date(dat.Timestamp[i] * 1000);
-                  }
-                }
-                if (dat.hasOwnProperty('timestamp')) {
-                  for (var i = 0; i < dat.Timestamp.length; i++) {
-                    dat.Timestamp[i] = new Date(dat.timestamp[i] * 1000);
-                  }
-                }
-                if (dat.hasOwnProperty('latitude')) {
-                  dat['Latitude'] = dat['latitude'];
-                  delete dat.latitude;
-                }
-                if (dat.hasOwnProperty('longitude')) {
-                  dat['Longitude'] = dat['longitude'];
-                  delete dat.longitude;
-                }
-                if (!dat.hasOwnProperty('Radius')) {
-                  dat['Radius'] = [];
-                  var refKey = 'Timestamp';
-                  if (!dat.hasOwnProperty(refKey)) {
-                    refKey = 'timestamp';
-                  }
-                  for (var i = 0; i < dat[refKey].length; i++) {
-                    dat['Radius'].push(6832000);
-                  }
-                }
-
-                if (dat.hasOwnProperty('Latitude') && dat.hasOwnProperty('OrbitDirection')) {
-                  dat['Latitude_periodic'] = [];
-                  for (var i = 0; i < dat.Latitude.length; i++) {
-                    if (dat.OrbitDirection[i] === 1) {
-                      // range 90 -270
-                      dat.Latitude_periodic.push(dat.Latitude[i] + 180);
-                    } else if (dat.OrbitDirection[i] === -1) {
-                      if (dat.Latitude[i] < 0) {
-                        // range 0 - 90
-                        dat.Latitude_periodic.push((dat.Latitude[i] * -1));
-                      } else {
-                        // range 270 - 360
-                        dat.Latitude_periodic.push(360 - dat.Latitude[i]);
-                      }
-
-                    } else if (dat.OrbitDirection[i] === 0) {
-                      //TODO what to do here? Should in principle not happen
-                    }
-                  }
-                }
-
-                if (dat.hasOwnProperty('QDLat') && dat.hasOwnProperty('QDOrbitDirection')) {
-                  dat['QDLatitude_periodic'] = [];
-                  for (var i = 0; i < dat.QDLat.length; i++) {
-                    if (dat.QDOrbitDirection[i] === 1) {
-                      // range 90 -270
-                      dat.QDLatitude_periodic.push(dat.QDLat[i] + 180);
-                    } else if (dat.QDOrbitDirection[i] === -1) {
-                      if (dat.QDLat[i] < 0) {
-                        // range 0 - 90
-                        dat.QDLatitude_periodic.push((dat.QDLat[i] * -1));
-                      } else {
-                        // range 270 - 360
-                        dat.QDLatitude_periodic.push(360 - dat.QDLat[i]);
-                      }
-
-                    } else if (dat.QDOrbitDirection[i] === 0) {
-                      //TODO what to do here? Should in principle not happen
-                    }
-                  }
-                }
-
-                _.each(dat, function (data, key) {
-                  var components = VECTOR_BREAKDOWN[key];
-                  if (!components) {return;}
-                  dat[components[0]] = [];
-                  dat[components[1]] = [];
-                  dat[components[2]] = [];
-                  _.each(data, function (item) {
-                    dat[components[0]].push(item[0]);
-                    dat[components[1]].push(item[1]);
-                    dat[components[2]].push(item[2]);
-                  });
-                  delete dat[key];
-                });
-
-                // This should only happen here if there has been
-                // some issue with the saved filter configuration
-                // Check if current brushes are valid for current data
-                var idKeys = Object.keys(dat);
-                var filters = globals.swarm.get('filters');
-                var filtersSelec = JSON.parse(localStorage.getItem('filterSelection'));
-                var filtersmodified = false;
-                if (filters) {
-                  for (var f in filters) {
-                    if (idKeys.indexOf(f) === -1) {
-                      delete filters[f];
-                      delete filtersSelec[f];
-                      filtersmodified = true;
-                    }
-                  }
-                  if (filtersmodified) {
-                    globals.swarm.set('filters', filters);
-                    localStorage.setItem('filterSelection', JSON.stringify(filtersSelec));
-                  }
-                }
-
-                globals.swarm.set({data: dat});
-                Communicator.mediator.trigger("progress:change", false);
-                that.xhr = null;
-
-              } else if (request.status !== 0 && request.responseText != "") {
-                globals.swarm.set({data: {}});
-                var error_text = request.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
-                if (error_text && error_text.length > 1) {
-                  error_text = error_text[1];
-                } else {
-                  error_text = 'Please contact feedback@vires.services if issue persists.';
-                }
-
-                showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
-                Communicator.mediator.trigger("progress:change", false);
-                that.xhr = null;
-                return;
-              }
-
-            } else if (request.readyState == 2) {
-              if (request.status == 200) {
-                request.responseType = 'arraybuffer';
+            error: function (xhr) {
+              globals.swarm.set({data: {}});
+              if (xhr.responseText === "") {return;}
+              var error_text = xhr.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
+              if (error_text && error_text.length > 1) {
+                error_text = error_text[1];
               } else {
-                request.responseType = 'text';
+                error_text = 'Please contact feedback@vires.services if issue persists.';
               }
-            }
-          };
+              showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+            },
 
-          Communicator.mediator.trigger("progress:change", true);
-          this.xhr.send(req_data);
+            success: function (dat) {
+
+              var ids = {
+                'A': 'Alpha',
+                'B': 'Bravo',
+                'C': 'Charlie',
+                '-': 'NSC'
+              };
+
+              if (dat.hasOwnProperty('Spacecraft')) {
+                dat['id'] = [];
+                for (var i = 0; i < dat.Timestamp.length; i++) {
+                  dat.id.push(ids[dat.Spacecraft[i]]);
+                }
+              }
+
+              if (dat.hasOwnProperty('Timestamp')) {
+                for (var i = 0; i < dat.Timestamp.length; i++) {
+                  dat.Timestamp[i] = new Date(dat.Timestamp[i] * 1000);
+                }
+              }
+              if (dat.hasOwnProperty('timestamp')) {
+                for (var i = 0; i < dat.Timestamp.length; i++) {
+                  dat.Timestamp[i] = new Date(dat.timestamp[i] * 1000);
+                }
+              }
+              if (dat.hasOwnProperty('latitude')) {
+                dat['Latitude'] = dat['latitude'];
+                delete dat.latitude;
+              }
+              if (dat.hasOwnProperty('longitude')) {
+                dat['Longitude'] = dat['longitude'];
+                delete dat.longitude;
+              }
+              if (!dat.hasOwnProperty('Radius')) {
+                dat['Radius'] = [];
+                var refKey = 'Timestamp';
+                if (!dat.hasOwnProperty(refKey)) {
+                  refKey = 'timestamp';
+                }
+                for (var i = 0; i < dat[refKey].length; i++) {
+                  dat['Radius'].push(6832000);
+                }
+              }
+
+              if (dat.hasOwnProperty('Latitude') && dat.hasOwnProperty('OrbitDirection')) {
+                dat['Latitude_periodic'] = [];
+                for (var i = 0; i < dat.Latitude.length; i++) {
+                  if (dat.OrbitDirection[i] === 1) {
+                    // range 90 -270
+                    dat.Latitude_periodic.push(dat.Latitude[i] + 180);
+                  } else if (dat.OrbitDirection[i] === -1) {
+                    if (dat.Latitude[i] < 0) {
+                      // range 0 - 90
+                      dat.Latitude_periodic.push((dat.Latitude[i] * -1));
+                    } else {
+                      // range 270 - 360
+                      dat.Latitude_periodic.push(360 - dat.Latitude[i]);
+                    }
+
+                  } else if (dat.OrbitDirection[i] === 0) {
+                    //TODO what to do here? Should in principle not happen
+                  }
+                }
+              }
+
+              if (dat.hasOwnProperty('QDLat') && dat.hasOwnProperty('QDOrbitDirection')) {
+                dat['QDLatitude_periodic'] = [];
+                for (var i = 0; i < dat.QDLat.length; i++) {
+                  if (dat.QDOrbitDirection[i] === 1) {
+                    // range 90 -270
+                    dat.QDLatitude_periodic.push(dat.QDLat[i] + 180);
+                  } else if (dat.QDOrbitDirection[i] === -1) {
+                    if (dat.QDLat[i] < 0) {
+                      // range 0 - 90
+                      dat.QDLatitude_periodic.push((dat.QDLat[i] * -1));
+                    } else {
+                      // range 270 - 360
+                      dat.QDLatitude_periodic.push(360 - dat.QDLat[i]);
+                    }
+
+                  } else if (dat.QDOrbitDirection[i] === 0) {
+                    //TODO what to do here? Should in principle not happen
+                  }
+                }
+              }
+
+              _.each(dat, function (data, key) {
+                var components = VECTOR_BREAKDOWN[key];
+                if (!components) {return;}
+                dat[components[0]] = [];
+                dat[components[1]] = [];
+                dat[components[2]] = [];
+                _.each(data, function (item) {
+                  dat[components[0]].push(item[0]);
+                  dat[components[1]].push(item[1]);
+                  dat[components[2]].push(item[2]);
+                });
+                delete dat[key];
+              });
+
+              // This should only happen here if there has been
+              // some issue with the saved filter configuration
+              // Check if current brushes are valid for current data
+              var idKeys = Object.keys(dat);
+              var filters = globals.swarm.get('filters');
+              var filtersSelec = JSON.parse(localStorage.getItem('filterSelection'));
+              var filtersmodified = false;
+              if (filters) {
+                for (var f in filters) {
+                  if (idKeys.indexOf(f) === -1) {
+                    delete filters[f];
+                    delete filtersSelec[f];
+                    filtersmodified = true;
+                  }
+                }
+                if (filtersmodified) {
+                  globals.swarm.set('filters', filters);
+                  localStorage.setItem('filterSelection', JSON.stringify(filtersSelec));
+                }
+              }
+
+              globals.swarm.set({data: dat});
+            },
+          });
         }
       },
 
