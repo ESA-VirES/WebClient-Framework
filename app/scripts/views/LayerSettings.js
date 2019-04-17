@@ -313,7 +313,7 @@
                        !JSON.parse(localStorage.getItem('areaSelection'))) {
                         showMessage(
                             'warning',
-                            'In order to visualize fieldlines please select an area with the bounding box tool.',
+                            'In order to visualize fieldlines please select an area using the "Select Area" button in the globe view. Click on a fieldline to display additional information.',
                             35
                         );
                     }
@@ -455,7 +455,7 @@
                        !JSON.parse(localStorage.getItem('areaSelection'))) {
                         showMessage(
                             'warning',
-                            'In order to visualize fieldlines please select an area using the "Select Area" button in the globe view.',
+                            'In order to visualize fieldlines please select an area using the "Select Area" button in the globe view. Click on a fieldline to display additional information.',
                             35
                         );
                     }

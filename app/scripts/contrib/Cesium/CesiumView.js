@@ -1882,27 +1882,26 @@ define([
             if (typeof FLProduct !== 'undefined') {
                 var fl_data = this.FLData[FLProduct][fieldline.id];
                 // prepare template data
-                var points = [{
-                    name: 'Apex point',
+                var apex = {
                     lat: fl_data['apex_point'][0].toFixed(3),
                     lon: fl_data['apex_point'][1].toFixed(3),
-                }, {
-                    name: 'Ground point',
+                    height: (fl_data['apex_height'] / 1000).toFixed(1),
+                };
+                var ground_points = [{
                     lat: fl_data['ground_points'][0][0].toFixed(3),
                     lon: fl_data['ground_points'][0][1].toFixed(3),
                 }, {
-                    name: 'Ground point',
                     lat: fl_data['ground_points'][1][0].toFixed(3),
                     lon: fl_data['ground_points'][1][1].toFixed(3),
-                }]
+                }];
                 var options = {
-                    points: points,
-                    apex_height: (fl_data['apex_height'] / 1000).toFixed(1),
+                    ground_points: ground_points,
+                    apex: apex,
                 };
                 
                 $('#fieldlines_label').html(tmplFieldLinesLabel(options));
                 $('#fieldlines_label').removeClass('hidden');
-                $('#fieldlines_label').offset({left: clickPosition.x + 15, top: clickPosition.y + 10});
+                $('#fieldlines_label').offset({left: clickPosition.x + 18, top: clickPosition.y});
                 $('.fl-close').off('click');
                 $('.fl-close').on('click', this.hideFieldLinesLabel.bind(this));
                 // highlight points
