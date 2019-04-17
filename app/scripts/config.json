@@ -2762,14 +2762,25 @@
                 "eventToRaise": "ui:open:storybanner",
                 "template": "UseCase_MagneticModels"
             }]
-        }, {
+        },
+        {
+            "name": "Workspace",
+            "icon": "fa-laptop",
+            "subitems": [{
+                "name": "Import",
+                "eventToRaise": "application:load"
+            }, {
+                "name": "Export",
+                "eventToRaise": "application:save"
+            }, {
+                "name": "Reset",
+                "eventToRaise": "application:reset"
+            }]
+        },
+        {
             "name": "About",
             "icon": "fa-info-circle",
             "eventToRaise": "dialog:open:about"
-        }, {
-            "name": "Reset",
-            "icon": "fa-refresh",
-            "eventToRaise": "application:reset"
         }]
     },
 

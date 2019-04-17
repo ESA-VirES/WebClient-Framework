@@ -21,6 +21,8 @@
                 this.listenTo(Communicator.mediator, "ui:fullscreen:globe", this.onFullscrenGlobe);
                 this.listenTo(Communicator.mediator, "ui:fullscreen:analytics", this.onFullscrenAnalytics);
                 this.listenTo(Communicator.mediator, "application:reset", this.onApplicationReset);
+                this.listenTo(Communicator.mediator, "application:save", this.onApplicationSave);
+                this.listenTo(Communicator.mediator, "application:load", this.onApplicationLoad);
             },
 
             onFullscrenGlobe: function () {
@@ -130,6 +132,49 @@
                         JSON.stringify(globals.version)
                     );
                     location.reload(true);
+                }
+            },
+            onApplicationSave: function(){
+                if (typeof(Storage) !== "undefined") {
+                    var settingsJSON = JSON.stringify(localStorage);
+                    var blob = new Blob([settingsJSON], {
+                        type: 'text/plain;charset=utf-8'
+                    });
+                    var dateObj = new Date();
+                    var month = ('0' + (dateObj.getUTCMonth() + 1)).slice(-2);
+                    var day = ('0' + dateObj.getUTCDate()).slice(-2);
+                    var year = dateObj.getUTCFullYear();
+
+                    var newdate = ''+year + month + day + '_';
+
+                    saveAs(blob, newdate+'vires_settings.json');
+                }
+
+            },
+            onApplicationLoad: function(){
+                if (typeof(Storage) !== "undefined") {
+                    $('#fileInputJSON').remove();
+                    var infield = $('<input id="fileInputJSON" type="file" name="name" style="display: none;" />');
+                    $('body').append(infield);
+
+                    function onChange(event) {
+                        var reader = new FileReader();
+                        reader.onload = onReaderLoad;
+                        reader.readAsText(event.target.files[0]);
+                    }
+
+                    function onReaderLoad(event){
+                        var obj = JSON.parse(event.target.result);
+                        localStorage.clear();
+                        for( var key in obj ){
+                            localStorage.setItem(key, obj[key]);
+                        }
+                        window.location.reload();
+                    }
+
+                    $('#fileInputJSON').on('change', onChange);
+
+                    $('#fileInputJSON').trigger('click');
                 }
             }
 
