@@ -1853,7 +1853,7 @@ define([
                         };
 
                         return new Cesium.GeometryInstance({
-                            id,
+                            id: id,
                             geometry: new Cesium.PolylineGeometry({
                                 width: 2.0,
                                 vertexFormat: Cesium.PolylineColorAppearance.VERTEX_FORMAT,
@@ -1861,7 +1861,7 @@ define([
                                 positions: positions,
                                 colors: colors,
                             })
-                          });
+                         });
                     }, this);
                 }, this)
                 .flatten()
@@ -1896,7 +1896,7 @@ define([
                     lon: fl_data['ground_points'][1][1].toFixed(3),
                 }]
                 var options = {
-                    points,
+                    points: points,
                     apex_height: (fl_data['apex_height'] / 1000).toFixed(1),
                 };
                 
