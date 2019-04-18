@@ -1,0 +1,10 @@
+<p>Apex:</p>
+{{#with apex}}
+  <p>&ensp;Height: <b>{{height}}&nbspkm</b></p>
+  <p>&ensp;Lat: <b>{{lat}}</b>&ensp;Lon: <b>{{lon}}</b></p>
+{{/with}}
+<p>Ground points:</p>
+{{#each ground_points}}
+  <p>&ensp;Lat: <b>{{this.lat}}</b>&ensp;Lon: <b>{{this.lon}}</b></p>
+{{/each}}
+<button type="button" class="close fl-close"><span>&times;</span></button>

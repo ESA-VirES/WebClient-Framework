@@ -1,5 +1,5 @@
-/*global $ _ define d3 Cesium plotty DrawHelper saveAs */
-/*global defaultFor getISODateTimeString */
+/*global $ _ define d3 Cesium msgpack plotty DrawHelper saveAs showMessage */
+/*global defaultFor getISODateTimeString meanDate */
 /*global SCALAR_PARAM VECTOR_PARAM VECTOR_BREAKDOWN */
 
 define([
@@ -8,16 +8,27 @@ define([
     'app',
     'models/MapModel',
     'globals',
-    'papaparse',
+    'httpRequest',
     'hbs!tmpl/wps_eval_composed_model',
     'hbs!tmpl/wps_get_field_lines',
+    'hbs!tmpl/FieldlinesLabel',
     'cesium/Cesium',
     'drawhelper',
     'FileSaver',
+    'msgpack',
     'plotty'
-], function (Marionette, Communicator, App, MapModel, globals, Papa,
-    tmplEvalModel, tmplGetFieldLines) {
+], function (
+    Marionette, Communicator, App, MapModel, globals, httpRequest,
+    tmplEvalModel, tmplGetFieldLines, tmplFieldLinesLabel
+) {
     'use strict';
+
+    // Special 'ellipsoid' for conversion from geocentric spherical coordinates.
+    // This datum is a sphere with radius of 1mm.
+    var GEOCENTRIC_SPHERICAL = {
+        radiiSquared: new Cesium.Cartesian3(1e-6, 1e-6, 1e-6)
+    };
+
     var CesiumView = Marionette.View.extend({
         model: new MapModel.MapModel(),
 
@@ -34,9 +45,12 @@ define([
             this.cameraIsMoving = false;
             this.cameraLastPosition = null;
             this.billboards = null;
+            this.FLbillboards = null;
             this.activeFL = [];
             this.featuresCollection = {};
             this.FLCollection = {};
+            this.FLData = {};
+            this.FLStoredData = {};
             this.bboxsel = null;
             this.extentPrimitive = null;
             this.activeModels = [];
@@ -126,6 +140,7 @@ define([
                 }
             };
 
+            this.$el.append('<div id="fieldlines_label" class="hidden"></div>');
             this.$el.append('<div id="coordinates_label"></div>');
             this.$el.append('<div id="cesium_attribution"></div>');
             this.$el.append('<div id="cesium_custom_attribution"></div>');
@@ -324,6 +339,9 @@ define([
             this.billboards = this.map.scene.primitives.add(
                 new Cesium.BillboardCollection()
             );
+            this.FLbillboards = this.map.scene.primitives.add(
+                new Cesium.BillboardCollection()
+            );
             this.drawhelper = new DrawHelper(this.map.cesiumWidget);
             // It seems that if handlers are active directly there are some
             // object deleted issues when the draw helper tries to pick elements
@@ -411,6 +429,17 @@ define([
                     })
                 );
             }, this);
+            // add event handler for fieldlines click
+            var scene = this.map.scene;
+            var handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+            handler.setInputAction(function (click) {
+                var pickedObject = scene.pick(click.position);
+                if (Cesium.defined(pickedObject) && typeof pickedObject.id !== 'undefined' && pickedObject.id.toString().indexOf('vec_line_fl') !== -1) {
+                    this.onFieldlineClicked(pickedObject, click.position);
+                } else {
+                    this.hideFieldLinesLabel();
+                }
+            }.bind(this), Cesium.ScreenSpaceEventType.LEFT_CLICK);
         }, // END of createMap
 
         onShow: function () {
@@ -1249,7 +1278,8 @@ define([
             this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
         },
 
-        onLayerParametersChanged: function (layer) {
+        onLayerParametersChanged: function (layer, onlyStyleChange) {
+            // optional bool argument onlyStyleChange to allow fieldlines re-rendering without fetching new data
 
             var product = globals.products.find(function (product) {
                 return product.get('name') === layer;
@@ -1275,10 +1305,8 @@ define([
                         this.updateWMSLayer(product);
                     }
                 }
-
-                this.updateFieldLines();
+                this.updateFieldLines(onlyStyleChange);
             }
-
             this.checkColorscale(product.get('download').id);
         },
 
@@ -1501,7 +1529,7 @@ define([
                     if (logscale) {
                         var numberFormat = d3.format(',f');
                         xAxis.tickFormat(function logFormat(d) {
-                            var x = Math.log(d) / Math.log(10) + 1e-6;
+                            var x = Math.log10(d) + 1e-6;
                             return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
                         });
 
@@ -1665,15 +1693,16 @@ define([
             );
         },
 
-        updateFieldLines: function () {
+        updateFieldLines: function (onlyStyleChange) {
+            this.hideFieldLinesLabel();
             if (this.activeFL.length > 0 && this.bboxsel) {
-                this.showFieldLines();
+                this.showFieldLines(onlyStyleChange);
             } else {
                 this.hideFieldLines();
             }
         },
 
-        showFieldLines: function () {
+        showFieldLines: function (onlyStyleChange) {
             _.each(
                 globals.products.filter(function (product) {
                     return this.activeFL.indexOf(product.get('download').id) !== -1;
@@ -1682,7 +1711,10 @@ define([
                     var name = product.get('name');
                     var parameters = product.get('parameters');
                     var variable = this.getSelectedVariable(parameters);
-
+                    var style = parameters[variable].colorscale;
+                    var range_min = parameters[variable].range[0];
+                    var range_max = parameters[variable].range[1];
+                    var log_scale = parameters[variable].logarithmic;
                     this.removeFLPrimitives(name);
 
                     if (variable !== 'Fieldlines') return;
@@ -1690,31 +1722,48 @@ define([
                     var options = {
                         model_ids: product.getModelExpression(product.get('download').id),
                         shc: product.getCustomShcIfSelected(),
-                        begin_time: getISODateTimeString(this.beginTime),
-                        end_time: getISODateTimeString(this.endTime),
+                        time: getISODateTimeString(meanDate(this.beginTime, this.endTime)),
                         bbox: [
                             this.bboxsel[0], this.bboxsel[1], this.bboxsel[2], this.bboxsel[3]
                         ].join(','),
-                        style: parameters[variable].colorscale,
-                        log_scale: parameters[variable].logarithmic
                     };
-
-                    $.post(product.get('views')[0].urls[0], tmplGetFieldLines(options))
-                        .done(_.bind(function (data) {
-                            Papa.parse(data, {
-                                header: true,
-                                dynamicTyping: true,
-                                complete: _.bind(function (results) {
-                                    this.createFLPrimitives(results, name);
-                                }, this)
-                            });
-                        }, this));
+                    if (onlyStyleChange && typeof this.FLStoredData[name] !== 'undefined') {
+                        // do not send request to server if no new data needed
+                        this.createFLPrimitives(this.FLStoredData[name], name, style, range_min, range_max, log_scale);
+                    } else {
+                        // send regular request
+                        httpRequest.asyncHttpRequest({
+                            context: this,
+                            type: 'POST',
+                            url: product.get('views')[0].urls[0],
+                            data: tmplGetFieldLines(options),
+                            responseType: 'arraybuffer',
+                            parse: function (data, xhr) {
+                                return msgpack.decode(new Uint8Array(data));
+                            },
+                            success: function (data, xhr) {
+                                this.createFLPrimitives(data, name, style, range_min, range_max, log_scale);
+                                this.FLStoredData[name] = data;
+                            },
+                            error: function (xhr) {
+                                if (xhr.responseText === "") {return;}
+                                var error_text = xhr.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
+                                if (error_text && error_text.length > 1) {
+                                    error_text = error_text[1];
+                                } else {
+                                    error_text = 'Please contact feedback@vires.services if issue persists.';
+                                }
+                                showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+                            }
+                        });
+                    }
                 }, this
             );
         },
 
         hideFieldLines: function () {
             _.each(_.keys(this.FLCollection), this.removeFLPrimitives, this);
+            this.hideFieldLinesLabel();
         },
 
         getSelectedVariable: function (parameters) {
@@ -1758,40 +1807,65 @@ define([
             if (this.FLCollection.hasOwnProperty(name)) {
                 this.map.scene.primitives.remove(this.FLCollection[name]);
                 delete this.FLCollection[name];
+                delete this.FLData[name];
             }
         },
 
-        createFLPrimitives: function (results, name) {
+        createFLPrimitives: function (data, name, style, range_min, range_max, log_scale) {
             this.removeFLPrimitives(name);
+            var instances = _.chain(data.fieldlines)
+                .map(function (fieldlines, modelId) {
+                    return _.map(fieldlines, function (fieldline, index) {
+                        // Note that all coordinates are in Geocentric Spherical CS,
+                        // i.e., [latitude, longitude, radius]
+                        // The angles are in degrees and lengths in meters.
+                        var positions = _.map(fieldline.coordinates, function (coords) {
+                            return Cesium.Cartesian3.fromDegrees(
+                                coords[1], coords[0], coords[2], GEOCENTRIC_SPHERICAL
+                            );
+                        });
+                        // compute colors from values using plotty plot
+                        this.plot.setColorScale(style);
+                        if (log_scale) {
+                            this.plot.setDomain([Math.log10(range_min), Math.log10(range_max)]);
+                            var colors = _.map(fieldline.values, function (value) {
+                                var color = this.plot.getColor(Math.log10(value));
+                                return Cesium.Color.fromBytes(color[0], color[1], color[2], 255);
+                            }.bind(this));
+                        } else {
+                            this.plot.setDomain([range_min, range_max]);
+                            var colors = _.map(fieldline.values, function (value) {
+                                var color = this.plot.getColor(value);
+                                return Cesium.Color.fromBytes(color[0], color[1], color[2], 255);
+                            }.bind(this));
+                        }
 
-            var parsedData = {};
-            _.each(results.data, function (row) {
-                var data = parsedData[row.id];
-                if (data === undefined) {
-                    parsedData[row.id] = data = {colors: [], positions: []};
-                }
-                data.colors.push(
-                    Cesium.Color.fromBytes(row.color_r, row.color_g, row.color_b, 255)
-                );
-                data.positions.push(
-                    new Cesium.Cartesian3(row.pos_x, row.pos_y, row.pos_z)
-                );
-            });
+                        // save data to get fieldline info later
+                        if (typeof this.FLData[name] === 'undefined') {
+                            this.FLData[name] = {};
+                        }
+                        var id = 'vec_line_fl_' + modelId + '_' + index;
+                        this.FLData[name][id] = {
+                            'apex_point': fieldline.apex_point,
+                            'apex_height': fieldline.apex_height,
+                            'ground_points': fieldline.ground_points,
+                        };
 
-            var instances = _.values(parsedData).map(function (data, index) {
-                return new Cesium.GeometryInstance({
-                    id: 'vec_line_' + index,
-                    geometry: new Cesium.PolylineGeometry({
-                        positions: data.positions,
-                        width: 2.0,
-                        vertexFormat: Cesium.PolylineColorAppearance.VERTEX_FORMAT,
-                        colors: data.colors,
-                        colorsPerVertex: true,
-                    })
-                });
-            });
+                        return new Cesium.GeometryInstance({
+                            id: id,
+                            geometry: new Cesium.PolylineGeometry({
+                                width: 2.0,
+                                vertexFormat: Cesium.PolylineColorAppearance.VERTEX_FORMAT,
+                                colorsPerVertex: true,
+                                positions: positions,
+                                colors: colors,
+                            })
+                        });
+                    }, this);
+                }, this)
+                .flatten()
+                .value();
 
-            // TODO: Possibly needed geometry instances if transparency should work for fieldlines
             this.FLCollection[name] = new Cesium.Primitive({
                 geometryInstances: instances,
                 appearance: new Cesium.PolylineColorAppearance()
@@ -1799,8 +1873,52 @@ define([
             this.map.scene.primitives.add(this.FLCollection[name]);
         },
 
-        onHighlightPoint: function (coords) {
-            this.billboards.removeAll();
+        onFieldlineClicked: function (fieldline, clickPosition) {
+            var FLProduct = _.find(Object.keys(this.FLData), function (item) {
+                // find product where searched id exists as value
+                return this.FLData[item][fieldline.id];
+            }.bind(this));
+            if (typeof FLProduct !== 'undefined') {
+                var fl_data = this.FLData[FLProduct][fieldline.id];
+                // prepare template data
+                var apex = {
+                    lat: fl_data['apex_point'][0].toFixed(3),
+                    lon: fl_data['apex_point'][1].toFixed(3),
+                    height: (fl_data['apex_height'] / 1000).toFixed(1),
+                };
+                var ground_points = [{
+                    lat: fl_data['ground_points'][0][0].toFixed(3),
+                    lon: fl_data['ground_points'][0][1].toFixed(3),
+                }, {
+                    lat: fl_data['ground_points'][1][0].toFixed(3),
+                    lon: fl_data['ground_points'][1][1].toFixed(3),
+                }];
+                var options = {
+                    ground_points: ground_points,
+                    apex: apex,
+                };
+
+                $('#fieldlines_label').html(tmplFieldLinesLabel(options));
+                $('#fieldlines_label').removeClass('hidden');
+                $('#fieldlines_label').offset({left: clickPosition.x + 18, top: clickPosition.y});
+                $('.fl-close').off('click');
+                $('.fl-close').on('click', this.hideFieldLinesLabel.bind(this));
+                // highlight points
+                this.FLbillboards.removeAll();
+                this.highlightFieldLinesPoints([fl_data['apex_point'], fl_data['ground_points'][0], fl_data['ground_points'][1]]);
+            }
+        },
+
+        hideFieldLinesLabel: function () {
+            $('#fieldlines_label').addClass('hidden');
+            this.FLbillboards.removeAll();
+        },
+
+        onHighlightPoint: function (coords, fieldlines_highlight) {
+            // either highlight single point or point on a fieldline
+            if (!fieldlines_highlight) {
+                this.billboards.removeAll();
+            }
             var canvas = document.createElement('canvas');
             canvas.width = 32;
             canvas.height = 32;
@@ -1818,14 +1936,25 @@ define([
             context2D.strokeStyle = 'rgb(0, 0, 0)';
             context2D.lineWidth = 3;
             context2D.stroke();
-
-            this.billboards.add({
+            var canvasPoint = {
                 imageId: 'custom canvas point',
                 image: canvas,
                 position: Cesium.Cartesian3.fromDegrees(coords[1], coords[0], parseInt(coords[2] - 6384100)),
                 radius: coords[2],
                 scale: 1
-            });
+            };
+            if (!fieldlines_highlight) {
+                this.billboards.add(canvasPoint);
+            } else {
+                this.FLbillboards.add(canvasPoint);
+            }
+        },
+
+        highlightFieldLinesPoints: function (fieldlines) {
+            // accepts a list of fieldline points to be highlighted
+            _.each(fieldlines, function (item) {
+                this.onHighlightPoint([item[0], item[1], item[2]], true);
+            }.bind(this));
         },
 
         onRemoveHighlights: function () {

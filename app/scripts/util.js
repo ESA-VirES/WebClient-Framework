@@ -12,6 +12,10 @@ var padLeft = function (str, pad, size) {
   return str;
 };
 
+var meanDate = function (date1, date2) {
+  return new Date(date1.getTime() + (date2 - date1) / 2);
+};
+
 var getDateString = function (date) {
   return date.getUTCFullYear() + "-"
     + padLeft(String(date.getUTCMonth() + 1), "0", 2) + "-"
