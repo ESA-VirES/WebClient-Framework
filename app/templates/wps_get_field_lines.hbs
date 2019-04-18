@@ -9,45 +9,15 @@
       </wps:Data>
     </wps:Input>{{/if}}
     <wps:Input>
-      <ows:Identifier>begin_time</ows:Identifier>
+      <ows:Identifier>time</ows:Identifier>
       <wps:Data>
-        <wps:LiteralData>{{begin_time}}</wps:LiteralData>
-      </wps:Data>
-    </wps:Input>
-    <wps:Input>
-      <ows:Identifier>end_time</ows:Identifier>
-      <wps:Data>
-        <wps:LiteralData>{{end_time}}</wps:LiteralData>
+        <wps:LiteralData>{{time}}</wps:LiteralData>
       </wps:Data>
     </wps:Input>
     {{#if bbox}}<wps:Input>
       <ows:Identifier>bbox</ows:Identifier>
       <wps:Data>
         <wps:ComplexData>{{bbox}}</wps:ComplexData>
-      </wps:Data>
-    </wps:Input>{{/if}}
-    {{#if range_min}}<wps:Input>
-      <ows:Identifier>range_min</ows:Identifier>
-      <wps:Data>
-        <wps:LiteralData>{{range_min}}</wps:LiteralData>
-      </wps:Data>
-    </wps:Input>{{/if}}
-    {{#if range_max}}<wps:Input>
-      <ows:Identifier>range_max</ows:Identifier>
-      <wps:Data>
-        <wps:LiteralData>{{range_max}}</wps:LiteralData>
-      </wps:Data>
-    </wps:Input>{{/if}}
-    {{#if log_scale}}<wps:Input>
-      <ows:Identifier>log_scale</ows:Identifier>
-      <wps:Data>
-        <wps:ComplexData>{{log_scale}}</wps:ComplexData>
-      </wps:Data>
-    </wps:Input>{{/if}}
-    {{#if style}}<wps:Input>
-      <ows:Identifier>style</ows:Identifier>
-      <wps:Data>
-        <wps:LiteralData>{{style}}</wps:LiteralData>
       </wps:Data>
     </wps:Input>{{/if}}
      {{#if shc}}<wps:Input>
@@ -58,7 +28,7 @@
     </wps:Input>{{/if}}
   </wps:DataInputs>
   <wps:ResponseForm>
-    <wps:RawDataOutput mimeType="text/csv">
+    <wps:RawDataOutput mimeType="application/msgpack">
       <ows:Identifier>output</ows:Identifier>
     </wps:RawDataOutput>
   </wps:ResponseForm>
