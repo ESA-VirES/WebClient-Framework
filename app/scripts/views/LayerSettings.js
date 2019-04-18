@@ -558,7 +558,7 @@
                 // Set range parameters and redraw color scale
                 if (!error) {
                     var old_range = options[this.selected].range;
-                    if (typeof old_range !== 'undefined' && (old_range[0] !== range_min  || old_range[1] !== range_max)) {
+                    if (typeof old_range !== 'undefined' && (old_range[0] !== range_min || old_range[1] !== range_max)) {
                         rangeChanged = true;
                     }
                     options[this.selected].range = [range_min, range_max];

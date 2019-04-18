@@ -139,7 +139,7 @@ define([
                     this._tileProvider._urlParts.push(encodeURIComponent(value));
                 }
             };
-            
+
             this.$el.append('<div id="fieldlines_label" class="hidden"></div>');
             this.$el.append('<div id="coordinates_label"></div>');
             this.$el.append('<div id="cesium_attribution"></div>');
@@ -432,7 +432,7 @@ define([
             // add event handler for fieldlines click
             var scene = this.map.scene;
             var handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
-            handler.setInputAction(function(click) {
+            handler.setInputAction(function (click) {
                 var pickedObject = scene.pick(click.position);
                 if (Cesium.defined(pickedObject) && typeof pickedObject.id !== 'undefined' && pickedObject.id.toString().indexOf('vec_line_fl') !== -1) {
                     this.onFieldlineClicked(pickedObject, click.position);
@@ -1711,7 +1711,7 @@ define([
                     var name = product.get('name');
                     var parameters = product.get('parameters');
                     var variable = this.getSelectedVariable(parameters);
-                    var style =  parameters[variable].colorscale;
+                    var style = parameters[variable].colorscale;
                     var range_min = parameters[variable].range[0];
                     var range_max = parameters[variable].range[1];
                     var log_scale = parameters[variable].logarithmic;
@@ -1829,13 +1829,13 @@ define([
                         this.plot.setColorScale(style);
                         if (log_scale) {
                             this.plot.setDomain([Math.log10(range_min), Math.log10(range_max)]);
-                            var colors =  _.map(fieldline.values, function (value) {
+                            var colors = _.map(fieldline.values, function (value) {
                                 var color = this.plot.getColor(Math.log10(value));
                                 return Cesium.Color.fromBytes(color[0], color[1], color[2], 255);
                             }.bind(this));
                         } else {
                             this.plot.setDomain([range_min, range_max]);
-                            var colors =  _.map(fieldline.values, function (value) {
+                            var colors = _.map(fieldline.values, function (value) {
                                 var color = this.plot.getColor(value);
                                 return Cesium.Color.fromBytes(color[0], color[1], color[2], 255);
                             }.bind(this));
@@ -1861,7 +1861,7 @@ define([
                                 positions: positions,
                                 colors: colors,
                             })
-                         });
+                        });
                     }, this);
                 }, this)
                 .flatten()
@@ -1874,9 +1874,9 @@ define([
             this.map.scene.primitives.add(this.FLCollection[name]);
         },
 
-        onFieldlineClicked: function(fieldline, clickPosition) {
-            var FLProduct = _.find(Object.keys(this.FLData), function(item) {
-              // find product where searched id exists as value
+        onFieldlineClicked: function (fieldline, clickPosition) {
+            var FLProduct = _.find(Object.keys(this.FLData), function (item) {
+                // find product where searched id exists as value
                 return this.FLData[item][fieldline.id];
             }.bind(this));
             if (typeof FLProduct !== 'undefined') {
@@ -1898,7 +1898,7 @@ define([
                     ground_points: ground_points,
                     apex: apex,
                 };
-                
+
                 $('#fieldlines_label').html(tmplFieldLinesLabel(options));
                 $('#fieldlines_label').removeClass('hidden');
                 $('#fieldlines_label').offset({left: clickPosition.x + 18, top: clickPosition.y});
@@ -1943,7 +1943,7 @@ define([
                 position: Cesium.Cartesian3.fromDegrees(coords[1], coords[0], parseInt(coords[2] - 6384100)),
                 radius: coords[2],
                 scale: 1
-            }
+            };
             if (!fieldlines_highlight) {
                 this.billboards.add(canvasPoint);
             } else {
@@ -1951,10 +1951,10 @@ define([
             }
         },
 
-        highlightFieldLinesPoints: function(fieldlines) {
+        highlightFieldLinesPoints: function (fieldlines) {
             // accepts a list of fieldline points to be highlighted
-            _.each(fieldlines, function(item) {
-                this.onHighlightPoint([item[0], item[1], item[2]], true)
+            _.each(fieldlines, function (item) {
+                this.onHighlightPoint([item[0], item[1], item[2]], true);
             }.bind(this));
         },
 
