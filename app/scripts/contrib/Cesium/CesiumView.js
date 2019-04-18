@@ -1,5 +1,5 @@
 /*global $ _ define d3 Cesium msgpack plotty DrawHelper saveAs showMessage */
-/*global defaultFor getISODateTimeString */
+/*global defaultFor getISODateTimeString meanDate */
 /*global SCALAR_PARAM VECTOR_PARAM VECTOR_BREAKDOWN */
 
 define([
@@ -1722,8 +1722,7 @@ define([
                     var options = {
                         model_ids: product.getModelExpression(product.get('download').id),
                         shc: product.getCustomShcIfSelected(),
-                        begin_time: getISODateTimeString(this.beginTime),
-                        end_time: getISODateTimeString(this.endTime),
+                        time: getISODateTimeString(meanDate(this.beginTime, this.endTime)),
                         bbox: [
                             this.bboxsel[0], this.bboxsel[1], this.bboxsel[2], this.bboxsel[3]
                         ].join(','),
