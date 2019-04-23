@@ -23,12 +23,12 @@
     "d3.Graphs": "ESA-VirES/AnalyticsViewer#~0.4.21",
     "cesium": "https://github.com/AnalyticalGraphicsInc/cesium/releases/download/1.20/Cesium-1.20.zip",
     "papaparse": "~4.1.0",
-    "plotty": "santilland/plotty#^0.1.1",
+    "plotty": "santilland/plotty#^0.3.2",
     "jqueryui-touch-punch": "*",
     "FileSaver.js": "eligrey/FileSaver.js#~1.2.0",
     "canvas-toBlob.js": "eligrey/canvas-toBlob.js",
     "Blob.js": "eligrey/Blob.js",
-    "graphly": "EOX-A/graphly#abddf8af0de0b73f9bc1e137d1d6444b7b6746fb"
+    "graphly": "EOX-A/graphly#1d4d1fd93f6e2dc1b12d1e56efd5fe57f6a73b32"
   },
   "devDependencies": {
     "Keypress": "~2.0.0"
