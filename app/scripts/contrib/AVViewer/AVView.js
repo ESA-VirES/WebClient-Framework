@@ -6,7 +6,8 @@ define(['backbone.marionette',
     'globals',
     'd3',
     'graphly',
-    'analytics'
+    'analytics',
+    'plotty'
 ], function (Marionette, Communicator, App, AVModel, globals) {
     'use strict';
     var AVView = Marionette.View.extend({
@@ -305,6 +306,20 @@ define(['backbone.marionette',
                 }
             };
 
+            var cols = [
+                'coolwarm', 'rainbow', 'jet', 'diverging_1', 'diverging_2',
+                'blackwhite', 'viridis', 'inferno', 'hsv', 'hot', 'cool',
+                'spring', 'summer', 'autumn', 'winter', 'bone', 'copper', 'ylgnbu',
+                'greens', 'ylorrd', 'bluered', 'portland', 'blackbody', 'earth',
+                'electric', 'magma', 'plasma'
+            ];
+
+            if(plotty.hasOwnProperty('colorscales')){
+                cols = Object.keys(plotty.colorscales);
+            }
+
+            cols = _.sortBy(cols, function (c) {return c;});
+
             this.graph = new graphly.graphly({
                 el: '#graph',
                 dataSettings: globals.swarm.get('uom_set'),
@@ -315,7 +330,8 @@ define(['backbone.marionette',
                 margin: {top: 40, left: 90, bottom: 50, right: 35},
                 enableSubXAxis: false,
                 enableSubYAxis: false,
-                colorscaleOptionLabel: 'Add third variable'
+                colorscaleOptionLabel: 'Add third variable',
+                colorscales: cols
 
             });
 

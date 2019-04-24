@@ -28,7 +28,7 @@
     "FileSaver.js": "eligrey/FileSaver.js#~1.2.0",
     "canvas-toBlob.js": "eligrey/canvas-toBlob.js",
     "Blob.js": "eligrey/Blob.js",
-    "graphly": "EOX-A/graphly#1d4d1fd93f6e2dc1b12d1e56efd5fe57f6a73b32"
+    "graphly": "EOX-A/graphly#ca10f8c68c3b9a42f325f4d39e29fbbf9687aacb"
   },
   "devDependencies": {
     "Keypress": "~2.0.0"
@@ -36,6 +36,6 @@
   "resolutions": {
     "d3": "~3.5.3",
     "papaparse": "^4.3.2",
-    "plotty": "^0.2.0"
+    "plotty": "^0.3.2"
   }
 }
