@@ -1718,14 +1718,16 @@ define([
                     var range_min = parameters[variable].range[0];
                     var range_max = parameters[variable].range[1];
                     var log_scale = parameters[variable].logarithmic;
+                    var time = meanDate(this.beginTime, this.endTime);
                     this.removeFLPrimitives(name);
 
                     if (variable !== 'Fieldlines') return;
 
+                    if (product.getModelValidity().start > time || product.getModelValidity().end < time) return;
                     var options = {
                         model_ids: product.getModelExpression(product.get('download').id),
                         shc: product.getCustomShcIfSelected(),
-                        time: getISODateTimeString(meanDate(this.beginTime, this.endTime)),
+                        time: getISODateTimeString(time),
                         bbox: [
                             this.bboxsel[0], this.bboxsel[1], this.bboxsel[2], this.bboxsel[3]
                         ].join(','),
