@@ -117,8 +117,8 @@
                     domain: [0, 1]
                 });
                 this.selected_satellite = "Alpha";
-                
-                if(plotty.hasOwnProperty('colorscales')){
+
+                if (plotty.hasOwnProperty('colorscales')) {
                     this.colorscaletypes = Object.keys(plotty.colorscales);
                 }
 

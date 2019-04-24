@@ -1,4 +1,4 @@
-/* global $ _ define w2popup w2utils showMessage graphly FilterManager */
+/* global $ _ define w2popup w2utils showMessage graphly plotty FilterManager */
 define(['backbone.marionette',
     'communicator',
     'app',
@@ -314,8 +314,8 @@ define(['backbone.marionette',
                 'electric', 'magma', 'plasma'
             ];
 
-            if(plotty.hasOwnProperty('colorscales')){
-                cols = Object.keys(plotty.colorscales);
+            if (plotty.hasOwnProperty('colorscales')) {
+                cols = Object.keys(plotty);
             }
 
             cols = _.sortBy(cols, function (c) {return c;});
