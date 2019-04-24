@@ -117,6 +117,11 @@
                     domain: [0, 1]
                 });
                 this.selected_satellite = "Alpha";
+                
+                if(plotty.hasOwnProperty('colorscales')){
+                    this.colorscaletype = Object.keys(plotty.colorscales);
+                }
+
                 this.colorscaletypes = _.sortBy(this.colorscaletypes, function (c) {return c;});
             },
 
