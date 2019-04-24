@@ -1694,9 +1694,12 @@ define([
         },
 
         updateFieldLines: function (onlyStyleChange) {
+            if (typeof this.showFieldLinesDebounced === 'undefined') {
+                this.showFieldLinesDebounced = _.debounce((...args) => this.showFieldLines(...args), 500);
+            };
             this.hideFieldLinesLabel();
             if (this.activeFL.length > 0 && this.bboxsel) {
-                this.showFieldLines(onlyStyleChange);
+                this.showFieldLinesDebounced(onlyStyleChange); 
             } else {
                 this.hideFieldLines();
             }
