@@ -315,7 +315,7 @@ define(['backbone.marionette',
             ];
 
             if (plotty.hasOwnProperty('colorscales')) {
-                cols = Object.keys(plotty);
+                cols = Object.keys(plotty.colorscales);
             }
 
             cols = _.sortBy(cols, function (c) {return c;});
