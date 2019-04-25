@@ -10,13 +10,13 @@
         'communicator',
         'globals',
         'choices',
+        'plotty',
         'hbs!tmpl/LayerSettings',
         'hbs!tmpl/wps_eval_composed_model',
-        'underscore',
-        'plotty'
+        'underscore'
     ],
 
-    function (Backbone, Communicator, globals, Choices, LayerSettingsTmpl, evalModelTmplComposed_POST) {
+    function (Backbone, Communicator, globals, Choices, plotty, LayerSettingsTmpl, evalModelTmplComposed_POST) {
 
         var ModelComponentParameters = function (model, parameters) {
             var source = parameters || {};
@@ -117,6 +117,11 @@
                     domain: [0, 1]
                 });
                 this.selected_satellite = "Alpha";
+
+                if (plotty.hasOwnProperty('colorscales')) {
+                    this.colorscaletypes = Object.keys(plotty.colorscales);
+                }
+
                 this.colorscaletypes = _.sortBy(this.colorscaletypes, function (c) {return c;});
             },
 

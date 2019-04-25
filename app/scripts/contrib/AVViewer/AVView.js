@@ -1,13 +1,14 @@
-/* global $ _ define w2popup w2utils showMessage graphly FilterManager */
+/* global $ _ define w2popup w2utils showMessage graphly plotty FilterManager */
 define(['backbone.marionette',
     'communicator',
     'app',
+    //'plotty',
     'models/AVModel',
     'globals',
     'd3',
     'graphly',
     'analytics'
-], function (Marionette, Communicator, App, AVModel, globals) {
+], function (Marionette, Communicator, App,  AVModel, globals) {
     'use strict';
     var AVView = Marionette.View.extend({
         model: new AVModel.AVModel(),
@@ -305,6 +306,20 @@ define(['backbone.marionette',
                 }
             };
 
+            var cols = [
+                'coolwarm', 'rainbow', 'jet', 'diverging_1', 'diverging_2',
+                'blackwhite', 'viridis', 'inferno', 'hsv', 'hot', 'cool',
+                'spring', 'summer', 'autumn', 'winter', 'bone', 'copper', 'ylgnbu',
+                'greens', 'ylorrd', 'bluered', 'portland', 'blackbody', 'earth',
+                'electric', 'magma', 'plasma'
+            ];
+
+            if (plotty.hasOwnProperty('colorscales')) {
+                cols = Object.keys(plotty.colorscales);
+            }
+
+            cols = _.sortBy(cols, function (c) {return c;});
+
             this.graph = new graphly.graphly({
                 el: '#graph',
                 dataSettings: globals.swarm.get('uom_set'),
@@ -313,9 +328,10 @@ define(['backbone.marionette',
                 enableFit: false,
                 multiYAxis: true,
                 margin: {top: 40, left: 90, bottom: 50, right: 35},
-                enableSubXAxis: false,
+                enableSubXAxis: 'Timestamp',
                 enableSubYAxis: false,
-                colorscaleOptionLabel: 'Add third variable'
+                colorscaleOptionLabel: 'Add third variable',
+                colorscales: cols
 
             });
 
