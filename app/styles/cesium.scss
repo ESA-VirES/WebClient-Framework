@@ -197,9 +197,17 @@
 
 .fl-close {
   top: 3px;
-  position:absolute;
+  position: absolute;
   right: 10px;
   color: white!important;
   opacity: 0.7!important;
   font-size: 1.3em!important;
+}
+
+.colorscaleLabel {
+  opacity: 1;
+  width: 285px;
+  height: 57px;
+  left: 10px;
+  position: absolute;
 }
