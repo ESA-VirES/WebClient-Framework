@@ -1,5 +1,7 @@
 /*global _ $ CONFIG_URL */
 
+window.plotty = require(['plotty']);
+
 function defaultFor(arg, val) {return typeof arg !== 'undefined' ? arg : val;}
 
 
@@ -24,6 +26,7 @@ function defaultFor(arg, val) {return typeof arg !== 'undefined' ? arg : val;}
     }
 
     root.require([
+        'plotty',
         'backbone',
         'app',
         'communicator',
@@ -38,8 +41,9 @@ function defaultFor(arg, val) {return typeof arg !== 'undefined' ? arg : val;}
         "libcoverage",
         'core/SplitView/SplitViewModule'
     ],
-    function (Backbone, App, Communicator, globals, configJson) {
+    function (plotty, Backbone, App, Communicator, globals, configJson) {
 
+        window.plotty = plotty;
         // FIXXME: MH: that took me a while:
         // document.getElementsByTagName() returns a NodeList. However, if x3dom.js is included together with OpenLayers.js
         // it is magically returning an Array. The OpenLayers.Map constructor tries to access the returned value with ret.item(i),

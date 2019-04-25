@@ -3454,7 +3454,7 @@
                     "range": [1, 40000],
                     "uom":"nT",
                     "name": "Fieldlines",
-                    "description": "In order to visualize fieldlines please select an area with the bounding box tool.",
+                    "description": "In order to visualize fieldlines please select an area with the bounding box tool. Click on a fieldline to display additional information.",
                     "colorscale": "jet",
                     "logarithmic": true
                 },

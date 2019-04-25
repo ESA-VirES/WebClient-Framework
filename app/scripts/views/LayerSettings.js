@@ -10,13 +10,13 @@
         'communicator',
         'globals',
         'choices',
+        'plotty',
         'hbs!tmpl/LayerSettings',
         'hbs!tmpl/wps_eval_composed_model',
-        'underscore',
-        'plotty'
+        'underscore'
     ],
 
-    function (Backbone, Communicator, globals, Choices, LayerSettingsTmpl, evalModelTmplComposed_POST) {
+    function (Backbone, Communicator, globals, Choices, plotty, LayerSettingsTmpl, evalModelTmplComposed_POST) {
 
         var ModelComponentParameters = function (model, parameters) {
             var source = parameters || {};
@@ -117,6 +117,11 @@
                     domain: [0, 1]
                 });
                 this.selected_satellite = "Alpha";
+
+                if (plotty.hasOwnProperty('colorscales')) {
+                    this.colorscaletypes = Object.keys(plotty.colorscales);
+                }
+
                 this.colorscaletypes = _.sortBy(this.colorscaletypes, function (c) {return c;});
             },
 
@@ -211,7 +216,7 @@
                         } else {
                             this.createScale();
                         }
-                        Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
+                        Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"), true);
                     }, this));
 
                     this.$("#opacitysilder").unbind();
@@ -313,7 +318,7 @@
                        !JSON.parse(localStorage.getItem('areaSelection'))) {
                         showMessage(
                             'warning',
-                            'In order to visualize fieldlines please select an area with the bounding box tool.',
+                            'In order to visualize fieldlines please select an area using the "Select Area" button in the globe view. Click on a fieldline to display additional information.',
                             35
                         );
                     }
@@ -455,7 +460,7 @@
                        !JSON.parse(localStorage.getItem('areaSelection'))) {
                         showMessage(
                             'warning',
-                            'In order to visualize fieldlines please select an area using the "Select Area" button in the globe view.',
+                            'In order to visualize fieldlines please select an area using the "Select Area" button in the globe view. Click on a fieldline to display additional information.',
                             35
                         );
                     }
@@ -536,20 +541,6 @@
                 );
             },
 
-            handleRangeChange: function () {
-                var options = this.current_model.get("parameters");
-                $("#range_min").val(options[this.selected].range[0]);
-                $("#range_max").val(options[this.selected].range[1]);
-
-                this.current_model.set("parameters", options);
-                if (options[this.selected].hasOwnProperty("logarithmic"))
-                    this.createScale(options[this.selected].logarithmic);
-                else
-                    this.createScale();
-
-                Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
-            },
-
             applyChanges: function () {
                 var options = this.current_model.get("parameters");
                 var isEditableModel = (
@@ -560,6 +551,7 @@
                 var error = false;
                 var modelChanged = false;
                 var heightChanged = false;
+                var rangeChanged = false;
 
                 // Check color ranges
                 var range_min = parseFloat($("#range_min").val());
@@ -568,8 +560,12 @@
                 var range_max = parseFloat($("#range_max").val());
                 error = error || this.checkValue(range_max, $("#range_max"));
 
-                // Set parameters and redraw color scale
+                // Set range parameters and redraw color scale
                 if (!error) {
+                    var old_range = options[this.selected].range;
+                    if (typeof old_range !== 'undefined' && (old_range[0] !== range_min || old_range[1] !== range_max)) {
+                        rangeChanged = true;
+                    }
                     options[this.selected].range = [range_min, range_max];
 
                     if (options[this.selected].hasOwnProperty("logarithmic"))
@@ -612,6 +608,9 @@
 
                 if ((modelChanged || heightChanged) && this.selected !== 'Fieldlines') {
                     this.updateComposedModelValuesRange();
+                } else if (rangeChanged && this.selected === 'Fieldlines')
+                {
+                    Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"), true);
                 } else {
                     Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
                 }
@@ -688,7 +687,7 @@
                         options[that.selected].logarithmic = !options[that.selected].logarithmic;
 
                         that.current_model.set("parameters", options);
-                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("name"));
+                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("name"), true);
 
                         if (options[that.selected].hasOwnProperty("logarithmic"))
                             that.createScale(options[that.selected].logarithmic);
