@@ -2,13 +2,13 @@
 define(['backbone.marionette',
     'communicator',
     'app',
+    //'plotty',
     'models/AVModel',
     'globals',
     'd3',
     'graphly',
-    'analytics',
-    'plotty'
-], function (Marionette, Communicator, App, AVModel, globals) {
+    'analytics'
+], function (Marionette, Communicator, App,  AVModel, globals) {
     'use strict';
     var AVView = Marionette.View.extend({
         model: new AVModel.AVModel(),
@@ -328,7 +328,7 @@ define(['backbone.marionette',
                 enableFit: false,
                 multiYAxis: true,
                 margin: {top: 40, left: 90, bottom: 50, right: 35},
-                enableSubXAxis: false,
+                enableSubXAxis: 'Timestamp',
                 enableSubYAxis: false,
                 colorscaleOptionLabel: 'Add third variable',
                 colorscales: cols

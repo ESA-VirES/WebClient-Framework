@@ -1,5 +1,7 @@
 /*global _ $ CONFIG_URL */
 
+window.plotty = require(['plotty']);
+
 function defaultFor(arg, val) {return typeof arg !== 'undefined' ? arg : val;}
 
 
@@ -24,11 +26,11 @@ function defaultFor(arg, val) {return typeof arg !== 'undefined' ? arg : val;}
     }
 
     root.require([
+        'plotty',
         'backbone',
         'app',
         'communicator',
         'globals',
-        'plotty',
         "text!config.json",
         'backbone.marionette',
         'regionManager',
@@ -39,7 +41,7 @@ function defaultFor(arg, val) {return typeof arg !== 'undefined' ? arg : val;}
         "libcoverage",
         'core/SplitView/SplitViewModule'
     ],
-    function (Backbone, App, Communicator, globals, plotty, configJson) {
+    function (plotty, Backbone, App, Communicator, globals, configJson) {
 
         window.plotty = plotty;
         // FIXXME: MH: that took me a while:
