@@ -1930,8 +1930,8 @@ define([
                 $('#fieldlines_label').html(tmplFieldLinesLabel(options));
                 $('#fieldlines_label').removeClass('hidden');
                 $('#fieldlines_label').offset({left: clickPosition.x + 18, top: clickPosition.y});
-                $('.fl-close').off('click');
-                $('.fl-close').on('click', this.hideFieldLinesLabel.bind(this));
+                $('.close-fieldline-label').off('click');
+                $('.close-fieldline-label').on('click', this.hideFieldLinesLabel.bind(this));
                 // highlight points
                 this.FLbillboards.removeAll();
                 this.highlightFieldLinesPoints([fl_data['apex_point'], fl_data['ground_points'][0], fl_data['ground_points'][1]]);

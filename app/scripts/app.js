@@ -404,7 +404,7 @@ var MASTER_PRIORITY = [
                         globals.models.customModelId = model_conf.id;
                         var shcFile = JSON.parse(localStorage.getItem('shcFile'));
                         if (shcFile) {
-                            globals.models.setCustomModel(shcFile.data);
+                            globals.models.setCustomModel(shcFile.data, shcFile.filename);
                         }
                         console.log("Added custom model " + model_conf.id);
                     } else {

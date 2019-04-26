@@ -381,7 +381,6 @@
               // Note: dat.__info__.sources contains a list of source products.
               var metadata = dat.__info__ || {};
               delete dat.__info__;
-              console.log((metadata.sources || []).join('\n'));
 
               if (dat.hasOwnProperty('Spacecraft')) {
                 dat['id'] = [];
