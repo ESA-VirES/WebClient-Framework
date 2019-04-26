@@ -1719,11 +1719,13 @@ define([
 
         updateFieldLines: function (onlyStyleChange) {
             if (typeof this.showFieldLinesDebounced === 'undefined') {
-                this.showFieldLinesDebounced = _.debounce((...args) => this.showFieldLines(...args), 500);
-            };
+                this.showFieldLinesDebounced = _.debounce(function (onlyStyleChange) {
+                  this.showFieldLines(onlyStyleChange);
+                }, 500);
+            }
             this.hideFieldLinesLabel();
             if (this.activeFL.length > 0 && this.bboxsel) {
-                this.showFieldLinesDebounced(onlyStyleChange); 
+                this.showFieldLinesDebounced(onlyStyleChange);
             } else {
                 this.hideFieldLines();
             }
