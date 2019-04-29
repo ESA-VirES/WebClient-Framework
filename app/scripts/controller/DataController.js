@@ -377,10 +377,6 @@
                 '-': 'NSC'
               };
 
-              // Note: dat.__info__.sources contains a list of source products.
-              /*var metadata = dat.__info__ || {};
-              delete dat.__info__;*/
-
               if (dat.hasOwnProperty('Spacecraft')) {
                 dat['id'] = [];
                 for (var i = 0; i < dat.Timestamp.length; i++) {

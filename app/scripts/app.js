@@ -15,7 +15,7 @@ var VECTOR_BREAKDOWN = {
     'B_NEC': ['B_N', 'B_E', 'B_C'],
     'B_NEC_resAC': ['B_resAC_N', 'B_resAC_E', 'B_resAC_C'],
     'Model': ['B_N_res_Model', 'B_E_res_Model', 'B_C_res_Model'], // needed by CesiumView
-    'B_NEC_res_Model': ['B_N_res_Model', 'B_E_res_Model', 'B_C_res_Model'], 
+    'B_NEC_res_Model': ['B_N_res_Model', 'B_E_res_Model', 'B_C_res_Model'],
     'B_error': ['B_error_X', 'B_error_Y', 'B_error_Z'],
     'B_VFM': ['B_VFM_X', 'B_VFM_Y', 'B_VFM_Z'],
     'GPS_Position': ['GPS_Position_X', 'GPS_Position_Y', 'GPS_Position_Z'],
