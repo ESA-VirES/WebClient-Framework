@@ -16,7 +16,6 @@
     'httpRequest',
     'dataUtil',
     'msgpack',
-    'graphly',
     'underscore'
   ],
 

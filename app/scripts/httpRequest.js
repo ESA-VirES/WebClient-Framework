@@ -22,29 +22,29 @@
         completed: function (xhr) {}
       }, options);
 
-      var xhr = _.extend(new XMLHttpRequest(), {
-        responseType: options.responseType,
-        onreadystatechange: function () {
-          if (this.readyState === DONE) {
-            if (this.status === 200) {
-              options.success.call(
-                options.context,
-                options.parse.call(options.context, this.response, this),
-                this
-              );
-            } else if (this.status !== 0) {
-              options.error.call(options.context, this);
-            }
-            options.completed.call(options.context, this);
-          } else if (this.readyState === HEADERS_RECEIVED) {
-            if (this.status !== 200) {
-              this.responseType = 'text';
-            }
-          } else if (this.readyState === OPENED) {
-            options.opened.call(options.context, this);
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+        if (this.readyState === DONE) {
+          if (this.status === 200) {
+            options.success.call(
+              options.context,
+              options.parse.call(options.context, this.response, this),
+              this
+            );
+          } else if (this.status !== 0) {
+            options.error.call(options.context, this);
           }
+          options.completed.call(options.context, this);
+        } else if (this.readyState === HEADERS_RECEIVED) {
+              if(this.status == 200) {
+                  this.responseType = 'arraybuffer';
+              } else {
+                  this.responseType = 'text';
+              }
+        } else if (this.readyState === OPENED) {
+          options.opened.call(options.context, this);
         }
-      });
+      };
 
       xhr.open(options.type, options.url, true);
       xhr.send(options.data);
