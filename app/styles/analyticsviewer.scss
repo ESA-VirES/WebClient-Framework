@@ -236,8 +236,13 @@ text.nvd3.nv-noData {
     z-index: 1000;
     background-color: white;
     border: 1px solid black;
-    padding-right: 20px;
     padding-top: 10px;
+}
+
+#productInfoContainer ul {
+    padding-right: 20px;
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 

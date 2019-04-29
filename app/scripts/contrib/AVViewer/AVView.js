@@ -127,7 +127,7 @@ define(['backbone.marionette',
                     if (data.hasOwnProperty('__info__')) {
                         var infoDat = data.__info__.sources;
                         that.$el.append('<div id="productInfoContainer"></div>');
-                        $('#productInfoContainer').append('<button style="" type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>');
+                        $('#productInfoContainer').append('<button style="position:absolute; right:20px;" type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>');
                         $('#productInfoContainer').append('<div style="margin-left:20px"><b>Data sources:</b></div>');
                         $('#productInfoContainer').append('<ul id="producInfolist"></ul>');
                         for (var i = 0; i < infoDat.length; i++) {
@@ -812,6 +812,23 @@ define(['backbone.marionette',
         },
 
         reloadData: function (model, data) {
+
+            // Check if data source info is open, if yes rerender it
+            if ($('#productInfoContainer').length) {
+                $('#productInfoContainer').remove();
+                if (data.hasOwnProperty('__info__')) {
+                    var infoDat = data.__info__.sources;
+                    this.$el.append('<div id="productInfoContainer"></div>');
+                    $('#productInfoContainer').append('<button style="position:absolute; right:20px;" type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>');
+                    $('#productInfoContainer').append('<div style="margin-left:20px"><b>Data sources:</b></div>');
+                    $('#productInfoContainer').append('<ul id="producInfolist"></ul>');
+                    for (var i = 0; i < infoDat.length; i++) {
+                        $('#producInfolist').append(
+                            '<li>' + infoDat[i] + '</li>'
+                        );
+                    }
+                }
+            }
 
             function itemExists(itemArray, item) {
                 for (var i = 0; i < itemArray.length; ++i) {
