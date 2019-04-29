@@ -913,7 +913,7 @@
                                     '<div class="choices__item choices__item--selectable data-item composed_model_choices_holding_div" data-id="', classNames.id, '" data-value="', classNames.value, '" data-deletable>',
                                     '<input type="button" value="', data.signToHtml[data.sign], '" class="composed_model_operation_operand btn-info" title="Change model sign" onclick="', switchSign, '">',
                                     '<span class="composed_model_operation_label">', data.name, '</span>',
-                                    '<button type="button" class="composed_model_delete_button choices__button" data-button title="Remove model">Remove item</button>',
+                                    '<button type="button" class="composed_model_delete_button choices__button" data-button>Remove item</button>',
                                     '<div class="degree_range_selection_input">',
                                     '<input type="text" placeholder="', data.defaults.min_degree, '" value="', data.getMinDegree(), '" onclick="', onClickHandler, '" onkeydown="', onKeyDownHandler, '" onblur="', updateMinDegree, '" class="composed_model_operation_coefficient_min" title="Minimum model degree.">',
                                     '<input type="text" placeholder="', data.defaults.max_degree, '" value="', data.getMaxDegree(), '" onclick="', onClickHandler, '" onkeydown="', onKeyDownHandler, '" onblur="', updateMaxDegree, '" class="composed_model_operation_coefficient_max" title="Maximum model degree.">',
