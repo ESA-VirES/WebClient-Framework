@@ -424,6 +424,7 @@ var MASTER_PRIORITY = [
                 // for now I add the event change here but I am not sure which
                 // request is actually responsible for this
                 Communicator.mediator.trigger("progress:change", true);
+                Communicator.mediator.trigger("progress:change", true);
 
                 globals.models.fetch();
                 window.setInterval(function () {globals.models.fetch();}, 900000); // refresh each 15min
