@@ -229,20 +229,29 @@ text.nvd3.nv-noData {
     width: 32px;
 }
 
-#productInfoContainer{
-    position: absolute;
+#productSourcesInfoContainer{
     top: 50px;
     left: 110px;
-    z-index: 1000;
-    background-color: white;
-    border: 1px solid black;
+    padding-right: 10px;
     padding-top: 10px;
 }
 
-#productInfoContainer ul {
-    padding-right: 20px;
-    max-height: 300px;
-    overflow-y: auto;
+.sourcesInfoContainer{
+    z-index: 1005;
+    background-color: white;
+    border: 1px solid black;
+    font-size: 0.95em;
+    position: absolute;
+    & ul {
+        overflow-y: auto;
+        overflow-x: hidden;
+        max-height: 300px;
+        padding-right: 20px;
+    }
+    & h4 {
+        margin-left: 20px;
+        margin-top: 0px;
+    }
 }
 
 

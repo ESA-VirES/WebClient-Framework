@@ -1721,7 +1721,7 @@ define([
             if (typeof this.showFieldLinesDebounced === 'undefined') {
                 this.showFieldLinesDebounced = _.debounce(function (onlyStyleChange) {
                     this.showFieldLines(onlyStyleChange);
-                }, 500);
+                }, 2000);
             }
             this.hideFieldLinesLabel();
             if (this.activeFL.length > 0 && this.bboxsel) {

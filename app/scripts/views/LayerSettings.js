@@ -333,7 +333,7 @@
                     $("#coefficients_range").show();
                     $("#opacitysilder").parent().show();
                 }
-                this.$el.append('<div id="model-sources-label" class="hidden"></div>');
+                this.$el.append('<div class="model-sources-label hidden sourcesInfoContainer"></div>');
             },
 
             createCustomModelSelection: function () {
@@ -891,29 +891,34 @@
                                 ].join('');
                                 var showInfo = [
                                     "event.stopPropagation();",
-                                    "$('#model-sources-label').removeClass('hidden');",
                                     "var dataParent = $(this)[0].parentNode.getAttribute('data-value');",
-                                    "var data = $('#composed_model_compute').data(dataParent);",
-                                    "$('#model-sources-label').html('');",
-                                    "$('#model-sources-label').append('<p>Model source files:</p>');",
-                                    "for (var i = 0; i < data.sources.length; i++) {$('#model-sources-label').append('<p>' + data.sources[i] + '</p>');}",
-                                    "$('#model-sources-label').append('<button><span>&times;</span></button>');",
-                                    "$('#model-sources-label > button').addClass('close fl-close close-model-sources');",
-                                    "$('#model-sources-label').offset({left: event.clientX - 20 - parseInt($('#model-sources-label').outerWidth(true)), top: event.clientY - 15});",
+                                    "var modelData = $('#composed_model_compute').data(dataParent);",
+                                    "if (typeof $('.model-sources-label').data('id') !== 'undefined' && $('.model-sources-label').data('id') == modelData.id){",
+                                    "$('.model-sources-label').toggleClass('hidden');",
+                                    "}else{",
+                                    "$('.model-sources-label').removeClass('hidden');",
+                                    "$('.model-sources-label').html('');",
+                                    "$('.model-sources-label').data('id', modelData.id);",
+                                    "$('.model-sources-label').append('<button>&times;</button>');",
+                                    "$('.model-sources-label').append('<h4>Model sources:</h4>');",
+                                    "$('.model-sources-label').append('<ul></ul>');",
+                                    "for (var i = 0; i < modelData.sources.length; i++) {$('.model-sources-label > ul').append('<li>' + modelData.sources[i] + '</li>');}",
+                                    "$('.model-sources-label > button').addClass('close close-model-sources');",
+                                    "$('.model-sources-label').offset({left: event.clientX - 20 - parseInt($('.model-sources-label').outerWidth(true)), top: event.clientY - 15});",
                                     "$('.close-model-sources').off('click');",
-                                    "$('.close-model-sources').on('click', function(){$('#model-sources-label').addClass('hidden')});",
+                                    "$('.close-model-sources').on('click', function(){$('.model-sources-label').addClass('hidden')}); }",
                                 ].join('');
 
                                 return template([
                                     '<div class="choices__item choices__item--selectable data-item composed_model_choices_holding_div" data-id="', classNames.id, '" data-value="', classNames.value, '" data-deletable>',
-                                    '<input type="button" value="', data.signToHtml[data.sign], '" class="composed_model_operation_operand btn-info" onclick="', switchSign, '">',
+                                    '<input type="button" value="', data.signToHtml[data.sign], '" class="composed_model_operation_operand btn-info" title="Change model sign" onclick="', switchSign, '">',
                                     '<span class="composed_model_operation_label">', data.name, '</span>',
-                                    '<button type="button" class="composed_model_delete_button choices__button" data-button>Remove item</button>',
+                                    '<button type="button" class="composed_model_delete_button choices__button" data-button title="Remove model">Remove item</button>',
                                     '<div class="degree_range_selection_input">',
                                     '<input type="text" placeholder="', data.defaults.min_degree, '" value="', data.getMinDegree(), '" onclick="', onClickHandler, '" onkeydown="', onKeyDownHandler, '" onblur="', updateMinDegree, '" class="composed_model_operation_coefficient_min" title="Minimum model degree.">',
                                     '<input type="text" placeholder="', data.defaults.max_degree, '" value="', data.getMaxDegree(), '" onclick="', onClickHandler, '" onkeydown="', onKeyDownHandler, '" onblur="', updateMaxDegree, '" class="composed_model_operation_coefficient_max" title="Maximum model degree.">',
                                     '</div>',
-                                    '<button type="button" class="composed_model_info_button fa fa-info-circle btn-info" onclick="', showInfo, '"></button>',
+                                    '<i type="button" class="composed_model_info_button fa fa-info-circle btn-info" title="Show model sources" onclick="', showInfo, '"></i>',
                                     '</div>'
                                 ].join(''));
                             }
@@ -927,6 +932,7 @@
                 choices.passedElement.addEventListener('removeItem', _.bind(function (event) {
                     $('#composed_model_compute').data(event.detail.value).selected = false;
                     $("#changesbutton").addClass("unAppliedChanges");
+                    $('.model-sources-label').addClass('hidden');
                 }, this));
             },
 
