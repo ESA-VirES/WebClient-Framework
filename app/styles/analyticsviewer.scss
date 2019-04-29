@@ -219,6 +219,28 @@ text.nvd3.nv-noData {
     /*/margin-left: 8px;*/
 }
 
+#productInfo{
+    margin-top: 7px;
+    position: absolute;
+    padding: 2px 7px 1px 7px;
+    font-size: 20px;
+    z-index: 20;
+    margin-left: 80px;
+    width: 32px;
+}
+
+#productInfoContainer{
+    position: absolute;
+    top: 50px;
+    left: 110px;
+    z-index: 1000;
+    background-color: white;
+    border: 1px solid black;
+    padding-right: 20px;
+    padding-top: 10px;
+}
+
+
 #filterSelectDrop{
     position: absolute;
     margin-top: -40px;

@@ -379,8 +379,8 @@
               };
 
               // Note: dat.__info__.sources contains a list of source products.
-              var metadata = dat.__info__ || {};
-              delete dat.__info__;
+              /*var metadata = dat.__info__ || {};
+              delete dat.__info__;*/
 
               if (dat.hasOwnProperty('Spacecraft')) {
                 dat['id'] = [];
