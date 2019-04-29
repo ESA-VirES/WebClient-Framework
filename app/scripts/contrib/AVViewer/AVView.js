@@ -205,7 +205,8 @@ define(['backbone.marionette',
                     dataSettings: filtersGlobalFiltered,
                     parameterMatrix: {}
                 },
-                showCloseButtons: true
+                showCloseButtons: true,
+                ignoreParameters: '__info__'
             });
 
 
