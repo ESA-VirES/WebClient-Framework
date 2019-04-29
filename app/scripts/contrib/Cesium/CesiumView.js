@@ -1450,6 +1450,7 @@ define([
                 this.map.scene.primitives.remove(this.colorscales[pId].csPrim);
                 indexDel = this.colorscales[pId].index;
                 delete this.colorscales[pId];
+                this.removeColorscaleTooltipDiv(pId);
 
                 // Modify all indices and related height of all colorscales
                 // which are over deleted position
@@ -1468,7 +1469,11 @@ define([
                             this.createViewportQuad(csImg, 20, i * 55 + 42, scalewidth, 10)
                         );
                         obj[key].index = i;
-
+                        // needed to refresh colorscale tooltip divs when products are added or removed
+                        var productFromColorscale = _.find(globals.products.models, function (prod) {
+                            return prod.get('download').id === key;
+                        });
+                        this.createModelColorscaleTooltipDiv(productFromColorscale, i);
                     }
                 }, this);
             }
@@ -1548,7 +1553,11 @@ define([
                     // Add layer info
                     var info;
                     if (product.get('model')) {
-                        info = product.getTruncatedPrettyModelExpression(38);
+                        if (product.get('components').length === 1) {
+                            info = product.getPrettyModelExpression(true);
+                        } else {
+                            info = product.get('download').id;
+                        }
                         _.each(
                             {'\u2212': /&minus;/, '\u2026': /&hellip;/},
                             function (regex, newString) {
@@ -1611,6 +1620,7 @@ define([
                         )
                     );
 
+                    this.createModelColorscaleTooltipDiv(product, index);
                     this.colorscales[pId] = {
                         index: index,
                         prim: prim,
@@ -1620,7 +1630,21 @@ define([
                     svgContainer.remove();
                 }
             }
+        },
 
+        createModelColorscaleTooltipDiv: function (product, index) {
+            var prodId = product.get('download').id;
+            var elId = 'colorscale_label_' + prodId;
+            this.removeColorscaleTooltipDiv(prodId);
+            if (product.get('model') && product.get('components').length > 1 && product.get('showColorscale') && product.get('visible')) {
+                var bottom = (57 * index) + parseInt($('.cesium-viewer').css('padding-bottom'), 10);
+                this.$el.append('<div class="colorscaleLabel" id="' + elId + '" style="bottom:' + bottom + 'px;" title="' + product.getPrettyModelExpression(true) + '"></div>');
+            }
+        },
+
+        removeColorscaleTooltipDiv: function (pId) {
+            var id = 'colorscale_label_' + pId;
+            $('#' + id).remove();
         },
 
         onSelectionActivated: function (arg) {
@@ -1694,9 +1718,14 @@ define([
         },
 
         updateFieldLines: function (onlyStyleChange) {
+            if (typeof this.showFieldLinesDebounced === 'undefined') {
+                this.showFieldLinesDebounced = _.debounce(function (onlyStyleChange) {
+                    this.showFieldLines(onlyStyleChange);
+                }, 500);
+            }
             this.hideFieldLinesLabel();
             if (this.activeFL.length > 0 && this.bboxsel) {
-                this.showFieldLines(onlyStyleChange);
+                this.showFieldLinesDebounced(onlyStyleChange);
             } else {
                 this.hideFieldLines();
             }
@@ -1715,14 +1744,16 @@ define([
                     var range_min = parameters[variable].range[0];
                     var range_max = parameters[variable].range[1];
                     var log_scale = parameters[variable].logarithmic;
+                    var time = meanDate(this.beginTime, this.endTime);
                     this.removeFLPrimitives(name);
 
                     if (variable !== 'Fieldlines') return;
 
+                    if (product.getModelValidity().start > time || product.getModelValidity().end < time) return;
                     var options = {
                         model_ids: product.getModelExpression(product.get('download').id),
                         shc: product.getCustomShcIfSelected(),
-                        time: getISODateTimeString(meanDate(this.beginTime, this.endTime)),
+                        time: getISODateTimeString(time),
                         bbox: [
                             this.bboxsel[0], this.bboxsel[1], this.bboxsel[2], this.bboxsel[3]
                         ].join(','),
@@ -1901,8 +1932,8 @@ define([
                 $('#fieldlines_label').html(tmplFieldLinesLabel(options));
                 $('#fieldlines_label').removeClass('hidden');
                 $('#fieldlines_label').offset({left: clickPosition.x + 18, top: clickPosition.y});
-                $('.fl-close').off('click');
-                $('.fl-close').on('click', this.hideFieldLinesLabel.bind(this));
+                $('.close-fieldline-label').off('click');
+                $('.close-fieldline-label').on('click', this.hideFieldLinesLabel.bind(this));
                 // highlight points
                 this.FLbillboards.removeAll();
                 this.highlightFieldLinesPoints([fl_data['apex_point'], fl_data['ground_points'][0], fl_data['ground_points'][1]]);

@@ -377,7 +377,7 @@ module.exports = function (grunt) {
                         'bower_components/w2ui/src/w2utils.js',
                         'bower_components/msgpack-lite/dist/msgpack.min.js',
                         'bower_components/graphly/dist/graphly.min.js',
-                        'bower_components/choices.js/assets/scripts/dist/choices.js',
+                        'bower_components/choices.js/assets/scripts/dist/choices.min.js',
                         'scripts/vendor/**',
                     ]
                 },{

@@ -20,6 +20,12 @@
 
         var ModelComponentParameters = function (model, parameters) {
             var source = parameters || {};
+            var sources = [];
+            if (typeof model.get("filename") !== 'undefined') {
+                sources = [model.get("filename")];
+            } else if (typeof model.get("sources") !== 'undefined') {
+                sources = model.get("sources");
+            }
             _.extend(this, {
                 id: model.id,
                 name: globals.models.config[model.id].name || model.id,
@@ -27,6 +33,7 @@
                 sign: source.sign || "+",
                 parameters: source.parameters ? _.clone(source.parameters) : {},
                 defaults: model.get("parameters") || {},
+                sources: sources,
             });
             this.sanitizeParameters();
         };
@@ -326,7 +333,7 @@
                     $("#coefficients_range").show();
                     $("#opacitysilder").parent().show();
                 }
-
+                this.$el.append('<div id="model-sources-label" class="hidden"></div>');
             },
 
             createCustomModelSelection: function () {
@@ -345,9 +352,9 @@
                 this.$("#upload-selection").change(
                     _.bind(this.onCustomModelUpload, this)
                 );
-
-                if (this.current_model.get('shc_name')) {
-                    this.$("#shc").append('<p id="filename" style="font-size:.9em;">Selected File: ' + this.current_model.get('shc_name') + '</p>');
+                var customModel = this.current_model.getCustomModelIfSelected();
+                if (customModel) {
+                    this.$("#shc").append('<p id="filename" style="font-size:.9em;">Selected File: ' + customModel.get('filename') + '</p>');
                 }
             },
 
@@ -645,12 +652,12 @@
 
                     // save SHC file to localstorage
                     localStorage.setItem('shcFile', JSON.stringify({
-                        name: filename,
+                        filename: filename,
                         data: evt.target.result
                     }));
 
                     // update the source custom model
-                    globals.models.setCustomModel(evt.target.result);
+                    globals.models.setCustomModel(evt.target.result, filename);
 
                     if (this.current_model.getCustomModelIfSelected()) {
                         this.updateComposedModelValuesRange();
@@ -845,8 +852,7 @@
                     );
                     $('#composed_model_compute').data(item.id, item);
                 });
-
-                //create a Choices modified template
+                // create a Choices modified template
                 var choices = new Choices('#choices-multiple-remove-button', {
                     removeItemButton: true,
                     callbackOnCreateTemplates: function (template) {
@@ -881,8 +887,21 @@
                                     "var dataParent = $(this)[0].parentNode.getAttribute('data-value');",
                                     "var data = $('#composed_model_compute').data(dataParent);",
                                     "$(this).attr('value', {'+': '+', '-': '&minus;'}[data.toggleSign()]);",
-                                    "$('#changesbutton').addClass('unAppliedChanges');",
-                                    "console.log(data.id, data.sign, data.parameters)"
+                                    "$('#changesbutton').addClass('unAppliedChanges');"
+                                ].join('');
+                                var showInfo = [
+                                    "event.stopPropagation();",
+                                    "$('#model-sources-label').removeClass('hidden');",
+                                    "var dataParent = $(this)[0].parentNode.getAttribute('data-value');",
+                                    "var data = $('#composed_model_compute').data(dataParent);",
+                                    "$('#model-sources-label').html('');",
+                                    "$('#model-sources-label').append('<p>Model source files:</p>');",
+                                    "for (var i = 0; i < data.sources.length; i++) {$('#model-sources-label').append('<p>' + data.sources[i] + '</p>');}",
+                                    "$('#model-sources-label').append('<button><span>&times;</span></button>');",
+                                    "$('#model-sources-label > button').addClass('close fl-close close-model-sources');",
+                                    "$('#model-sources-label').offset({left: event.clientX - 20 - parseInt($('#model-sources-label').outerWidth(true)), top: event.clientY - 15});",
+                                    "$('.close-model-sources').off('click');",
+                                    "$('.close-model-sources').on('click', function(){$('#model-sources-label').addClass('hidden')});",
                                 ].join('');
 
                                 return template([
@@ -894,6 +913,7 @@
                                     '<input type="text" placeholder="', data.defaults.min_degree, '" value="', data.getMinDegree(), '" onclick="', onClickHandler, '" onkeydown="', onKeyDownHandler, '" onblur="', updateMinDegree, '" class="composed_model_operation_coefficient_min" title="Minimum model degree.">',
                                     '<input type="text" placeholder="', data.defaults.max_degree, '" value="', data.getMaxDegree(), '" onclick="', onClickHandler, '" onkeydown="', onKeyDownHandler, '" onblur="', updateMaxDegree, '" class="composed_model_operation_coefficient_max" title="Maximum model degree.">',
                                     '</div>',
+                                    '<button type="button" class="composed_model_info_button fa fa-info-circle btn-info" onclick="', showInfo, '"></button>',
                                     '</div>'
                                 ].join(''));
                             }
