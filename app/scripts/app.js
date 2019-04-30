@@ -411,7 +411,7 @@ var MASTER_PRIORITY = [
                         globals.models.customModelId = model_conf.id;
                         var shcFile = JSON.parse(localStorage.getItem('shcFile'));
                         if (shcFile) {
-                            globals.models.setCustomModel(shcFile.data);
+                            globals.models.setCustomModel(shcFile.data, shcFile.filename);
                         }
                         console.log("Added custom model " + model_conf.id);
                     } else {
@@ -430,6 +430,7 @@ var MASTER_PRIORITY = [
                 // but the AJAX Response is. This sets the event counter negative
                 // for now I add the event change here but I am not sure which
                 // request is actually responsible for this
+                Communicator.mediator.trigger("progress:change", true);
                 Communicator.mediator.trigger("progress:change", true);
 
                 globals.models.fetch();

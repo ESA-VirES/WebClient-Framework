@@ -33,7 +33,7 @@
 }
 
 #heightvalue{
-  border-width: 1px;
+    border-width: 1px;
 }
 
 #boxlabel{
@@ -98,7 +98,7 @@
     padding: 3px 4px!important;
 }
 
-.composed_model_delete_button{
+.composed_model_delete_button,{
     border-left: 2px solid #2B6E87!important;
     border-bottom: 2px solid #2B6E87!important;
     margin-left: 3px!important;
@@ -107,26 +107,39 @@
     height: 20px;
 }
 
-.composed_model_operation_operand,.composed_model_delete_button{
-    background-color: #5bc0de!important;
-    opacity:1!important;
-    border-radius:5px;
+.composed_model_info_button{
+    margin-right: 8px!important;
+    margin-top: 2px;
+    font-size: 14px!important;
+    float: right!important;
 }
 
-.composed_model_operation_operand:hover,.composed_model_delete_button:hover{
+.composed_model_operation_operand,.composed_model_delete_button,.composed_model_info_button{
+    background-color: #5bc0de!important;
+    opacity: 1!important;
+    border-radius: 5px;
+}
+
+.composed_model_operation_operand:hover,.composed_model_delete_button:hover,.composed_model_info_button:hover,.unAppliedChanges:hover{
     background-color: #39b3d7!important;
 }
 
-.unAppliedChanges{
-  background-color: #00BCD4!important;
-  color: white!important;
-  font-weight: bold!important;
+.close-model-sources{
+    margin: 0px;
+    font-size: 21px;
 }
 
-.unAppliedChanges:hover{
-  background-color: #39b3d7!important;
+.unAppliedChanges{
+    background-color: #00BCD4!important;
+    color: white!important;
+    font-weight: bold!important;
 }
 
 #description{
-  font-size: 1.05em;
+    font-size: 1.05em;
+}
+
+.model-sources-label{
+    padding: 10px 10px 0 0;
+    user-select: text;
 }

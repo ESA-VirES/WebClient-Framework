@@ -132,7 +132,7 @@
       getCustomModel: function () {
         return this.get(this.customModelId);
       },
-      setCustomModel: function (data) {
+      setCustomModel: function (data, filename) {
         var customModel = this.getCustomModel();
         if (data) {
           var header = shc.parseShcHeader(data);
@@ -145,7 +145,8 @@
               start: shc.decimalYearToDate(header.validity.start),
               end: shc.decimalYearToDate(header.validity.end),
             },
-            shc: data
+            shc: data,
+            filename: filename,
           };
           if (customModel) {
             // update custom model

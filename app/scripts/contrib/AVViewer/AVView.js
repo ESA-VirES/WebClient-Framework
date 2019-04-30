@@ -8,7 +8,7 @@ define(['backbone.marionette',
     'd3',
     'graphly',
     'analytics'
-], function (Marionette, Communicator, App,  AVModel, globals) {
+], function (Marionette, Communicator, App, AVModel, globals) {
     'use strict';
     var AVView = Marionette.View.extend({
         model: new AVModel.AVModel(),
@@ -117,6 +117,28 @@ define(['backbone.marionette',
 
             this.$el.append('<div type="button" class="btn btn-success darkbutton" id="resetZoom" title="Reset graph zoom"><i class="fa fa-refresh" aria-hidden="true"></i></div>');
 
+            this.$el.append('<div type="button" class="btn btn-success darkbutton" id="productInfo" title="Show product information"><i class="fa fa-info" aria-hidden="true"></i></div>');
+
+            $('#productInfo').click(function () {
+                var data = globals.swarm.get('data');
+                if ($('#productSourcesInfoContainer').length) {
+                    $('#productSourcesInfoContainer').remove();
+                } else {
+                    if (data.hasOwnProperty('__info__')) {
+                        var infoDat = data.__info__.sources;
+                        that.$el.append('<div id="productSourcesInfoContainer" class="sourcesInfoContainer"></div>');
+                        $('#productSourcesInfoContainer').append('<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>');
+                        $('#productSourcesInfoContainer').append('<h4>Data sources:</h4>');
+                        $('#productSourcesInfoContainer').append('<ul id="productInfoList"></ul>');
+                        for (var i = 0; i < infoDat.length; i++) {
+                            $('#productInfoList').append(
+                                '<li>' + infoDat[i] + '</li>'
+                            );
+                        }
+                    }
+                }
+            });
+
             if (typeof this.graph === 'undefined') {
                 this.$el.append('<div class="d3canvas"></div>');
                 this.$('.d3canvas').append('<div id="graph"></div>');
@@ -183,7 +205,8 @@ define(['backbone.marionette',
                     dataSettings: filtersGlobalFiltered,
                     parameterMatrix: {}
                 },
-                showCloseButtons: true
+                showCloseButtons: true,
+                ignoreParameters: '__info__'
             });
 
 
@@ -331,8 +354,8 @@ define(['backbone.marionette',
                 enableSubXAxis: 'Timestamp',
                 enableSubYAxis: false,
                 colorscaleOptionLabel: 'Add third variable',
+                ignoreParameters: ['__info__'],
                 colorscales: cols
-
             });
 
             if (localStorage.getItem('filterSelection') !== null) {
@@ -789,6 +812,23 @@ define(['backbone.marionette',
         },
 
         reloadData: function (model, data) {
+
+            // Check if data source info is open, if yes rerender it
+            if ($('#productInfoContainer').length) {
+                $('#productInfoContainer').remove();
+                if (data.hasOwnProperty('__info__')) {
+                    var infoDat = data.__info__.sources;
+                    this.$el.append('<div id="productInfoContainer"></div>');
+                    $('#productInfoContainer').append('<button style="position:absolute; right:20px;" type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>');
+                    $('#productInfoContainer').append('<div style="margin-left:20px"><b>Data sources:</b></div>');
+                    $('#productInfoContainer').append('<ul id="producInfolist"></ul>');
+                    for (var i = 0; i < infoDat.length; i++) {
+                        $('#producInfolist').append(
+                            '<li>' + infoDat[i] + '</li>'
+                        );
+                    }
+                }
+            }
 
             function itemExists(itemArray, item) {
                 for (var i = 0; i < itemArray.length; ++i) {
