@@ -145,6 +145,9 @@
                 this.stopListening(Communicator.mediator, "models:update", this.onParameterChange);
                 this.listenTo(Communicator.mediator, 'models:update', this.onParameterChange);
 
+                this.stopListening(Communicator.mediator, 'time:change');
+                this.listenTo(Communicator.mediator, 'time:change', this.onTimeChange);
+
                 this.$(".panel-title").html('<h3 class="panel-title"><i class="fa fa-fw fa-sliders"></i> ' + this.current_model.get("name") + ' Settings</h3>');
 
                 this.$('.close').on("click", _.bind(this.onClose, this));
@@ -1003,7 +1006,10 @@
                     }
                 }
                 return true;
-            }
+            },
+            onTimeChange: function () {
+                $('.model-sources-label').addClass('hidden');
+            },
         });
 
         return {LayerSettings: LayerSettings};
