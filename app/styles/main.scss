@@ -506,3 +506,18 @@ button[active=active] {
 .w2ui-list ul li{
   font-family: "Helvetica Neue",Helvetica,Arial,sans-serif !important;
 }
+
+#uploadDialogContainer{
+  top: 63px;
+  width: 400px;
+  position: absolute;
+  right: 10px;
+  z-index: 501;
+  display: none;
+}
+
+.filepond--root{
+  margin-bottom: 0.8em!important;
+  padding-top: 0.8em!important;
+  font-size: 1.2em!important;
+}

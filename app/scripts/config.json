@@ -2735,7 +2735,12 @@
             "name": "Download",
             "icon": "fa-download",
             "eventToRaise": "dialog:open:download:filter"
-        }, 
+        },
+        {
+            "name": "Upload",
+            "icon": "fa-upload",
+            "eventToRaise": "dialog:show:upload"
+        },
         {
             "name": "Views",
             "icon": "fa-eye",

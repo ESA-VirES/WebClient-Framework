@@ -50,7 +50,7 @@ var MASTER_PRIORITY = [
         'layouts/ToolControlLayout',
         'layouts/OptionsLayout',
         'core/SplitView/WindowView',
-        'communicator',
+        'communicator', 'filepond',
         'jquery', 'backbone.marionette',
         'controller/ContentController',
         'controller/DownloadController',
@@ -63,7 +63,7 @@ var MASTER_PRIORITY = [
 
     function (
         Backbone, globals, DialogRegion, UIRegion, LayerControlLayout,
-        ToolControlLayout, OptionsLayout, WindowView, Communicator
+        ToolControlLayout, OptionsLayout, WindowView, Communicator, FilePond
     ) {
 
         var Application = Backbone.Marionette.Application.extend({
@@ -93,6 +93,36 @@ var MASTER_PRIORITY = [
 
                 var imagerenderercanvas = $('<canvas/>', {id: 'imagerenderercanvas'});
                 $('body').append(imagerenderercanvas);
+
+                var uploadDialogContainer = $('<div/>', { id: 'uploadDialogContainer' });
+                $('body').append(uploadDialogContainer);
+
+                // Create a single file upload component
+                const pond = FilePond.create({
+                    allowMultiple: false,
+                    labelIdle: ('Drag & Drop your file or <span class="filepond--label-action"> Browse </span><br>'+
+                                'Maximum file size is 256 MB'),
+                    name: 'file',
+                    server: {
+                      url: 'custom_data/',
+                      revert: null,
+                      restore: null,
+                      load: null,
+                      fetch: null,
+                      process: {
+                        onload: function () {
+                          // after file is successfuly loaded
+                        },
+                        onerror: function (response) {
+                          showMessage('danger',
+                            'The user file upload failed: ' + response, 30);
+                        },
+                      }
+                    },
+                });
+
+                // Add it to the DOM
+                $(uploadDialogContainer)[0].appendChild(pond.element);
 
 
                 var v = {}; //views

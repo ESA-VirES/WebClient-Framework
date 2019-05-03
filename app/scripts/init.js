@@ -20,7 +20,10 @@
             handlebars: {
                 exports: 'Handlebars'
             },
-
+            filepond: {
+                exports: 'FilePond',
+                deps: ['jquery']
+            },
             backbone: {
                 deps: [
                     'underscore',
@@ -75,6 +78,7 @@
         },
 
         paths: {
+            filepond: '../bower_components/filepond/dist/filepond.min',
             analytics: '../bower_components/d3.Graphs/lib/scripts/av.min',
             msgpack: '../bower_components/msgpack-lite/dist/msgpack.min',
             cesium: "../bower_components/cesium/Build/Cesium",

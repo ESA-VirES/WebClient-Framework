@@ -21,6 +21,7 @@
                 this.listenTo(Communicator.mediator, "ui:fullscreen:globe", this.onFullscrenGlobe);
                 this.listenTo(Communicator.mediator, "ui:fullscreen:analytics", this.onFullscrenAnalytics);
                 this.listenTo(Communicator.mediator, "application:reset", this.onApplicationReset);
+                this.listenTo(Communicator.mediator, "dialog:show:upload", this.onShowUpload);
             },
 
             onFullscrenGlobe: function () {
@@ -35,6 +36,15 @@
             onDialogOpenAbout: function(event){
                 App.dialogRegion.show(App.DialogContentView);
             },
+
+            onShowUpload: function () {
+                if($('#uploadDialogContainer').is(':visible')) {
+                    $('#uploadDialogContainer').hide();
+                } else {
+                    $('#uploadDialogContainer').show();
+                }
+            },
+
             onLayerControlOpen: function(event){
                 //We have to render the layout before we can
                 //call show() on the layout's regions
