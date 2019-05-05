@@ -261,7 +261,7 @@ button[active=active] {
 
 #products{
   max-height: 220px;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
 }
 

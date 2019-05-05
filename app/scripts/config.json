@@ -8,7 +8,13 @@
     ],
 
     "storyTemplate": "UseCaseTestTemplate",
-
+    "userData": {
+        "url": "http://localhost:9000/vires00/custom_data/",
+        "views": [{
+            "id": "USER_DATA",
+            "url": "http://localhost:9000/vires00/ows"
+        }]
+    },
     "magneticModels": {
         "infoUrl": "http://localhost:9000/vires00/ows",
         "models": [
@@ -2429,6 +2435,231 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
+            "name": "MAGU LR 1B",
+            "color": "#1f77b4",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "views": [{
+                "id": "SW_OPER_MAGU_LR_1B",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_MAGU_LR_1B"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "parameters": {
+                "B_NEC": {
+                    "range": [15000, 55000],
+                    "uom":"nT",
+                    "colorscale": "jet",
+                    "name": "Magnetic field vector, NEC frame"
+                },
+                "F": {
+                    "range": [15000, 55000],
+                    "uom":"nT",
+                    "colorscale": "jet",
+                    "selected": true,
+                    "name": "Magnetic field intensity"
+                },
+                "B_NEC_resAC":{
+                    "range": [-600, 600],
+                    "uom":"nT",
+                    "colorscale": "jet",
+                    "name": "Magnetic field vector residual A - C"
+                }
+            },
+            "outlines": false
+          },{
+              "name": "EFIU LP 1B",
+              "timeSlider": true,
+              "timeSliderProtocol": "USER_DATA",
+              "color": "#ff7f0e",
+              "views": [{
+                  "id": "SW_OPER_EFIU_LP_1B",
+                  "protocol": "CZML",
+                  "urls": [
+                      "http://localhost:9000/vires00/ows"
+                  ],
+                  "style": "default",
+                  "format": "image/png"
+              }],
+              "download": {
+                  "id": "SW_OPER_EFIU_LP_1B"
+              },
+              "processes" : [
+                  {
+                      "id": "retrieve_data",
+                      "layer_id": "USER_DATA"
+                  }
+              ],
+              "parameters": {
+                  "Ne": {
+                      "range": [100000, 200000],
+                      "uom":"cm -3",
+                      "colorscale": "plasma",
+                      "selected": true,
+                      "name": "Plasma density"
+                  },
+                  "Te": {
+                      "range": [1000, 5000],
+                      "uom":"K",
+                      "colorscale": "portland",
+                      "name": "Plasma electron temperature"
+                  },
+                  "Vs": {
+                      "range": [-5, 0],
+                      "uom":"V",
+                      "colorscale": "jet",
+                      "name": "Spacecraft potential"
+                  },
+                  "U_orbit": {
+                      "range": [1500, 3500],
+                      "uom": "m/s",
+                      "colorscale": "jet",
+                      "name": "Spacecraft velocity in the ITRF"
+                  }
+              },
+              "outlines": false
+          },{
+              "name": "TEC U TMS",
+              "timeSlider": true,
+              "timeSliderProtocol": "USER_DATA",
+              "color": "#990099",
+              "views": [{
+                  "id": "SW_OPER_TECUTMS_2F",
+                  "protocol": "CZML",
+                  "urls": [
+                      "http://localhost:9000/vires00/ows"
+                  ],
+                  "style": "default",
+                  "format": "image/png"
+              }],
+              "download": {
+                  "id": "SW_OPER_TECUTMS_2F"
+              },
+              "processes" : [
+                  {
+                      "id": "retrieve_data",
+                      "layer_id": "USER_DATA"
+                  }
+              ],
+              "parameters": {
+                  "Absolute_STEC": {
+                      "range": [0, 35],
+                      "uom":"TECU",
+                      "colorscale": "plasma",
+                      "selected": true,
+                      "name": "Absolute slant TEC"
+                  },
+                  "Relative_STEC": {
+                      "range": [0, 70],
+                      "uom":"TECU",
+                      "colorscale": "portland",
+                      "name": "Relative slant TEC"
+                  },
+                  "Relative_STEC_RMS": {
+                      "range": [0, 5],
+                      "uom":"TECU",
+                      "colorscale": "portland",
+                      "name": "Relative STEC RMS"
+                  },
+                  "Absolute_VTEC": {
+                      "range": [0, 35],
+                      "uom":"TECU",
+                      "colorscale": "plasma",
+                      "name": "Absolute vertical TEC"
+                  },
+                  "Elevation_Angle": {
+                      "range": [0, 90],
+                      "uom":"degree",
+                      "colorscale": "plasma",
+                      "name": "Elevation Angle"
+                  }
+              },
+              "outlines": false
+          },{
+              "name": "FAC U TMS",
+              "timeSlider": true,
+              "timeSliderProtocol": "USER_DATA",
+              "color": "#66aa00",
+              "views": [{
+                  "id": "SW_OPER_FACUTMS_2F",
+                  "protocol": "CZML",
+                  "urls": [
+                      "http://localhost:9000/vires00/ows"
+                  ],
+                  "style": "default",
+                  "format": "image/png"
+              }],
+              "download": {
+                  "id": "SW_OPER_FACUTMS_2F"
+              },
+              "processes" : [
+                  {
+                      "id": "retrieve_data",
+                      "layer_id": "USER_DATA"
+                  }
+              ],
+              "parameters": {
+                  "IRC": {
+                      "range": [-6, 6],
+                      "uom":"uA/m2",
+                      "colorscale": "diverging_1",
+                      "name": "Ionospheric radial current (IRC)"
+                  },
+                  "FAC": {
+                      "range": [-6, 6],
+                      "uom":"uA/m2",
+                      "colorscale": "diverging_1",
+                      "selected": true,
+                      "name": "Field-aligned current (FAC)"
+                  }
+              },
+              "outlines": false
+          },{
+              "name": "EEF U TMS",
+              "timeSlider": true,
+              "timeSliderProtocol": "USER_DATA",
+              "color": "#b82e2e",
+              "views": [{
+                  "id": "SW_OPER_EEFUTMS_2F",
+                  "protocol": "CZML",
+                  "urls": [
+                      "http://localhost:9000/vires00/ows"
+                  ],
+                  "style": "default",
+                  "format": "image/png"
+              }],
+              "download": {
+                  "id": "SW_OPER_EEFUTMS_2F"
+              },
+              "processes" : [
+                  {
+                      "id": "retrieve_data",
+                      "layer_id": "USER_DATA"
+                  }
+              ],
+              "parameters": {
+                  "EEF": {
+                      "range": [-0.001, 0.001],
+                      "uom":"V/m",
+                      "selected": true,
+                      "colorscale": "diverging_1",
+                      "name": "Estimate of the equatorial electric field"
+                  }
+              },
+              "outlines": false
+          },{
             "name": "Magnetic Model",
             "visible": false,
             "timeSlider": true,
