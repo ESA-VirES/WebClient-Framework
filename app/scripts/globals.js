@@ -1,8 +1,8 @@
 /*global define */
 
 define(
-  ['backbone', 'objectStore', 'models/MagneticModelCollection'],
-  function (Backbone, ObjectStore, MagneticModel) {
+  ['backbone', 'objectStore', 'models/MagneticModelCollection', 'models/UserDataCollection'],
+  function (Backbone, ObjectStore, MagneticModel, UserDataModel) {
 
     var swarm_model = Backbone.Model.extend({data: []});
     return {
@@ -13,7 +13,8 @@ define(
       products: new Backbone.Collection(),
       overlays: new Backbone.Collection(),
       swarm: new swarm_model(),
-      models: new MagneticModel.MagneticModelCollection()
+      models: new MagneticModel.MagneticModelCollection(),
+      userData: new UserDataModel.UserDataCollection(),
     };
   }
 );
