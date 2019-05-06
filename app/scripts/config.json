@@ -2659,6 +2659,46 @@
                   }
               },
               "outlines": false
+        },{
+            "name": "SW OPER IBIU TMS 2F",
+            "visible": false,
+            "timeSlider": true,
+            "color": "#2ca02c",
+            "timeSliderProtocol": "WPS-INDEX",
+            "views": [{
+                "id": "SW_OPER_IBIUTMS_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_IBIUTMS_2F"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_IBIUTMS_2F"
+                }
+            ],
+            "parameters": {
+                "Bubble_Probability": {
+                    "range": [0, 1],
+                    "uom": null,
+                    "colorscale": "jet",
+                    "selected": true,
+                    "name": "Detection probability of the plasma bubble"
+                }
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_IBIUTMS_2F"
+                }
+            ],
+            "outlines": false
           },{
             "name": "Magnetic Model",
             "visible": false,
