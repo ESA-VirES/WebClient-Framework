@@ -3653,7 +3653,7 @@
         },{
             "name": "IPDUIRR 2F",
             "timeSlider": true,
-            "timeSliderProtocol": "WPS",
+            "timeSliderProtocol": "USER_DATA",
             "color": "#ff7f0e",
             "views": [{
                 "id": "SW_OPER_IPDUIRR_2F",
@@ -3670,7 +3670,7 @@
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_IPDUIRR_2F"
+                    "layer_id": "USER_DATA"
                 }
             ],
             "parameters": {
