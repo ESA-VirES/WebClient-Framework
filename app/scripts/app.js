@@ -578,7 +578,6 @@ var MASTER_PRIORITY = [
                 var filtered = globals.products.filter(function (product) {
                     var id = product.get("download").id;
                     return !(id && id.match(
-                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD)[ABC_]/
                         /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD)[ABCU_]/
                     ));
                 });
