@@ -4136,6 +4136,11 @@
             "eventToRaise": "dialog:open:download:filter"
         }, 
         {
+            "name": "Upload",
+            "icon": "fa-upload",
+            "eventToRaise": "dialog:show:upload"
+        },
+        {
             "name": "Views",
             "icon": "fa-eye",
             "subitems": [{
