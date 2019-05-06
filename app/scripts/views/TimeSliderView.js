@@ -436,8 +436,28 @@
                                         source: {fetch: this.fetch.bind(attrs)}
                                     });
                                     break;
-                            } // END of switch
+                                case 'USER_DATA':
+                                console.log(globals.userData.models.length)
 
+                                  if (globals.userData.models.length > 0) {
+                                      if (globals.swarm.satellites['Upload']) {
+                                          var records = [];
+                                          _.each(globals.userData.models, function (file) {
+                                              var record =
+                                              [new Date(file.get('start')), new Date(file.get('end')), {
+                                                id: file.get('filename') }];
+                                              records.push(record);
+                                          });
+                                          this.slider.removeDataset(product.get('download').id)
+                                          this.slider.addDataset({
+                                              id: product.get('download').id,
+                                              color: product.get('color'),
+                                              records: records,
+                                          });
+                                      }
+                                  }
+                                  break;
+                            } // END of switch
                         } else {
                             this.slider.removeDataset(product.get('download').id);
                             if (this.activeWPSproducts.indexOf(product.get('download').id) !== -1) {

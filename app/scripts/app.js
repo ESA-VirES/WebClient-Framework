@@ -28,12 +28,12 @@ var VECTOR_BREAKDOWN = {
 // Ordered from highest resolution to lowest with the exception of FAC that
 // needs to be first as the master product needs to be the same
 var MASTER_PRIORITY = [
-    'SW_OPER_FACATMS_2F', 'SW_OPER_FACBTMS_2F', 'SW_OPER_FACCTMS_2F', 'SW_OPER_FAC_TMS_2F',
-    'SW_OPER_EFIA_LP_1B', 'SW_OPER_EFIB_LP_1B', 'SW_OPER_EFIC_LP_1B',
-    'SW_OPER_MAGA_LR_1B', 'SW_OPER_MAGB_LR_1B', 'SW_OPER_MAGC_LR_1B',
-    'SW_OPER_TECATMS_2F', 'SW_OPER_TECBTMS_2F', 'SW_OPER_TECCTMS_2F',
-    'SW_OPER_IBIATMS_2F', 'SW_OPER_IBIBTMS_2F', 'SW_OPER_IBICTMS_2F',
-    'SW_OPER_EEFATMS_2F', 'SW_OPER_EEFBTMS_2F', 'SW_OPER_EEFCTMS_2F'
+    'SW_OPER_FACATMS_2F', 'SW_OPER_FACBTMS_2F', 'SW_OPER_FACCTMS_2F', 'SW_OPER_FAC_TMS_2F', 'SW_OPER_FACUTMS_2F',
+    'SW_OPER_EFIA_LP_1B', 'SW_OPER_EFIB_LP_1B', 'SW_OPER_EFIC_LP_1B', 'SW_OPER_EFIU_LP_1B',
+    'SW_OPER_MAGA_LR_1B', 'SW_OPER_MAGB_LR_1B', 'SW_OPER_MAGC_LR_1B', 'SW_OPER_MAGU_LR_1B',
+    'SW_OPER_TECATMS_2F', 'SW_OPER_TECBTMS_2F', 'SW_OPER_TECCTMS_2F', 'SW_OPER_TECUTMS_2F',
+    'SW_OPER_IBIATMS_2F', 'SW_OPER_IBIBTMS_2F', 'SW_OPER_IBICTMS_2F', 'SW_OPER_IBIUTMS_2F',
+    'SW_OPER_EEFATMS_2F', 'SW_OPER_EEFBTMS_2F', 'SW_OPER_EEFCTMS_2F', 'SW_OPER_EEFUTMS_2F',
 ];
 
 
@@ -50,7 +50,7 @@ var MASTER_PRIORITY = [
         'layouts/ToolControlLayout',
         'layouts/OptionsLayout',
         'core/SplitView/WindowView',
-        'communicator',
+        'communicator', 'filepond',
         'jquery', 'backbone.marionette',
         'controller/ContentController',
         'controller/DownloadController',
@@ -63,7 +63,7 @@ var MASTER_PRIORITY = [
 
     function (
         Backbone, globals, DialogRegion, UIRegion, LayerControlLayout,
-        ToolControlLayout, OptionsLayout, WindowView, Communicator
+        ToolControlLayout, OptionsLayout, WindowView, Communicator, FilePond
     ) {
 
         var Application = Backbone.Marionette.Application.extend({
@@ -93,6 +93,37 @@ var MASTER_PRIORITY = [
 
                 var imagerenderercanvas = $('<canvas/>', {id: 'imagerenderercanvas'});
                 $('body').append(imagerenderercanvas);
+
+                var uploadDialogContainer = $('<div/>', { id: 'uploadDialogContainer' });
+                $('body').append(uploadDialogContainer);
+
+                // Create a single file upload component
+                const pond = FilePond.create({
+                    allowMultiple: false,
+                    labelIdle: ('Drag & Drop your file or <span class="filepond--label-action"> Browse </span><br>'+
+                                'Maximum file size is 256 MB'),
+                    name: 'file',
+                    server: {
+                      url: 'custom_data/',
+                      revert: null,
+                      restore: null,
+                      load: null,
+                      fetch: null,
+                      process: {
+                        onload: function () {
+                          globals.swarm.satellites['Upload'] = true;
+                          globals.userData.fetch();
+                        },
+                        onerror: function (response) {
+                          showMessage('danger',
+                            'The user file upload failed: ' + response, 30);
+                        },
+                      }
+                    },
+                });
+
+                // Add it to the DOM
+                $(uploadDialogContainer)[0].appendChild(pond.element);
 
 
                 var v = {}; //views
@@ -413,6 +444,10 @@ var MASTER_PRIORITY = [
                     }
                 });
 
+                var userDataConfig = _.keys(config.userData);
+                _.each(userDataConfig, function (key) {
+                    globals.userData[key] = config.userData[key];
+                });
                 // periodic update magnetic models' metadata
                 globals.models.url = config.magneticModels.infoUrl;
                 globals.models.on('fetch:success', function () {
@@ -444,8 +479,34 @@ var MASTER_PRIORITY = [
                             view: overlay.view
                         })
                     );
-                    console.log("Added overlay " + overlay.id);
+                    console.log("Added overlay " + overlay.name);
                 }, this);
+
+                // fetch user data info
+                globals.userData.on('fetch:complete', function () {
+                  if (globals.userData.models.length > 0) {
+                      $('#uploadcheck').prop('disabled', false);
+                      $('#uploadcheck').prop('checked', globals.swarm.satellites['Upload']);
+                      _.each(globals.swarm.activeProducts, function (product) {
+                          if (globals.swarm.collection2satellite[product] === 'Upload') {
+                            var layerModel = globals.products.find(function (model) {
+                                if(model.get('views'))
+                                    return model.get('views')[0].id === product;
+                                else 
+                                    return false;
+                            });
+                            var options = {
+                              isBaseLayer: false,
+                              visible: layerModel.get('visible'),
+                              name: layerModel.get('name')
+                            };
+                            Communicator.mediator.trigger('map:layer:change', options);
+                            Communicator.mediator.trigger('map:multilayer:change', globals.swarm.activeProducts);
+                          }
+                      });
+                  }
+                });
+                globals.userData.fetch();
 
                 // If Navigation Bar is set in configuration go through the
                 // defined elements creating a item collection to rendered
@@ -510,7 +571,7 @@ var MASTER_PRIORITY = [
                 var filtered = globals.products.filter(function (product) {
                     var id = product.get("download").id;
                     return !(id && id.match(
-                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF)[ABC_]/
+                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF)[ABCU_]/
                     ));
                 });
 
@@ -518,7 +579,8 @@ var MASTER_PRIORITY = [
                     "Alpha": true,
                     "Bravo": false,
                     "Charlie": false,
-                    "NSC": false
+                    "NSC": false,
+                    "Upload": false
                 };
 
                 if (localStorage.getItem("satelliteSelection") !== null) {
@@ -532,32 +594,38 @@ var MASTER_PRIORITY = [
                     "MAG": {
                         "Alpha": "SW_OPER_MAGA_LR_1B",
                         "Bravo": "SW_OPER_MAGB_LR_1B",
-                        "Charlie": "SW_OPER_MAGC_LR_1B"
+                        "Charlie": "SW_OPER_MAGC_LR_1B",
+                        "Upload": "SW_OPER_MAGU_LR_1B",
                     },
                     "EFI": {
                         "Alpha": "SW_OPER_EFIA_LP_1B",
                         "Bravo": "SW_OPER_EFIB_LP_1B",
-                        "Charlie": "SW_OPER_EFIC_LP_1B"
+                        "Charlie": "SW_OPER_EFIC_LP_1B",
+                        "Upload": "SW_OPER_EFIU_LP_1B",
                     },
                     "IBI": {
                         "Alpha": "SW_OPER_IBIATMS_2F",
                         "Bravo": "SW_OPER_IBIBTMS_2F",
-                        "Charlie": "SW_OPER_IBICTMS_2F"
+                        "Charlie": "SW_OPER_IBICTMS_2F",
+                        "Upload": "SW_OPER_IBIUTMS_2F",
                     },
                     "TEC": {
                         "Alpha": "SW_OPER_TECATMS_2F",
                         "Bravo": "SW_OPER_TECBTMS_2F",
-                        "Charlie": "SW_OPER_TECCTMS_2F"
+                        "Charlie": "SW_OPER_TECCTMS_2F",
+                        "Upload": "SW_OPER_TECUTMS_2F"
                     },
                     "FAC": {
                         "Alpha": "SW_OPER_FACATMS_2F",
                         "Bravo": "SW_OPER_FACBTMS_2F",
                         "Charlie": "SW_OPER_FACCTMS_2F",
-                        "NSC": "SW_OPER_FAC_TMS_2F"
+                        "Upload": "SW_OPER_FACUTMS_2F",
+                        "NSC": "SW_OPER_FAC_TMS_2F",
                     },
                     "EEF": {
                         "Alpha": "SW_OPER_EEFATMS_2F",
-                        "Bravo": "SW_OPER_EEFBTMS_2F"
+                        "Bravo": "SW_OPER_EEFBTMS_2F",
+                        "Upload": "SW_OPER_EEFUTMS_2F",
                     }
                 };
 
@@ -570,7 +638,11 @@ var MASTER_PRIORITY = [
                         globals.swarm.collection2satellite[collection] = satellite;
                     });
                 });
-
+                // because user data collection needs to have identifier USER_DATA
+                var userDataId = globals.userData.views[0].id;
+                if (userDataId) {
+                    globals.swarm.collection2satellite[userDataId] = 'Upload';
+                }
                 var filtered_collection = new Backbone.Collection(filtered);
 
                 var containerSelection = {

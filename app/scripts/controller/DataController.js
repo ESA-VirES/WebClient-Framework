@@ -256,7 +256,13 @@
             }, this);
           }
         }, this);
-
+        // hack arount different naming of process and layer (USER_DATA vs upload product view id)
+        if (globals.userData.models.length > 0 && globals.swarm.satellites['Upload']) {
+          retrieve_data.push({
+              layer: globals.userData.views[0].id,
+              url: globals.userData.views[0].url,
+          });
+        }
         if (retrieve_data.length > 0) {
 
           var collections = DataUtil.parseCollections(retrieve_data);
@@ -374,7 +380,8 @@
                 'A': 'Alpha',
                 'B': 'Bravo',
                 'C': 'Charlie',
-                '-': 'NSC'
+                '-': 'NSC',
+                'U': 'Upload',
               };
 
               if (dat.hasOwnProperty('Spacecraft')) {
