@@ -2664,7 +2664,7 @@
             "visible": false,
             "timeSlider": true,
             "color": "#2ca02c",
-            "timeSliderProtocol": "WPS-INDEX",
+            "timeSliderProtocol": "USER_DATA",
             "views": [{
                 "id": "SW_OPER_IBIUTMS_2F",
                 "protocol": "CZML",
@@ -2680,7 +2680,7 @@
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_IBIUTMS_2F"
+                    "layer_id": "USER_DATA"
                 }
             ],
             "parameters": {
@@ -2692,12 +2692,6 @@
                     "name": "Detection probability of the plasma bubble"
                 }
             },
-            "processes" : [
-                {
-                    "id": "retrieve_data",
-                    "layer_id": "SW_OPER_IBIUTMS_2F"
-                }
-            ],
             "outlines": false
           },{
             "name": "Magnetic Model",
