@@ -46,6 +46,7 @@
                 $('#bravocheck').prop('checked', globals.swarm.satellites["Bravo"]);
                 $('#charliecheck').prop('checked', globals.swarm.satellites["Charlie"]);
                 $('#nsccheck').prop('checked', globals.swarm.satellites["NSC"]);
+                $('#uploadcheck').attr('disabled', globals.userData.models.length === 0);
                 $('#uploadcheck').prop('checked', globals.swarm.satellites["Upload"]);
 
                 $('#alphacheck').change(function(evt){

@@ -112,6 +112,9 @@ var MASTER_PRIORITY = [
                       process: {
                         onload: function () {
                           globals.swarm.satellites['Upload'] = true;
+                          if (typeof(Storage) !== 'undefined') {
+                            localStorage.setItem('satelliteSelection', JSON.stringify(globals.swarm.satellites));
+                          }
                           globals.userData.fetch();
                         },
                         onerror: function (response) {
@@ -491,27 +494,24 @@ var MASTER_PRIORITY = [
                       filteredCollection.forEach(function(p) {
                           if (p.get('containerproduct')) {
                               if (p.get('visible')) {
-                                    if (globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Upload']) === -1) {
-                                        globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Upload']);
-                                    }
-                                }
-                            }
-                        });
-                        for (var i = globals.swarm.activeProducts.length - 1; i >= 0; i--) {
-
-                            globals.products.forEach(function(p) {
-                                if(p.get("download").id === globals.swarm.activeProducts[i]) {
-                                    if(!p.get("visible")){
-                                        p.set("visible", true);
-                                        Communicator.mediator.trigger('map:layer:change', {
-                                            name: p.get("name"),
-                                            isBaseLayer: false,
-                                            visible: true
-                                        });
-                                    }
-                                }
-                            });
-                        }
+                                  if (globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Upload']) === -1) {
+                                      globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Upload']);
+                                  }
+                              }
+                          }
+                      });
+                      for (var i = globals.swarm.activeProducts.length - 1; i >= 0; i--) {
+                          globals.products.forEach(function(p) {
+                              if (p.get('download').id === globals.swarm.activeProducts[i]) {
+                                  p.set('visible', true);
+                                  Communicator.mediator.trigger('map:layer:change', {
+                                      name: p.get('name'),
+                                      isBaseLayer: false,
+                                      visible: true
+                                  });
+                              }
+                          });
+                      }
                       Communicator.mediator.trigger('map:multilayer:change', globals.swarm.activeProducts);
                   }
                 });
