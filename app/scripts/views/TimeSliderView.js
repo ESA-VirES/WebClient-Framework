@@ -437,8 +437,6 @@
                                     });
                                     break;
                                 case 'USER_DATA':
-                                console.log(globals.userData.models.length)
-
                                   if (globals.userData.models.length > 0) {
                                       if (globals.swarm.satellites['Upload']) {
                                           var records = [];

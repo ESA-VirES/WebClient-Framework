@@ -119,6 +119,9 @@ var MASTER_PRIORITY = [
                       process: {
                         onload: function () {
                           globals.swarm.satellites['Upload'] = true;
+                          if (typeof(Storage) !== 'undefined') {
+                            localStorage.setItem('satelliteSelection', JSON.stringify(globals.swarm.satellites));
+                          }
                           globals.userData.fetch();
                         },
                         onerror: function (response) {
@@ -465,8 +468,8 @@ var MASTER_PRIORITY = [
                 // but the AJAX Response is. This sets the event counter negative
                 // for now I add the event change here but I am not sure which
                 // request is actually responsible for this
-                Communicator.mediator.trigger("progress:change", true);
-                Communicator.mediator.trigger("progress:change", true);
+                /*Communicator.mediator.trigger("progress:change", true);
+                Communicator.mediator.trigger("progress:change", true);*/
 
                 globals.models.fetch();
                 window.setInterval(function () {globals.models.fetch();}, 900000); // refresh each 15min
@@ -494,23 +497,70 @@ var MASTER_PRIORITY = [
                   if (globals.userData.models.length > 0) {
                       $('#uploadcheck').prop('disabled', false);
                       $('#uploadcheck').prop('checked', globals.swarm.satellites['Upload']);
-                      _.each(globals.swarm.activeProducts, function (product) {
-                          if (globals.swarm.collection2satellite[product] === 'Upload') {
-                            var layerModel = globals.products.find(function (model) {
-                                if(model.get('views'))
-                                    return model.get('views')[0].id === product;
-                                else 
-                                    return false;
-                            });
-                            var options = {
-                              isBaseLayer: false,
-                              visible: layerModel.get('visible'),
-                              name: layerModel.get('name')
-                            };
-                            Communicator.mediator.trigger('map:layer:change', options);
-                            Communicator.mediator.trigger('map:multilayer:change', globals.swarm.activeProducts);
+                      const filteredCollection = globals.swarm['filtered_collection'];
+                      for (var i = globals.swarm.activeProducts.length - 1; i >= 0; i--) {
+                          globals.products.forEach(function(p) {
+                              if (p.get('download').id === globals.swarm.activeProducts[i]) {
+                                  if (p.get('visible')) {
+                                      p.set('visible', false);
+                                      Communicator.mediator.trigger('map:layer:change', {
+                                          name: p.get('name'),
+                                          isBaseLayer: false,
+                                          visible: false
+                                      });
+                                  }
+                              }
+                          });
+                      }
+                      globals.swarm.activeProducts = [];
+                      filteredCollection.forEach(function(p) {
+                          if (p.get('containerproduct')) {
+                              if (p.get('visible')) {
+                                  if (globals.swarm.satellites['Alpha']) {
+                                      if (globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Alpha']) === -1) {
+                                          globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Alpha']);
+                                      }
+                                  }
+                                  if (globals.swarm.satellites['Bravo']) {
+                                      if (globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Bravo']) === -1) {
+                                          globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Bravo']);
+                                      }
+                                  }
+                                  if (globals.swarm.satellites['Charlie']) {
+                                      if (globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Charlie']) === -1) {
+                                          globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Charlie']);
+                                      }
+                                  }
+                                  if (globals.swarm.satellites['NSC']) {
+                                      if (globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['NSC']) === -1) {
+                                          globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['NSC']);
+                                      }
+                                  }
+                                  if (globals.swarm.satellites['Upload']) {
+                                      if (globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Upload']) === -1) {
+                                          globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Upload']);
+                                      }
+                                  }
+                              }
                           }
                       });
+
+                      for (var i = globals.swarm.activeProducts.length - 1; i >= 0; i--) {
+                          globals.products.forEach(function(p) {
+                              if (p.get('download').id === globals.swarm.activeProducts[i]) {
+                                  if (!p.get('visible')) {
+                                      p.set('visible', true);
+                                      Communicator.mediator.trigger('map:layer:change', {
+                                          name: p.get('name'),
+                                          isBaseLayer: false,
+                                          visible: true
+                                      });
+                                  }
+                              }
+                          });
+                      }
+                      globals.swarm.activeProducts = globals.swarm.activeProducts.sort();
+                      Communicator.mediator.trigger('map:multilayer:change', globals.swarm.activeProducts);
                   }
                 });
                 globals.userData.fetch();
