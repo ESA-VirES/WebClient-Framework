@@ -10,7 +10,7 @@
         'underscore'
     ],
 
-    function( Backbone, Communicator, globals, UIElementTmpl ) {
+    function( Backbone, Communicator, globals ) {
 
         var LayerSelectionView = Backbone.Marionette.CollectionView.extend({
 
@@ -46,6 +46,8 @@
                 $('#bravocheck').prop('checked', globals.swarm.satellites["Bravo"]);
                 $('#charliecheck').prop('checked', globals.swarm.satellites["Charlie"]);
                 $('#nsccheck').prop('checked', globals.swarm.satellites["NSC"]);
+                $('#uploadcheck').attr('disabled', globals.userData.models.length === 0);
+                $('#uploadcheck').prop('checked', globals.swarm.satellites["Upload"]);
 
                 $('#alphacheck').change(function(evt){
                     globals.swarm.satellites['Alpha'] = $('#alphacheck').is(':checked');
@@ -75,7 +77,13 @@
                     }
                     self.checkMultiProduct();
                 });
-
+                $('#uploadcheck').change(function(evt) {
+                  globals.swarm.satellites["Upload"] = $('#uploadcheck').is(':checked');
+                    if (typeof(Storage) !== 'undefined') {
+                      localStorage.setItem('satelliteSelection', JSON.stringify(globals.swarm.satellites));
+                    }
+                    self.checkMultiProduct();
+                });
             },
 
             checkMultiProduct: function(){
@@ -127,7 +135,11 @@
                                     globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['NSC']);
                                 }
                             }
-
+                            if($('#uploadcheck').is(':checked')){
+                                if(globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Upload']) === -1){
+                                    globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Upload']);
+                                }
+                            }
                         }
                     }
                 });

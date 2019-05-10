@@ -1,10 +1,10 @@
-(function() {
+(function () {
     'use strict';
 
     var root = this;
 
     root.require.config({
-        urlArgs: 'bust=v2.22',
+        urlArgs: 'bust=v2.24',
 
         waitSeconds: 120,
         /* starting point for application */
@@ -12,15 +12,18 @@
 
         shim: {
             jqueryui: {
-                deps:['jquery']
+                deps: ['jquery']
             },
             jqueryuitouch: {
-                deps:['jqueryui']
+                deps: ['jqueryui']
             },
             handlebars: {
                 exports: 'Handlebars'
             },
-
+            filepond: {
+                exports: 'FilePond',
+                deps: ['jquery']
+            },
             backbone: {
                 deps: [
                     'underscore',
@@ -40,7 +43,7 @@
                 deps: ['canvas-toBlob', 'Blob'],
                 exports: 'saveAs'
             },
-            lm:{
+            lm: {
                 exports: 'lm'
             },
             timeslider: {
@@ -68,16 +71,16 @@
             w2popup: {
                 deps: ['w2utils', 'jquery']
             },
-            graphly: {
-                deps: ['d3', 'plotty', 'msgpack']
-            },
-            
+            plotty: {
+                exports: 'plotty'
+            }
+
         },
 
         paths: {
+            filepond: '../bower_components/filepond/dist/filepond.min',
             analytics: '../bower_components/d3.Graphs/lib/scripts/av.min',
             msgpack: '../bower_components/msgpack-lite/dist/msgpack.min',
-            graphly: '../bower_components/graphly/dist/graphly.min',
             cesium: "../bower_components/cesium/Build/Cesium",
             drawhelper: "../scripts/vendor/cesium_DrawHelper",
             contrib: 'contrib',
@@ -88,7 +91,7 @@
             jqueryuitouch: '../bower_components/jqueryui-touch-punch/jquery.ui.touch-punch.min',
             backbone: '../bower_components/backbone-amd/backbone-min',
             underscore: '../bower_components/underscore-amd/underscore-min',
-            choices: '../bower_components/choices.js/assets/scripts/dist/choices',
+            choices: '../bower_components/choices.js/assets/scripts/dist/choices.min',
             d3: '../bower_components/d3/d3.min',
             timeslider: '../bower_components/d3.TimeSlider/d3.timeslider.min',
             libcoverage: '../bower_components/libcoverage/libcoverage.min',
@@ -101,7 +104,7 @@
 
             /* alias all marionette libs */
             'backbone.marionette': '../bower_components/backbone.marionette/lib/core/amd/backbone.marionette.min',
-            'backbone.wreqr': '../bower_components/backbone.wreqr/lib/amd/backbone.wreqr.min', 
+            'backbone.wreqr': '../bower_components/backbone.wreqr/lib/amd/backbone.wreqr.min',
             'backbone.babysitter': '../bower_components/backbone.babysitter/lib/amd/backbone.babysitter.min',
 
             /* alias the bootstrap js lib */
@@ -133,7 +136,8 @@
 
             w2ui: '../bower_components/w2ui/dist/w2ui-fields.min',
             w2popup: '../bower_components/w2ui/src/w2popup',
-            w2utils: '../bower_components/w2ui/src/w2utils'
+            w2utils: '../bower_components/w2ui/src/w2utils',
+            graphly: '../bower_components/graphly/dist/graphly.min'
 
         },
 
@@ -141,4 +145,4 @@
             disableI18n: true
         }
     });
-}).call( this );
+}).call(this);

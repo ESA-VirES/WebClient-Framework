@@ -34,7 +34,7 @@
             var products = this.model.get('products');
             for (var i = 0; i < globals.products.models.length; i++) {
                 var p = globals.products.models[i];
-                if(p.get('visible')){
+                if(p.get('visible') && p.get('download').url) {
                     products[p.get('download').id] = p;
                 }else{
                     delete products[p.get('download').id];
@@ -48,7 +48,8 @@
                 var layer = globals.products.find(function(model) { return model.get('name') == options.name; });
                 if (layer) { // Layer will be empty if it is an overlay layer
                     var products = this.model.get('products');
-                    if(options.visible){
+                    // without url currently filters out user uploaded data
+                    if(options.visible && layer.get('download').url) {
                         products[layer.get('download').id] = layer;
                     }else{
                         delete products[layer.get('download').id];
