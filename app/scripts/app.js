@@ -487,23 +487,32 @@ var MASTER_PRIORITY = [
                   if (globals.userData.models.length > 0) {
                       $('#uploadcheck').prop('disabled', false);
                       $('#uploadcheck').prop('checked', globals.swarm.satellites['Upload']);
-                      _.each(globals.swarm.activeProducts, function (product) {
-                          if (globals.swarm.collection2satellite[product] === 'Upload') {
-                            var layerModel = globals.products.find(function (model) {
-                                if(model.get('views'))
-                                    return model.get('views')[0].id === product;
-                                else 
-                                    return false;
+                      const filteredCollection = globals.swarm['filtered_collection'];
+                      filteredCollection.forEach(function(p) {
+                          if (p.get('containerproduct')) {
+                              if (p.get('visible')) {
+                                    if (globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Upload']) === -1) {
+                                        globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Upload']);
+                                    }
+                                }
+                            }
+                        });
+                        for (var i = globals.swarm.activeProducts.length - 1; i >= 0; i--) {
+
+                            globals.products.forEach(function(p) {
+                                if(p.get("download").id === globals.swarm.activeProducts[i]) {
+                                    if(!p.get("visible")){
+                                        p.set("visible", true);
+                                        Communicator.mediator.trigger('map:layer:change', {
+                                            name: p.get("name"),
+                                            isBaseLayer: false,
+                                            visible: true
+                                        });
+                                    }
+                                }
                             });
-                            var options = {
-                              isBaseLayer: false,
-                              visible: layerModel.get('visible'),
-                              name: layerModel.get('name')
-                            };
-                            Communicator.mediator.trigger('map:layer:change', options);
-                            Communicator.mediator.trigger('map:multilayer:change', globals.swarm.activeProducts);
-                          }
-                      });
+                        }
+                      Communicator.mediator.trigger('map:multilayer:change', globals.swarm.activeProducts);
                   }
                 });
                 globals.userData.fetch();
