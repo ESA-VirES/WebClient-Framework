@@ -855,6 +855,8 @@ define(['backbone.marionette',
                         identifiers: identifiers
                     };
 
+                    this.renderSettings.availableParameters = data.__info__.variables;
+
                     // Calculate very rough estimate of rendered points
                     var dataLength = data[idKeys[0]].length;
                     var renderedPoints = (
