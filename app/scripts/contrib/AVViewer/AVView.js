@@ -379,11 +379,7 @@ define(['backbone.marionette',
                     JSON.stringify(this.renderSettings.colorAxis2)
                 );
 
-                // Save parameter style changes
-                localStorage.setItem(
-                    'parameterSettings',
-                    JSON.stringify(globals.swarm.get('uom_set'))
-                );
+                savePrameterStatus(globals);
 
             });
 
@@ -613,11 +609,13 @@ define(['backbone.marionette',
             };
 
             // Check if styling settings have been saved
-            if (localStorage.getItem('parameterSettings') !== null) {
-                var parameterSettings = JSON.parse(localStorage.getItem('parameterSettings'));
+            if (localStorage.getItem('parameterConfiguration') !== null) {
+                var parameterSettings = JSON.parse(localStorage.getItem('parameterConfiguration'));
                 for (var k in parameterSettings) {
                     if (this.sp.uom_set.hasOwnProperty(k)) {
-                        this.sp.uom_set[k] = parameterSettings[k];
+                        for (var innerKey in parameterSettings[k]){
+                            this.sp.uom_set[k][innerKey] = parameterSettings[k][innerKey];
+                        }
                     }
                 }
             }
@@ -1083,10 +1081,11 @@ define(['backbone.marionette',
                     }
 
                     this.prevParams = idKeys;
-                    localStorage.setItem('prevParams', JSON.stringify(this.prevParams));
 
                     this.$('#filterSelectDrop').remove();
                     this.$('#filterDivContainer').append('<div id="filterSelectDrop"></div>');
+
+                    
 
                     this.graph.loadData(data);
                     if (needsResize) {

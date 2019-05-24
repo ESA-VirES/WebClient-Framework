@@ -232,3 +232,32 @@ var saveProductStatus = function(product){
       'productsConfiguration', JSON.stringify(prevConf)
   );
 }
+
+
+var savePrameterStatus = function (globals){
+  var parConf = {};
+  var uomSet = globals.swarm.get('uom_set');
+
+  for (var pk in uomSet){
+      var parC = {};
+      for (var innerpk in uomSet[pk]){
+          if(globals.swarm.satellites.hasOwnProperty(innerpk)){
+              parC[innerpk] = {};
+              if(uomSet[pk][innerpk].hasOwnProperty('color')){
+                  parC[innerpk]['color'] = uomSet[pk][innerpk].color;
+              }
+              if(uomSet[pk][innerpk].hasOwnProperty('symbol')){
+                  parC[innerpk]['symbol'] = uomSet[pk][innerpk].symbol;
+              }
+          }
+      }
+      if(!_.isEmpty(parC)){
+          parConf[pk] = parC;
+      }
+  }
+  // Save parameter style changes
+  localStorage.setItem(
+      'parameterConfiguration', 
+      JSON.stringify(parConf)
+  );
+}

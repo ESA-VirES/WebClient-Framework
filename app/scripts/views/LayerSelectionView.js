@@ -50,15 +50,19 @@
                 $('#uploadcheck').prop('checked', globals.swarm.satellites["Upload"]);
 
                 $('#alphacheck').change(function(evt){
+                    globals.swarm.satellites['Alpha'] = $('#alphacheck').is(':checked');
                     self.checkMultiProduct();
                 });
                 $('#bravocheck').change(function(evt){
+                    globals.swarm.satellites['Bravo'] = $('#bravocheck').is(':checked');
                     self.checkMultiProduct();
                 });
                 $('#charliecheck').change(function(evt){
+                    globals.swarm.satellites["Charlie"] = $('#charliecheck').is(':checked');
                     self.checkMultiProduct();
                 });
                 $('#nsccheck').change(function(evt){
+                    globals.swarm.satellites["NSC"] = $('#nsccheck').is(':checked');
                     self.checkMultiProduct();
                 });
                 $('#uploadcheck').change(function(evt) {
