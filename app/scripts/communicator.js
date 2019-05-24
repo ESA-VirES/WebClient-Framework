@@ -170,51 +170,23 @@
                             var product = globals.products.find(
                                 function(m) { return m.get('name') === param.name; }
                             )
-                            var prevConf = JSON.parse(
-                                localStorage.getItem('productsConfiguration')
-                            );
-                            if(prevConf === null){
-                                prevConf = {};
-                            }
-                            var prdId = product.get('download').id;
-                            var origPars = product.get('parameters');
-                            var prodParams = {};
-
-                            for (var pk in origPars){
-                                prodParams[pk] = {
-                                    range: origPars[pk].range,
-                                    colorscale: origPars[pk].colorscale,
-                                }
-                                if(origPars[pk].selected){
-                                    prodParams[pk]['selected'] = true;
-                                }
-                            }
-
-                            var prod = {
-                                visible: product.get('visible'),
-                                outlines: product.get('outlines'),
-                                parameters: prodParams
-
-                            };
-
-                            prevConf[prdId] = prod;
-
-                            localStorage.setItem(
-                                'productsConfiguration', JSON.stringify(prevConf)
-                            );
+                            saveProductStatus(product);
                         }
                     }
                 }
 
                 if(event === 'layer:parameters:changed'){
-                    localStorage.setItem(
-                        'productsConfig',
-                        JSON.stringify(
-                            globals.products.models.map(function(m){
-                                return m.attributes;
-                            }),replacer
-                        )
-                    );
+                    var product = globals.products.find(
+                        function(m) { return m.get('name') === param; }
+                    )
+                    saveProductStatus(product);
+                }
+
+                if(event === 'layer:outlines:changed'){
+                    var product = globals.products.find(
+                        function(m) { return m.get('download').id === param; }
+                    )
+                    saveProductStatus(product);
                 }
 
                 // Tracking of Analytics settings

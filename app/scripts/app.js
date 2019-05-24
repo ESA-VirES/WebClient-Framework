@@ -114,9 +114,6 @@ var MASTER_PRIORITY = [
                       process: {
                         onload: function () {
                           globals.swarm.satellites['Upload'] = true;
-                          if (typeof(Storage) !== 'undefined') {
-                            localStorage.setItem('satelliteSelection', JSON.stringify(globals.swarm.satellites));
-                          }
                           globals.userData.fetch();
                         },
                         onerror: function (response) {

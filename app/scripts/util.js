@@ -196,3 +196,39 @@ var showMessage = function (level, message, timeout, additionalClasses) {
   draw.call(el);
 };
 
+
+
+var saveProductStatus = function(product){
+  var prevConf = JSON.parse(
+      localStorage.getItem('productsConfiguration')
+  );
+  if(prevConf === null){
+      prevConf = {};
+  }
+  var prdId = product.get('download').id;
+  var origPars = product.get('parameters');
+  var prodParams = {};
+
+  for (var pk in origPars){
+      prodParams[pk] = {
+          range: origPars[pk].range,
+          colorscale: origPars[pk].colorscale,
+      }
+      if(origPars[pk].selected){
+          prodParams[pk]['selected'] = true;
+      }
+  }
+
+  var prod = {
+      visible: product.get('visible'),
+      outlines: product.get('outlines'),
+      parameters: prodParams
+
+  };
+
+  prevConf[prdId] = prod;
+
+  localStorage.setItem(
+      'productsConfiguration', JSON.stringify(prevConf)
+  );
+}

@@ -50,38 +50,19 @@
                 $('#uploadcheck').prop('checked', globals.swarm.satellites["Upload"]);
 
                 $('#alphacheck').change(function(evt){
-                    globals.swarm.satellites['Alpha'] = $('#alphacheck').is(':checked');
-                    if (typeof(Storage) !== 'undefined') {
-                        localStorage.setItem('satelliteSelection', JSON.stringify(globals.swarm.satellites));
-                    }
                     self.checkMultiProduct();
                 });
                 $('#bravocheck').change(function(evt){
-                    globals.swarm.satellites['Bravo'] = $('#bravocheck').is(':checked');
-                    if (typeof(Storage) !== 'undefined') {
-                        localStorage.setItem('satelliteSelection', JSON.stringify(globals.swarm.satellites));
-                    }
                     self.checkMultiProduct();
                 });
                 $('#charliecheck').change(function(evt){
-                    globals.swarm.satellites["Charlie"] = $('#charliecheck').is(':checked');
-                    if (typeof(Storage) !== 'undefined') {
-                        localStorage.setItem('satelliteSelection', JSON.stringify(globals.swarm.satellites));
-                    }
                     self.checkMultiProduct();
                 });
                 $('#nsccheck').change(function(evt){
-                    globals.swarm.satellites["NSC"] = $('#nsccheck').is(':checked');
-                    if (typeof(Storage) !== 'undefined') {
-                        localStorage.setItem('satelliteSelection', JSON.stringify(globals.swarm.satellites));
-                    }
                     self.checkMultiProduct();
                 });
                 $('#uploadcheck').change(function(evt) {
                   globals.swarm.satellites["Upload"] = $('#uploadcheck').is(':checked');
-                    if (typeof(Storage) !== 'undefined') {
-                      localStorage.setItem('satelliteSelection', JSON.stringify(globals.swarm.satellites));
-                    }
                     self.checkMultiProduct();
                 });
             },
