@@ -84,6 +84,8 @@ var MASTER_PRIORITY = [
 
                 });*/
 
+                var savedChangesApplied = false;
+
                 $("body").tooltip({
                     selector: '[data-toggle=tooltip]',
                     position: {my: "left+5 center", at: "right center"},
@@ -98,7 +100,7 @@ var MASTER_PRIORITY = [
                 $('body').append(uploadDialogContainer);
 
                 // Create a single file upload component
-                const pond = FilePond.create({
+                var pond = FilePond.create({
                     allowMultiple: false,
                     labelIdle: ('Drag & Drop your file or <span class="filepond--label-action"> Browse </span><br>'+
                                 'Maximum file size is 256 MB'),
@@ -230,6 +232,8 @@ var MASTER_PRIORITY = [
                         savedConfig = config.mapConfig.baseLayers;
                     }
                     config.mapConfig.baseLayers = savedConfig;
+
+                    savedChangesApplied = true;
                 }
 
                 _.each(config.mapConfig.baseLayers, function (baselayer) {
@@ -282,91 +286,55 @@ var MASTER_PRIORITY = [
                 // If there are already saved product config in the local
                 // storage use that instead
 
-                if (localStorage.getItem('productsConfig') !== null) {
-                    // Need to check if we need to migrate user data to new version (new data)
-                    var product_config = JSON.parse(localStorage.getItem('productsConfig'));
+                if (localStorage.getItem('productsConfiguration') !== null) {
 
-                    // Go through products in original configuration file and see if available
-                    // in user configuration, if not add them to it
-                    var m_p = config.mapConfig.products;
-                    for (var i = 0; i < m_p.length; i++) {
+                    var pC = JSON.parse(
+                        localStorage.getItem('productsConfiguration')
+                    );
 
-                        // Always load timesliderprotocol from original config
-                        if (m_p[i].hasOwnProperty('timeSliderProtocol')) {
-                            product_config[i].timeSliderProtocol = m_p[i].timeSliderProtocol;
-                        }
+                    _.each(config.mapConfig.products, function (product) {
+                        // Check if there is something to configure
+                        // We only allow configuration of specific attributes
+                        var prodId = product.download.id;
 
-                        // Check if MAG A product has new residual parameter loaded
-                        if (product_config[i].download.id === 'SW_OPER_MAGA_LR_1B') {
-                            if (!product_config[i].parameters.hasOwnProperty('B_NEC_resAC')) {
-                                product_config[i].parameters.B_NEC_resAC =
-                                {
-                                    'range': [-600, 600],
-                                    'uom': 'nT',
-                                    'colorscale': 'jet',
-                                    'name': 'Magnetic field intensity residual A - C'
-                                };
+                        if(pC.hasOwnProperty(prodId)){
+
+                            if(pC[prodId].hasOwnProperty('visible')){
+                                product.visible = pC[prodId].visible;
+                            }
+                            if(pC[prodId].hasOwnProperty('outlines')){
+                                product.outlines = pC[prodId].outlines;
+                            }
+                            if(pC[prodId].hasOwnProperty('parameters')){
+                                // Go through all parameters and extend where
+                                // necessary
+                                var pars = pC[prodId].parameters;
+                                for(var pk in pars){
+                                    if(product.parameters.hasOwnProperty(pk)){
+                                        if(pars[pk].hasOwnProperty('range')){
+                                            product.parameters[pk].range = pars[pk].range;
+                                        }
+                                        if(pars[pk].hasOwnProperty('colorscale')){
+                                            product.parameters[pk].colorscale = pars[pk].colorscale;
+                                        }
+                                        if(pars[pk].hasOwnProperty('selected')){
+                                            product.parameters[pk].selected = pars[pk].selected;
+                                            if(pars[pk].selected === true){
+                                                // TODO: If selected remove all other selected
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if(pC[prodId].hasOwnProperty.download_parameters){
+                                // Go through all download parameters and extend
+                                // where necessary
                             }
                         }
 
-                        // If old CHAOS model is available load new model
-                        if (product_config[i].name === 'CHAOS-5') {
-                            // Make sure corresponding config is new model
-                            if (m_p[i].name === 'CHAOS-6') {
-                                product_config[i] = m_p[i];
-                            }
-                        }
+                    }, this);
 
-                        if (product_config.length > i) {
-                            if (product_config[i].download.id != m_p[i].download.id) {
-                                // If id is not the same a new product was inserted and thus
-                                // needs to be inserted into the old configuration of the user
-                                product_config.splice(i, 0, m_p[i]);
-                            }
-                        } else {
-                            // If length of config is longer then user config new data was appended
-                            product_config.push(m_p[i]);
-                        }
-                    }
-
-                    config.mapConfig.products = product_config;
-                }
-
-                // Make sure download parameters are always loaded from script
-                var mapConfProds = config.mapConfig.products;
-                for (var i = mapConfProds.length - 1; i >= 0; i--) {
-                    if (mapConfProds[i].hasOwnProperty('satellite') &&
-                       mapConfProds[i].satellite === 'Swarm') {
-
-                        mapConfProds[i].download_parameters['SunDeclination'] = {
-                            "uom": null,
-                            "name": "Sun declination"
-                        };
-                        mapConfProds[i].download_parameters['SunRightAscension'] = {
-                            "uom": null,
-                            "name": "Sun right ascension"
-                        };
-                        mapConfProds[i].download_parameters['SunHourAngle'] = {
-                            "uom": "deg",
-                            "name": "Sun hour angle"
-                        };
-                        mapConfProds[i].download_parameters['SunAzimuthAngle'] = {
-                            "uom": "deg",
-                            "name": "Sun azimuth angle, degrees clockwise from North"
-                        };
-                        mapConfProds[i].download_parameters['SunZenithAngle'] = {
-                            "uom": "deg",
-                            "name": "Sun zenith angle"
-                        };
-                        mapConfProds[i].download_parameters['OrbitDirection'] = {
-                            "uom": null,
-                            "name": "Orbit direction in geographic coodinates."
-                        };
-                        mapConfProds[i].download_parameters['QDOrbitDirection'] = {
-                            "uom": null,
-                            "name": "Orbit direction in quasi-dipole coodinates."
-                        };
-                    }
+                    savedChangesApplied = true;
                 }
 
                 _.each(config.mapConfig.products, function (product) {
@@ -470,6 +438,7 @@ var MASTER_PRIORITY = [
                 // If there is already saved overly configuration use that
                 if (localStorage.getItem('overlaysConfig') !== null) {
                     config.mapConfig.overlays = JSON.parse(localStorage.getItem('overlaysConfig'));
+                    savedChangesApplied = true;
                 }
                 //Overlays are loaded and added to the global collection
                 _.each(config.mapConfig.overlays, function (overlay) {
@@ -490,7 +459,7 @@ var MASTER_PRIORITY = [
                   if (globals.userData.models.length > 0) {
                       $('#uploadcheck').prop('disabled', false);
                       $('#uploadcheck').prop('checked', globals.swarm.satellites['Upload']);
-                      const filteredCollection = globals.swarm['filtered_collection'];
+                      var filteredCollection = globals.swarm['filtered_collection'];
                       for (var i = globals.swarm.activeProducts.length - 1; i >= 0; i--) {
                           globals.products.forEach(function(p) {
                               if (p.get('download').id === globals.swarm.activeProducts[i]) {
@@ -625,20 +594,6 @@ var MASTER_PRIORITY = [
                     ));
                 });
 
-                globals.swarm.satellites = {
-                    "Alpha": true,
-                    "Bravo": false,
-                    "Charlie": false,
-                    "NSC": false,
-                    "Upload": false
-                };
-
-                if (localStorage.getItem("satelliteSelection") !== null) {
-                    globals.swarm.satellites = JSON.parse(localStorage.getItem("satelliteSelection"));
-                    if (!globals.swarm.satellites.hasOwnProperty("NSC")) {
-                        globals.swarm.satellites['NSC'] = false;
-                    }
-                }
 
                 globals.swarm.products = {
                     "MAG": {
@@ -679,6 +634,34 @@ var MASTER_PRIORITY = [
                     }
                 };
 
+                 globals.swarm.satellites = {
+                    "Alpha": false,
+                    "Bravo": false,
+                    "Charlie": false,
+                    "NSC": false,
+                    "Upload": false
+                };
+
+                var prodToSat = {};
+                var proObj = globals.swarm.products;
+                for (var coll in proObj){
+                    for (var sat in proObj[coll]){
+                        prodToSat[proObj[coll][sat]] = {
+                            sat: sat,
+                            coll: coll
+                        }
+                    }
+                }
+                
+                // Derive which satellites should be active from active products
+                globals.products.forEach( function (product) {
+                    if(product.get('visible')){
+                        var sat = prodToSat[product.get('download').id].sat;
+                        globals.swarm.satellites[sat] = true;
+                    }
+                });
+
+
                 globals.swarm.activeProducts = [];
 
                 // reversed collection to satellite mapping
@@ -696,7 +679,7 @@ var MASTER_PRIORITY = [
                 var filtered_collection = new Backbone.Collection(filtered);
 
                 var containerSelection = {
-                    'MAG': true,
+                    'MAG': false,
                     'EFI': false,
                     'IBI': false,
                     'TEC': false,
@@ -706,20 +689,16 @@ var MASTER_PRIORITY = [
 
                 var clickEvent = "require(['communicator'], function(Communicator){Communicator.mediator.trigger('application:reset');});";
 
-                if (localStorage.getItem("containerSelection") !== null) {
-                    containerSelection = JSON.parse(localStorage.getItem("containerSelection"));
+                // Derive what container need to be active from products
+                globals.products.forEach(function (product) {
+                    if(product.get('visible')){
+                        var coll = prodToSat[product.get('download').id].coll;
+                        containerSelection[coll] = true;
+                    }
+                });
 
-                    // Migration to newly available datasets
-                    if (!containerSelection.hasOwnProperty('TEC')) {
-                        containerSelection.TEC = false;
-                    }
-                    if (!containerSelection.hasOwnProperty('FAC')) {
-                        containerSelection.FAC = false;
-                    }
-                    if (!containerSelection.hasOwnProperty('EEF')) {
-                        containerSelection.EEF = false;
-                    }
 
+                if(savedChangesApplied){
                     showMessage('success',
                         'The configuration of your last visit has been loaded, ' +
                      'if you would like to reset to the default configuration click ' +
@@ -731,8 +710,6 @@ var MASTER_PRIORITY = [
                     if ($('.alert.alert-success.fade.in').length > 0) {
                         $('.alert.alert-success.fade.in').css('margin-top', '100px');
                     }
-                } else {
-                    localStorage.setItem("containerSelection", JSON.stringify(containerSelection));
                 }
 
                 var csKeys = _.keys(containerSelection);

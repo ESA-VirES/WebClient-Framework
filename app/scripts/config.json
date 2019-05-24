@@ -172,6 +172,7 @@
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
+            "visible": true,
             "views": [{
                 "id": "SW_OPER_MAGA_LR_1B",
                 "protocol": "CZML",
