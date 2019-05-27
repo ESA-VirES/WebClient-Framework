@@ -436,17 +436,21 @@ var MASTER_PRIORITY = [
                 window.setInterval(function () {globals.models.fetch();}, 900000); // refresh each 15min
 
                 // If there is already saved overly configuration use that
-                if (localStorage.getItem('overlaysConfig') !== null) {
-                    config.mapConfig.overlays = JSON.parse(localStorage.getItem('overlaysConfig'));
+                var activeOverlays = [];
+                if (localStorage.getItem('activeOverlays') !== null) {
+                    activeOverlays = JSON.parse(localStorage.getItem('activeOverlays'));
                     savedChangesApplied = true;
                 }
                 //Overlays are loaded and added to the global collection
                 _.each(config.mapConfig.overlays, function (overlay) {
-
+                    var overlayActive = false;
+                    if(activeOverlays.indexOf(overlay.name) !== -1){
+                        overlayActive = true;
+                    }
                     globals.overlays.add(
                         new m.LayerModel({
                             name: overlay.name,
-                            visible: overlay.visible,
+                            visible: overlayActive,
                             ordinal: ordinal,
                             view: overlay.view
                         })

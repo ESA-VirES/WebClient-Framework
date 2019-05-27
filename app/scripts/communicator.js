@@ -158,13 +158,14 @@
                     }else{
                         // Check if overlay
                         if(globals.overlays.find(function(m) { return m.get('name') === param.name; })){
+                            // Save list of active overlays
+                            var activeOverlays = globals.overlays.filter(
+                                function(ov) { return ov.get('visible'); }
+                            ).map(function(la){return la.get('name');});
+
                             localStorage.setItem(
-                                'overlaysConfig',
-                                JSON.stringify(
-                                    globals.overlays.models.map(function(m){
-                                        return m.attributes;
-                                    }),replacer
-                                )
+                                'activeOverlays',
+                                JSON.stringify(activeOverlays)
                             );
                         }else{
                             var product = globals.products.find(
