@@ -147,13 +147,12 @@
 
                     // Check what type of layer and modify group accordingly
                     if(param.isBaseLayer){
+                        // Save active base layer
+                        var activeBaselayer = globals.baseLayers.find(
+                            function(bl) { return bl.get('visible'); }
+                        ).get('name');
                         localStorage.setItem(
-                            'baseLayersConfig',
-                            JSON.stringify(
-                                globals.baseLayers.models.map(function(m){
-                                    return m.attributes;
-                                }),replacer
-                            )
+                            'activeBaselayer', activeBaselayer
                         );
                     }else{
                         // Check if overlay

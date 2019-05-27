@@ -219,26 +219,22 @@ var MASTER_PRIORITY = [
                 // If there are already saved baselayer config in the local
                 // storage use that instead
 
-                if (localStorage.getItem('baseLayersConfig') !== null) {
-                    // If newly added v2.1 s2 cloudless is not listed
-                    // reload baselayer config
-                    var savedConfig = JSON.parse(localStorage.getItem('baseLayersConfig'));
-                    if (savedConfig.filter(function (bl) {
-                        return bl.views[0].id === 's2cloudless';
-                    }).length === 0) {
-                        savedConfig = config.mapConfig.baseLayers;
-                    }
-                    config.mapConfig.baseLayers = savedConfig;
-
+                var activeBaselayer = 'Terrain-Light';
+                if (localStorage.getItem('activeBaselayer') !== null) {
+                    var activeBaselayer = localStorage.getItem('activeBaselayer');
                     savedChangesApplied = true;
                 }
 
                 _.each(config.mapConfig.baseLayers, function (baselayer) {
+                    var visible = false;
+                    if(activeBaselayer === baselayer.name){
+                        visible = true;
+                    }
 
                     globals.baseLayers.add(
                         new m.LayerModel({
                             name: baselayer.name,
-                            visible: baselayer.visible,
+                            visible: visible,
                             view: {
                                 id: baselayer.id,
                                 urls: baselayer.urls,
