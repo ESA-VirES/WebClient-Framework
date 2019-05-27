@@ -327,6 +327,9 @@ var MASTER_PRIORITY = [
                                 // Go through all download parameters and extend
                                 // where necessary
                             }
+                            if(pC[prodId].hasOwnProperty('components')){
+                                product.components = pC[prodId].components;
+                            }
                         }
 
                     }, this);
@@ -653,8 +656,10 @@ var MASTER_PRIORITY = [
                 // Derive which satellites should be active from active products
                 globals.products.forEach( function (product) {
                     if(product.get('visible')){
-                        var sat = prodToSat[product.get('download').id].sat;
-                        globals.swarm.satellites[sat] = true;
+                        if(prodToSat.hasOwnProperty(product.get('download').id)) {
+                            var sat = prodToSat[product.get('download').id].sat;
+                            globals.swarm.satellites[sat] = true;
+                        }
                     }
                 });
 
@@ -688,7 +693,8 @@ var MASTER_PRIORITY = [
 
                 // Derive what container need to be active from products
                 globals.products.forEach(function (product) {
-                    if(product.get('visible')){
+                    if(product.get('visible') &&
+                       prodToSat.hasOwnProperty(product.get('download').id)){
                         var coll = prodToSat[product.get('download').id].coll;
                         containerSelection[coll] = true;
                     }

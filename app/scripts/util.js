@@ -226,11 +226,17 @@ var saveProductStatus = function(product){
 
   };
 
+  // Save additional information for model product
+  if(product.attributes.hasOwnProperty('components')){
+      prod.components = product.get('components');
+  }
+
   prevConf[prdId] = prod;
 
   localStorage.setItem(
       'productsConfiguration', JSON.stringify(prevConf)
   );
+
 }
 
 
