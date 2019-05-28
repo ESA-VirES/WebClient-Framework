@@ -312,6 +312,22 @@
             variables = _.difference(variables, ["QDLat", "QDLon", "MLT"]);
           }
 
+          // Check if user uploaded parameters should be requested
+          var uD = globals.userData;
+          if(uD.hasOwnProperty('models')){
+            for (var i = 0; i < uD.models.length; i++) {
+              var info = uD.models[i].get('info');
+              if(info !== null){
+                for (var parK in info){
+                  // Only add if not already there
+                  if(variables.indexOf(parK) === -1){
+                    variables.push(parK);
+                  }
+                }
+              }
+            }
+          }
+
           options.variables = variables.join(",");
           options.mimeType = 'application/msgpack';
 
@@ -350,7 +366,8 @@
             responseType: 'arraybuffer',
 
             parse: function (data, xhr) {
-              return msgpack.decode(new Uint8Array(data));
+              var decodedObj = msgpack.decode(new Uint8Array(data));
+              return decodedObj;
             },
 
             opened: function () {
