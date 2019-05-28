@@ -298,6 +298,9 @@ var MASTER_PRIORITY = [
                             if(pC[prodId].hasOwnProperty('outlines')){
                                 product.outlines = pC[prodId].outlines;
                             }
+                            if(pC[prodId].hasOwnProperty('opacity')){
+                                product.opacity = pC[prodId].opacity;
+                            }
                             if(pC[prodId].hasOwnProperty('parameters')){
                                 // Go through all parameters and extend where
                                 // necessary
@@ -344,7 +347,7 @@ var MASTER_PRIORITY = [
                         timeSliderProtocol: (product.timeSliderProtocol) ? product.timeSliderProtocol : "WMS",
                         color: p_color,
                         //time: products.time, // Is set in TimeSliderView on time change.
-                        opacity: (product.opacity) ? product.opacity : 1,
+                        opacity: defaultFor(product.opacity, 1),
                         views: product.views,
                         view: {isBaseLayer: false},
                         download: {

@@ -222,6 +222,7 @@ var saveProductStatus = function(product){
   var prod = {
       visible: product.get('visible'),
       outlines: product.get('outlines'),
+      opacity: product.get('opacity'),
       parameters: prodParams
 
   };
@@ -254,6 +255,15 @@ var savePrameterStatus = function (globals){
               }
               if(uomSet[pk][innerpk].hasOwnProperty('symbol')){
                   parC[innerpk]['symbol'] = uomSet[pk][innerpk].symbol;
+              }
+              if(uomSet[pk][innerpk].hasOwnProperty('lineConnect')){
+                  parC[innerpk]['lineConnect'] = uomSet[pk][innerpk].lineConnect;
+              }
+              if(uomSet[pk][innerpk].hasOwnProperty('size')){
+                  parC[innerpk]['size'] = uomSet[pk][innerpk].size;
+              }
+              if(uomSet[pk][innerpk].hasOwnProperty('alpha')){
+                  parC[innerpk]['alpha'] = uomSet[pk][innerpk].alpha;
               }
           }
       }

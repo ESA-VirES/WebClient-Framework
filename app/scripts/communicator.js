@@ -182,6 +182,16 @@
                     saveProductStatus(product);
                 }
 
+                if(event === 'productCollection:updateOpacity'){
+                    var product = globals.products.find(
+                        function(m) {
+                            return m.get('download').id === param.model.get('download').id;
+                        }
+                    )
+                    saveProductStatus(product);
+                }
+                
+
                 if(event === 'layer:outlines:changed'){
                     var product = globals.products.find(
                         function(m) { return m.get('download').id === param; }
