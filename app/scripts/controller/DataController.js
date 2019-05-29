@@ -493,6 +493,34 @@
                 delete dat[key];
               });
 
+              // Also break down vector userdata 
+              var userVec = [];
+              if(globals.hasOwnProperty('userData') && globals.userData.hasOwnProperty('models')){
+                globals.userData.models.forEach(function(mo){
+                  var pars = mo.get('info');
+                  for (var pk in pars) {
+                    if(pars[pk].hasOwnProperty('shape') && pars[pk].shape.length>1){
+                      userVec.push(pk);
+                    }
+                  }
+                });
+              }
+
+              for (var i = 0; i < userVec.length; i++) {
+                if(dat.hasOwnProperty(userVec[i])){
+                  var pardat = dat[userVec[i]];
+                  dat[userVec[i]+'_1'] = [];
+                  dat[userVec[i]+'_2'] = [];
+                  dat[userVec[i]+'_3'] = [];
+                  _.each(pardat, function (item) {
+                    dat[userVec[i]+'_1'].push(item[0]);
+                    dat[userVec[i]+'_2'].push(item[1]);
+                    dat[userVec[i]+'_3'].push(item[2]);
+                  });
+                  delete dat[userVec[i]];
+                }
+              }
+
               // This should only happen here if there has been
               // some issue with the saved filter configuration
               // Check if current brushes are valid for current data
