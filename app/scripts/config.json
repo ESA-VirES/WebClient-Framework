@@ -10,6 +10,7 @@
     "storyTemplate": "UseCaseTestTemplate",
     "userData": {
         "url": "http://localhost:9000/vires00/custom_data/",
+        "color": "#8be4e5",
         "views": [{
             "id": "USER_DATA",
             "url": "http://localhost:9000/vires00/ows"

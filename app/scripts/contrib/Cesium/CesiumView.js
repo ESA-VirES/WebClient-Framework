@@ -167,9 +167,9 @@ define([
                     navigationInstructionsInitiallyVisible: false,
                     animation: false,
                     imageryProvider: initialLayer,
-                    terrainProvider: new Cesium.CesiumTerrainProvider({
+                    /*terrainProvider: new Cesium.CesiumTerrainProvider({
                         url: '//dem.maps.eox.at/'
-                    }),
+                    }),*/
                     creditContainer: 'cesium_attribution',
                     contextOptions: {webgl: {preserveDrawingBuffer: true}},
                     clock: clock

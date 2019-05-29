@@ -503,6 +503,7 @@ var MASTER_PRIORITY = [
                 // fetch user data info
                 globals.userData.on('fetch:complete', function () {
                   if (globals.userData.models.length > 0) {
+                      Communicator.mediator.trigger('userData:fetch:complete');
                       $('#uploadcheck').prop('disabled', false);
                       $('#uploadcheck').prop('checked', globals.swarm.satellites['Upload']);
                       const filteredCollection = globals.swarm['filtered_collection'];
