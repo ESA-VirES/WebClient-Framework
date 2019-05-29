@@ -105,7 +105,7 @@ var MASTER_PRIORITY = [
                 $('body').append(uploadDialogContainer);
 
                 // Create a single file upload component
-                const pond = FilePond.create({
+                this.pond = FilePond.create({
                     allowMultiple: false,
                     labelIdle: ('Drag & Drop your file or <span class="filepond--label-action"> Browse </span><br>'+
                                 'Maximum file size is 256 MB'),
@@ -129,11 +129,26 @@ var MASTER_PRIORITY = [
                             'The user file upload failed: ' + response, 30);
                         },
                       }
-                    },
+                    }
+                });
+
+                var that = this;
+                this.pond.on('processfile', function(error, file) {
+                    if (error) {
+                        console.log('Oh no');
+                        return;
+                    }
+                    //file.filename
+                    $('#fpfilenamelabel').remove();
+                    $('#uploadDialogContainer').append(
+                        '<div class="filepond--drip" id="fpfilenamelabel">'+
+                        ' Uploaded file: '+file.filename+'</div>'
+                    );
+                    that.pond.removeFile(file.id);
                 });
 
                 // Add it to the DOM
-                $(uploadDialogContainer)[0].appendChild(pond.element);
+                $(uploadDialogContainer)[0].appendChild(this.pond.element);
 
 
                 var v = {}; //views

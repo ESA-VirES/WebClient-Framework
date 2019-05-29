@@ -496,6 +496,10 @@ define([
 
         connectDataEvents: function () {
             globals.swarm.on('change:data', function (model, data) {
+                function synchronizeColorLegend(p) {
+                    this.checkColorscale(p.get('download').id);
+                }
+                globals.products.each(synchronizeColorLegend, this);
                 var refKey = 'Timestamp';
                 if (!data.hasOwnProperty(refKey)) {
                     refKey = 'timestamp';
@@ -1433,7 +1437,7 @@ define([
             }
 
             if (product && product.get('showColorscale') &&
-                product.get('visible') && visible) {
+                product.get('visible')) {
 
                 var options = product.get('parameters');
 
@@ -1447,132 +1451,154 @@ define([
                         }
                     });
 
-                    var rangeMin = product.get('parameters')[sel].range[0];
-                    var rangeMax = product.get('parameters')[sel].range[1];
-                    var uom = product.get('parameters')[sel].uom;
-                    var style = product.get('parameters')[sel].colorscale;
-                    var logscale = defaultFor(product.get('parameters')[sel].logarithmic, false);
-                    var axisScale;
-
-
-                    this.plot.setColorScale(style);
-                    var colorscaleimage = this.plot.getColorScaleImage().toDataURL();
-
-                    $('#svgcolorscalecontainer').remove();
-                    var svgContainer = d3.select('body').append('svg')
-                        .attr('width', 300)
-                        .attr('height', 60)
-                        .attr('id', 'svgcolorscalecontainer');
-
-                    if (logscale) {
-                        axisScale = d3.scale.log();
-                    } else {
-                        axisScale = d3.scale.linear();
-                    }
-
-                    axisScale.domain([rangeMin, rangeMax]);
-                    axisScale.range([0, scalewidth]);
-
-                    var xAxis = d3.svg.axis()
-                        .scale(axisScale);
-
-                    if (logscale) {
-                        var numberFormat = d3.format(',f');
-                        xAxis.tickFormat(function logFormat(d) {
-                            var x = Math.log10(d) + 1e-6;
-                            return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
-                        });
-
-                    } else {
-                        var step = Number(((rangeMax - rangeMin) / 5).toPrecision(3));
-                        var ticks = d3.range(rangeMin, rangeMax + step, step);
-                        xAxis.tickValues(ticks);
-                        xAxis.tickFormat(d3.format('g'));
-                    }
-
-                    var g = svgContainer.append('g')
-                        .attr('class', 'x axis')
-                        .attr('transform', 'translate(' + [margin, 20] + ')')
-                        .call(xAxis);
-
-                    // Add layer info
-                    var info;
-                    if (product.get('model')) {
-                        if (product.get('components').length === 1) {
-                            info = product.getPrettyModelExpression(true);
-                        } else {
-                            info = product.get('download').id;
+                    var prodToSat = {};
+                    var proObj = globals.swarm.products;
+                    for (var coll in proObj){
+                        for (var sat in proObj[coll]){
+                            prodToSat[proObj[coll][sat]] = sat;
                         }
-                        _.each(
-                            {'\u2212': /&minus;/, '\u2026': /&hellip;/},
-                            function (regex, newString) {
-                                info = info.replace(regex, newString);
+                    }
+                    var data = globals.swarm.get('data');
+                    var sat = prodToSat[pId];
+
+                    if(data.hasOwnProperty('__info__') && data['__info__'].hasOwnProperty('variables')){
+                        if(data.__info__.variables.hasOwnProperty(sat)){
+                            if(data.__info__.variables[sat].indexOf(sel) === -1){
+                                visible = false;
                             }
+                        } else {
+                            visible = false;
+                        }
+                    }
+
+                    if(visible){
+                        var rangeMin = product.get('parameters')[sel].range[0];
+                        var rangeMax = product.get('parameters')[sel].range[1];
+                        var uom = product.get('parameters')[sel].uom;
+                        var style = product.get('parameters')[sel].colorscale;
+                        var logscale = defaultFor(product.get('parameters')[sel].logarithmic, false);
+                        var axisScale;
+
+
+                        this.plot.setColorScale(style);
+                        var colorscaleimage = this.plot.getColorScaleImage().toDataURL();
+
+                        $('#svgcolorscalecontainer').remove();
+                        var svgContainer = d3.select('body').append('svg')
+                            .attr('width', 300)
+                            .attr('height', 60)
+                            .attr('id', 'svgcolorscalecontainer');
+
+                        if (logscale) {
+                            axisScale = d3.scale.log();
+                        } else {
+                            axisScale = d3.scale.linear();
+                        }
+
+                        axisScale.domain([rangeMin, rangeMax]);
+                        axisScale.range([0, scalewidth]);
+
+                        var xAxis = d3.svg.axis()
+                            .scale(axisScale);
+
+                        if (logscale) {
+                            var numberFormat = d3.format(',f');
+                            xAxis.tickFormat(function logFormat(d) {
+                                var x = Math.log10(d) + 1e-6;
+                                return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
+                            });
+
+                        } else {
+                            var step = Number(((rangeMax - rangeMin) / 5).toPrecision(3));
+                            var ticks = d3.range(rangeMin, rangeMax + step, step);
+                            xAxis.tickValues(ticks);
+                            xAxis.tickFormat(d3.format('g'));
+                        }
+
+                        var g = svgContainer.append('g')
+                            .attr('class', 'x axis')
+                            .attr('transform', 'translate(' + [margin, 20] + ')')
+                            .call(xAxis);
+
+                        // Add layer info
+                        var info;
+                        if (product.get('model')) {
+                            if (product.get('components').length === 1) {
+                                info = product.getPrettyModelExpression(true);
+                            } else {
+                                info = product.get('download').id;
+                            }
+                            _.each(
+                                {'\u2212': /&minus;/, '\u2026': /&hellip;/},
+                                function (regex, newString) {
+                                    info = info.replace(regex, newString);
+                                }
+                            );
+                        } else {
+                            info = product.get('name');
+                        }
+
+                        info += ' - ' + sel;
+                        if (uom) {
+                            info += ' [' + uom + ']';
+                        }
+
+                        g.append('text')
+                            .style('text-anchor', 'middle')
+                            .attr('transform', 'translate(' + [scalewidth / 2, 30] + ')')
+                            .attr('font-weight', 'bold')
+                            .text(info);
+
+                        svgContainer.selectAll('text')
+                            .attr('stroke', 'none')
+                            .attr('fill', 'black')
+                            .attr('font-weight', 'bold');
+
+                        svgContainer.selectAll('.tick').select('line')
+                            .attr('stroke', 'black');
+
+                        svgContainer.selectAll('.axis .domain')
+                            .attr('stroke-width', '2')
+                            .attr('stroke', '#000')
+                            .attr('shape-rendering', 'crispEdges')
+                            .attr('fill', 'none');
+
+                        svgContainer.selectAll('.axis path')
+                            .attr('stroke-width', '2')
+                            .attr('shape-rendering', 'crispEdges')
+                            .attr('stroke', '#000');
+
+                        var svgHtml = d3.select('#svgcolorscalecontainer')
+                            .attr('version', 1.1)
+                            .attr('xmlns', 'http://www.w3.org/2000/svg')
+                            .node().innerHTML;
+
+                        var renderHeight = 55;
+                        var renderWidth = width;
+
+                        var index = Object.keys(this.colorscales).length;
+
+                        var prim = this.map.scene.primitives.add(
+                            this.createViewportQuad(
+                                this.renderSVG(svgHtml, renderWidth, renderHeight),
+                                0, index * 55 + 5, renderWidth, renderHeight
+                            )
                         );
-                    } else {
-                        info = product.get('name');
+                        var csPrim = this.map.scene.primitives.add(
+                            this.createViewportQuad(
+                                colorscaleimage, 20, index * 55 + 42, scalewidth, 10
+                            )
+                        );
+
+                        this.createModelColorscaleTooltipDiv(product, index);
+                        this.colorscales[pId] = {
+                            index: index,
+                            prim: prim,
+                            csPrim: csPrim
+                        };
+
+                        svgContainer.remove();
                     }
-
-                    info += ' - ' + sel;
-                    if (uom) {
-                        info += ' [' + uom + ']';
-                    }
-
-                    g.append('text')
-                        .style('text-anchor', 'middle')
-                        .attr('transform', 'translate(' + [scalewidth / 2, 30] + ')')
-                        .attr('font-weight', 'bold')
-                        .text(info);
-
-                    svgContainer.selectAll('text')
-                        .attr('stroke', 'none')
-                        .attr('fill', 'black')
-                        .attr('font-weight', 'bold');
-
-                    svgContainer.selectAll('.tick').select('line')
-                        .attr('stroke', 'black');
-
-                    svgContainer.selectAll('.axis .domain')
-                        .attr('stroke-width', '2')
-                        .attr('stroke', '#000')
-                        .attr('shape-rendering', 'crispEdges')
-                        .attr('fill', 'none');
-
-                    svgContainer.selectAll('.axis path')
-                        .attr('stroke-width', '2')
-                        .attr('shape-rendering', 'crispEdges')
-                        .attr('stroke', '#000');
-
-                    var svgHtml = d3.select('#svgcolorscalecontainer')
-                        .attr('version', 1.1)
-                        .attr('xmlns', 'http://www.w3.org/2000/svg')
-                        .node().innerHTML;
-
-                    var renderHeight = 55;
-                    var renderWidth = width;
-
-                    var index = Object.keys(this.colorscales).length;
-
-                    var prim = this.map.scene.primitives.add(
-                        this.createViewportQuad(
-                            this.renderSVG(svgHtml, renderWidth, renderHeight),
-                            0, index * 55 + 5, renderWidth, renderHeight
-                        )
-                    );
-                    var csPrim = this.map.scene.primitives.add(
-                        this.createViewportQuad(
-                            colorscaleimage, 20, index * 55 + 42, scalewidth, 10
-                        )
-                    );
-
-                    this.createModelColorscaleTooltipDiv(product, index);
-                    this.colorscales[pId] = {
-                        index: index,
-                        prim: prim,
-                        csPrim: csPrim
-                    };
-
-                    svgContainer.remove();
                 }
             }
         },
