@@ -215,6 +215,8 @@
 
         if (this.activeWPSproducts.length > 0 && this.selected_time) {
           this.sendRequest();
+        } else if (globals.swarm.satellites['Upload'] && globals.userData.models.length>0){
+          this.sendRequest();
         } else {
           globals.swarm.set({data: []});
           //Communicator.mediator.trigger("map:clear:image");
@@ -392,6 +394,11 @@
             },
 
             success: function (dat) {
+
+              if(Object.keys(dat).length === 1 && dat.hasOwnProperty('__info__')){
+                globals.swarm.set({data: []});
+                return;
+              }
 
               var ids = {
                 'A': 'Alpha',
