@@ -133,8 +133,9 @@ var MASTER_PRIORITY = [
                     }
                     //file.filename
                     $('#fpfilenamelabel').remove();
-                    $('#uploadDialogContainer').prepend(
-                        '<div class="filepond--drip" id="fpfilenamelabel"> Uploaded file: '+file.filename+'</div>'
+                    $('#uploadDialogContainer').append(
+                        '<div class="filepond--drip" id="fpfilenamelabel">'+
+                        ' Uploaded file: '+file.filename+'</div>'
                     );
                     that.pond.removeFile(file.id);
                 });
