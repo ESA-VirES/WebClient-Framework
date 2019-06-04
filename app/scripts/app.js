@@ -103,6 +103,9 @@ var MASTER_PRIORITY = [
                     labelIdle: ('Drag & Drop your file or <span class="filepond--label-action"> Browse </span><br>'+
                                 'Maximum file size is 256 MB'),
                     name: 'file',
+                    onaddfilestart: function () {
+                      $('#fpfilenamelabel').remove();
+                    },
                     server: {
                       url: 'custom_data/',
                       revert: null,
