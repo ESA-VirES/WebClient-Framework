@@ -2479,7 +2479,8 @@
                     "name": "Magnetic field vector residual A - C"
                 }
             },
-            "outlines": false
+            "outlines": false,
+            "satellite": "Upload"
           },{
               "name": "EFIU LP 1B",
               "timeSlider": true,
@@ -2530,7 +2531,8 @@
                       "name": "Spacecraft velocity in the ITRF"
                   }
               },
-              "outlines": false
+              "outlines": false,
+              "satellite": "Upload"
           },{
               "name": "TEC U TMS",
               "timeSlider": true,
@@ -2587,7 +2589,8 @@
                       "name": "Elevation Angle"
                   }
               },
-              "outlines": false
+              "outlines": false,
+              "satellite": "Upload"
           },{
               "name": "FAC U TMS",
               "timeSlider": true,
@@ -2626,7 +2629,8 @@
                       "name": "Field-aligned current (FAC)"
                   }
               },
-              "outlines": false
+              "outlines": false,
+              "satellite": "Upload"
           },{
               "name": "EEF U TMS",
               "timeSlider": true,
@@ -2659,7 +2663,8 @@
                       "name": "Estimate of the equatorial electric field"
                   }
               },
-              "outlines": false
+              "outlines": false,
+              "satellite": "Upload"
         },{
             "name": "SW OPER IBIU TMS 2F",
             "visible": false,
@@ -2693,7 +2698,8 @@
                     "name": "Detection probability of the plasma bubble"
                 }
             },
-            "outlines": false
+            "outlines": false,
+            "satellite": "Upload"
           },{
             "name": "Magnetic Model",
             "visible": false,

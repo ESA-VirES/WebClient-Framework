@@ -111,9 +111,7 @@
       updateLayerResidualParameters: function () {
         // Manage additional residual parameter for Swarm layers
         globals.products.each(function (product) {
-
-          if (product.get("satellite") == "Swarm") {
-
+          if (['Swarm', 'Upload'].includes(product.get('satellite'))) {
             // Get Layer parameters
             var pars = product.get("parameters");
 

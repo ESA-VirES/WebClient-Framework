@@ -570,6 +570,11 @@ var MASTER_PRIORITY = [
                       }
                       globals.swarm.activeProducts = globals.swarm.activeProducts.sort();
                       Communicator.mediator.trigger('map:multilayer:change', globals.swarm.activeProducts);
+                      $('#fpfilenamelabel').remove();
+                      $('#uploadDialogContainer').append(
+                          '<div class="filepond--drip" id="fpfilenamelabel">' + 
+                          ' Uploaded file: ' + globals.userData.models[0].get('filename') + '</div>'
+                      );
                   }
                 });
                 globals.userData.fetch();
