@@ -521,3 +521,16 @@ button[active=active] {
   padding-top: 0.8em!important;
   font-size: 1.2em!important;
 }
+
+#fpfilenamelabel {
+  color: black;
+  text-align: center;
+  opacity: 1;
+  text-overflow: ellipsis;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.filepond--drop-label {
+  margin-top: 15px !important;
+}

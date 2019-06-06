@@ -100,11 +100,14 @@ var MASTER_PRIORITY = [
                 $('body').append(uploadDialogContainer);
 
                 // Create a single file upload component
-                var pond = FilePond.create({
+                this.pond = FilePond.create({
                     allowMultiple: false,
                     labelIdle: ('Drag & Drop your file or <span class="filepond--label-action"> Browse </span><br>'+
                                 'Maximum file size is 256 MB'),
                     name: 'file',
+                    onaddfilestart: function () {
+                      $('#fpfilenamelabel').remove();
+                    },
                     server: {
                       url: 'custom_data/',
                       revert: null,
@@ -114,6 +117,9 @@ var MASTER_PRIORITY = [
                       process: {
                         onload: function () {
                           globals.swarm.satellites['Upload'] = true;
+                          if (typeof(Storage) !== 'undefined') {
+                            localStorage.setItem('satelliteSelection', JSON.stringify(globals.swarm.satellites));
+                          }
                           globals.userData.fetch();
                         },
                         onerror: function (response) {
@@ -121,11 +127,26 @@ var MASTER_PRIORITY = [
                             'The user file upload failed: ' + response, 30);
                         },
                       }
-                    },
+                    }
+                });
+
+                var that = this;
+                this.pond.on('processfile', function(error, file) {
+                    if (error) {
+                        console.log('Oh no');
+                        return;
+                    }
+                    //file.filename
+                    $('#fpfilenamelabel').remove();
+                    $('#uploadDialogContainer').append(
+                        '<div class="filepond--drip" id="fpfilenamelabel">'+
+                        ' Uploaded file: '+file.filename+'</div>'
+                    );
+                    that.pond.removeFile(file.id);
                 });
 
                 // Add it to the DOM
-                $(uploadDialogContainer)[0].appendChild(pond.element);
+                $(uploadDialogContainer)[0].appendChild(this.pond.element);
 
 
                 var v = {}; //views
@@ -317,6 +338,12 @@ var MASTER_PRIORITY = [
                                             product.parameters[pk].selected = pars[pk].selected;
                                             if(pars[pk].selected === true){
                                                 // TODO: If selected remove all other selected
+                                                for(var spk in pars){
+                                                    if(spk !== pk && 
+                                                        product.parameters[spk].hasOwnProperty('selected')) {
+                                                        delete product.parameters[spk].selected;
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -460,6 +487,7 @@ var MASTER_PRIORITY = [
                 // fetch user data info
                 globals.userData.on('fetch:complete', function () {
                   if (globals.userData.models.length > 0) {
+                      Communicator.mediator.trigger('userData:fetch:complete');
                       $('#uploadcheck').prop('disabled', false);
                       $('#uploadcheck').prop('checked', globals.swarm.satellites['Upload']);
                       var filteredCollection = globals.swarm['filtered_collection'];
@@ -526,6 +554,11 @@ var MASTER_PRIORITY = [
                       }
                       globals.swarm.activeProducts = globals.swarm.activeProducts.sort();
                       Communicator.mediator.trigger('map:multilayer:change', globals.swarm.activeProducts);
+                      $('#fpfilenamelabel').remove();
+                      $('#uploadDialogContainer').append(
+                          '<div class="filepond--drip" id="fpfilenamelabel">' + 
+                          ' Uploaded file: ' + globals.userData.models[0].get('filename') + '</div>'
+                      );
                   }
                 });
                 globals.userData.fetch();

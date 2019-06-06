@@ -111,9 +111,7 @@
       updateLayerResidualParameters: function () {
         // Manage additional residual parameter for Swarm layers
         globals.products.each(function (product) {
-
-          if (product.get("satellite") == "Swarm") {
-
+          if (['Swarm', 'Upload'].includes(product.get('satellite'))) {
             // Get Layer parameters
             var pars = product.get("parameters");
 
@@ -214,6 +212,8 @@
 
         if (this.activeWPSproducts.length > 0 && this.selected_time) {
           this.sendRequest();
+        } else if (globals.swarm.satellites['Upload'] && globals.userData.models.length>0){
+          this.sendRequest();
         } else {
           globals.swarm.set({data: []});
           //Communicator.mediator.trigger("map:clear:image");
@@ -311,6 +311,22 @@
             variables = _.difference(variables, ["QDLat", "QDLon", "MLT"]);
           }
 
+          // Check if user uploaded parameters should be requested
+          var uD = globals.userData;
+          if(uD.hasOwnProperty('models')){
+            for (var i = 0; i < uD.models.length; i++) {
+              var info = uD.models[i].get('info');
+              if(info !== null){
+                for (var parK in info){
+                  // Only add if not already there
+                  if(variables.indexOf(parK) === -1){
+                    variables.push(parK);
+                  }
+                }
+              }
+            }
+          }
+
           options.variables = variables.join(",");
           options.mimeType = 'application/msgpack';
 
@@ -349,7 +365,8 @@
             responseType: 'arraybuffer',
 
             parse: function (data, xhr) {
-              return msgpack.decode(new Uint8Array(data));
+              var decodedObj = msgpack.decode(new Uint8Array(data));
+              return decodedObj;
             },
 
             opened: function () {
@@ -374,6 +391,11 @@
             },
 
             success: function (dat) {
+
+              if(Object.keys(dat).length === 1 && dat.hasOwnProperty('__info__')){
+                globals.swarm.set({data: []});
+                return;
+              }
 
               var ids = {
                 'A': 'Alpha',
@@ -474,6 +496,34 @@
                 });
                 delete dat[key];
               });
+
+              // Also break down vector userdata 
+              var userVec = [];
+              if(globals.hasOwnProperty('userData') && globals.userData.hasOwnProperty('models')){
+                globals.userData.models.forEach(function(mo){
+                  var pars = mo.get('info');
+                  for (var pk in pars) {
+                    if(pars[pk].hasOwnProperty('shape') && pars[pk].shape.length>1){
+                      userVec.push(pk);
+                    }
+                  }
+                });
+              }
+
+              for (var i = 0; i < userVec.length; i++) {
+                if(dat.hasOwnProperty(userVec[i])){
+                  var pardat = dat[userVec[i]];
+                  dat[userVec[i]+'_1'] = [];
+                  dat[userVec[i]+'_2'] = [];
+                  dat[userVec[i]+'_3'] = [];
+                  _.each(pardat, function (item) {
+                    dat[userVec[i]+'_1'].push(item[0]);
+                    dat[userVec[i]+'_2'].push(item[1]);
+                    dat[userVec[i]+'_3'].push(item[2]);
+                  });
+                  delete dat[userVec[i]];
+                }
+              }
 
               // This should only happen here if there has been
               // some issue with the saved filter configuration
