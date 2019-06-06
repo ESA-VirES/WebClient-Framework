@@ -6,7 +6,7 @@ define(
 
     var swarm_model = Backbone.Model.extend({data: []});
     return {
-      version: "3.0.0",
+      version: "3.1.0",
       objects: new ObjectStore(),
       selections: new ObjectStore(),
       baseLayers: new Backbone.Collection(),
