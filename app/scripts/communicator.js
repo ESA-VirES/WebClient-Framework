@@ -133,13 +133,13 @@
 
                 // Tracking of workspace window configuration
                 if(event === 'ui:fullscreen:globe'){
-                    localStorage.setItem('viewSelection', 'globe');
+                    localStorage.setItem('viewSelection', '"globe"');
                 }
                 if(event === 'ui:fullscreen:analytics'){
-                    localStorage.setItem('viewSelection', 'analytics');
+                    localStorage.setItem('viewSelection', '"analytics"');
                 }
                 if(event === 'layout:switch:splitview'){
-                    localStorage.setItem('viewSelection', 'split');
+                    localStorage.setItem('viewSelection', '"split"');
                 }
 
                 // Tracking of layers

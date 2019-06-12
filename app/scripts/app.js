@@ -976,13 +976,13 @@ var MASTER_PRIORITY = [
                 }*/
 
                 if ((typeof(Storage) !== "undefined") && localStorage.getItem("viewSelection") !== null) {
-                    if (localStorage.getItem('viewSelection') == 'split') {
+                    if (localStorage.getItem('viewSelection') == '"split"') {
                         splitview.setSplitscreen();
                     }
-                    if (localStorage.getItem('viewSelection') == 'globe') {
+                    if (localStorage.getItem('viewSelection') == '"globe"') {
                         splitview.setSinglescreen('CesiumViewer');
                     }
-                    if (localStorage.getItem('viewSelection') == 'analytics') {
+                    if (localStorage.getItem('viewSelection') == '"analytics"') {
                         splitview.setSinglescreen('AVViewer');
                     }
                 } else {

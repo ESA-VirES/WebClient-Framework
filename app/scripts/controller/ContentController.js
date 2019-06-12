@@ -10,6 +10,13 @@
     function( Backbone, Communicator, App , globals) {
 
         var ContentController = Backbone.Marionette.Controller.extend({
+            configKeys: [
+                'serviceVersion',
+                'timeSelection', 'timeDomain', 'areaSelection', 'viewSelection',
+                'productsConfiguration', 'activeOverlays', 'activeBaselayer',
+                'cameraPosition', 'xAxisSelection', 'plotConfiguration',
+                'parameterConfiguration', 'filterSelection', 'filtersMinimized',
+            ],
             initialize: function(options){
                 this.listenTo(Communicator.mediator, "dialog:open:about", this.onDialogOpenAbout);
                 this.listenTo(Communicator.mediator, "ui:open:layercontrol", this.onLayerControlOpen);
@@ -21,6 +28,8 @@
                 this.listenTo(Communicator.mediator, "ui:fullscreen:globe", this.onFullscrenGlobe);
                 this.listenTo(Communicator.mediator, "ui:fullscreen:analytics", this.onFullscrenAnalytics);
                 this.listenTo(Communicator.mediator, "application:reset", this.onApplicationReset);
+                this.listenTo(Communicator.mediator, "application:save", this.onApplicationSave);
+                this.listenTo(Communicator.mediator, "application:load", this.onApplicationLoad);
                 this.listenTo(Communicator.mediator, "dialog:show:upload", this.onShowUpload);
             },
 
@@ -141,6 +150,63 @@
                     );
                     location.reload(true);
                 }
+            },
+
+            onApplicationSave: function() {
+                if (typeof(Storage) === "undefined") return;
+
+                var config = {};
+                _.each(this.configKeys, function (key) {
+                    var item = localStorage.getItem(key);
+                    console.log(key, item)
+                    if (item !== null) {
+                        config[key] = JSON.parse(item);
+                    }
+                }, this);
+
+                var blob = new Blob([JSON.stringify(config)], {
+                  type: 'application/json;charset=utf-8'
+                });
+
+                var date = new Date();
+                var filename = (
+                    date.getUTCFullYear()
+                    + padLeft(String(date.getUTCMonth() + 1), "0", 2)
+                    + padLeft(String(date.getUTCDate()), "0", 2) + "T"
+                    + padLeft(String(date.getUTCHours()), "0", 2)
+                    + padLeft(String(date.getUTCMinutes()), "0", 2)
+                    + padLeft(String(date.getUTCSeconds()), "0", 2)
+                ) + '_vires_settings.json'
+
+                saveAs(blob, filename);
+            },
+
+            onApplicationLoad: function () {
+                if (typeof(Storage) === "undefined") return;
+
+                var storeConfig = _.bind(function (data) {
+                    var config = JSON.parse(data);
+                    localStorage.clear();
+                    _.each(this.configKeys, function (key) {
+                        var value = config[key];
+                        if ((value !== undefined) && (value !== null)) {
+                            localStorage.setItem(key, JSON.stringify(value));
+                        }
+                    }, this);
+                }, this);
+
+                $('#fileInputJSON').remove();
+                var infield = $('<input id="fileInputJSON" type="file" name="name" style="display: none;" />');
+                $('body').append(infield);
+                $('#fileInputJSON').on('change', function (event) {
+                    var reader = new FileReader();
+                    reader.onload = function (event) {
+                        storeConfig(event.target.result);
+                        window.location.reload();
+                    };
+                    reader.readAsText(event.target.files[0]);
+                });
+                $('#fileInputJSON').trigger('click');
             }
 
         });
