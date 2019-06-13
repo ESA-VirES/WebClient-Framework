@@ -143,11 +143,7 @@
             },
             onApplicationReset: function(){
                 this.setClientState({serviceVersion: globals.version});
-                // prevent client state double posting
-                if (window.history.replaceState) {
-                    window.history.replaceState(null, null, window.location.href);
-                }
-                location.reload(true);
+                this.reloadClient();
             },
 
             onApplicationSave: function() {
@@ -177,7 +173,7 @@
                 var _onFileReaderLoad = _.bind(function (event) {
                     var clientState = JSON.parse(event.target.result);
                     this.setClientState(clientState, clientState['update']);
-                    window.location.reload();
+                    this.reloadClient();
                 }, this);
 
                 $('#fileInputJSON').remove();
@@ -214,8 +210,15 @@
                         localStorage.setItem(key, JSON.stringify(value));
                     }
                 }, this);
-            }
+            },
 
+            reloadClient: function () {
+                // prevent client state double posting
+                if (window.history.replaceState) {
+                    window.history.replaceState(null, null, window.location.href);
+                }
+                window.location.reload(true);
+            }
         });
         return new ContentController();
     });
