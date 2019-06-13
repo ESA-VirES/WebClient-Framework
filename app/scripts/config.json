@@ -3045,14 +3045,14 @@
             "name": "Workspace",
             "icon": "fa-laptop",
             "subitems": [{
+                "name": "Reset",
+                "eventToRaise": "application:reset"
+            }, {
                 "name": "Import",
                 "eventToRaise": "application:load"
             }, {
                 "name": "Export",
                 "eventToRaise": "application:save"
-            }, {
-                "name": "Reset",
-                "eventToRaise": "application:reset"
             }]
         },
         {
