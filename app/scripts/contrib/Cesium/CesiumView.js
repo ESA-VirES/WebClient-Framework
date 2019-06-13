@@ -187,7 +187,7 @@ define([
                 //COLUMBUS_VIEW SCENE2D SCENE3D
                 if (localStorage.getItem('mapSceneMode') !== null) {
                     options.sceneMode = this.sceneModeMatrix[
-                        localStorage.getItem('mapSceneMode')
+                        JSON.parse(localStorage.getItem('mapSceneMode'))
                     ];
                     if (options.sceneMode !== 3) {
                         $('#poleViewDiv').addClass("hidden");
@@ -377,7 +377,9 @@ define([
             this.map.scene.morphComplete.addEventListener(function () {
                 localStorage.setItem(
                     'mapSceneMode', 
-                    this.sceneModeMatrixReverse[this.map.scene.mode]
+                    JSON.stringify(
+                        this.sceneModeMatrixReverse[this.map.scene.mode]
+                    )
                 );
                 var c = this.map.scene.camera;
                 localStorage.setItem('cameraPosition',

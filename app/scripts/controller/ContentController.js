@@ -11,7 +11,7 @@
 
         var ContentController = Backbone.Marionette.Controller.extend({
             configKeys: [
-                'serviceVersion', 'mapSceneMode',
+                'serviceVersion', 'mapSceneMode', 'selectedFilterList',
                 'timeSelection', 'timeDomain', 'areaSelection', 'viewSelection',
                 'productsConfiguration', 'activeOverlays', 'activeBaselayer',
                 'cameraPosition', 'xAxisSelection', 'plotConfiguration',
