@@ -133,13 +133,13 @@
 
                 // Tracking of workspace window configuration
                 if(event === 'ui:fullscreen:globe'){
-                    localStorage.setItem('viewSelection', 'globe');
+                    localStorage.setItem('viewSelection', '"globe"');
                 }
                 if(event === 'ui:fullscreen:analytics'){
-                    localStorage.setItem('viewSelection', 'analytics');
+                    localStorage.setItem('viewSelection', '"analytics"');
                 }
                 if(event === 'layout:switch:splitview'){
-                    localStorage.setItem('viewSelection', 'split');
+                    localStorage.setItem('viewSelection', '"split"');
                 }
 
                 // Tracking of layers
@@ -147,47 +147,56 @@
 
                     // Check what type of layer and modify group accordingly
                     if(param.isBaseLayer){
+                        // Save active base layer
+                        var activeBaselayer = globals.baseLayers.find(
+                            function(bl) { return bl.get('visible'); }
+                        ).get('name');
                         localStorage.setItem(
-                            'baseLayersConfig',
-                            JSON.stringify(
-                                globals.baseLayers.models.map(function(m){
-                                    return m.attributes;
-                                }),replacer
-                            )
+                            'activeBaselayer', JSON.stringify(activeBaselayer)
                         );
                     }else{
                         // Check if overlay
                         if(globals.overlays.find(function(m) { return m.get('name') === param.name; })){
+                            // Save list of active overlays
+                            var activeOverlays = globals.overlays.filter(
+                                function(ov) { return ov.get('visible'); }
+                            ).map(function(la){return la.get('name');});
+
                             localStorage.setItem(
-                                'overlaysConfig',
-                                JSON.stringify(
-                                    globals.overlays.models.map(function(m){
-                                        return m.attributes;
-                                    }),replacer
-                                )
+                                'activeOverlays',
+                                JSON.stringify(activeOverlays)
                             );
                         }else{
-                            localStorage.setItem(
-                                'productsConfig',
-                                JSON.stringify(
-                                    globals.products.models.map(function(m){
-                                        return m.attributes;
-                                    }),replacer
-                                )
-                            );
+                            var product = globals.products.find(
+                                function(m) { return m.get('name') === param.name; }
+                            )
+                            saveProductStatus(product);
                         }
                     }
                 }
 
                 if(event === 'layer:parameters:changed'){
-                    localStorage.setItem(
-                        'productsConfig',
-                        JSON.stringify(
-                            globals.products.models.map(function(m){
-                                return m.attributes;
-                            }),replacer
-                        )
-                    );
+                    var product = globals.products.find(
+                        function(m) { return m.get('name') === param; }
+                    )
+                    saveProductStatus(product);
+                }
+
+                if(event === 'productCollection:updateOpacity'){
+                    var product = globals.products.find(
+                        function(m) {
+                            return m.get('download').id === param.model.get('download').id;
+                        }
+                    )
+                    saveProductStatus(product);
+                }
+                
+
+                if(event === 'layer:outlines:changed'){
+                    var product = globals.products.find(
+                        function(m) { return m.get('download').id === param; }
+                    )
+                    saveProductStatus(product);
                 }
 
                 // Tracking of Analytics settings

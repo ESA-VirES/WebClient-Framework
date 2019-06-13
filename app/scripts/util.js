@@ -196,3 +196,84 @@ var showMessage = function (level, message, timeout, additionalClasses) {
   draw.call(el);
 };
 
+
+
+var saveProductStatus = function(product){
+  var prevConf = JSON.parse(
+      localStorage.getItem('productsConfiguration')
+  );
+  if(prevConf === null){
+      prevConf = {};
+  }
+  var prdId = product.get('download').id;
+  var origPars = product.get('parameters');
+  var prodParams = {};
+
+  for (var pk in origPars){
+      prodParams[pk] = {
+          range: origPars[pk].range,
+          colorscale: origPars[pk].colorscale,
+      }
+      if(origPars[pk].selected){
+          prodParams[pk]['selected'] = true;
+      }
+  }
+
+  var prod = {
+      visible: product.get('visible'),
+      outlines: product.get('outlines'),
+      opacity: product.get('opacity'),
+      parameters: prodParams
+
+  };
+
+  // Save additional information for model product
+  if(product.attributes.hasOwnProperty('components')){
+      prod.components = product.get('components');
+  }
+
+  prevConf[prdId] = prod;
+
+  localStorage.setItem(
+      'productsConfiguration', JSON.stringify(prevConf)
+  );
+
+}
+
+
+var savePrameterStatus = function (globals){
+  var parConf = {};
+  var uomSet = globals.swarm.get('uom_set');
+
+  for (var pk in uomSet){
+      var parC = {};
+      for (var innerpk in uomSet[pk]){
+          if(globals.swarm.satellites.hasOwnProperty(innerpk)){
+              parC[innerpk] = {};
+              if(uomSet[pk][innerpk].hasOwnProperty('color')){
+                  parC[innerpk]['color'] = uomSet[pk][innerpk].color;
+              }
+              if(uomSet[pk][innerpk].hasOwnProperty('symbol')){
+                  parC[innerpk]['symbol'] = uomSet[pk][innerpk].symbol;
+              }
+              if(uomSet[pk][innerpk].hasOwnProperty('lineConnect')){
+                  parC[innerpk]['lineConnect'] = uomSet[pk][innerpk].lineConnect;
+              }
+              if(uomSet[pk][innerpk].hasOwnProperty('size')){
+                  parC[innerpk]['size'] = uomSet[pk][innerpk].size;
+              }
+              if(uomSet[pk][innerpk].hasOwnProperty('alpha')){
+                  parC[innerpk]['alpha'] = uomSet[pk][innerpk].alpha;
+              }
+          }
+      }
+      if(!_.isEmpty(parC)){
+          parConf[pk] = parC;
+      }
+  }
+  // Save parameter style changes
+  localStorage.setItem(
+      'parameterConfiguration', 
+      JSON.stringify(parConf)
+  );
+}
