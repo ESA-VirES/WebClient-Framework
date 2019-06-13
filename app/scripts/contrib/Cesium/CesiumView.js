@@ -33,6 +33,16 @@ define([
         model: new MapModel.MapModel(),
 
         initialize: function (options) {
+            this.sceneModeMatrix = {
+                'columbus': 1,
+                '2dview': 2, 
+                'globe': 3
+            },
+            this.sceneModeMatrixReverse = {
+                1: 'columbus',
+                2: '2dview', 
+                3: 'globe'
+            },
             this.map = undefined;
             this.isClosed = true;
             this.tileManager = options.tileManager;
@@ -175,8 +185,10 @@ define([
                     clock: clock
                 };
                 //COLUMBUS_VIEW SCENE2D SCENE3D
-                if (localStorage.getItem('sceneMode') !== null) {
-                    options.sceneMode = Number(localStorage.getItem('sceneMode'));
+                if (localStorage.getItem('mapSceneMode') !== null) {
+                    options.sceneMode = this.sceneModeMatrix[
+                        localStorage.getItem('mapSceneMode')
+                    ];
                     if (options.sceneMode !== 3) {
                         $('#poleViewDiv').addClass("hidden");
                     }
@@ -363,7 +375,10 @@ define([
             }, this);
 
             this.map.scene.morphComplete.addEventListener(function () {
-                localStorage.setItem('sceneMode', this.map.scene.mode);
+                localStorage.setItem(
+                    'mapSceneMode', 
+                    this.sceneModeMatrixReverse[this.map.scene.mode]
+                );
                 var c = this.map.scene.camera;
                 localStorage.setItem('cameraPosition',
                     JSON.stringify({
