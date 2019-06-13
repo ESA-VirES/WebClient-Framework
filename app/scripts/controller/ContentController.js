@@ -10,6 +10,13 @@
     function( Backbone, Communicator, App , globals) {
 
         var ContentController = Backbone.Marionette.Controller.extend({
+            clientStateKeys: [
+                'serviceVersion', 'mapSceneMode', 'selectedFilterList',
+                'timeSelection', 'timeDomain', 'areaSelection', 'viewSelection',
+                'productsConfiguration', 'activeOverlays', 'activeBaselayer',
+                'cameraPosition', 'xAxisSelection', 'plotConfiguration',
+                'parameterConfiguration', 'filterSelection', 'filtersMinimized',
+            ],
             initialize: function(options){
                 this.listenTo(Communicator.mediator, "dialog:open:about", this.onDialogOpenAbout);
                 this.listenTo(Communicator.mediator, "ui:open:layercontrol", this.onLayerControlOpen);
@@ -21,6 +28,8 @@
                 this.listenTo(Communicator.mediator, "ui:fullscreen:globe", this.onFullscrenGlobe);
                 this.listenTo(Communicator.mediator, "ui:fullscreen:analytics", this.onFullscrenAnalytics);
                 this.listenTo(Communicator.mediator, "application:reset", this.onApplicationReset);
+                this.listenTo(Communicator.mediator, "application:save", this.onApplicationSave);
+                this.listenTo(Communicator.mediator, "application:load", this.onApplicationLoad);
                 this.listenTo(Communicator.mediator, "dialog:show:upload", this.onShowUpload);
             },
 
@@ -133,16 +142,83 @@
 
             },
             onApplicationReset: function(){
-                if (typeof(Storage) !== "undefined") {
-                    localStorage.clear();
-                    localStorage.setItem(
-                        'serviceVersion',
-                        JSON.stringify(globals.version)
-                    );
-                    location.reload(true);
-                }
-            }
+                this.setClientState({serviceVersion: globals.version});
+                this.reloadClient();
+            },
 
+            onApplicationSave: function() {
+                var clientState = this.getClientState();
+                if (typeof(clientState) === "undefined") {return;}
+
+                var blob = new Blob([JSON.stringify(clientState)], {
+                  type: 'application/json;charset=utf-8'
+                });
+
+                var date = new Date();
+                var filename = (
+                    date.getUTCFullYear()
+                    + padLeft(String(date.getUTCMonth() + 1), "0", 2)
+                    + padLeft(String(date.getUTCDate()), "0", 2) + "T"
+                    + padLeft(String(date.getUTCHours()), "0", 2)
+                    + padLeft(String(date.getUTCMinutes()), "0", 2)
+                    + padLeft(String(date.getUTCSeconds()), "0", 2)
+                ) + '_vires_settings.json'
+
+                saveAs(blob, filename);
+            },
+
+            onApplicationLoad: function () {
+                if (typeof(Storage) === "undefined") {return;}
+
+                var _onFileReaderLoad = _.bind(function (event) {
+                    var clientState = JSON.parse(event.target.result);
+                    this.setClientState(clientState, clientState['update']);
+                    this.reloadClient();
+                }, this);
+
+                $('#fileInputJSON').remove();
+                var infield = $('<input id="fileInputJSON" type="file" name="name" style="display: none;" />');
+                $('body').append(infield);
+                $('#fileInputJSON').on('change', function (event) {
+                    var reader = new FileReader();
+                    reader.onload = _onFileReaderLoad;
+                    reader.readAsText(event.target.files[0]);
+                });
+                $('#fileInputJSON').trigger('click');
+            },
+
+            getClientState: function () {
+                if (typeof(Storage) === "undefined") {return;}
+                var clientState = {};
+                _.each(this.clientStateKeys, function (key) {
+                    var item = localStorage.getItem(key);
+                    if (item !== null) {
+                        clientState[key] = JSON.parse(item);
+                    }
+                }, this);
+                return clientState;
+            },
+
+            setClientState: function (clientState, update) {
+                if (typeof(Storage) === "undefined") {return;}
+                if (update !== true) {
+                    localStorage.clear();
+                }
+                _.each(this.clientStateKeys, function (key) {
+                    var value = clientState[key];
+                    if ((typeof(value) !== "undefined") && (value !== null)) {
+                        localStorage.setItem(key, JSON.stringify(value));
+                    }
+                }, this);
+            },
+
+            reloadClient: function () {
+                // prevent client state double posting
+                if (window.history.replaceState) {
+                    window.history.replaceState(null, null, window.location.href);
+                }
+                window.location.reload(true);
+            }
         });
         return new ContentController();
     });

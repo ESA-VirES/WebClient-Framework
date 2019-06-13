@@ -111,9 +111,7 @@
       updateLayerResidualParameters: function () {
         // Manage additional residual parameter for Swarm layers
         globals.products.each(function (product) {
-
-          if (product.get("satellite") == "Swarm") {
-
+          if (['Swarm', 'Upload'].includes(product.get('satellite'))) {
             // Get Layer parameters
             var pars = product.get("parameters");
 
@@ -187,7 +185,6 @@
             }
           }
         }
-        localStorage.setItem('swarmProductSelection', JSON.stringify(this.activeWPSproducts));
         this.checkSelections();
         this.checkModelValidity();
       },
@@ -214,6 +211,8 @@
           this.selected_time = Communicator.reqres.request('get:time');
 
         if (this.activeWPSproducts.length > 0 && this.selected_time) {
+          this.sendRequest();
+        } else if (globals.swarm.satellites['Upload'] && globals.userData.models.length>0){
           this.sendRequest();
         } else {
           globals.swarm.set({data: []});
@@ -397,6 +396,11 @@
             },
 
             success: function (dat) {
+
+              if(Object.keys(dat).length === 1 && dat.hasOwnProperty('__info__')){
+                globals.swarm.set({data: []});
+                return;
+              }
 
               var ids = {
                 'A': 'Alpha',
