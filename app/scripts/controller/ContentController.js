@@ -190,7 +190,9 @@
 
                 var storeConfig = _.bind(function (data) {
                     var config = JSON.parse(data);
-                    localStorage.clear();
+                    if (!config['update'] !== true) {
+                      localStorage.clear();
+                    }
                     _.each(this.configKeys, function (key) {
                         var value = config[key];
                         if ((value !== undefined) && (value !== null)) {
