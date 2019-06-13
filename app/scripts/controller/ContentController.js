@@ -10,7 +10,7 @@
     function( Backbone, Communicator, App , globals) {
 
         var ContentController = Backbone.Marionette.Controller.extend({
-            configKeys: [
+            clientStateKeys: [
                 'serviceVersion', 'mapSceneMode', 'selectedFilterList',
                 'timeSelection', 'timeDomain', 'areaSelection', 'viewSelection',
                 'productsConfiguration', 'activeOverlays', 'activeBaselayer',
@@ -142,33 +142,19 @@
 
             },
             onApplicationReset: function(){
-                if (typeof(Storage) !== "undefined") {
-                    localStorage.clear();
-                    localStorage.setItem(
-                        'serviceVersion',
-                        JSON.stringify(globals.version)
-                    );
-                    // prevent client state double posting
-                    if (window.history.replaceState) {
-                        window.history.replaceState(null, null, window.location.href);
-                    }
-                    location.reload(true);
+                this.setClientState({serviceVersion: globals.version});
+                // prevent client state double posting
+                if (window.history.replaceState) {
+                    window.history.replaceState(null, null, window.location.href);
                 }
+                location.reload(true);
             },
 
             onApplicationSave: function() {
-                if (typeof(Storage) === "undefined") return;
+                var clientState = this.getClientState();
+                if (typeof(clientState) === "undefined") {return;}
 
-                var config = {};
-                _.each(this.configKeys, function (key) {
-                    var item = localStorage.getItem(key);
-                    console.log(key, item)
-                    if (item !== null) {
-                        config[key] = JSON.parse(item);
-                    }
-                }, this);
-
-                var blob = new Blob([JSON.stringify(config)], {
+                var blob = new Blob([JSON.stringify(clientState)], {
                   type: 'application/json;charset=utf-8'
                 });
 
@@ -186,19 +172,12 @@
             },
 
             onApplicationLoad: function () {
-                if (typeof(Storage) === "undefined") return;
+                if (typeof(Storage) === "undefined") {return;}
 
-                var storeConfig = _.bind(function (data) {
-                    var config = JSON.parse(data);
-                    if (!config['update'] !== true) {
-                      localStorage.clear();
-                    }
-                    _.each(this.configKeys, function (key) {
-                        var value = config[key];
-                        if ((value !== undefined) && (value !== null)) {
-                            localStorage.setItem(key, JSON.stringify(value));
-                        }
-                    }, this);
+                var _onFileReaderLoad = _.bind(function (event) {
+                    var clientState = JSON.parse(event.target.result);
+                    this.setClientState(clientState, clientState['update']);
+                    window.location.reload();
                 }, this);
 
                 $('#fileInputJSON').remove();
@@ -206,13 +185,35 @@
                 $('body').append(infield);
                 $('#fileInputJSON').on('change', function (event) {
                     var reader = new FileReader();
-                    reader.onload = function (event) {
-                        storeConfig(event.target.result);
-                        window.location.reload();
-                    };
+                    reader.onload = _onFileReaderLoad;
                     reader.readAsText(event.target.files[0]);
                 });
                 $('#fileInputJSON').trigger('click');
+            },
+
+            getClientState: function () {
+                if (typeof(Storage) === "undefined") {return;}
+                var clientState = {};
+                _.each(this.clientStateKeys, function (key) {
+                    var item = localStorage.getItem(key);
+                    if (item !== null) {
+                        clientState[key] = JSON.parse(item);
+                    }
+                }, this);
+                return clientState;
+            },
+
+            setClientState: function (clientState, update) {
+                if (typeof(Storage) === "undefined") {return;}
+                if (update !== true) {
+                    localStorage.clear();
+                }
+                _.each(this.clientStateKeys, function (key) {
+                    var value = clientState[key];
+                    if ((typeof(value) !== "undefined") && (value !== null)) {
+                        localStorage.setItem(key, JSON.stringify(value));
+                    }
+                }, this);
             }
 
         });
