@@ -242,7 +242,7 @@ var MASTER_PRIORITY = [
 
                 var activeBaselayer = 'Terrain-Light';
                 if (localStorage.getItem('activeBaselayer') !== null) {
-                    var activeBaselayer = localStorage.getItem('activeBaselayer');
+                    var activeBaselayer = JSON.parse(localStorage.getItem('activeBaselayer'));
                     savedChangesApplied = true;
                 }
 

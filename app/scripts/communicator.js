@@ -152,7 +152,7 @@
                             function(bl) { return bl.get('visible'); }
                         ).get('name');
                         localStorage.setItem(
-                            'activeBaselayer', activeBaselayer
+                            'activeBaselayer', JSON.stringify(activeBaselayer)
                         );
                     }else{
                         // Check if overlay
