@@ -1,5 +1,5 @@
 
-<section id="cover" class="cover active" data-zoom="-50000000" data-events="layout:switch:singleview" data-reset="">
+<section id="cover" class="cover active" data-zoom="-10000000" data-events="layout:switch:singleview" data-reset="">
     <span class="close"><i class="fa fa-times-circle"/></span>
     <small class='scroll'>Scroll ▼</small>
     <h2>Geomagnetic Field Models</h2>
@@ -8,25 +8,17 @@
     <p>The tutorial can be closed at any point in time.</p>
     <small class='scroll'>Scroll ▼</small>
 </section>
-<section data-events="ui:open:layercontrol" data-parameter="IGRF12_view::coefficients_range:-1,-1" data-set-parameter="IGRF12_view:F">
+<section data-events="ui:open:layercontrol" data-set-parameter="Model:F">
     <span class="close"><i class="fa fa-times-circle"/></span>
     <h3>Layer Selection</h3>
     <p>In order to visualise a field model product we first have to activate it in the Layer Selection Window.</p>
     <p>We have just opened it, you can see it on the left side of the screen.</p>
     <p>You can open and close it at any time by clicking in the navigation bar (top of the screen) on the Layers button with the symbol <i class="fa fa-fw fa-globe"></i>.</p>
-    <p>The available Geomagnetic Field Models are:</p>
-    <ul>
-        <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">Swarm Initial Field Model (SIFM)</li>
-        <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">International Geomagnetic Reference Field (IGRF12)</li>
-        <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">CHAOS-6</li>
-        <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">Custom Model (upload of model coefficients in .shc format)</li>
-    </ul>
-    <p>In the Custom Model Settings (<i class="fa fa-sliders"/>) it is possible to upload your own (local) Geomagnetic Field Model as .shc file.</p>
 </section>
-<section  data-layers="IGRF12_view" data-settings="IGRF12_view">
+<section  data-layers="Model" data-settings="Model">
     <span class="close"><i class="fa fa-times-circle"/></span>
     <h3>Settings</h3>
-    <p>We now activated the IGRF12 model Layer which is visualised on the virtual globe.</p>
+    <p>We now activated the Magnetic Model Layer which is visualised on the virtual globe.</p>
     <p>Additionally we opened the product settings window (on the right). Product settings can be accessed by clicking on the <i class="fa fa-sliders"/>-symbol of a product.</p>
     <p>In the product settings you can select which parameter to visualise, what color scale to use and the range for the color scale.</p>
     <p>Geomagnetic Field Models have the following parameters for visualisation:</p>
@@ -46,19 +38,35 @@
     <p>You can now try out different parameters for visualisation if you like.</p>
     <p>At any point you can use the "Save as Image" button of the Virtual Globe (top right) to save the current visualisation.</p>
 </section>
-<section data-parameter="IGRF12_view:Y:range:-50,50;IGRF12_view::coefficients_range:10,-1" data-set-parameter="IGRF12_view:Y">
+<section data-parameter="Model:Y:range:-5000,5000;Model::height:900" data-set-parameter="Model:Y">
     <span class="close"><i class="fa fa-times-circle"/></span>
     <h3>Additional parameters</h3>
     <p>Field model settings have additional parameters for coefficient range and height above ellipsoid for the visualised resulting model.</p>
-    <p>As an example we just selected the East Component parameter, changed the coefficient ranges to [10,-1] (-1 meaning no limit, i.e. using all available coefficients starting at 10).</p>
+    <p>As an example we just selected the East Component parameter, changed the height for which model is computed to 900m.</p>
     <p>The range of values is reduced and therefore we also reduced the color scale range.</p>
+    <p>When manually updating the parameters yourself, after modification, click Apply changes to update the parameters of the visualization on the Globe.</p>
 </section>
-<section data-set-parameter="IGRF12_view:Fieldlines" data-bbox="-141,63,-79,76">
+<section>
+    <span class="close"><i class="fa fa-times-circle"/></span>
+    <h3>Magnetic Model Composition</h3>
+    <p>A resulting model can be computed as a combination of various magnetic models by adding or subtracting their effect.</p>
+    <p>Models are added by typing a name or choosing a model from the list. A sign can be modified by clicking a plus or minus icon.</p>
+    <p>Every model can have its coefficient range modified by typing a minimum and maximum range to forms where default values are shown by default.</p>
+    <p>Model sources can be shown by clicking on <i class="fa fa-info-circle"/> icon.</p>
+    <p>It is possible to upload your own (local) Geomagnetic Field Model as .shc file to use it for a Custom Model.</p>
+</section>
+<section data-bbox="0.0,50.0,50.0,80.0" data-set-parameter="Model:Fieldlines">
     <span class="close"><i class="fa fa-times-circle"/></span>
     <h3>Field Lines</h3>
-    <p>Field lines can be visualized for a selected area on the virtual globe. We already created a selection to display them. A selection can be done by activating the "Select Area" button located on the top right of the map view.</p>
-    <p>If a selection is already active, the button will clear the slection first containing the text "Clear Selection".</p>
-    <p>Once activated move your mouse over the desired area and click once to start drawing the bounding box. Move to cursor to the desired position and click again to finalize the selection.</p>
+    <p>Field Lines can be visualized for a selected area on the virtual globe. We already created a selection to display them. A selection can be done by activating the "Select Area" button located on the top right of the map view.</p>
+    <p>If a selection is already active, the button will clear the selection.</p>
+    <p>Once activated move your mouse over the desired area and click once to start drawing the bounding box. Move to cursor to the desired position and click again to finalize the selection. You can also insert and modify the coordinates in text forms located in the upper part.</p>
+    <p>You can additionally click on drawn fieldlines to show additional information about their parameters:
+      <ul>
+          <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">Apex point height and coordinates</li>
+          <li style="list-style-type: circle; margin-left:-20px; list-style-position:outside;">Ground points coordinates</li>
+      </ul>
+    </p>
 </section>
 
 

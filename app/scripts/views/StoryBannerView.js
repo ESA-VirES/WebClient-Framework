@@ -233,21 +233,26 @@
             Communicator.mediator.trigger("layer:open:settings", this.sections[index].getAttribute('data-settings'));
           }
 
+          // Activate / Deactivate satellites
+          if(this.sections[index].hasAttribute('data-satellite')) {
+              var satellites = this.sections[index].getAttribute('data-satellite').split(';');
+              _.each(satellites, function (satellite) {
+                const sat = satellite.split(':');
+                // satellite:value
+                if (typeof globals.swarm.satellites[sat[0]] !== 'undefined') {
+                  const boolTrue = (sat[1] == 'true');
+                  globals.swarm.satellites[sat[0]] = boolTrue;
+                }
+                Communicator.mediator.trigger("layers:refresh");
+              }, this);
+          }
+
           // Activate / Deactivate layers
           if(this.sections[index].hasAttribute('data-layers')) {
               var activeLayers = this.sections[index].getAttribute('data-layers').split(';');
-              
               _.each(activeLayers, function(layer){
                 Communicator.mediator.trigger("layer:activate", layer);
               }, this);
-              /*_(map.layers).each(function(layer) {
-                  if(!layer.isBaseLayer){
-                      shouldBeVisible = _.contains(activeLayers, layer.layer);
-                      if(layer.visibility != shouldBeVisible) {
-                          layer.setVisibility(shouldBeVisible);
-                      }
-                  }
-              });*/
           }
 
 

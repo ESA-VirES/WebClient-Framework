@@ -51,103 +51,24 @@
 
                 $('#alphacheck').change(function(evt){
                     globals.swarm.satellites['Alpha'] = $('#alphacheck').is(':checked');
-                    self.checkMultiProduct();
+                    Communicator.mediator.trigger('layers:refresh');
                 });
                 $('#bravocheck').change(function(evt){
                     globals.swarm.satellites['Bravo'] = $('#bravocheck').is(':checked');
-                    self.checkMultiProduct();
+                    Communicator.mediator.trigger('layers:refresh');
                 });
                 $('#charliecheck').change(function(evt){
                     globals.swarm.satellites["Charlie"] = $('#charliecheck').is(':checked');
-                    self.checkMultiProduct();
+                    Communicator.mediator.trigger('layers:refresh');
                 });
                 $('#nsccheck').change(function(evt){
                     globals.swarm.satellites["NSC"] = $('#nsccheck').is(':checked');
-                    self.checkMultiProduct();
+                    Communicator.mediator.trigger('layers:refresh');
                 });
                 $('#uploadcheck').change(function(evt) {
                   globals.swarm.satellites["Upload"] = $('#uploadcheck').is(':checked');
-                    self.checkMultiProduct();
+                  Communicator.mediator.trigger('layers:refresh');
                 });
-            },
-
-            checkMultiProduct: function(){
-                var that = this;
-
-                for (var i = globals.swarm.activeProducts.length - 1; i >= 0; i--) {
-                    globals.products.forEach(function(p){
-                        if(p.get("download").id == globals.swarm.activeProducts[i]){
-                            if(p.get("visible")){
-                                p.set("visible", false);
-                                Communicator.mediator.trigger('map:layer:change', {
-                                    name: p.get("name"),
-                                    isBaseLayer: false,
-                                    visible: false
-                                });
-                            }
-                        }
-                    });
-                }
-
-                globals.swarm.activeProducts = [];
-
-                this.collection.forEach(function(p){
-
-                    if(p.get("containerproduct")){
-
-                        if(p.get("visible")){
-
-                            if($('#alphacheck').is(':checked')){
-                                if(globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Alpha']) === -1){
-                                    globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Alpha']);
-                                }
-                            }
-
-                            if ($('#bravocheck').is(':checked')){
-                                if(globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Bravo']) === -1){
-                                    globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Bravo']);
-                                }
-                            }
-
-                            if($('#charliecheck').is(':checked')){
-                                if(globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Charlie']) === -1){
-                                    globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Charlie']);
-                                }
-                            }
-
-                            if($('#nsccheck').is(':checked')){
-                                if(globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['NSC']) === -1){
-                                    globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['NSC']);
-                                }
-                            }
-                            if($('#uploadcheck').is(':checked')){
-                                if(globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Upload']) === -1){
-                                    globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Upload']);
-                                }
-                            }
-                        }
-                    }
-                });
-
-
-                for (var i = globals.swarm.activeProducts.length - 1; i >= 0; i--) {
-
-                    globals.products.forEach(function(p){
-                        if(p.get("download").id == globals.swarm.activeProducts[i]){
-                            if(!p.get("visible")){
-                                p.set("visible", true);
-                                Communicator.mediator.trigger('map:layer:change', {
-                                    name: p.get("name"),
-                                    isBaseLayer: false,
-                                    visible: true
-                                });
-                            }
-                        }
-                    });
-                }
-                globals.swarm.activeProducts = globals.swarm.activeProducts.sort();
-                Communicator.mediator.trigger('map:multilayer:change', globals.swarm.activeProducts);
-
             },
 
             updateSort: function(options) {

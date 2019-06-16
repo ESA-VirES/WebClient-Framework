@@ -1133,8 +1133,9 @@ define(['backbone.marionette',
         },
 
         onChangeAxisParameters: function (selection) {
-            this.sp.sel_y = selection;
-            this.sp.render();
+            this.graph.renderSettings.yAxis = [selection];
+            this.graph.initAxis();
+            this.graph.renderData();
         },
 
         onResize: function () {
