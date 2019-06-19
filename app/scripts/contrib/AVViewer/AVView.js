@@ -1133,8 +1133,14 @@ define(['backbone.marionette',
         },
 
         onChangeAxisParameters: function (selection) {
-            this.sp.sel_y = selection;
-            this.sp.render();
+            this.graph.renderSettings.yAxis = [selection];
+            // reset all other plots and configurations
+            this.graph.renderSettings.yAxis = [selection];
+            this.graph.renderSettings.y2Axis = [[]];
+            this.graph.renderSettings.colorAxis = [[null]];
+            this.graph.renderSettings.colorAxis2 = [[]];
+            this.graph.initAxis();
+            this.graph.renderData();
         },
 
         onResize: function () {

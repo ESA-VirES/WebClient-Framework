@@ -1900,18 +1900,26 @@ define([
             if (typeof FLProduct !== 'undefined') {
                 var fl_data = this.FLData[FLProduct][fieldline.id];
                 // prepare template data
-                var apex = {
-                    lat: fl_data['apex_point'][0].toFixed(3),
-                    lon: fl_data['apex_point'][1].toFixed(3),
-                    height: (fl_data['apex_height'] / 1000).toFixed(1),
-                };
+                var apex;
+                if(fl_data.hasOwnProperty('apex_point') && fl_data.apex_point !== null) {
+                    apex = {
+                        lat: fl_data['apex_point'][0].toFixed(3),
+                        lon: fl_data['apex_point'][1].toFixed(3),
+                        height: (fl_data['apex_height'] / 1000).toFixed(1)
+                    };
+                }
+
                 var ground_points = [{
                     lat: fl_data['ground_points'][0][0].toFixed(3),
                     lon: fl_data['ground_points'][0][1].toFixed(3),
-                }, {
-                    lat: fl_data['ground_points'][1][0].toFixed(3),
-                    lon: fl_data['ground_points'][1][1].toFixed(3),
                 }];
+
+                if(fl_data.ground_points.length>1){
+                    ground_points.push({
+                        lat: fl_data['ground_points'][1][0].toFixed(3),
+                        lon: fl_data['ground_points'][1][1].toFixed(3)
+                    });
+                }
                 var options = {
                     ground_points: ground_points,
                     apex: apex,
@@ -1924,7 +1932,18 @@ define([
                 $('.close-fieldline-label').on('click', this.hideFieldLinesLabel.bind(this));
                 // highlight points
                 this.FLbillboards.removeAll();
-                this.highlightFieldLinesPoints([fl_data['apex_point'], fl_data['ground_points'][0], fl_data['ground_points'][1]]);
+                if(apex){
+                    this.highlightFieldLinesPoints(
+                        [].concat(
+                            [fl_data['apex_point']],
+                            fl_data['ground_points']
+                        )
+                    );
+                } else {
+                    this.highlightFieldLinesPoints(
+                        fl_data.ground_points
+                    );
+                }
             }
         },
 
