@@ -1139,8 +1139,33 @@ define(['backbone.marionette',
             this.graph.renderSettings.y2Axis = [[]];
             this.graph.renderSettings.colorAxis = [[null]];
             this.graph.renderSettings.colorAxis2 = [[]];
+
+
+            // Make sure filters are shown
+            var filtersMinimized = localStorage.getItem('filtersMinimized');
+            if (filtersMinimized === null) {
+                filtersMinimized = false;
+            } else {
+                filtersMinimized = JSON.parse(filtersMinimized);
+            }
+
+            if (filtersMinimized) {
+                var height = ($('#graph').height() - 270) + 'px';
+                $('#filterSelectDrop').css('opacity', 1.0);
+                $('#analyticsFilters').css('opacity', 1.0);
+                $('#graph').css('height', height);
+                $('#minimizeFilters i').attr('class',
+                    'fa fa-chevron-circle-down'
+                );
+                localStorage.setItem(
+                    'filtersMinimized', JSON.stringify(false)
+                );
+            }
+
+
             this.graph.initAxis();
-            this.graph.renderData();
+            this.graph.resize();
+            //this.graph.renderData();
         },
 
         onResize: function () {

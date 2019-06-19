@@ -546,6 +546,10 @@ define([
             if (this.map._sceneModePicker) {
                 var container = this.map._sceneModePicker.container;
                 var scene = this.map._sceneModePicker.viewModel._scene;
+
+                // Delete previous scenemodepicker
+                delete this.map._sceneModePicker;
+                $('.cesium-sceneModePicker-wrapper.cesium-toolbar-button').remove();
                 var modepicker = new Cesium.SceneModePicker(container, scene);
                 this.map._sceneModePicker = modepicker;
             }
