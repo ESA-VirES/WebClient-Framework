@@ -458,6 +458,11 @@
 
                   } else if (dat.OrbitDirection[i] === 0) {
                     //TODO what to do here? Should in principle not happen
+                    // for now we just use original value
+                    dat.Latitude_periodic.push(dat.Latitude[i]);
+                  } else if (Number.isNaN(dat.OrbitDirection[i])) {
+                    // If no orbit info for now we just use original value
+                    dat.Latitude_periodic.push(dat.Latitude[i]);
                   }
                 }
               }
@@ -479,6 +484,11 @@
 
                   } else if (dat.QDOrbitDirection[i] === 0) {
                     //TODO what to do here? Should in principle not happen
+                    //for now we just use original value
+                    dat.QDLatitude_periodic.push(dat.QDLat[i]);
+                  } else if (Number.isNaN(dat.QDOrbitDirection[i])) {
+                    // If no orbit info for now we just use original value
+                    dat.QDLatitude_periodic.push(dat.QDLat[i]);
                   }
                 }
               }
