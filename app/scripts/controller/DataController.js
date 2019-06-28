@@ -439,6 +439,13 @@
                 for (var i = 0; i < dat[refKey].length; i++) {
                   dat['Radius'].push(6832000);
                 }
+              } else {
+                // Check to see if NaN data is inside of the array
+                for (var i = 0; i < dat['Radius'].length; i++) {
+                  if(Number.isNaN(dat['Radius'][i])){
+                    dat['Radius'][i] = 6378137;
+                  }
+                }
               }
 
               if (dat.hasOwnProperty('Latitude') && dat.hasOwnProperty('OrbitDirection')) {
