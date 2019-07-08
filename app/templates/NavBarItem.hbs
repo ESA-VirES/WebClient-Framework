@@ -11,7 +11,11 @@
 <ul class="dropdown-menu" role="menu">
 	{{#each subitems}}
     	<li>
+        {{#if this.url}}
+        <a href="{{this.url}}">{{this.name}}</a>
+        {{else}}
     		<a href="javascript:void(0);" onclick="require(['communicator'], function(Communicator){Communicator.mediator.trigger('{{this.eventToRaise}}', '{{this.template}}');});">{{this.name}}</a>
+        {{/if}}
     	</li>
  	{{/each}}
 </ul>
