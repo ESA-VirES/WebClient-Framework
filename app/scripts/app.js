@@ -339,7 +339,7 @@ var MASTER_PRIORITY = [
                                             if(pars[pk].selected === true){
                                                 // TODO: If selected remove all other selected
                                                 for(var spk in pars){
-                                                    if(spk !== pk && 
+                                                    if(spk !== pk && product.parameters[spk] &&
                                                         product.parameters[spk].hasOwnProperty('selected')) {
                                                         delete product.parameters[spk].selected;
                                                     }
