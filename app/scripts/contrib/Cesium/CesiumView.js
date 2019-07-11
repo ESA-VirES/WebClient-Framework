@@ -1957,6 +1957,12 @@ define([
         },
 
         onHighlightPoint: function (coords, fieldlines_highlight) {
+            var wrongInput = !coords || (coords.length === 3 && _.some(coords, function (el) {
+              return isNaN(el);
+            }));
+            if (wrongInput) {
+              return null;
+            }
             // either highlight single point or point on a fieldline
             if (!fieldlines_highlight) {
                 this.billboards.removeAll();
