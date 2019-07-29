@@ -283,7 +283,7 @@
             "Background_Ne", "Foreground_Ne", "PCP_flag", "Grad_Ne_at_100km", "Grad_Ne_at_50km", "Grad_Ne_at_20km",
             "Grad_Ne_at_PCP_edge", "ROD", "RODI10s", "RODI20s", "delta_Ne10s", "delta_Ne20s", "delta_Ne40s",
             "Num_GPS_satellites", "mVTEC", "mROT", "mROTI10s", "mROTI20s", "IBI_flag",
-            "Ionopshere_region_flag", "IPIR_index", "Ne_quality_flag", "TEC_STD",
+            "Ionosphere_region_flag", "IPIR_index", "Ne_quality_flag", "TEC_STD",
             "IMF_V", "IMF_BY_GSM", "IMF_BZ_GSM", "F10_INDEX",
             "B_NEC_Model", "B_NEC_res_Model", "F_Model", "F_res_Model"
           ];
