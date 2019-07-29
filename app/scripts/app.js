@@ -3,10 +3,10 @@
 var SCALAR_PARAM = [
     "F", "Ne", "Te", "Vs", "U_orbit", "Bubble_Index", "Bubble_Probability",
     "IRC", "FAC", "EEF",
-    "background Ne", "foreground Ne", "PCP_flag", "Grad_Ne@100km", "Grad_Ne@50km",
+    "Background_Ne", "Foreground_Ne", "PCP_flag", "Grad_Ne@100km", "Grad_Ne@50km",
     "Grad_Ne@20km", "Grad_Ne@PCP_edge", "ROD", "RODI10s", "RODI20s", "delta_Ne10s",
     "delta_Ne20s", "delta_Ne40s", "Num_GPS_satellites", "mVTEC", "mROT", "mROTI10s",
-    "mROTI20s", "IBI_flag", "Ionpshere_region_flag", "IPIR_index", "Ne_quality_flag",
+    "mROTI20s", "IBI_flag", "Ionopshere_region_flag", "IPIR_index", "Ne_quality_flag",
     "TEC_STD"
 ];
 
