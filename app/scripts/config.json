@@ -2485,25 +2485,25 @@
                     "uom": null,
                     "name": "Polar cap patch flag"
                 },
-                "Grad_Ne@100km": {
+                "Grad_Ne_at_100km": {
                     "range": [-20, 20],
                     "colorscale": "diverging_1",
                     "uom": "cm -3 / m",
                     "name": "Electron density gradient (27 data points @ 2Hz)"
                 },
-                "Grad_Ne@50km": {
+                "Grad_Ne_at_50km": {
                     "range": [-30, 30],
                     "colorscale": "diverging_1",
                     "uom": "cm -3 / m",
                     "name": "Electron density gradient (13 data points @ 2Hz)"
                 },
-                "Grad_Ne@20km": {
+                "Grad_Ne_at_20km": {
                     "range": [-60, 60],
                     "colorscale": "diverging_1",
                     "uom": "cm -3 / m",
                     "name": "Electron density gradient (5 data points @ 2Hz)"
                 },
-                "Grad_Ne@PCP_edge": {
+                "Grad_Ne_at_PCP_edge": {
                     "range": [-2, 2],
                     "colorscale": "diverging_1",
                     "uom": "cm -3 / m",
@@ -2643,19 +2643,19 @@
                     "uom": null,
                     "name": "Polar cap patch flag"
                 },
-                "Grad_Ne@100km": {
+                "Grad_Ne_at_100km": {
                     "uom": "cm -3 / m",
                     "name": "Electron density gradient (27 data points @ 2Hz)"
                 },
-                "Grad_Ne@50km": {
+                "Grad_Ne_at_50km": {
                     "uom": "cm -3 / m",
                     "name": "Electron density gradient (13 data points @ 2Hz)"
                 },
-                "Grad_Ne@20km": {
+                "Grad_Ne_at_20km": {
                     "uom": "cm -3 / m",
                     "name": "Electron density gradient (5 data points @ 2Hz)"
                 },
-                "Grad_Ne@PCP_edge": {
+                "Grad_Ne_at_PCP_edge": {
                     "uom": "cm -3 / m",
                     "name": "The linear electron density gradient over patch edges"
                 },
@@ -2804,25 +2804,25 @@
                     "uom": null,
                     "name": "Polar cap patch flag"
                 },
-                "Grad_Ne@100km": {
+                "Grad_Ne_at_100km": {
                     "range": [-20, 20],
                     "colorscale": "diverging_1",
                     "uom": "cm -3 / m",
                     "name": "Electron density gradient (27 data points @ 2Hz)"
                 },
-                "Grad_Ne@50km": {
+                "Grad_Ne_at_50km": {
                     "range": [-30, 30],
                     "colorscale": "diverging_1",
                     "uom": "cm -3 / m",
                     "name": "Electron density gradient (13 data points @ 2Hz)"
                 },
-                "Grad_Ne@20km": {
+                "Grad_Ne_at_20km": {
                     "range": [-60, 60],
                     "colorscale": "diverging_1",
                     "uom": "cm -3 / m",
                     "name": "Electron density gradient (5 data points @ 2Hz)"
                 },
-                "Grad_Ne@PCP_edge": {
+                "Grad_Ne_at_PCP_edge": {
                     "range": [-2, 2],
                     "colorscale": "diverging_1",
                     "uom": "cm -3 / m",
@@ -2962,19 +2962,19 @@
                     "uom": null,
                     "name": "Polar cap patch flag"
                 },
-                "Grad_Ne@100km": {
+                "Grad_Ne_at_100km": {
                     "uom": "cm -3 / m",
                     "name": "Electron density gradient (27 data points @ 2Hz)"
                 },
-                "Grad_Ne@50km": {
+                "Grad_Ne_at_50km": {
                     "uom": "cm -3 / m",
                     "name": "Electron density gradient (13 data points @ 2Hz)"
                 },
-                "Grad_Ne@20km": {
+                "Grad_Ne_at_20km": {
                     "uom": "cm -3 / m",
                     "name": "Electron density gradient (5 data points @ 2Hz)"
                 },
-                "Grad_Ne@PCP_edge": {
+                "Grad_Ne_at_PCP_edge": {
                     "uom": "cm -3 / m",
                     "name": "The linear electron density gradient over patch edges"
                 },
@@ -3123,25 +3123,25 @@
                     "uom": null,
                     "name": "Polar cap patch flag"
                 },
-                "Grad_Ne@100km": {
+                "Grad_Ne_at_100km": {
                     "range": [-20, 20],
                     "colorscale": "diverging_1",
                     "uom": "cm -3 / m",
                     "name": "Electron density gradient (27 data points @ 2Hz)"
                 },
-                "Grad_Ne@50km": {
+                "Grad_Ne_at_50km": {
                     "range": [-30, 30],
                     "colorscale": "diverging_1",
                     "uom": "cm -3 / m",
                     "name": "Electron density gradient (13 data points @ 2Hz)"
                 },
-                "Grad_Ne@20km": {
+                "Grad_Ne_at_20km": {
                     "range": [-60, 60],
                     "colorscale": "diverging_1",
                     "uom": "cm -3 / m",
                     "name": "Electron density gradient (5 data points @ 2Hz)"
                 },
-                "Grad_Ne@PCP_edge": {
+                "Grad_Ne_at_PCP_edge": {
                     "range": [-2, 2],
                     "colorscale": "diverging_1",
                     "uom": "cm -3 / m",
@@ -3281,19 +3281,19 @@
                     "uom": null,
                     "name": "Polar cap patch flag"
                 },
-                "Grad_Ne@100km": {
+                "Grad_Ne_at_100km": {
                     "uom": "cm -3 / m",
                     "name": "Electron density gradient (27 data points @ 2Hz)"
                 },
-                "Grad_Ne@50km": {
+                "Grad_Ne_at_50km": {
                     "uom": "cm -3 / m",
                     "name": "Electron density gradient (13 data points @ 2Hz)"
                 },
-                "Grad_Ne@20km": {
+                "Grad_Ne_at_20km": {
                     "uom": "cm -3 / m",
                     "name": "Electron density gradient (5 data points @ 2Hz)"
                 },
-                "Grad_Ne@PCP_edge": {
+                "Grad_Ne_at_PCP_edge": {
                     "uom": "cm -3 / m",
                     "name": "The linear electron density gradient over patch edges"
                 },
