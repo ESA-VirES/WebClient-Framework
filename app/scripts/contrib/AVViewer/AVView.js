@@ -207,8 +207,11 @@ define(['backbone.marionette',
             }
 
             var xax = 'Latitude';
+            var xlabel = null;
             var yax = ['F'];
+            var yAxisLabel = [];
             var y2ax = [];
+            var y2AxisLabel = [];
             var colax = [];
             var colax2 = [];
 
@@ -217,15 +220,26 @@ define(['backbone.marionette',
                 var plotConfiguration = JSON.parse(localStorage.getItem('plotConfiguration'));
                 yax = [];
                 for (var i = 0; i < plotConfiguration.length; i++) {
-                    yax.push(plotConfiguration[i].yAxis)
-                    y2ax.push(plotConfiguration[i].y2Axis)
-                    colax.push(plotConfiguration[i].colorAxis)
-                    colax2.push(plotConfiguration[i].colorAxis2)
+                    yax.push(plotConfiguration[i].yAxis);
+                    y2ax.push(plotConfiguration[i].y2Axis);
+                    colax.push(plotConfiguration[i].colorAxis);
+                    colax2.push(plotConfiguration[i].colorAxis2);
+
+                    if(plotConfiguration[i].hasOwnProperty('yAxisLabel')){
+                        yAxisLabel.push(plotConfiguration[i].yAxisLabel);
+                    }
+                    if(plotConfiguration[i].hasOwnProperty('y2AxisLabel')){
+                        y2AxisLabel.push(plotConfiguration[i].y2AxisLabel);
+                    }
                 }
             }
 
             if (localStorage.getItem('xAxisSelection') !== null) {
                 xax = JSON.parse(localStorage.getItem('xAxisSelection'));
+            }
+
+            if (localStorage.getItem('xAxisLabel') !== null) {
+                xlabel = JSON.parse(localStorage.getItem('xAxisLabel'));
             }
 
             // Check if previous config used multiaxis
@@ -315,6 +329,16 @@ define(['backbone.marionette',
                 }
             };
 
+            if(yAxisLabel !== []){
+                this.renderSettings.yAxisLabel = yAxisLabel;
+            }
+            if(y2AxisLabel !== []){
+                this.renderSettings.y2AxisLabel = y2AxisLabel;
+            }
+            if(xlabel){
+                this.renderSettings.xAxisLabel = xlabel;
+            }
+
             var cols = [
                 'coolwarm', 'rainbow', 'jet', 'diverging_1', 'diverging_2',
                 'blackwhite', 'viridis', 'inferno', 'hsv', 'hot', 'cool',
@@ -358,13 +382,19 @@ define(['backbone.marionette',
                     'xAxisSelection',
                     JSON.stringify(this.renderSettings.xAxis)
                 );
+                localStorage.setItem(
+                    'xAxisLabel',
+                    JSON.stringify(this.xAxisLabel)
+                );
 
                 var currL = this.renderSettings.yAxis.length;
                 var confArr = [];
                 for (var i = 0; i < currL; i++) {
                     confArr.push({
                         yAxis: this.renderSettings.yAxis[i],
+                        yAxisLabel: this.yAxisLabel[i],
                         y2Axis: this.renderSettings.y2Axis[i],
+                        y2AxisLabel: this.y2AxisLabel[i],
                         colorAxis: this.renderSettings.colorAxis[i],
                         colorAxis2: this.renderSettings.colorAxis2[i]
                     });

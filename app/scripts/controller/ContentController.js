@@ -14,7 +14,7 @@
                 'serviceVersion', 'mapSceneMode', 'selectedFilterList',
                 'timeSelection', 'timeDomain', 'areaSelection', 'viewSelection',
                 'productsConfiguration', 'activeOverlays', 'activeBaselayer',
-                'cameraPosition', 'xAxisSelection', 'plotConfiguration',
+                'cameraPosition', 'xAxisSelection', 'xAxisLabel', 'plotConfiguration',
                 'parameterConfiguration', 'filterSelection', 'filtersMinimized',
             ],
             initialize: function(options){
