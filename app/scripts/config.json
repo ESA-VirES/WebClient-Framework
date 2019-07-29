@@ -2461,13 +2461,13 @@
                     "uom": "cm -3",
                     "name": "Plasma density"
                 },
-                "background Ne": {
+                "Background_Ne": {
                     "range": [0, 200000],
                     "colorscale": "plasma",
                     "uom": "cm -3",
                     "name": "Background plasma density"
                 },
-                "foreground Ne": {
+                "Foreground_Ne": {
                     "range": [0, 200000],
                     "colorscale": "plasma",
                     "uom": "cm -3",
@@ -2581,7 +2581,7 @@
                     "uom": null,
                     "name": "Plasma Bubble Index (from IBIxTMS_2F)"
                 },
-                "Ionpshere_region_flag": {
+                "Ionopshere_region_flag": {
                     "range": [0, 3],
                     "colorscale": "rainbow",
                     "uom": null,
@@ -2627,11 +2627,11 @@
                     "uom": "cm -3",
                     "name": "Plasma density"
                 },
-                "background Ne": {
+                "Background_Ne": {
                     "uom": "cm -3",
                     "name": "Background plasma density"
                 },
-                "foreground Ne": {
+                "Foreground_Ne": {
                     "uom": "cm -3",
                     "name": "Foreground plasma density"
                 },
@@ -2707,7 +2707,7 @@
                     "uom": null,
                     "name": "Plasma Bubble Index (from IBIxTMS_2F)"
                 },
-                "Ionpshere_region_flag": {
+                "Ionopshere_region_flag": {
                     "uom": null,
                     "name": "Ionosphere region flag"
                 },
@@ -2780,13 +2780,13 @@
                     "uom": "cm -3",
                     "name": "Plasma density"
                 },
-                "background Ne": {
+                "Background_Ne": {
                     "range": [0, 200000],
                     "colorscale": "plasma",
                     "uom": "cm -3",
                     "name": "Background plasma density"
                 },
-                "foreground Ne": {
+                "Foreground_Ne": {
                     "range": [0, 200000],
                     "colorscale": "plasma",
                     "uom": "cm -3",
@@ -2900,7 +2900,7 @@
                     "uom": null,
                     "name": "Plasma Bubble Index (from IBIxTMS_2F)"
                 },
-                "Ionpshere_region_flag": {
+                "Ionopshere_region_flag": {
                     "range": [0, 3],
                     "colorscale": "rainbow",
                     "uom": null,
@@ -2946,11 +2946,11 @@
                     "uom": "cm -3",
                     "name": "Plasma density"
                 },
-                "background Ne": {
+                "Background_Ne": {
                     "uom": "cm -3",
                     "name": "Background plasma density"
                 },
-                "foreground Ne": {
+                "Foreground_Ne": {
                     "uom": "cm -3",
                     "name": "Foreground plasma density"
                 },
@@ -3026,7 +3026,7 @@
                     "uom": null,
                     "name": "Plasma Bubble Index (from IBIxTMS_2F)"
                 },
-                "Ionpshere_region_flag": {
+                "Ionopshere_region_flag": {
                     "uom": null,
                     "name": "Ionosphere region flag"
                 },
@@ -3099,13 +3099,13 @@
                     "uom": "cm -3",
                     "name": "Plasma density"
                 },
-                "background Ne": {
+                "Background_Ne": {
                     "range": [0, 200000],
                     "colorscale": "plasma",
                     "uom": "cm -3",
                     "name": "Background plasma density"
                 },
-                "foreground Ne": {
+                "Foreground_Ne": {
                     "range": [0, 200000],
                     "colorscale": "plasma",
                     "uom": "cm -3",
@@ -3219,7 +3219,7 @@
                     "uom": null,
                     "name": "Plasma Bubble Index (from IBIxTMS_2F)"
                 },
-                "Ionpshere_region_flag": {
+                "Ionopshere_region_flag": {
                     "range": [0, 3],
                     "colorscale": "rainbow",
                     "uom": null,
@@ -3265,11 +3265,11 @@
                     "uom": "cm -3",
                     "name": "Plasma density"
                 },
-                "background Ne": {
+                "Background_Ne": {
                     "uom": "cm -3",
                     "name": "Background plasma density"
                 },
-                "foreground Ne": {
+                "Foreground_Ne": {
                     "uom": "cm -3",
                     "name": "Foreground plasma density"
                 },
@@ -3345,7 +3345,7 @@
                     "uom": null,
                     "name": "Plasma Bubble Index (from IBIxTMS_2F)"
                 },
-                "Ionpshere_region_flag": {
+                "Ionopshere_region_flag": {
                     "uom": null,
                     "name": "Ionosphere region flag"
                 },
