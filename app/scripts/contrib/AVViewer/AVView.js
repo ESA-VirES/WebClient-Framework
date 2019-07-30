@@ -329,10 +329,10 @@ define(['backbone.marionette',
                 }
             };
 
-            if(yAxisLabel !== []){
+            if(yAxisLabel.length>0){
                 this.renderSettings.yAxisLabel = yAxisLabel;
             }
-            if(y2AxisLabel !== []){
+            if(y2AxisLabel.length>0){
                 this.renderSettings.y2AxisLabel = y2AxisLabel;
             }
             if(xlabel){
