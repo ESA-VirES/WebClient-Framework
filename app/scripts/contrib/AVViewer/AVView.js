@@ -1121,6 +1121,12 @@ define(['backbone.marionette',
                             'colorAxis2Selection',
                             JSON.stringify(this.graph.renderSettings.colorAxis2)
                         );
+
+                        this.graph.renderSettings.yAxis = renSetY ;
+                        this.graph.renderSettings.y2Axis = renSetY2;
+                        this.graph.renderSettings.colorAxis = colAx;
+                        this.graph.renderSettings.colorAxis2 = colAx2;
+
                         // End of IF to see if data parameters have changed
                     } else if (this.prevParams === null) {
                         // TODO: We should not need to do anything here but we
