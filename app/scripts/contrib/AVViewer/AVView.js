@@ -933,7 +933,7 @@ define(['backbone.marionette',
                     // If data parameters have changed
                     // if this is first data load prev params is empty so ideally
                     // config from last time should be loaded
-                    if (!_.isEqual(this.prevParams, idKeys) && this.prevParams !== null) {
+                    if (!_.isEqual(this.prevParams, idKeys)) {
                         // Define which parameters should be selected defaultwise as filtering
                         var filterstouse = [
                             'Ne', 'Te', 'Bubble_Probability',
