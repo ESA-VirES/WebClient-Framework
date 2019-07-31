@@ -211,17 +211,18 @@ define([
                 this.map.scene.camera.right = new Cesium.Cartesian3(
                     c.right[0], c.right[1], c.right[2]
                 );
+
+                if (options.sceneMode === 2) {
+
+                    var frustum = JSON.parse(localStorage.getItem('frustum'));
+                    if(frustum){
+                        this.map.scene.camera.frustum.right = frustum.right;
+                        this.map.scene.camera.frustum.left = frustum.left;
+                        this.map.scene.camera.frustum.top = frustum.top;
+                        this.map.scene.camera.frustum.bottom = frustum.bottom;
+                    }
+                }
             }
-
-
-            if (options.sceneMode === 2 && localStorage.getItem('viewRectangle') !== null) {
-                var rect = JSON.parse(localStorage.getItem('viewRectangle'));
-                // Do not use this if zoomed out
-                //if(!(rect.north>1 && rect.south < -1)){
-                    this.map.camera.setView( { destination : rect });
-                //}
-            }
-
 
             var mm = globals.objects.get('mapmodel');
 
@@ -2130,27 +2131,14 @@ define([
                     }));
 
                     if(this.map.scene.mode === 2){
-                        var viewer = this.map;
-                        var ellipsoid = this.map.scene.globe.ellipsoid;
-                        var rect = c.computeViewRectangle(this.map.scene.globe.ellipsoid);
-                        if(rect == undefined) {
-                            var cl2 = new Cesium.Cartesian2(0, 0);
-                            var leftTop = viewer.scene.camera.pickEllipsoid(cl2, ellipsoid);
-                                
-                            var cr2 = new Cesium.Cartesian2(viewer.scene.canvas.width, viewer.scene.canvas.height);
-                            var rightDown = viewer.scene.camera.pickEllipsoid(cr2, ellipsoid);
-
-                            if(typeof leftTop !== 'undefined' && typeof rightDown !== 'undefined'){
-                                leftTop = ellipsoid.cartesianToCartographic(leftTop);
-                                rightDown = ellipsoid.cartesianToCartographic(rightDown);
-                                rect = new Cesium.Rectangle(leftTop.longitude, rightDown.latitude, rightDown.longitude, leftTop.latitude);
-                            }
-                        }
-                        if(rect !== undefined){
-                            localStorage.setItem('viewRectangle', JSON.stringify(rect));
-                        }
+                        localStorage.setItem('frustum', JSON.stringify({
+                            bottom: c.frustum.bottom,
+                            left: c.frustum.left,
+                            right: c.frustum.right,
+                            top: c.frustum.top
+                        }));
                     } else {
-                        localStorage.removeItem('viewRectangle');
+                        localStorage.removeItem('frustum');
                     }
 
 

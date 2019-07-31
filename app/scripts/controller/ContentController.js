@@ -16,6 +16,7 @@
                 'productsConfiguration', 'activeOverlays', 'activeBaselayer',
                 'cameraPosition', 'xAxisSelection', 'xAxisLabel', 'plotConfiguration',
                 'parameterConfiguration', 'filterSelection', 'filtersMinimized',
+                'frustum'
             ],
             initialize: function(options){
                 this.listenTo(Communicator.mediator, "dialog:open:about", this.onDialogOpenAbout);
