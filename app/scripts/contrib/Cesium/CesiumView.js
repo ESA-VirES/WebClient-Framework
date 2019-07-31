@@ -211,6 +211,17 @@ define([
                 this.map.scene.camera.right = new Cesium.Cartesian3(
                     c.right[0], c.right[1], c.right[2]
                 );
+
+                if (options.sceneMode === 2) {
+
+                    var frustum = JSON.parse(localStorage.getItem('frustum'));
+                    if(frustum){
+                        this.map.scene.camera.frustum.right = frustum.right;
+                        this.map.scene.camera.frustum.left = frustum.left;
+                        this.map.scene.camera.frustum.top = frustum.top;
+                        this.map.scene.camera.frustum.bottom = frustum.bottom;
+                    }
+                }
             }
 
             var mm = globals.objects.get('mapmodel');
@@ -1953,7 +1964,9 @@ define([
 
         hideFieldLinesLabel: function () {
             $('#fieldlines_label').addClass('hidden');
-            this.FLbillboards.removeAll();
+            if(this.FLbillboards){
+                this.FLbillboards.removeAll();
+            }
         },
 
         onHighlightPoint: function (coords, fieldlines_highlight) {
@@ -2116,6 +2129,19 @@ define([
                         up: [c.up.x, c.up.y, c.up.z],
                         right: [c.right.x, c.right.y, c.right.z]
                     }));
+
+                    if(this.map.scene.mode === 2){
+                        localStorage.setItem('frustum', JSON.stringify({
+                            bottom: c.frustum.bottom,
+                            left: c.frustum.left,
+                            right: c.frustum.right,
+                            top: c.frustum.top
+                        }));
+                    } else {
+                        localStorage.removeItem('frustum');
+                    }
+
+
                 } else {
                     this.cameraLastPosition.x = c.position.x;
                     this.cameraLastPosition.y = c.position.y;
