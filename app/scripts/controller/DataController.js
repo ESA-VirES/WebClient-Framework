@@ -255,11 +255,22 @@
             }, this);
           }
         }, this);
+        var uploadedHasResiduals = false;
         // hack arount different naming of process and layer (USER_DATA vs upload product view id)
         if (globals.userData.models.length > 0 && globals.swarm.satellites['Upload']) {
           retrieve_data.push({
               layer: globals.userData.views[0].id,
               url: globals.userData.views[0].url,
+          });
+
+          // check if uploaded data has F or B_NEC, then do NOT remove residuals
+          _.each(globals.userData.models, function (model) {
+            var containedVariables = model.get('info');
+            if (containedVariables) {
+              if (containedVariables.F || containedVariables.B_NEC) {
+                uploadedHasResiduals = true;
+              }
+            }
           });
         }
         if (retrieve_data.length > 0) {
@@ -298,7 +309,7 @@
             return collection.indexOf("MAG") !== -1;
           });
 
-          if (!magSelected) {
+          if (!magSelected && !uploadedHasResiduals) {
             variables = _.filter(variables, function (v) {
               return v.indexOf("_res_") === -1;
             });
@@ -444,6 +455,13 @@
                 for (var i = 0; i < dat[refKey].length; i++) {
                   dat['Radius'].push(6832000);
                 }
+              } else {
+                // Check to see if NaN data is inside of the array
+                for (var i = 0; i < dat['Radius'].length; i++) {
+                  if(Number.isNaN(dat['Radius'][i])){
+                    dat['Radius'][i] = 6378137;
+                  }
+                }
               }
 
               if (dat.hasOwnProperty('Latitude') && dat.hasOwnProperty('OrbitDirection')) {
@@ -463,6 +481,11 @@
 
                   } else if (dat.OrbitDirection[i] === 0) {
                     //TODO what to do here? Should in principle not happen
+                    // for now we just use original value
+                    dat.Latitude_periodic.push(dat.Latitude[i]);
+                  } else if (Number.isNaN(dat.OrbitDirection[i])) {
+                    // If no orbit info for now we just use original value
+                    dat.Latitude_periodic.push(dat.Latitude[i]);
                   }
                 }
               }
@@ -484,6 +507,11 @@
 
                   } else if (dat.QDOrbitDirection[i] === 0) {
                     //TODO what to do here? Should in principle not happen
+                    //for now we just use original value
+                    dat.QDLatitude_periodic.push(dat.QDLat[i]);
+                  } else if (Number.isNaN(dat.QDOrbitDirection[i])) {
+                    // If no orbit info for now we just use original value
+                    dat.QDLatitude_periodic.push(dat.QDLat[i]);
                   }
                 }
               }

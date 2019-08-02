@@ -14,8 +14,9 @@
                 'serviceVersion', 'mapSceneMode', 'selectedFilterList',
                 'timeSelection', 'timeDomain', 'areaSelection', 'viewSelection',
                 'productsConfiguration', 'activeOverlays', 'activeBaselayer',
-                'cameraPosition', 'xAxisSelection', 'plotConfiguration',
+                'cameraPosition', 'xAxisSelection', 'xAxisLabel', 'plotConfiguration',
                 'parameterConfiguration', 'filterSelection', 'filtersMinimized',
+                'frustum'
             ],
             initialize: function(options){
                 this.listenTo(Communicator.mediator, "dialog:open:about", this.onDialogOpenAbout);

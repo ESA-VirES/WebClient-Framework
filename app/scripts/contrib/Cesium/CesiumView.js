@@ -211,6 +211,17 @@ define([
                 this.map.scene.camera.right = new Cesium.Cartesian3(
                     c.right[0], c.right[1], c.right[2]
                 );
+
+                if (options.sceneMode === 2) {
+
+                    var frustum = JSON.parse(localStorage.getItem('frustum'));
+                    if(frustum){
+                        this.map.scene.camera.frustum.right = frustum.right;
+                        this.map.scene.camera.frustum.left = frustum.left;
+                        this.map.scene.camera.frustum.top = frustum.top;
+                        this.map.scene.camera.frustum.bottom = frustum.bottom;
+                    }
+                }
             }
 
             var mm = globals.objects.get('mapmodel');
@@ -546,6 +557,10 @@ define([
             if (this.map._sceneModePicker) {
                 var container = this.map._sceneModePicker.container;
                 var scene = this.map._sceneModePicker.viewModel._scene;
+
+                // Delete previous scenemodepicker
+                delete this.map._sceneModePicker;
+                $('.cesium-sceneModePicker-wrapper.cesium-toolbar-button').remove();
                 var modepicker = new Cesium.SceneModePicker(container, scene);
                 this.map._sceneModePicker = modepicker;
             }
@@ -1900,18 +1915,26 @@ define([
             if (typeof FLProduct !== 'undefined') {
                 var fl_data = this.FLData[FLProduct][fieldline.id];
                 // prepare template data
-                var apex = {
-                    lat: fl_data['apex_point'][0].toFixed(3),
-                    lon: fl_data['apex_point'][1].toFixed(3),
-                    height: (fl_data['apex_height'] / 1000).toFixed(1),
-                };
+                var apex;
+                if(fl_data.hasOwnProperty('apex_point') && fl_data.apex_point !== null) {
+                    apex = {
+                        lat: fl_data['apex_point'][0].toFixed(3),
+                        lon: fl_data['apex_point'][1].toFixed(3),
+                        height: (fl_data['apex_height'] / 1000).toFixed(1)
+                    };
+                }
+
                 var ground_points = [{
                     lat: fl_data['ground_points'][0][0].toFixed(3),
                     lon: fl_data['ground_points'][0][1].toFixed(3),
-                }, {
-                    lat: fl_data['ground_points'][1][0].toFixed(3),
-                    lon: fl_data['ground_points'][1][1].toFixed(3),
                 }];
+
+                if(fl_data.ground_points.length>1){
+                    ground_points.push({
+                        lat: fl_data['ground_points'][1][0].toFixed(3),
+                        lon: fl_data['ground_points'][1][1].toFixed(3)
+                    });
+                }
                 var options = {
                     ground_points: ground_points,
                     apex: apex,
@@ -1924,16 +1947,35 @@ define([
                 $('.close-fieldline-label').on('click', this.hideFieldLinesLabel.bind(this));
                 // highlight points
                 this.FLbillboards.removeAll();
-                this.highlightFieldLinesPoints([fl_data['apex_point'], fl_data['ground_points'][0], fl_data['ground_points'][1]]);
+                if(apex){
+                    this.highlightFieldLinesPoints(
+                        [].concat(
+                            [fl_data['apex_point']],
+                            fl_data['ground_points']
+                        )
+                    );
+                } else {
+                    this.highlightFieldLinesPoints(
+                        fl_data.ground_points
+                    );
+                }
             }
         },
 
         hideFieldLinesLabel: function () {
             $('#fieldlines_label').addClass('hidden');
-            this.FLbillboards.removeAll();
+            if(this.FLbillboards){
+                this.FLbillboards.removeAll();
+            }
         },
 
         onHighlightPoint: function (coords, fieldlines_highlight) {
+            var wrongInput = !coords || (coords.length === 3 && _.some(coords, function (el) {
+              return isNaN(el);
+            }));
+            if (wrongInput) {
+              return null;
+            }
             // either highlight single point or point on a fieldline
             if (!fieldlines_highlight) {
                 this.billboards.removeAll();
@@ -2087,6 +2129,19 @@ define([
                         up: [c.up.x, c.up.y, c.up.z],
                         right: [c.right.x, c.right.y, c.right.z]
                     }));
+
+                    if(this.map.scene.mode === 2){
+                        localStorage.setItem('frustum', JSON.stringify({
+                            bottom: c.frustum.bottom,
+                            left: c.frustum.left,
+                            right: c.frustum.right,
+                            top: c.frustum.top
+                        }));
+                    } else {
+                        localStorage.removeItem('frustum');
+                    }
+
+
                 } else {
                     this.cameraLastPosition.x = c.position.x;
                     this.cameraLastPosition.y = c.position.y;

@@ -265,6 +265,9 @@ var savePrameterStatus = function (globals){
               if(uomSet[pk][innerpk].hasOwnProperty('alpha')){
                   parC[innerpk]['alpha'] = uomSet[pk][innerpk].alpha;
               }
+              if(uomSet[pk][innerpk].hasOwnProperty('displayName')){
+                  parC[innerpk]['displayName'] = uomSet[pk][innerpk].displayName;
+              }
           }
       }
       if(!_.isEmpty(parC)){

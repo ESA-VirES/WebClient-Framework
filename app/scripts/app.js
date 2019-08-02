@@ -346,7 +346,7 @@ var MASTER_PRIORITY = [
                                             if(pars[pk].selected === true){
                                                 // TODO: If selected remove all other selected
                                                 for(var spk in pars){
-                                                    if(spk !== pk && 
+                                                    if(spk !== pk && product.parameters[spk] &&
                                                         product.parameters[spk].hasOwnProperty('selected')) {
                                                         delete product.parameters[spk].selected;
                                                     }
@@ -497,70 +497,7 @@ var MASTER_PRIORITY = [
                       Communicator.mediator.trigger('userData:fetch:complete');
                       $('#uploadcheck').prop('disabled', false);
                       $('#uploadcheck').prop('checked', globals.swarm.satellites['Upload']);
-                      var filteredCollection = globals.swarm['filtered_collection'];
-                      for (var i = globals.swarm.activeProducts.length - 1; i >= 0; i--) {
-                          globals.products.forEach(function(p) {
-                              if (p.get('download').id === globals.swarm.activeProducts[i]) {
-                                  if (p.get('visible')) {
-                                      p.set('visible', false);
-                                      Communicator.mediator.trigger('map:layer:change', {
-                                          name: p.get('name'),
-                                          isBaseLayer: false,
-                                          visible: false
-                                      });
-                                  }
-                              }
-                          });
-                      }
-                      globals.swarm.activeProducts = [];
-                      filteredCollection.forEach(function(p) {
-                          if (p.get('containerproduct')) {
-                              if (p.get('visible')) {
-                                  if (globals.swarm.satellites['Alpha']) {
-                                      if (globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Alpha']) === -1) {
-                                          globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Alpha']);
-                                      }
-                                  }
-                                  if (globals.swarm.satellites['Bravo']) {
-                                      if (globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Bravo']) === -1) {
-                                          globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Bravo']);
-                                      }
-                                  }
-                                  if (globals.swarm.satellites['Charlie']) {
-                                      if (globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Charlie']) === -1) {
-                                          globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Charlie']);
-                                      }
-                                  }
-                                  if (globals.swarm.satellites['NSC']) {
-                                      if (globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['NSC']) === -1) {
-                                          globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['NSC']);
-                                      }
-                                  }
-                                  if (globals.swarm.satellites['Upload']) {
-                                      if (globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Upload']) === -1) {
-                                          globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Upload']);
-                                      }
-                                  }
-                              }
-                          }
-                      });
-
-                      for (var i = globals.swarm.activeProducts.length - 1; i >= 0; i--) {
-                          globals.products.forEach(function(p) {
-                              if (p.get('download').id === globals.swarm.activeProducts[i]) {
-                                  if (!p.get('visible')) {
-                                      p.set('visible', true);
-                                      Communicator.mediator.trigger('map:layer:change', {
-                                          name: p.get('name'),
-                                          isBaseLayer: false,
-                                          visible: true
-                                      });
-                                  }
-                              }
-                          });
-                      }
-                      globals.swarm.activeProducts = globals.swarm.activeProducts.sort();
-                      Communicator.mediator.trigger('map:multilayer:change', globals.swarm.activeProducts);
+                      Communicator.mediator.trigger('layers:refresh');
                       $('#fpfilenamelabel').remove();
                       $('#uploadDialogContainer').append(
                           '<div class="filepond--drip" id="fpfilenamelabel">' + 

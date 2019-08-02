@@ -207,8 +207,11 @@ define(['backbone.marionette',
             }
 
             var xax = 'Latitude';
+            var xlabel = null;
             var yax = ['F'];
+            var yAxisLabel = [];
             var y2ax = [];
+            var y2AxisLabel = [];
             var colax = [];
             var colax2 = [];
 
@@ -217,15 +220,26 @@ define(['backbone.marionette',
                 var plotConfiguration = JSON.parse(localStorage.getItem('plotConfiguration'));
                 yax = [];
                 for (var i = 0; i < plotConfiguration.length; i++) {
-                    yax.push(plotConfiguration[i].yAxis)
-                    y2ax.push(plotConfiguration[i].y2Axis)
-                    colax.push(plotConfiguration[i].colorAxis)
-                    colax2.push(plotConfiguration[i].colorAxis2)
+                    yax.push(plotConfiguration[i].yAxis);
+                    y2ax.push(plotConfiguration[i].y2Axis);
+                    colax.push(plotConfiguration[i].colorAxis);
+                    colax2.push(plotConfiguration[i].colorAxis2);
+
+                    if(plotConfiguration[i].hasOwnProperty('yAxisLabel')){
+                        yAxisLabel.push(plotConfiguration[i].yAxisLabel);
+                    }
+                    if(plotConfiguration[i].hasOwnProperty('y2AxisLabel')){
+                        y2AxisLabel.push(plotConfiguration[i].y2AxisLabel);
+                    }
                 }
             }
 
             if (localStorage.getItem('xAxisSelection') !== null) {
                 xax = JSON.parse(localStorage.getItem('xAxisSelection'));
+            }
+
+            if (localStorage.getItem('xAxisLabel') !== null) {
+                xlabel = JSON.parse(localStorage.getItem('xAxisLabel'));
             }
 
             // Check if previous config used multiaxis
@@ -315,6 +329,16 @@ define(['backbone.marionette',
                 }
             };
 
+            if(yAxisLabel.length>0){
+                this.renderSettings.yAxisLabel = yAxisLabel;
+            }
+            if(y2AxisLabel.length>0){
+                this.renderSettings.y2AxisLabel = y2AxisLabel;
+            }
+            if(xlabel){
+                this.renderSettings.xAxisLabel = xlabel;
+            }
+
             var cols = [
                 'coolwarm', 'rainbow', 'jet', 'diverging_1', 'diverging_2',
                 'blackwhite', 'viridis', 'inferno', 'hsv', 'hot', 'cool',
@@ -358,13 +382,19 @@ define(['backbone.marionette',
                     'xAxisSelection',
                     JSON.stringify(this.renderSettings.xAxis)
                 );
+                localStorage.setItem(
+                    'xAxisLabel',
+                    JSON.stringify(this.xAxisLabel)
+                );
 
                 var currL = this.renderSettings.yAxis.length;
                 var confArr = [];
                 for (var i = 0; i < currL; i++) {
                     confArr.push({
                         yAxis: this.renderSettings.yAxis[i],
+                        yAxisLabel: this.yAxisLabel[i],
                         y2Axis: this.renderSettings.y2Axis[i],
+                        y2AxisLabel: this.y2AxisLabel[i],
                         colorAxis: this.renderSettings.colorAxis[i],
                         colorAxis2: this.renderSettings.colorAxis2[i]
                     });
@@ -903,7 +933,7 @@ define(['backbone.marionette',
                     // If data parameters have changed
                     // if this is first data load prev params is empty so ideally
                     // config from last time should be loaded
-                    if (!_.isEqual(this.prevParams, idKeys) && this.prevParams !== null) {
+                    if (!_.isEqual(this.prevParams, idKeys)) {
                         // Define which parameters should be selected defaultwise as filtering
                         var filterstouse = [
                             'Ne', 'Te', 'Bubble_Probability',
@@ -1091,6 +1121,12 @@ define(['backbone.marionette',
                             'colorAxis2Selection',
                             JSON.stringify(this.graph.renderSettings.colorAxis2)
                         );
+
+                        this.graph.renderSettings.yAxis = renSetY ;
+                        this.graph.renderSettings.y2Axis = renSetY2;
+                        this.graph.renderSettings.colorAxis = colAx;
+                        this.graph.renderSettings.colorAxis2 = colAx2;
+
                         // End of IF to see if data parameters have changed
                     } else if (this.prevParams === null) {
                         // TODO: We should not need to do anything here but we
@@ -1133,8 +1169,39 @@ define(['backbone.marionette',
         },
 
         onChangeAxisParameters: function (selection) {
-            this.sp.sel_y = selection;
-            this.sp.render();
+            this.graph.renderSettings.yAxis = [selection];
+            // reset all other plots and configurations
+            this.graph.renderSettings.yAxis = [selection];
+            this.graph.renderSettings.y2Axis = [[]];
+            this.graph.renderSettings.colorAxis = [[null]];
+            this.graph.renderSettings.colorAxis2 = [[]];
+
+
+            // Make sure filters are shown
+            var filtersMinimized = localStorage.getItem('filtersMinimized');
+            if (filtersMinimized === null) {
+                filtersMinimized = false;
+            } else {
+                filtersMinimized = JSON.parse(filtersMinimized);
+            }
+
+            if (filtersMinimized) {
+                var height = ($('#graph').height() - 270) + 'px';
+                $('#filterSelectDrop').css('opacity', 1.0);
+                $('#analyticsFilters').css('opacity', 1.0);
+                $('#graph').css('height', height);
+                $('#minimizeFilters i').attr('class',
+                    'fa fa-chevron-circle-down'
+                );
+                localStorage.setItem(
+                    'filtersMinimized', JSON.stringify(false)
+                );
+            }
+
+
+            this.graph.initAxis();
+            this.graph.resize();
+            //this.graph.renderData();
         },
 
         onResize: function () {
