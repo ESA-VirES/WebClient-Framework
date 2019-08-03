@@ -1,4 +1,5 @@
-(function() {
+/* global $ */
+(function () {
     'use strict';
 
     var root = this;
@@ -10,7 +11,7 @@
         'hbs!tmpl/NavBarItem'
     ],
 
-    function( Backbone, Communicator, NavBarItemModel, NavBarItemTmpl ) {
+    function (Backbone, Communicator, NavBarItemModel, NavBarItemTmpl) {
 
         var NavBarItemView = Backbone.Marionette.ItemView.extend({
             model: NavBarItemModel,
@@ -18,37 +19,37 @@
                 type: 'handlebars',
                 template: NavBarItemTmpl
             },
-            tagName: 'li', 
+            tagName: 'li',
             cursor: 'pointer',
             //events: {'click': 'itemClicked'},
 
-            itemClicked: function(){
+            itemClicked: function () {
                 Communicator.mediator.trigger(this.model.get('eventToRaise'), this);
             },
 
-            initialize: function(options){
+            initialize: function (options) {
                 var self = this;
-                if(this.model.get("subitems")){
+                if (this.model.get("subitems")) {
                     this.$el.attr("class", "dropdown");
-                }else if(this.model.get("url")){
+                } else if (this.model.get("url")) {
                     this.$el.on("click", function () {
                         window.location.href = self.model.get("url");
                     });
-                }else{
+                } else {
                     var event = this.model.get("eventToRaise").split(':');
-                    if(event && event[0] === 'modal'){
+                    if (event && event[0] === 'modal') {
                         this.$el.on("click", function () {
-                            $(('#'+event[1])).modal('show');
+                            $(('#' + event[1])).modal('show');
                         });
-                        
-                    }else{
+
+                    } else {
                         this.$el.on("click", $.proxy(this.itemClicked, this));
                     }
                 }
             }
-            
+
         });
-        return {'NavBarItemView' : NavBarItemView};
+        return {'NavBarItemView': NavBarItemView};
     });
 
-}).call( this );
+}).call(this);
