@@ -1,23 +1,25 @@
-
 {{#if subitems}}
 <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
 {{else}}
 <a class="tab-header">
 {{/if}}
-	<i class="fa fa-fw {{icon}}"></i> {{name}}
+  <i class="fa fa-fw {{icon}}"></i> {{name}}
 </a>
 
 {{#if subitems}}
 <ul class="dropdown-menu" role="menu">
-	{{#each subitems}}
-    	<li>
-        {{#if this.url}}
+  {{#each subitems}}
+    <li>
+      {{#if this.url}}
         <a href="{{this.url}}">{{this.name}}</a>
+      {{else}}
+        {{#if this.modalId}}
+          <a href="javascript:void(0);" onclick="$('#{{this.modalId}}').modal('show');">{{this.name}}</a>
         {{else}}
-    		<a href="javascript:void(0);" onclick="require(['communicator'], function(Communicator){Communicator.mediator.trigger('{{this.eventToRaise}}', '{{this.template}}');});">{{this.name}}</a>
+          <a href="javascript:void(0);" onclick="require(['communicator'], function(Communicator){Communicator.mediator.trigger('{{this.eventToRaise}}', '{{this.template}}');});">{{this.name}}</a>
         {{/if}}
-    	</li>
- 	{{/each}}
+      {{/if}}
+    </li>
+  {{/each}}
 </ul>
 {{/if}}
-

@@ -1,4 +1,4 @@
-/* global $ */
+/* global $ _ */
 (function () {
     'use strict';
 
@@ -28,20 +28,34 @@
             },
 
             initialize: function (options) {
-                var self = this;
+                function getModalId(eventToRaise) {
+                    var parts = eventToRaise.split(':');
+                    return parts && parts[0] === 'modal' ? parts[1] : null;
+                }
+
                 if (this.model.get("subitems")) {
                     this.$el.attr("class", "dropdown");
+                    this.model.set("subitems", _.map(
+                        this.model.get("subitems"), function (item) {
+                            if (item.eventToRaise) {
+                                var modalId = getModalId(item.eventToRaise);
+                                if (modalId) {
+                                    item.modalId = modalId;
+                                }
+                            }
+                            return item;
+                        }
+                    ));
                 } else if (this.model.get("url")) {
-                    this.$el.on("click", function () {
-                        window.location.href = self.model.get("url");
-                    });
+                    this.$el.on("click", _.bind(function () {
+                        window.location.href = this.model.get("url");
+                    }, this));
                 } else {
-                    var event = this.model.get("eventToRaise").split(':');
-                    if (event && event[0] === 'modal') {
+                    var modalId = getModalId(this.model.get("eventToRaise"));
+                    if (modalId) {
                         this.$el.on("click", function () {
-                            $(('#' + event[1])).modal('show');
+                            $('#' + modalId).modal('show');
                         });
-
                     } else {
                         this.$el.on("click", $.proxy(this.itemClicked, this));
                     }
