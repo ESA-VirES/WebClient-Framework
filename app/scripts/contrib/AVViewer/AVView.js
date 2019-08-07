@@ -365,7 +365,8 @@ define(['backbone.marionette',
                 enableSubYAxis: false,
                 colorscaleOptionLabel: 'Add third variable',
                 ignoreParameters: ['__info__'],
-                colorscales: cols
+                colorscales: cols,
+                labelAllignment: 'center'
             });
 
             if (localStorage.getItem('filterSelection') !== null) {
