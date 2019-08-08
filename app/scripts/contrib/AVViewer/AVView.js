@@ -933,7 +933,6 @@ define(['backbone.marionette',
                     var firstLoadNoConfig = false;
                     if(this.prevParams === null){
                         // First time loading data we set previous to current data
-                        this.prevParams = idKeys;
                         if(localStorage.getItem('plotConfiguration') === null){
                             // this is first load and no config is available
                             // so we need to load default values
