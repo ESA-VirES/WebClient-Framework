@@ -10,17 +10,17 @@
     'backbone',
     'communicator',
     'globals',
+    'msgpack',
     'hbs!tmpl/wps_getdata',
     'hbs!tmpl/wps_fetchData',
     'app',
     'httpRequest',
     'dataUtil',
-    'msgpack',
     'underscore'
   ],
 
   function (
-    Backbone, Communicator, globals, wps_getdataTmpl, wps_fetchDataTmpl, App,
+    Backbone, Communicator, globals, msgpack, wps_getdataTmpl, wps_fetchDataTmpl, App,
     httpRequest, DataUtil
   ) {
 
