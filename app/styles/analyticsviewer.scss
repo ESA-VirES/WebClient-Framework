@@ -352,3 +352,11 @@ text.nvd3.nv-noData {
 .paramTable{
     z-index:1006!important;
 }
+
+.pencilIcon.editButton{
+    display: none;
+}
+
+.eraserIcon.editButton{
+    right: 10px;
+}

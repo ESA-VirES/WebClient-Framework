@@ -109,8 +109,10 @@ var MASTER_PRIORITY = [
                 // Create a single file upload component
                 this.pond = FilePond.create({
                     allowMultiple: false,
-                    labelIdle: ('Drag & Drop your file or <span class="filepond--label-action"> Browse </span><br>'+
-                                'Maximum file size is 256 MB'),
+                    labelIdle: (
+                        'Drag & Drop your file or <span class="filepond--label-action"> Browse </span><br>' +
+                        'Max. file size 256 MB | <a href="/accounts/custom_data_format_description/" target="_blank">File format spec.</a>'
+                    ),
                     name: 'file',
                     onaddfilestart: function () {
                       $('#fpfilenamelabel').remove();
