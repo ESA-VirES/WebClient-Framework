@@ -21,7 +21,6 @@
         "models": [
             {"id": "MCO_SHA_2C"},
             {"id": "MCO_SHA_2D"},
-            {"id": "MCO_SHA_2F"},
             {"id": "MLI_SHA_2C"},
             {"id": "MLI_SHA_2D"},
             {"id": "MIO_SHA_2C-Primary"},
@@ -32,7 +31,6 @@
             {"id": "MMA_SHA_2C-Secondary"},
             {"id": "MMA_SHA_2F-Primary"},
             {"id": "MMA_SHA_2F-Secondary"},
-            {"id": "SIFM"},
             {"id": "IGRF12"},
             {"id": "CHAOS-6-Core"},
             {
