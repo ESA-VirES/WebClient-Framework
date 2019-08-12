@@ -347,6 +347,7 @@ text.nvd3.nv-noData {
 /*For some reason the width when integrated into framework is changed*/
 #parameterSettings{
     width: 270px!important;
+    z-index: 1005;
 }
 
 .paramTable{

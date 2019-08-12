@@ -930,10 +930,20 @@ define(['backbone.marionette',
 
                     var needsResize = false;
 
+                    var firstLoadNoConfig = false;
+                    if(this.prevParams === null){
+                        // First time loading data we set previous to current data
+                        if(localStorage.getItem('plotConfiguration') === null){
+                            // this is first load and no config is available
+                            // so we need to load default values
+                            firstLoadNoConfig = true;
+                        }
+                    }
+
                     // If data parameters have changed
                     // if this is first data load prev params is empty so ideally
                     // config from last time should be loaded
-                    if (!_.isEqual(this.prevParams, idKeys)) {
+                    if (firstLoadNoConfig && !_.isEqual(this.prevParams, idKeys)) {
                         // Define which parameters should be selected defaultwise as filtering
                         var filterstouse = [
                             'Ne', 'Te', 'Bubble_Probability',
