@@ -10,19 +10,18 @@
     'backbone',
     'communicator',
     'globals',
+    'msgpack',
     'hbs!tmpl/wps_getdata',
     'hbs!tmpl/wps_fetchData',
     'app',
-    'papaparse',
+    'httpRequest',
     'dataUtil',
-    'msgpack',
-    'graphly',
     'underscore'
   ],
 
   function (
-    Backbone, Communicator, globals, wps_getdataTmpl, wps_fetchDataTmpl, App,
-    Papa, DataUtil
+    Backbone, Communicator, globals, msgpack, wps_getdataTmpl, wps_fetchDataTmpl, App,
+    httpRequest, DataUtil
   ) {
 
     var DataController = Backbone.Marionette.Controller.extend({
@@ -112,9 +111,7 @@
       updateLayerResidualParameters: function () {
         // Manage additional residual parameter for Swarm layers
         globals.products.each(function (product) {
-
-          if (product.get("satellite") == "Swarm") {
-
+          if (['Swarm', 'Upload'].includes(product.get('satellite'))) {
             // Get Layer parameters
             var pars = product.get("parameters");
 
@@ -188,7 +185,6 @@
             }
           }
         }
-        localStorage.setItem('swarmProductSelection', JSON.stringify(this.activeWPSproducts));
         this.checkSelections();
         this.checkModelValidity();
       },
@@ -215,6 +211,8 @@
           this.selected_time = Communicator.reqres.request('get:time');
 
         if (this.activeWPSproducts.length > 0 && this.selected_time) {
+          this.sendRequest();
+        } else if (globals.swarm.satellites['Upload'] && globals.userData.models.length>0){
           this.sendRequest();
         } else {
           globals.swarm.set({data: []});
@@ -257,7 +255,24 @@
             }, this);
           }
         }, this);
+        var uploadedHasResiduals = false;
+        // hack arount different naming of process and layer (USER_DATA vs upload product view id)
+        if (globals.userData.models.length > 0 && globals.swarm.satellites['Upload']) {
+          retrieve_data.push({
+              layer: globals.userData.views[0].id,
+              url: globals.userData.views[0].url,
+          });
 
+          // check if uploaded data has F or B_NEC, then do NOT remove residuals
+          _.each(globals.userData.models, function (model) {
+            var containedVariables = model.get('info');
+            if (containedVariables) {
+              if (containedVariables.F || containedVariables.B_NEC) {
+                uploadedHasResiduals = true;
+              }
+            }
+          });
+        }
         if (retrieve_data.length > 0) {
 
           var collections = DataUtil.parseCollections(retrieve_data);
@@ -293,7 +308,7 @@
             return collection.indexOf("MAG") !== -1;
           });
 
-          if (!magSelected) {
+          if (!magSelected && !uploadedHasResiduals) {
             variables = _.filter(variables, function (v) {
               return v.indexOf("_res_") === -1;
             });
@@ -309,6 +324,22 @@
 
           if (noLocation) {
             variables = _.difference(variables, ["QDLat", "QDLon", "MLT"]);
+          }
+
+          // Check if user uploaded parameters should be requested
+          var uD = globals.userData;
+          if(uD.hasOwnProperty('models')){
+            for (var i = 0; i < uD.models.length; i++) {
+              var info = uD.models[i].get('info');
+              if(info !== null){
+                for (var parK in info){
+                  // Only add if not already there
+                  if(variables.indexOf(parK) === -1){
+                    variables.push(parK);
+                  }
+                }
+              }
+            }
           }
 
           options.variables = variables.join(",");
@@ -334,8 +365,6 @@
             function (item) {return item.getCustomShcIfSelected();}
           )[0] || null;
 
-          var req_data = wps_fetchDataTmpl(options);
-
           if (this.xhr !== null) {
             // A request has been sent that is not yet been returned so we need to cancel it
             Communicator.mediator.trigger("progress:change", false);
@@ -343,168 +372,215 @@
             this.xhr = null;
           }
 
-          this.xhr = new XMLHttpRequest();
-          this.xhr.open('POST', retrieve_data[0].url, true);
-          this.xhr.responseType = 'arraybuffer';
-          var that = this;
-          var request = this.xhr;
+          this.xhr = httpRequest.asyncHttpRequest({
+            context: this,
+            type: 'POST',
+            url: retrieve_data[0].url,
+            data: wps_fetchDataTmpl(options),
+            responseType: 'arraybuffer',
 
-          this.xhr.onreadystatechange = function () {
-            if (request.readyState == 4) {
-              if (request.status == 200) {
-                var tmp = new Uint8Array(request.response);
-                var dat = msgpack.decode(tmp);
+            parse: function (data, xhr) {
+              var decodedObj = msgpack.decode(new Uint8Array(data));
+              return decodedObj;
+            },
 
-                var ids = {
-                  'A': 'Alpha',
-                  'B': 'Bravo',
-                  'C': 'Charlie',
-                  '-': 'NSC'
-                };
+            opened: function () {
+              Communicator.mediator.trigger("progress:change", true);
+            },
 
-                if (dat.hasOwnProperty('Spacecraft')) {
-                  dat['id'] = [];
-                  for (var i = 0; i < dat.Timestamp.length; i++) {
-                    dat.id.push(ids[dat.Spacecraft[i]]);
-                  }
-                }
+            completed: function () {
+              this.xhr = null;
+              Communicator.mediator.trigger("progress:change", false);
+            },
 
-                if (dat.hasOwnProperty('Timestamp')) {
-                  for (var i = 0; i < dat.Timestamp.length; i++) {
-                    dat.Timestamp[i] = new Date(dat.Timestamp[i] * 1000);
-                  }
-                }
-                if (dat.hasOwnProperty('timestamp')) {
-                  for (var i = 0; i < dat.Timestamp.length; i++) {
-                    dat.Timestamp[i] = new Date(dat.timestamp[i] * 1000);
-                  }
-                }
-                if (dat.hasOwnProperty('latitude')) {
-                  dat['Latitude'] = dat['latitude'];
-                  delete dat.latitude;
-                }
-                if (dat.hasOwnProperty('longitude')) {
-                  dat['Longitude'] = dat['longitude'];
-                  delete dat.longitude;
-                }
-                if (!dat.hasOwnProperty('Radius')) {
-                  dat['Radius'] = [];
-                  var refKey = 'Timestamp';
-                  if (!dat.hasOwnProperty(refKey)) {
-                    refKey = 'timestamp';
-                  }
-                  for (var i = 0; i < dat[refKey].length; i++) {
-                    dat['Radius'].push(6832000);
-                  }
-                }
+            error: function (xhr) {
+              globals.swarm.set({data: {}});
+              if (xhr.responseText === "") {return;}
+              var error_text = xhr.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
+              if (error_text && error_text.length > 1) {
+                error_text = error_text[1];
+              } else {
+                error_text = 'Please contact feedback@vires.services if issue persists.';
+              }
+              showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+            },
 
-                if (dat.hasOwnProperty('Latitude') && dat.hasOwnProperty('OrbitDirection')) {
-                  dat['Latitude_periodic'] = [];
-                  for (var i = 0; i < dat.Latitude.length; i++) {
-                    if (dat.OrbitDirection[i] === 1) {
-                      // range 90 -270
-                      dat.Latitude_periodic.push(dat.Latitude[i] + 180);
-                    } else if (dat.OrbitDirection[i] === -1) {
-                      if (dat.Latitude[i] < 0) {
-                        // range 0 - 90
-                        dat.Latitude_periodic.push((dat.Latitude[i] * -1));
-                      } else {
-                        // range 270 - 360
-                        dat.Latitude_periodic.push(360 - dat.Latitude[i]);
-                      }
+            success: function (dat) {
 
-                    } else if (dat.OrbitDirection[i] === 0) {
-                      //TODO what to do here? Should in principle not happen
-                    }
-                  }
-                }
-
-                if (dat.hasOwnProperty('QDLat') && dat.hasOwnProperty('QDOrbitDirection')) {
-                  dat['QDLatitude_periodic'] = [];
-                  for (var i = 0; i < dat.QDLat.length; i++) {
-                    if (dat.QDOrbitDirection[i] === 1) {
-                      // range 90 -270
-                      dat.QDLatitude_periodic.push(dat.QDLat[i] + 180);
-                    } else if (dat.QDOrbitDirection[i] === -1) {
-                      if (dat.QDLat[i] < 0) {
-                        // range 0 - 90
-                        dat.QDLatitude_periodic.push((dat.QDLat[i] * -1));
-                      } else {
-                        // range 270 - 360
-                        dat.QDLatitude_periodic.push(360 - dat.QDLat[i]);
-                      }
-
-                    } else if (dat.QDOrbitDirection[i] === 0) {
-                      //TODO what to do here? Should in principle not happen
-                    }
-                  }
-                }
-
-                _.each(dat, function (data, key) {
-                  var components = VECTOR_BREAKDOWN[key];
-                  if (!components) {return;}
-                  dat[components[0]] = [];
-                  dat[components[1]] = [];
-                  dat[components[2]] = [];
-                  _.each(data, function (item) {
-                    dat[components[0]].push(item[0]);
-                    dat[components[1]].push(item[1]);
-                    dat[components[2]].push(item[2]);
-                  });
-                  delete dat[key];
-                });
-
-                // This should only happen here if there has been
-                // some issue with the saved filter configuration
-                // Check if current brushes are valid for current data
-                var idKeys = Object.keys(dat);
-                var filters = globals.swarm.get('filters');
-                var filtersSelec = JSON.parse(localStorage.getItem('filterSelection'));
-                var filtersmodified = false;
-                if (filters) {
-                  for (var f in filters) {
-                    if (idKeys.indexOf(f) === -1) {
-                      delete filters[f];
-                      delete filtersSelec[f];
-                      filtersmodified = true;
-                    }
-                  }
-                  if (filtersmodified) {
-                    globals.swarm.set('filters', filters);
-                    localStorage.setItem('filterSelection', JSON.stringify(filtersSelec));
-                  }
-                }
-
-                globals.swarm.set({data: dat});
-                Communicator.mediator.trigger("progress:change", false);
-                that.xhr = null;
-
-              } else if (request.status !== 0 && request.responseText != "") {
-                globals.swarm.set({data: {}});
-                var error_text = request.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
-                if (error_text && error_text.length > 1) {
-                  error_text = error_text[1];
-                } else {
-                  error_text = 'Please contact feedback@vires.services if issue persists.';
-                }
-
-                showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
-                Communicator.mediator.trigger("progress:change", false);
-                that.xhr = null;
+              if(Object.keys(dat).length === 1 && dat.hasOwnProperty('__info__')){
+                globals.swarm.set({data: []});
                 return;
               }
 
-            } else if (request.readyState == 2) {
-              if (request.status == 200) {
-                request.responseType = 'arraybuffer';
-              } else {
-                request.responseType = 'text';
-              }
-            }
-          };
+              var ids = {
+                'A': 'Alpha',
+                'B': 'Bravo',
+                'C': 'Charlie',
+                '-': 'NSC',
+                'U': 'Upload',
+              };
 
-          Communicator.mediator.trigger("progress:change", true);
-          this.xhr.send(req_data);
+              if (dat.hasOwnProperty('Spacecraft')) {
+                dat['id'] = [];
+                for (var i = 0; i < dat.Timestamp.length; i++) {
+                  dat.id.push(ids[dat.Spacecraft[i]]);
+                }
+              }
+
+              if (dat.hasOwnProperty('Timestamp')) {
+                for (var i = 0; i < dat.Timestamp.length; i++) {
+                  dat.Timestamp[i] = new Date(dat.Timestamp[i] * 1000);
+                }
+              }
+              if (dat.hasOwnProperty('timestamp')) {
+                for (var i = 0; i < dat.Timestamp.length; i++) {
+                  dat.Timestamp[i] = new Date(dat.timestamp[i] * 1000);
+                }
+              }
+              if (dat.hasOwnProperty('latitude')) {
+                dat['Latitude'] = dat['latitude'];
+                delete dat.latitude;
+              }
+              if (dat.hasOwnProperty('longitude')) {
+                dat['Longitude'] = dat['longitude'];
+                delete dat.longitude;
+              }
+              if (!dat.hasOwnProperty('Radius')) {
+                dat['Radius'] = [];
+                var refKey = 'Timestamp';
+                if (!dat.hasOwnProperty(refKey)) {
+                  refKey = 'timestamp';
+                }
+                for (var i = 0; i < dat[refKey].length; i++) {
+                  dat['Radius'].push(6832000);
+                }
+              } else {
+                // Check to see if NaN data is inside of the array
+                for (var i = 0; i < dat['Radius'].length; i++) {
+                  if(Number.isNaN(dat['Radius'][i])){
+                    dat['Radius'][i] = 6378137;
+                  }
+                }
+              }
+
+              if (dat.hasOwnProperty('Latitude') && dat.hasOwnProperty('OrbitDirection')) {
+                dat['Latitude_periodic'] = [];
+                for (var i = 0; i < dat.Latitude.length; i++) {
+                  if (dat.OrbitDirection[i] === 1) {
+                    // range 90 -270
+                    dat.Latitude_periodic.push(dat.Latitude[i] + 180);
+                  } else if (dat.OrbitDirection[i] === -1) {
+                    if (dat.Latitude[i] < 0) {
+                      // range 0 - 90
+                      dat.Latitude_periodic.push((dat.Latitude[i] * -1));
+                    } else {
+                      // range 270 - 360
+                      dat.Latitude_periodic.push(360 - dat.Latitude[i]);
+                    }
+
+                  } else if (dat.OrbitDirection[i] === 0) {
+                    //TODO what to do here? Should in principle not happen
+                    // for now we just use original value
+                    dat.Latitude_periodic.push(dat.Latitude[i]);
+                  } else if (Number.isNaN(dat.OrbitDirection[i])) {
+                    // If no orbit info for now we just use original value
+                    dat.Latitude_periodic.push(dat.Latitude[i]);
+                  }
+                }
+              }
+
+              if (dat.hasOwnProperty('QDLat') && dat.hasOwnProperty('QDOrbitDirection')) {
+                dat['QDLatitude_periodic'] = [];
+                for (var i = 0; i < dat.QDLat.length; i++) {
+                  if (dat.QDOrbitDirection[i] === 1) {
+                    // range 90 -270
+                    dat.QDLatitude_periodic.push(dat.QDLat[i] + 180);
+                  } else if (dat.QDOrbitDirection[i] === -1) {
+                    if (dat.QDLat[i] < 0) {
+                      // range 0 - 90
+                      dat.QDLatitude_periodic.push((dat.QDLat[i] * -1));
+                    } else {
+                      // range 270 - 360
+                      dat.QDLatitude_periodic.push(360 - dat.QDLat[i]);
+                    }
+
+                  } else if (dat.QDOrbitDirection[i] === 0) {
+                    //TODO what to do here? Should in principle not happen
+                    //for now we just use original value
+                    dat.QDLatitude_periodic.push(dat.QDLat[i]);
+                  } else if (Number.isNaN(dat.QDOrbitDirection[i])) {
+                    // If no orbit info for now we just use original value
+                    dat.QDLatitude_periodic.push(dat.QDLat[i]);
+                  }
+                }
+              }
+
+              _.each(dat, function (data, key) {
+                var components = VECTOR_BREAKDOWN[key];
+                if (!components) {return;}
+                dat[components[0]] = [];
+                dat[components[1]] = [];
+                dat[components[2]] = [];
+                _.each(data, function (item) {
+                  dat[components[0]].push(item[0]);
+                  dat[components[1]].push(item[1]);
+                  dat[components[2]].push(item[2]);
+                });
+                delete dat[key];
+              });
+
+              // Also break down vector userdata 
+              var userVec = [];
+              if(globals.hasOwnProperty('userData') && globals.userData.hasOwnProperty('models')){
+                globals.userData.models.forEach(function(mo){
+                  var pars = mo.get('info');
+                  for (var pk in pars) {
+                    if(pars[pk].hasOwnProperty('shape') && pars[pk].shape.length>1){
+                      userVec.push(pk);
+                    }
+                  }
+                });
+              }
+
+              for (var i = 0; i < userVec.length; i++) {
+                if(dat.hasOwnProperty(userVec[i])){
+                  var pardat = dat[userVec[i]];
+                  dat[userVec[i]+'_1'] = [];
+                  dat[userVec[i]+'_2'] = [];
+                  dat[userVec[i]+'_3'] = [];
+                  _.each(pardat, function (item) {
+                    dat[userVec[i]+'_1'].push(item[0]);
+                    dat[userVec[i]+'_2'].push(item[1]);
+                    dat[userVec[i]+'_3'].push(item[2]);
+                  });
+                  delete dat[userVec[i]];
+                }
+              }
+
+              // This should only happen here if there has been
+              // some issue with the saved filter configuration
+              // Check if current brushes are valid for current data
+              var idKeys = Object.keys(dat);
+              var filters = globals.swarm.get('filters');
+              var filtersSelec = JSON.parse(localStorage.getItem('filterSelection'));
+              var filtersmodified = false;
+              if (filters) {
+                for (var f in filters) {
+                  if (idKeys.indexOf(f) === -1) {
+                    delete filters[f];
+                    delete filtersSelec[f];
+                    filtersmodified = true;
+                  }
+                }
+                if (filtersmodified) {
+                  globals.swarm.set('filters', filters);
+                  localStorage.setItem('filterSelection', JSON.stringify(filtersSelec));
+                }
+              }
+
+              globals.swarm.set({data: dat});
+            },
+          });
         }
       },
 

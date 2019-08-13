@@ -8,13 +8,19 @@
     ],
 
     "storyTemplate": "UseCaseTestTemplate",
-
+    "userData": {
+        "url": "http://localhost:9000/vires00/custom_data/",
+        "color": "#8be4e5",
+        "views": [{
+            "id": "USER_DATA",
+            "url": "http://localhost:9000/vires00/ows"
+        }]
+    },
     "magneticModels": {
         "infoUrl": "http://localhost:9000/vires00/ows",
         "models": [
             {"id": "MCO_SHA_2C"},
             {"id": "MCO_SHA_2D"},
-            {"id": "MCO_SHA_2F"},
             {"id": "MLI_SHA_2C"},
             {"id": "MLI_SHA_2D"},
             {"id": "MIO_SHA_2C-Primary"},
@@ -25,8 +31,9 @@
             {"id": "MMA_SHA_2C-Secondary"},
             {"id": "MMA_SHA_2F-Primary"},
             {"id": "MMA_SHA_2F-Secondary"},
-            {"id": "SIFM"},
             {"id": "IGRF12"},
+            {"id": "LCS-1"},
+            {"id": "MF7"},
             {"id": "CHAOS-6-Core"},
             {
                 "id": "CHAOS-6-Static",
@@ -130,7 +137,7 @@
             "views": [{
                 "id": "s2cloudless",
                 "protocol": "WMTS",
-                "urlTemplate": "https://{s}.s2maps-tiles.eu/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=s2cloudless&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fjpg",
+                "urlTemplate": "https://{s}.s2maps-tiles.eu/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=s2cloudless-2018&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fjpg",
                 "subdomains": "abcdef",
                 "urls": [
                     "//a.tiles.maps.eox.at/wmts/",
@@ -166,6 +173,7 @@
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
+            "visible": true,
             "views": [{
                 "id": "SW_OPER_MAGA_LR_1B",
                 "protocol": "CZML",
@@ -3386,6 +3394,449 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
+            "name": "MAGU LR 1B",
+            "color": "#1f77b4",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "views": [{
+                "id": "SW_OPER_MAGU_LR_1B",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_MAGU_LR_1B"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "parameters": {
+                "B_NEC": {
+                    "range": [15000, 55000],
+                    "uom":"nT",
+                    "colorscale": "jet",
+                    "name": "Magnetic field vector, NEC frame"
+                },
+                "F": {
+                    "range": [15000, 55000],
+                    "uom":"nT",
+                    "colorscale": "jet",
+                    "selected": true,
+                    "name": "Magnetic field intensity"
+                },
+                "B_NEC_resAC":{
+                    "range": [-600, 600],
+                    "uom":"nT",
+                    "colorscale": "jet",
+                    "name": "Magnetic field vector residual A - C"
+                }
+            },
+            "outlines": false,
+            "satellite": "Upload"
+          },{
+              "name": "EFIU LP 1B",
+              "timeSlider": true,
+              "timeSliderProtocol": "USER_DATA",
+              "color": "#ff7f0e",
+              "views": [{
+                  "id": "SW_OPER_EFIU_LP_1B",
+                  "protocol": "CZML",
+                  "urls": [
+                      "http://localhost:9000/vires00/ows"
+                  ],
+                  "style": "default",
+                  "format": "image/png"
+              }],
+              "download": {
+                  "id": "SW_OPER_EFIU_LP_1B"
+              },
+              "processes" : [
+                  {
+                      "id": "retrieve_data",
+                      "layer_id": "USER_DATA"
+                  }
+              ],
+              "parameters": {
+                  "Ne": {
+                      "range": [100000, 200000],
+                      "uom":"cm -3",
+                      "colorscale": "plasma",
+                      "selected": true,
+                      "name": "Plasma density"
+                  },
+                  "Te": {
+                      "range": [1000, 5000],
+                      "uom":"K",
+                      "colorscale": "portland",
+                      "name": "Plasma electron temperature"
+                  },
+                  "Vs": {
+                      "range": [-5, 0],
+                      "uom":"V",
+                      "colorscale": "jet",
+                      "name": "Spacecraft potential"
+                  },
+                  "U_orbit": {
+                      "range": [1500, 3500],
+                      "uom": "m/s",
+                      "colorscale": "jet",
+                      "name": "Spacecraft velocity in the ITRF"
+                  }
+              },
+              "outlines": false,
+              "satellite": "Upload"
+          },{
+              "name": "TEC U TMS",
+              "timeSlider": true,
+              "timeSliderProtocol": "USER_DATA",
+              "color": "#990099",
+              "views": [{
+                  "id": "SW_OPER_TECUTMS_2F",
+                  "protocol": "CZML",
+                  "urls": [
+                      "http://localhost:9000/vires00/ows"
+                  ],
+                  "style": "default",
+                  "format": "image/png"
+              }],
+              "download": {
+                  "id": "SW_OPER_TECUTMS_2F"
+              },
+              "processes" : [
+                  {
+                      "id": "retrieve_data",
+                      "layer_id": "USER_DATA"
+                  }
+              ],
+              "parameters": {
+                  "Absolute_STEC": {
+                      "range": [0, 35],
+                      "uom":"TECU",
+                      "colorscale": "plasma",
+                      "selected": true,
+                      "name": "Absolute slant TEC"
+                  },
+                  "Relative_STEC": {
+                      "range": [0, 70],
+                      "uom":"TECU",
+                      "colorscale": "portland",
+                      "name": "Relative slant TEC"
+                  },
+                  "Relative_STEC_RMS": {
+                      "range": [0, 5],
+                      "uom":"TECU",
+                      "colorscale": "portland",
+                      "name": "Relative STEC RMS"
+                  },
+                  "Absolute_VTEC": {
+                      "range": [0, 35],
+                      "uom":"TECU",
+                      "colorscale": "plasma",
+                      "name": "Absolute vertical TEC"
+                  },
+                  "Elevation_Angle": {
+                      "range": [0, 90],
+                      "uom":"degree",
+                      "colorscale": "plasma",
+                      "name": "Elevation Angle"
+                  }
+              },
+              "outlines": false,
+              "satellite": "Upload"
+          },{
+              "name": "FAC U TMS",
+              "timeSlider": true,
+              "timeSliderProtocol": "USER_DATA",
+              "color": "#66aa00",
+              "views": [{
+                  "id": "SW_OPER_FACUTMS_2F",
+                  "protocol": "CZML",
+                  "urls": [
+                      "http://localhost:9000/vires00/ows"
+                  ],
+                  "style": "default",
+                  "format": "image/png"
+              }],
+              "download": {
+                  "id": "SW_OPER_FACUTMS_2F"
+              },
+              "processes" : [
+                  {
+                      "id": "retrieve_data",
+                      "layer_id": "USER_DATA"
+                  }
+              ],
+              "parameters": {
+                  "IRC": {
+                      "range": [-6, 6],
+                      "uom":"uA/m2",
+                      "colorscale": "diverging_1",
+                      "name": "Ionospheric radial current (IRC)"
+                  },
+                  "FAC": {
+                      "range": [-6, 6],
+                      "uom":"uA/m2",
+                      "colorscale": "diverging_1",
+                      "selected": true,
+                      "name": "Field-aligned current (FAC)"
+                  }
+              },
+              "outlines": false,
+              "satellite": "Upload"
+          },{
+              "name": "EEF U TMS",
+              "timeSlider": true,
+              "timeSliderProtocol": "USER_DATA",
+              "color": "#b82e2e",
+              "views": [{
+                  "id": "SW_OPER_EEFUTMS_2F",
+                  "protocol": "CZML",
+                  "urls": [
+                      "http://localhost:9000/vires00/ows"
+                  ],
+                  "style": "default",
+                  "format": "image/png"
+              }],
+              "download": {
+                  "id": "SW_OPER_EEFUTMS_2F"
+              },
+              "processes" : [
+                  {
+                      "id": "retrieve_data",
+                      "layer_id": "USER_DATA"
+                  }
+              ],
+              "parameters": {
+                  "EEF": {
+                      "range": [-0.001, 0.001],
+                      "uom":"V/m",
+                      "selected": true,
+                      "colorscale": "diverging_1",
+                      "name": "Estimate of the equatorial electric field"
+                  }
+              },
+              "outlines": false,
+              "satellite": "Upload"
+        },{
+            "name": "SW OPER IBIU TMS 2F",
+            "visible": false,
+            "timeSlider": true,
+            "color": "#2ca02c",
+            "timeSliderProtocol": "USER_DATA",
+            "views": [{
+                "id": "SW_OPER_IBIUTMS_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_IBIUTMS_2F"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "parameters": {
+                "Bubble_Probability": {
+                    "range": [0, 1],
+                    "uom": null,
+                    "colorscale": "jet",
+                    "selected": true,
+                    "name": "Detection probability of the plasma bubble"
+                }
+            },
+            "outlines": false,
+            "satellite": "Upload"
+          },{
+            "name": "IPDUIRR 2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#ff7f0e",
+            "views": [{
+                "id": "SW_OPER_IPDUIRR_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_IPDUIRR_2F"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "parameters": {
+                "Ne": {
+                    "selected": true,
+                    "range": [0, 200000],
+                    "colorscale": "plasma",
+                    "uom": "cm -3",
+                    "name": "Plasma density"
+                },
+                "Background_Ne": {
+                    "range": [0, 200000],
+                    "colorscale": "plasma",
+                    "uom": "cm -3",
+                    "name": "Background plasma density"
+                },
+                "Foreground_Ne": {
+                    "range": [0, 200000],
+                    "colorscale": "plasma",
+                    "uom": "cm -3",
+                    "name": "Foreground plasma density"
+                },
+                "Te": {
+                    "range": [0, 50000],
+                    "colorscale": "portland",
+                    "uom":"K",
+                    "name": "Plasma electron temperature"
+                },
+                "PCP_flag": {
+                    "range": [0, 4],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Polar cap patch flag"
+                },
+                "Grad_Ne_at_100km": {
+                    "range": [-20, 20],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (27 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_50km": {
+                    "range": [-30, 30],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (13 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_20km": {
+                    "range": [-60, 60],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (5 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_PCP_edge": {
+                    "range": [-2, 2],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "The linear electron density gradient over patch edges"
+                },
+                "ROD": {
+                    "range": [-300000, 300000],
+                    "colorscale": "diverging_2",
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density"
+                },
+                "RODI10s": {
+                    "range": [0, 2500],
+                    "colorscale": "jet",
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density index (ROD std.dev. over 10 s)"
+                },
+                "RODI20s": {
+                    "range": [0, 5000],
+                    "colorscale": "jet",
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density index (ROD std.dev. over 20 s)"
+                },
+                "delta_Ne10s": {
+                    "range": [0, 5000],
+                    "colorscale": "jet",
+                    "uom": "cm -3",
+                    "name": "10s Ne median subtracted from Ne (< 75 km fluctuations)"
+                },
+                "delta_Ne20s": {
+                    "range": [0, 10000],
+                    "colorscale": "jet",
+                    "uom": "cm -3",
+                    "name": "20s Ne median subtracted from Ne (< 150 km fluctuations)"
+                },
+                "delta_Ne40s": {
+                    "range": [0, 20000],
+                    "colorscale": "jet",
+                    "uom": "cm -3",
+                    "name": "40s Ne median subtracted from Ne (< 300 km fluctuations)"
+                },
+                "Num_GPS_satellites": {
+                    "range": [0, 10],
+                    "colorscale": "jet",
+                    "uom": null,
+                    "name": "Total number of tracked GPS satellites above 20 degrees"
+                },
+                "mVTEC": {
+                    "range": [0, 50],
+                    "colorscale": "jet",
+                    "uom": "TECU",
+                    "name": "Median of VTEC (GPS > 30 deg)"
+                },
+                "mROT": {
+                    "range": [-0.5, 0.5],
+                    "colorscale": "diverging_1",
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of VTEC (GPS > 30 deg)"
+                },
+                "mROTI10s": {
+                    "range": [0, 0.025],
+                    "colorscale": "diverging_1",
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 10 s)"
+                },
+                "mROTI20s": {
+                    "range": [0, 0.025],
+                    "colorscale": "diverging_1",
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 20 s)"
+                },
+                "IBI_flag": {
+                    "range": [-2, 2],
+                    "colorscale": "diverging_1",
+                    "uom": null,
+                    "name": "Plasma Bubble Index (from IBIxTMS_2F)"
+                },
+                "Ionosphere_region_flag": {
+                    "range": [0, 3],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Ionosphere region flag"
+                },
+                "IPIR_index": {
+                    "range": [0, 8],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Plasma fluctuations and irregularities index"
+                },
+                "Ne_quality_flag": {
+                    "range": [0, 9000],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Plasma density quality flag"
+                },
+                "TEC_STD": {
+                    "range": [0, 10],
+                    "colorscale": "rainbow",
+                    "uom": "TECU",
+                    "name": "STD of VTEC from all GPS satellites"
+                }
+            },
+            "outlines": false,
+            "satellite": "Upload"
+          },{
             "name": "Magnetic Model",
             "visible": false,
             "timeSlider": true,
@@ -3454,7 +3905,7 @@
                     "range": [1, 40000],
                     "uom":"nT",
                     "name": "Fieldlines",
-                    "description": "In order to visualize fieldlines please select an area with the bounding box tool.",
+                    "description": "In order to visualize fieldlines please select an area with the bounding box tool. Click on a fieldline to display additional information.",
                     "colorscale": "jet",
                     "logarithmic": true
                 },
@@ -3692,7 +4143,12 @@
             "name": "Download",
             "icon": "fa-download",
             "eventToRaise": "dialog:open:download:filter"
-        }, 
+        },
+        {
+            "name": "Upload",
+            "icon": "fa-upload",
+            "eventToRaise": "dialog:show:upload"
+        },
         {
             "name": "Views",
             "icon": "fa-eye",
@@ -3719,14 +4175,25 @@
                 "eventToRaise": "ui:open:storybanner",
                 "template": "UseCase_MagneticModels"
             }]
-        }, {
+        },
+        {
+            "name": "Workspace",
+            "icon": "fa-laptop",
+            "subitems": [{
+                "name": "Reset",
+                "eventToRaise": "application:reset"
+            }, {
+                "name": "Import",
+                "eventToRaise": "application:load"
+            }, {
+                "name": "Export",
+                "eventToRaise": "application:save"
+            }]
+        },
+        {
             "name": "About",
             "icon": "fa-info-circle",
             "eventToRaise": "dialog:open:about"
-        }, {
-            "name": "Reset",
-            "icon": "fa-refresh",
-            "eventToRaise": "application:reset"
         }]
     },
 

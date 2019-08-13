@@ -33,12 +33,12 @@ var VECTOR_BREAKDOWN = {
 // Ordered from highest resolution to lowest with the exception of FAC that
 // needs to be first as the master product needs to be the same
 var MASTER_PRIORITY = [
-    'SW_OPER_FACATMS_2F', 'SW_OPER_FACBTMS_2F', 'SW_OPER_FACCTMS_2F', 'SW_OPER_FAC_TMS_2F',
-    'SW_OPER_EFIA_LP_1B', 'SW_OPER_EFIB_LP_1B', 'SW_OPER_EFIC_LP_1B',
-    'SW_OPER_MAGA_LR_1B', 'SW_OPER_MAGB_LR_1B', 'SW_OPER_MAGC_LR_1B',
-    'SW_OPER_TECATMS_2F', 'SW_OPER_TECBTMS_2F', 'SW_OPER_TECCTMS_2F',
-    'SW_OPER_IBIATMS_2F', 'SW_OPER_IBIBTMS_2F', 'SW_OPER_IBICTMS_2F',
-    'SW_OPER_EEFATMS_2F', 'SW_OPER_EEFBTMS_2F', 'SW_OPER_EEFCTMS_2F'
+    'SW_OPER_FACATMS_2F', 'SW_OPER_FACBTMS_2F', 'SW_OPER_FACCTMS_2F', 'SW_OPER_FAC_TMS_2F', 'SW_OPER_FACUTMS_2F',
+    'SW_OPER_EFIA_LP_1B', 'SW_OPER_EFIB_LP_1B', 'SW_OPER_EFIC_LP_1B', 'SW_OPER_EFIU_LP_1B',
+    'SW_OPER_MAGA_LR_1B', 'SW_OPER_MAGB_LR_1B', 'SW_OPER_MAGC_LR_1B', 'SW_OPER_MAGU_LR_1B',
+    'SW_OPER_TECATMS_2F', 'SW_OPER_TECBTMS_2F', 'SW_OPER_TECCTMS_2F', 'SW_OPER_TECUTMS_2F',
+    'SW_OPER_IBIATMS_2F', 'SW_OPER_IBIBTMS_2F', 'SW_OPER_IBICTMS_2F', 'SW_OPER_IBIUTMS_2F',
+    'SW_OPER_EEFATMS_2F', 'SW_OPER_EEFBTMS_2F', 'SW_OPER_EEFCTMS_2F', 'SW_OPER_EEFUTMS_2F',
 ];
 
 
@@ -55,7 +55,7 @@ var MASTER_PRIORITY = [
         'layouts/ToolControlLayout',
         'layouts/OptionsLayout',
         'core/SplitView/WindowView',
-        'communicator',
+        'communicator', 'filepond',
         'jquery', 'backbone.marionette',
         'controller/ContentController',
         'controller/DownloadController',
@@ -68,7 +68,7 @@ var MASTER_PRIORITY = [
 
     function (
         Backbone, globals, DialogRegion, UIRegion, LayerControlLayout,
-        ToolControlLayout, OptionsLayout, WindowView, Communicator
+        ToolControlLayout, OptionsLayout, WindowView, Communicator, FilePond
     ) {
 
         var Application = Backbone.Marionette.Application.extend({
@@ -89,6 +89,8 @@ var MASTER_PRIORITY = [
 
                 });*/
 
+                var savedChangesApplied = false;
+
                 $("body").tooltip({
                     selector: '[data-toggle=tooltip]',
                     position: {my: "left+5 center", at: "right center"},
@@ -98,6 +100,60 @@ var MASTER_PRIORITY = [
 
                 var imagerenderercanvas = $('<canvas/>', {id: 'imagerenderercanvas'});
                 $('body').append(imagerenderercanvas);
+
+                var uploadDialogContainer = $('<div/>', { id: 'uploadDialogContainer' });
+                $('body').append(uploadDialogContainer);
+
+                // Create a single file upload component
+                this.pond = FilePond.create({
+                    allowMultiple: false,
+                    labelIdle: (
+                        'Drag & Drop your file or <span class="filepond--label-action"> Browse </span><br>' +
+                        'Max. file size 256 MB | <a href="/accounts/custom_data_format_description/" target="_blank">File format spec.</a>'
+                    ),
+                    name: 'file',
+                    onaddfilestart: function () {
+                      $('#fpfilenamelabel').remove();
+                    },
+                    server: {
+                      url: 'custom_data/',
+                      revert: null,
+                      restore: null,
+                      load: null,
+                      fetch: null,
+                      process: {
+                        onload: function () {
+                          globals.swarm.satellites['Upload'] = true;
+                          if (typeof(Storage) !== 'undefined') {
+                            localStorage.setItem('satelliteSelection', JSON.stringify(globals.swarm.satellites));
+                          }
+                          globals.userData.fetch();
+                        },
+                        onerror: function (response) {
+                          showMessage('danger',
+                            'The user file upload failed: ' + response, 30);
+                        },
+                      }
+                    }
+                });
+
+                var that = this;
+                this.pond.on('processfile', function(error, file) {
+                    if (error) {
+                        console.log('Oh no');
+                        return;
+                    }
+                    //file.filename
+                    $('#fpfilenamelabel').remove();
+                    $('#uploadDialogContainer').append(
+                        '<div class="filepond--drip" id="fpfilenamelabel">'+
+                        ' Uploaded file: '+file.filename+'</div>'
+                    );
+                    that.pond.removeFile(file.id);
+                });
+
+                // Add it to the DOM
+                $(uploadDialogContainer)[0].appendChild(this.pond.element);
 
 
                 var v = {}; //views
@@ -191,24 +247,22 @@ var MASTER_PRIORITY = [
                 // If there are already saved baselayer config in the local
                 // storage use that instead
 
-                if (localStorage.getItem('baseLayersConfig') !== null) {
-                    // If newly added v2.1 s2 cloudless is not listed
-                    // reload baselayer config
-                    var savedConfig = JSON.parse(localStorage.getItem('baseLayersConfig'));
-                    if (savedConfig.filter(function (bl) {
-                        return bl.views[0].id === 's2cloudless';
-                    }).length === 0) {
-                        savedConfig = config.mapConfig.baseLayers;
-                    }
-                    config.mapConfig.baseLayers = savedConfig;
+                var activeBaselayer = 'Terrain-Light';
+                if (localStorage.getItem('activeBaselayer') !== null) {
+                    var activeBaselayer = JSON.parse(localStorage.getItem('activeBaselayer'));
+                    savedChangesApplied = true;
                 }
 
                 _.each(config.mapConfig.baseLayers, function (baselayer) {
+                    var visible = false;
+                    if(activeBaselayer === baselayer.name){
+                        visible = true;
+                    }
 
                     globals.baseLayers.add(
                         new m.LayerModel({
                             name: baselayer.name,
-                            visible: baselayer.visible,
+                            visible: visible,
                             view: {
                                 id: baselayer.id,
                                 urls: baselayer.urls,
@@ -253,91 +307,67 @@ var MASTER_PRIORITY = [
                 // If there are already saved product config in the local
                 // storage use that instead
 
-                if (localStorage.getItem('productsConfig') !== null) {
-                    // Need to check if we need to migrate user data to new version (new data)
-                    var product_config = JSON.parse(localStorage.getItem('productsConfig'));
+                if (localStorage.getItem('productsConfiguration') !== null) {
 
-                    // Go through products in original configuration file and see if available
-                    // in user configuration, if not add them to it
-                    var m_p = config.mapConfig.products;
-                    for (var i = 0; i < m_p.length; i++) {
+                    var pC = JSON.parse(
+                        localStorage.getItem('productsConfiguration')
+                    );
 
-                        // Always load timesliderprotocol from original config
-                        if (m_p[i].hasOwnProperty('timeSliderProtocol')) {
-                            product_config[i].timeSliderProtocol = m_p[i].timeSliderProtocol;
-                        }
+                    _.each(config.mapConfig.products, function (product) {
+                        // Check if there is something to configure
+                        // We only allow configuration of specific attributes
+                        var prodId = product.download.id;
 
-                        // Check if MAG A product has new residual parameter loaded
-                        if (product_config[i].download.id === 'SW_OPER_MAGA_LR_1B') {
-                            if (!product_config[i].parameters.hasOwnProperty('B_NEC_resAC')) {
-                                product_config[i].parameters.B_NEC_resAC =
-                                {
-                                    'range': [-600, 600],
-                                    'uom': 'nT',
-                                    'colorscale': 'jet',
-                                    'name': 'Magnetic field intensity residual A - C'
-                                };
+                        if(pC.hasOwnProperty(prodId)){
+
+                            if(pC[prodId].hasOwnProperty('visible')){
+                                product.visible = pC[prodId].visible;
+                            }
+                            if(pC[prodId].hasOwnProperty('outlines')){
+                                product.outlines = pC[prodId].outlines;
+                            }
+                            if(pC[prodId].hasOwnProperty('opacity')){
+                                product.opacity = pC[prodId].opacity;
+                            }
+                            if(pC[prodId].hasOwnProperty('parameters')){
+                                // Go through all parameters and extend where
+                                // necessary
+                                var pars = pC[prodId].parameters;
+                                for(var pk in pars){
+                                    if(product.parameters.hasOwnProperty(pk)){
+                                        if(pars[pk].hasOwnProperty('range')){
+                                            product.parameters[pk].range = pars[pk].range;
+                                        }
+                                        if(pars[pk].hasOwnProperty('colorscale')){
+                                            product.parameters[pk].colorscale = pars[pk].colorscale;
+                                        }
+                                        if(pars[pk].hasOwnProperty('selected')){
+                                            product.parameters[pk].selected = pars[pk].selected;
+                                            if(pars[pk].selected === true){
+                                                // TODO: If selected remove all other selected
+                                                for(var spk in pars){
+                                                    if(spk !== pk && product.parameters[spk] &&
+                                                        product.parameters[spk].hasOwnProperty('selected')) {
+                                                        delete product.parameters[spk].selected;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if(pC[prodId].hasOwnProperty.download_parameters){
+                                // Go through all download parameters and extend
+                                // where necessary
+                            }
+                            if(pC[prodId].hasOwnProperty('components')){
+                                product.components = pC[prodId].components;
                             }
                         }
 
-                        // If old CHAOS model is available load new model
-                        if (product_config[i].name === 'CHAOS-5') {
-                            // Make sure corresponding config is new model
-                            if (m_p[i].name === 'CHAOS-6') {
-                                product_config[i] = m_p[i];
-                            }
-                        }
+                    }, this);
 
-                        if (product_config.length > i) {
-                            if (product_config[i].download.id != m_p[i].download.id) {
-                                // If id is not the same a new product was inserted and thus
-                                // needs to be inserted into the old configuration of the user
-                                product_config.splice(i, 0, m_p[i]);
-                            }
-                        } else {
-                            // If length of config is longer then user config new data was appended
-                            product_config.push(m_p[i]);
-                        }
-                    }
-
-                    config.mapConfig.products = product_config;
-                }
-
-                // Make sure download parameters are always loaded from script
-                var mapConfProds = config.mapConfig.products;
-                for (var i = mapConfProds.length - 1; i >= 0; i--) {
-                    if (mapConfProds[i].hasOwnProperty('satellite') &&
-                       mapConfProds[i].satellite === 'Swarm') {
-
-                        mapConfProds[i].download_parameters['SunDeclination'] = {
-                            "uom": null,
-                            "name": "Sun declination"
-                        };
-                        mapConfProds[i].download_parameters['SunRightAscension'] = {
-                            "uom": null,
-                            "name": "Sun right ascension"
-                        };
-                        mapConfProds[i].download_parameters['SunHourAngle'] = {
-                            "uom": "deg",
-                            "name": "Sun hour angle"
-                        };
-                        mapConfProds[i].download_parameters['SunAzimuthAngle'] = {
-                            "uom": "deg",
-                            "name": "Sun azimuth angle, degrees clockwise from North"
-                        };
-                        mapConfProds[i].download_parameters['SunZenithAngle'] = {
-                            "uom": "deg",
-                            "name": "Sun zenith angle"
-                        };
-                        mapConfProds[i].download_parameters['OrbitDirection'] = {
-                            "uom": null,
-                            "name": "Orbit direction in geographic coodinates."
-                        };
-                        mapConfProds[i].download_parameters['QDOrbitDirection'] = {
-                            "uom": null,
-                            "name": "Orbit direction in quasi-dipole coodinates."
-                        };
-                    }
+                    savedChangesApplied = true;
                 }
 
                 _.each(config.mapConfig.products, function (product) {
@@ -351,7 +381,7 @@ var MASTER_PRIORITY = [
                         timeSliderProtocol: (product.timeSliderProtocol) ? product.timeSliderProtocol : "WMS",
                         color: p_color,
                         //time: products.time, // Is set in TimeSliderView on time change.
-                        opacity: (product.opacity) ? product.opacity : 1,
+                        opacity: defaultFor(product.opacity, 1),
                         views: product.views,
                         view: {isBaseLayer: false},
                         download: {
@@ -409,7 +439,7 @@ var MASTER_PRIORITY = [
                         globals.models.customModelId = model_conf.id;
                         var shcFile = JSON.parse(localStorage.getItem('shcFile'));
                         if (shcFile) {
-                            globals.models.setCustomModel(shcFile.data);
+                            globals.models.setCustomModel(shcFile.data, shcFile.filename);
                         }
                         console.log("Added custom model " + model_conf.id);
                     } else {
@@ -418,6 +448,10 @@ var MASTER_PRIORITY = [
                     }
                 });
 
+                var userDataConfig = _.keys(config.userData);
+                _.each(userDataConfig, function (key) {
+                    globals.userData[key] = config.userData[key];
+                });
                 // periodic update magnetic models' metadata
                 globals.models.url = config.magneticModels.infoUrl;
                 globals.models.on('fetch:success', function () {
@@ -428,28 +462,50 @@ var MASTER_PRIORITY = [
                 // but the AJAX Response is. This sets the event counter negative
                 // for now I add the event change here but I am not sure which
                 // request is actually responsible for this
-                Communicator.mediator.trigger("progress:change", true);
+                /*Communicator.mediator.trigger("progress:change", true);
+                Communicator.mediator.trigger("progress:change", true);*/
 
                 globals.models.fetch();
                 window.setInterval(function () {globals.models.fetch();}, 900000); // refresh each 15min
 
                 // If there is already saved overly configuration use that
-                if (localStorage.getItem('overlaysConfig') !== null) {
-                    config.mapConfig.overlays = JSON.parse(localStorage.getItem('overlaysConfig'));
+                var activeOverlays = [];
+                if (localStorage.getItem('activeOverlays') !== null) {
+                    activeOverlays = JSON.parse(localStorage.getItem('activeOverlays'));
+                    savedChangesApplied = true;
                 }
                 //Overlays are loaded and added to the global collection
                 _.each(config.mapConfig.overlays, function (overlay) {
-
+                    var overlayActive = false;
+                    if(activeOverlays.indexOf(overlay.name) !== -1){
+                        overlayActive = true;
+                    }
                     globals.overlays.add(
                         new m.LayerModel({
                             name: overlay.name,
-                            visible: overlay.visible,
+                            visible: overlayActive,
                             ordinal: ordinal,
                             view: overlay.view
                         })
                     );
-                    console.log("Added overlay " + overlay.id);
+                    console.log("Added overlay " + overlay.name);
                 }, this);
+
+                // fetch user data info
+                globals.userData.on('fetch:complete', function () {
+                  if (globals.userData.models.length > 0) {
+                      Communicator.mediator.trigger('userData:fetch:complete');
+                      $('#uploadcheck').prop('disabled', false);
+                      $('#uploadcheck').prop('checked', globals.swarm.satellites['Upload']);
+                      Communicator.mediator.trigger('layers:refresh');
+                      $('#fpfilenamelabel').remove();
+                      $('#uploadDialogContainer').append(
+                          '<div class="filepond--drip" id="fpfilenamelabel">' + 
+                          ' Uploaded file: ' + globals.userData.models[0].get('filename') + '</div>'
+                      );
+                  }
+                });
+                globals.userData.fetch();
 
                 // If Navigation Bar is set in configuration go through the
                 // defined elements creating a item collection to rendered
@@ -514,61 +570,85 @@ var MASTER_PRIORITY = [
                 var filtered = globals.products.filter(function (product) {
                     var id = product.get("download").id;
                     return !(id && id.match(
-                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD)[ABC_]/
+                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD)[ABCU_]/
                     ));
                 });
 
-                globals.swarm.satellites = {
-                    "Alpha": true,
-                    "Bravo": false,
-                    "Charlie": false,
-                    "NSC": false
-                };
-
-                if (localStorage.getItem("satelliteSelection") !== null) {
-                    globals.swarm.satellites = JSON.parse(localStorage.getItem("satelliteSelection"));
-                    if (!globals.swarm.satellites.hasOwnProperty("NSC")) {
-                        globals.swarm.satellites['NSC'] = false;
-                    }
-                }
 
                 globals.swarm.products = {
                     "MAG": {
                         "Alpha": "SW_OPER_MAGA_LR_1B",
                         "Bravo": "SW_OPER_MAGB_LR_1B",
-                        "Charlie": "SW_OPER_MAGC_LR_1B"
+                        "Charlie": "SW_OPER_MAGC_LR_1B",
+                        "Upload": "SW_OPER_MAGU_LR_1B",
                     },
                     "EFI": {
                         "Alpha": "SW_OPER_EFIA_LP_1B",
                         "Bravo": "SW_OPER_EFIB_LP_1B",
-                        "Charlie": "SW_OPER_EFIC_LP_1B"
+                        "Charlie": "SW_OPER_EFIC_LP_1B",
+                        "Upload": "SW_OPER_EFIU_LP_1B",
                     },
                     "IBI": {
                         "Alpha": "SW_OPER_IBIATMS_2F",
                         "Bravo": "SW_OPER_IBIBTMS_2F",
-                        "Charlie": "SW_OPER_IBICTMS_2F"
+                        "Charlie": "SW_OPER_IBICTMS_2F",
+                        "Upload": "SW_OPER_IBIUTMS_2F",
                     },
                     "TEC": {
                         "Alpha": "SW_OPER_TECATMS_2F",
                         "Bravo": "SW_OPER_TECBTMS_2F",
-                        "Charlie": "SW_OPER_TECCTMS_2F"
+                        "Charlie": "SW_OPER_TECCTMS_2F",
+                        "Upload": "SW_OPER_TECUTMS_2F"
                     },
                     "FAC": {
                         "Alpha": "SW_OPER_FACATMS_2F",
                         "Bravo": "SW_OPER_FACBTMS_2F",
                         "Charlie": "SW_OPER_FACCTMS_2F",
-                        "NSC": "SW_OPER_FAC_TMS_2F"
+                        "Upload": "SW_OPER_FACUTMS_2F",
+                        "NSC": "SW_OPER_FAC_TMS_2F",
                     },
                     "EEF": {
                         "Alpha": "SW_OPER_EEFATMS_2F",
-                        "Bravo": "SW_OPER_EEFBTMS_2F"
+                        "Bravo": "SW_OPER_EEFBTMS_2F",
+                        "Upload": "SW_OPER_EEFUTMS_2F",
                     },
                     "IPD": {
                         "Alpha": "SW_OPER_IPDAIRR_2F",
                         "Bravo": "SW_OPER_IPDBIRR_2F",
                         "Charlie": "SW_OPER_IPDCIRR_2F",
+                        "Upload": "SW_OPER_IPDUIRR_2F",
                     }
                 };
+
+                 globals.swarm.satellites = {
+                    "Alpha": false,
+                    "Bravo": false,
+                    "Charlie": false,
+                    "NSC": false,
+                    "Upload": false
+                };
+
+                var prodToSat = {};
+                var proObj = globals.swarm.products;
+                for (var coll in proObj){
+                    for (var sat in proObj[coll]){
+                        prodToSat[proObj[coll][sat]] = {
+                            sat: sat,
+                            coll: coll
+                        }
+                    }
+                }
+                
+                // Derive which satellites should be active from active products
+                globals.products.forEach( function (product) {
+                    if(product.get('visible')){
+                        if(prodToSat.hasOwnProperty(product.get('download').id)) {
+                            var sat = prodToSat[product.get('download').id].sat;
+                            globals.swarm.satellites[sat] = true;
+                        }
+                    }
+                });
+
 
                 globals.swarm.activeProducts = [];
 
@@ -579,11 +659,15 @@ var MASTER_PRIORITY = [
                         globals.swarm.collection2satellite[collection] = satellite;
                     });
                 });
-
+                // because user data collection needs to have identifier USER_DATA
+                var userDataId = globals.userData.views[0].id;
+                if (userDataId) {
+                    globals.swarm.collection2satellite[userDataId] = 'Upload';
+                }
                 var filtered_collection = new Backbone.Collection(filtered);
 
                 var containerSelection = {
-                    'MAG': true,
+                    'MAG': false,
                     'EFI': false,
                     'IBI': false,
                     'TEC': false,
@@ -594,33 +678,28 @@ var MASTER_PRIORITY = [
 
                 var clickEvent = "require(['communicator'], function(Communicator){Communicator.mediator.trigger('application:reset');});";
 
-                if (localStorage.getItem("containerSelection") !== null) {
-                    containerSelection = JSON.parse(localStorage.getItem("containerSelection"));
+                // Derive what container need to be active from products
+                globals.products.forEach(function (product) {
+                    if(product.get('visible') &&
+                       prodToSat.hasOwnProperty(product.get('download').id)){
+                        var coll = prodToSat[product.get('download').id].coll;
+                        containerSelection[coll] = true;
+                    }
+                });
 
-                    // Migration to newly available datasets
-                    if (!containerSelection.hasOwnProperty('TEC')) {
-                        containerSelection.TEC = false;
-                    }
-                    if (!containerSelection.hasOwnProperty('FAC')) {
-                        containerSelection.FAC = false;
-                    }
-                    if (!containerSelection.hasOwnProperty('EEF')) {
-                        containerSelection.EEF = false;
-                    }
 
+                if(savedChangesApplied){
                     showMessage('success',
                         'The configuration of your last visit has been loaded, ' +
                      'if you would like to reset to the default configuration click ' +
                      '<b><a href="javascript:void(0);" onclick="' + clickEvent + '">here</a></b> ' +
-                     'or on the Reset button above.', 35);
+                     'or on the Workspace->Reset menu command above.', 35);
 
                     // Check if successful login info is being shown, if yes,
                     // add padding to not overlap messages
                     if ($('.alert.alert-success.fade.in').length > 0) {
                         $('.alert.alert-success.fade.in').css('margin-top', '100px');
                     }
-                } else {
-                    localStorage.setItem("containerSelection", JSON.stringify(containerSelection));
                 }
 
                 var csKeys = _.keys(containerSelection);
@@ -856,13 +935,13 @@ var MASTER_PRIORITY = [
                 }*/
 
                 if ((typeof(Storage) !== "undefined") && localStorage.getItem("viewSelection") !== null) {
-                    if (localStorage.getItem('viewSelection') == 'split') {
+                    if (localStorage.getItem('viewSelection') == '"split"') {
                         splitview.setSplitscreen();
                     }
-                    if (localStorage.getItem('viewSelection') == 'globe') {
+                    if (localStorage.getItem('viewSelection') == '"globe"') {
                         splitview.setSinglescreen('CesiumViewer');
                     }
-                    if (localStorage.getItem('viewSelection') == 'analytics') {
+                    if (localStorage.getItem('viewSelection') == '"analytics"') {
                         splitview.setSinglescreen('AVViewer');
                     }
                 } else {

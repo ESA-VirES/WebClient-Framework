@@ -141,14 +141,6 @@
 
                 if(this.model.get("containerproduct")){
 
-                    var cs = {};
-                    if(localStorage.getItem('containerSelection') !== null){
-                        cs = JSON.parse(localStorage.getItem('containerSelection'));
-                    }
-                    cs[this.model.get('id')] = visible;
-                    localStorage.setItem('containerSelection', JSON.stringify(cs));
-                    
-
                     if(visible){
                         this.model.set("visible", true);
                     }else{
@@ -194,6 +186,11 @@
                         if($('#nsccheck').is(':checked')){
                             if(globals.swarm.activeProducts.indexOf(globals.swarm.products[this.model.get("id")]['NSC']) == -1){
                                 globals.swarm.activeProducts.push(globals.swarm.products[this.model.get("id")]['NSC']);
+                            }
+                        }
+                        if($('#uploadcheck').is(':checked')){
+                            if(globals.swarm.activeProducts.indexOf(globals.swarm.products[this.model.get("id")]['Upload']) == -1){
+                                globals.swarm.activeProducts.push(globals.swarm.products[this.model.get("id")]['Upload']);
                             }
                         }
                     }

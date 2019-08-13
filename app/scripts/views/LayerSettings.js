@@ -10,16 +10,22 @@
         'communicator',
         'globals',
         'choices',
+        'plotty',
         'hbs!tmpl/LayerSettings',
         'hbs!tmpl/wps_eval_composed_model',
-        'underscore',
-        'plotty'
+        'underscore'
     ],
 
-    function (Backbone, Communicator, globals, Choices, LayerSettingsTmpl, evalModelTmplComposed_POST) {
+    function (Backbone, Communicator, globals, Choices, plotty, LayerSettingsTmpl, evalModelTmplComposed_POST) {
 
         var ModelComponentParameters = function (model, parameters) {
             var source = parameters || {};
+            var sources = [];
+            if (typeof model.get("filename") !== 'undefined') {
+                sources = [model.get("filename")];
+            } else if (typeof model.get("sources") !== 'undefined') {
+                sources = model.get("sources");
+            }
             _.extend(this, {
                 id: model.id,
                 name: globals.models.config[model.id].name || model.id,
@@ -27,6 +33,7 @@
                 sign: source.sign || "+",
                 parameters: source.parameters ? _.clone(source.parameters) : {},
                 defaults: model.get("parameters") || {},
+                sources: sources,
             });
             this.sanitizeParameters();
         };
@@ -117,6 +124,11 @@
                     domain: [0, 1]
                 });
                 this.selected_satellite = "Alpha";
+
+                if (plotty.hasOwnProperty('colorscales')) {
+                    this.colorscaletypes = Object.keys(plotty.colorscales);
+                }
+
                 this.colorscaletypes = _.sortBy(this.colorscaletypes, function (c) {return c;});
             },
 
@@ -132,6 +144,9 @@
                 // for custom model change to apply in choices list
                 this.stopListening(Communicator.mediator, "models:update", this.onParameterChange);
                 this.listenTo(Communicator.mediator, 'models:update', this.onParameterChange);
+
+                this.stopListening(Communicator.mediator, 'time:change');
+                this.listenTo(Communicator.mediator, 'time:change', this.onTimeChange);
 
                 this.$(".panel-title").html('<h3 class="panel-title"><i class="fa fa-fw fa-sliders"></i> ' + this.current_model.get("name") + ' Settings</h3>');
 
@@ -211,7 +226,7 @@
                         } else {
                             this.createScale();
                         }
-                        Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
+                        Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"), true);
                     }, this));
 
                     this.$("#opacitysilder").unbind();
@@ -313,7 +328,7 @@
                        !JSON.parse(localStorage.getItem('areaSelection'))) {
                         showMessage(
                             'warning',
-                            'In order to visualize fieldlines please select an area with the bounding box tool.',
+                            'In order to visualize fieldlines please select an area using the "Select Area" button in the globe view. Click on a fieldline to display additional information.',
                             35
                         );
                     }
@@ -321,7 +336,7 @@
                     $("#coefficients_range").show();
                     $("#opacitysilder").parent().show();
                 }
-
+                this.$el.append('<div class="model-sources-label hidden sourcesInfoContainer"></div>');
             },
 
             createCustomModelSelection: function () {
@@ -340,9 +355,9 @@
                 this.$("#upload-selection").change(
                     _.bind(this.onCustomModelUpload, this)
                 );
-
-                if (this.current_model.get('shc_name')) {
-                    this.$("#shc").append('<p id="filename" style="font-size:.9em;">Selected File: ' + this.current_model.get('shc_name') + '</p>');
+                var customModel = this.current_model.getCustomModelIfSelected();
+                if (customModel) {
+                    this.$("#shc").append('<p id="filename" style="font-size:.9em;">Selected File: ' + customModel.get('filename') + '</p>');
                 }
             },
 
@@ -455,7 +470,7 @@
                        !JSON.parse(localStorage.getItem('areaSelection'))) {
                         showMessage(
                             'warning',
-                            'In order to visualize fieldlines please select an area using the "Select Area" button in the globe view.',
+                            'In order to visualize fieldlines please select an area using the "Select Area" button in the globe view. Click on a fieldline to display additional information.',
                             35
                         );
                     }
@@ -536,20 +551,6 @@
                 );
             },
 
-            handleRangeChange: function () {
-                var options = this.current_model.get("parameters");
-                $("#range_min").val(options[this.selected].range[0]);
-                $("#range_max").val(options[this.selected].range[1]);
-
-                this.current_model.set("parameters", options);
-                if (options[this.selected].hasOwnProperty("logarithmic"))
-                    this.createScale(options[this.selected].logarithmic);
-                else
-                    this.createScale();
-
-                Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
-            },
-
             applyChanges: function () {
                 var options = this.current_model.get("parameters");
                 var isEditableModel = (
@@ -560,6 +561,7 @@
                 var error = false;
                 var modelChanged = false;
                 var heightChanged = false;
+                var rangeChanged = false;
 
                 // Check color ranges
                 var range_min = parseFloat($("#range_min").val());
@@ -568,8 +570,12 @@
                 var range_max = parseFloat($("#range_max").val());
                 error = error || this.checkValue(range_max, $("#range_max"));
 
-                // Set parameters and redraw color scale
+                // Set range parameters and redraw color scale
                 if (!error) {
+                    var old_range = options[this.selected].range;
+                    if (typeof old_range !== 'undefined' && (old_range[0] !== range_min || old_range[1] !== range_max)) {
+                        rangeChanged = true;
+                    }
                     options[this.selected].range = [range_min, range_max];
 
                     if (options[this.selected].hasOwnProperty("logarithmic"))
@@ -612,6 +618,9 @@
 
                 if ((modelChanged || heightChanged) && this.selected !== 'Fieldlines') {
                     this.updateComposedModelValuesRange();
+                } else if (rangeChanged && this.selected === 'Fieldlines')
+                {
+                    Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"), true);
                 } else {
                     Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
                 }
@@ -646,12 +655,12 @@
 
                     // save SHC file to localstorage
                     localStorage.setItem('shcFile', JSON.stringify({
-                        name: filename,
+                        filename: filename,
                         data: evt.target.result
                     }));
 
                     // update the source custom model
-                    globals.models.setCustomModel(evt.target.result);
+                    globals.models.setCustomModel(evt.target.result, filename);
 
                     if (this.current_model.getCustomModelIfSelected()) {
                         this.updateComposedModelValuesRange();
@@ -688,7 +697,7 @@
                         options[that.selected].logarithmic = !options[that.selected].logarithmic;
 
                         that.current_model.set("parameters", options);
-                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("name"));
+                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("name"), true);
 
                         if (options[that.selected].hasOwnProperty("logarithmic"))
                             that.createScale(options[that.selected].logarithmic);
@@ -846,8 +855,7 @@
                     );
                     $('#composed_model_compute').data(item.id, item);
                 });
-
-                //create a Choices modified template
+                // create a Choices modified template
                 var choices = new Choices('#choices-multiple-remove-button', {
                     removeItemButton: true,
                     callbackOnCreateTemplates: function (template) {
@@ -882,19 +890,38 @@
                                     "var dataParent = $(this)[0].parentNode.getAttribute('data-value');",
                                     "var data = $('#composed_model_compute').data(dataParent);",
                                     "$(this).attr('value', {'+': '+', '-': '&minus;'}[data.toggleSign()]);",
-                                    "$('#changesbutton').addClass('unAppliedChanges');",
-                                    "console.log(data.id, data.sign, data.parameters)"
+                                    "$('#changesbutton').addClass('unAppliedChanges');"
+                                ].join('');
+                                var showInfo = [
+                                    "event.stopPropagation();",
+                                    "var dataParent = $(this)[0].parentNode.getAttribute('data-value');",
+                                    "var modelData = $('#composed_model_compute').data(dataParent);",
+                                    "if (typeof $('.model-sources-label').data('id') !== 'undefined' && $('.model-sources-label').data('id') == modelData.id){",
+                                    "$('.model-sources-label').toggleClass('hidden');",
+                                    "}else{",
+                                    "$('.model-sources-label').removeClass('hidden');",
+                                    "$('.model-sources-label').html('');",
+                                    "$('.model-sources-label').data('id', modelData.id);",
+                                    "$('.model-sources-label').append('<button>&times;</button>');",
+                                    "$('.model-sources-label').append('<h4>Model sources:</h4>');",
+                                    "$('.model-sources-label').append('<ul></ul>');",
+                                    "for (var i = 0; i < modelData.sources.length; i++) {$('.model-sources-label > ul').append('<li>' + modelData.sources[i] + '</li>');}",
+                                    "$('.model-sources-label > button').addClass('close close-model-sources');",
+                                    "$('.model-sources-label').offset({left: event.clientX - 20 - parseInt($('.model-sources-label').outerWidth(true)), top: event.clientY - 15});",
+                                    "$('.close-model-sources').off('click');",
+                                    "$('.close-model-sources').on('click', function(){$('.model-sources-label').addClass('hidden')}); }",
                                 ].join('');
 
                                 return template([
                                     '<div class="choices__item choices__item--selectable data-item composed_model_choices_holding_div" data-id="', classNames.id, '" data-value="', classNames.value, '" data-deletable>',
-                                    '<input type="button" value="', data.signToHtml[data.sign], '" class="composed_model_operation_operand btn-info" onclick="', switchSign, '">',
+                                    '<input type="button" value="', data.signToHtml[data.sign], '" class="composed_model_operation_operand btn-info" title="Change model sign" onclick="', switchSign, '">',
                                     '<span class="composed_model_operation_label">', data.name, '</span>',
                                     '<button type="button" class="composed_model_delete_button choices__button" data-button>Remove item</button>',
                                     '<div class="degree_range_selection_input">',
                                     '<input type="text" placeholder="', data.defaults.min_degree, '" value="', data.getMinDegree(), '" onclick="', onClickHandler, '" onkeydown="', onKeyDownHandler, '" onblur="', updateMinDegree, '" class="composed_model_operation_coefficient_min" title="Minimum model degree.">',
                                     '<input type="text" placeholder="', data.defaults.max_degree, '" value="', data.getMaxDegree(), '" onclick="', onClickHandler, '" onkeydown="', onKeyDownHandler, '" onblur="', updateMaxDegree, '" class="composed_model_operation_coefficient_max" title="Maximum model degree.">',
                                     '</div>',
+                                    '<i type="button" class="composed_model_info_button fa fa-info-circle btn-info" title="Show model sources" onclick="', showInfo, '"></i>',
                                     '</div>'
                                 ].join(''));
                             }
@@ -908,6 +935,7 @@
                 choices.passedElement.addEventListener('removeItem', _.bind(function (event) {
                     $('#composed_model_compute').data(event.detail.value).selected = false;
                     $("#changesbutton").addClass("unAppliedChanges");
+                    $('.model-sources-label').addClass('hidden');
                 }, this));
             },
 
@@ -978,7 +1006,10 @@
                     }
                 }
                 return true;
-            }
+            },
+            onTimeChange: function () {
+                $('.model-sources-label').addClass('hidden');
+            },
         });
 
         return {LayerSettings: LayerSettings};

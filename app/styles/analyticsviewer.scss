@@ -219,6 +219,42 @@ text.nvd3.nv-noData {
     /*/margin-left: 8px;*/
 }
 
+#productInfo{
+    margin-top: 7px;
+    position: absolute;
+    padding: 2px 7px 1px 7px;
+    font-size: 20px;
+    z-index: 20;
+    margin-left: 80px;
+    width: 32px;
+}
+
+#productSourcesInfoContainer{
+    top: 50px;
+    left: 110px;
+    padding-right: 10px;
+    padding-top: 10px;
+}
+
+.sourcesInfoContainer{
+    z-index: 1005;
+    background-color: white;
+    border: 1px solid black;
+    font-size: 0.95em;
+    position: absolute;
+    & ul {
+        overflow-y: auto;
+        overflow-x: hidden;
+        max-height: 300px;
+        padding-right: 20px;
+    }
+    & h4 {
+        margin-left: 20px;
+        margin-top: 0px;
+    }
+}
+
+
 #filterSelectDrop{
     position: absolute;
     margin-top: -40px;
@@ -311,8 +347,17 @@ text.nvd3.nv-noData {
 /*For some reason the width when integrated into framework is changed*/
 #parameterSettings{
     width: 270px!important;
+    z-index: 1005;
 }
 
 .paramTable{
     z-index:1006!important;
+}
+
+.pencilIcon.editButton{
+    display: none;
+}
+
+.eraserIcon.editButton{
+    right: 10px;
 }

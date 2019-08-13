@@ -1,5 +1,5 @@
-/*global $ _ define d3 Cesium plotty DrawHelper saveAs */
-/*global defaultFor getISODateTimeString */
+/*global $ _ define d3 Cesium msgpack plotty DrawHelper saveAs showMessage */
+/*global defaultFor getISODateTimeString meanDate */
 /*global SCALAR_PARAM VECTOR_PARAM VECTOR_BREAKDOWN */
 
 define([
@@ -8,20 +8,41 @@ define([
     'app',
     'models/MapModel',
     'globals',
-    'papaparse',
+    'httpRequest',
     'hbs!tmpl/wps_eval_composed_model',
     'hbs!tmpl/wps_get_field_lines',
+    'hbs!tmpl/FieldlinesLabel',
     'cesium/Cesium',
     'drawhelper',
     'FileSaver',
+    'msgpack',
     'plotty'
-], function (Marionette, Communicator, App, MapModel, globals, Papa,
-    tmplEvalModel, tmplGetFieldLines) {
+], function (
+    Marionette, Communicator, App, MapModel, globals, httpRequest,
+    tmplEvalModel, tmplGetFieldLines, tmplFieldLinesLabel
+) {
     'use strict';
+
+    // Special 'ellipsoid' for conversion from geocentric spherical coordinates.
+    // This datum is a sphere with radius of 1mm.
+    var GEOCENTRIC_SPHERICAL = {
+        radiiSquared: new Cesium.Cartesian3(1e-6, 1e-6, 1e-6)
+    };
+
     var CesiumView = Marionette.View.extend({
         model: new MapModel.MapModel(),
 
         initialize: function (options) {
+            this.sceneModeMatrix = {
+                'columbus': 1,
+                '2dview': 2, 
+                'globe': 3
+            },
+            this.sceneModeMatrixReverse = {
+                1: 'columbus',
+                2: '2dview', 
+                3: 'globe'
+            },
             this.map = undefined;
             this.isClosed = true;
             this.tileManager = options.tileManager;
@@ -34,9 +55,12 @@ define([
             this.cameraIsMoving = false;
             this.cameraLastPosition = null;
             this.billboards = null;
+            this.FLbillboards = null;
             this.activeFL = [];
             this.featuresCollection = {};
             this.FLCollection = {};
+            this.FLData = {};
+            this.FLStoredData = {};
             this.bboxsel = null;
             this.extentPrimitive = null;
             this.activeModels = [];
@@ -46,65 +70,10 @@ define([
             this.beginTime = null;
             this.endTime = null;
             this.plot = null;
-
-            plotty.addColorScale('redblue', ['#ff0000', '#0000ff'], [0, 1]);
-            plotty.addColorScale('coolwarm',
-                ['#0000ff', '#ffffff', '#ff0000'],
-                [0, 0.5, 1]
-            );
-            plotty.addColorScale('diverging_1',
-                ['#400040', '#3b004d', '#36005b', '#320068', '#2d0076', '#290084',
-                    '#240091', '#20009f', '#1b00ad', '#1600ba', '#1200c8', '#0d00d6',
-                    '#0900e3', '#0400f1', '#0000ff', '#0217ff', '#042eff', '#0645ff',
-                    '#095cff', '#0b73ff', '#0d8bff', '#10a2ff', '#12b9ff', '#14d0ff',
-                    '#17e7ff', '#19ffff', '#3fffff', '#66ffff', '#8cffff', '#b2ffff',
-                    '#d8ffff', '#ffffff', '#ffffd4', '#ffffaa', '#ffff7f', '#ffff54',
-                    '#ffff2a', '#ffff00', '#ffed00', '#ffdd00', '#ffcc00', '#ffba00',
-                    '#ffaa00', '#ff9900', '#ff8700', '#ff7700', '#ff6600', '#ff5400',
-                    '#ff4400', '#ff3300', '#ff2100', '#ff1100', '#ff0000', '#ff0017',
-                    '#ff002e', '#ff0045', '#ff005c', '#ff0073', '#ff008b', '#ff00a2',
-                    '#ff00b9', '#ff00d0', '#ff00e7', '#ff00ff'],
-                [0.0, 0.01587301587, 0.03174603174, 0.04761904761, 0.06349206348,
-                    0.07936507935, 0.09523809522, 0.11111111109, 0.12698412696,
-                    0.14285714283, 0.15873015870, 0.17460317457, 0.19047619044,
-                    0.20634920631, 0.22222222218, 0.23809523805, 0.25396825392,
-                    0.26984126979, 0.28571428566, 0.30158730153, 0.31746031740,
-                    0.33333333327, 0.34920634914, 0.36507936501, 0.38095238088,
-                    0.39682539675, 0.41269841262, 0.42857142849, 0.44444444436,
-                    0.46031746023, 0.47619047610, 0.49206349197, 0.50793650784,
-                    0.52380952371, 0.53968253958, 0.55555555545, 0.57142857132,
-                    0.58730158719, 0.60317460306, 0.61904761893, 0.63492063480,
-                    0.65079365067, 0.66666666654, 0.68253968241, 0.69841269828,
-                    0.71428571415, 0.73015873002, 0.74603174589, 0.76190476176,
-                    0.77777777763, 0.79365079350, 0.80952380937, 0.82539682524,
-                    0.84126984111, 0.85714285698, 0.87301587285, 0.88888888872,
-                    0.90476190459, 0.92063492046, 0.93650793633, 0.95238095220,
-                    0.96825396807, 0.98412698394, 1]
-            );
-            plotty.addColorScale('diverging_2',
-                ['#000000', '#030aff', '#204aff', '#3c8aff', '#77c4ff',
-                    '#f0ffff', '#f0ffff', '#f2ff7f', '#ffff00', '#ff831e',
-                    '#ff083d', '#ff00ff'],
-                [0, 0.0000000001, 0.1, 0.2, 0.3333, 0.4666, 0.5333, 0.6666,
-                    0.8, 0.9, 0.999999999999, 1]
-            );
-            plotty.addColorScale('blackwhite', ['#000000', '#ffffff'], [0, 1]);
-
-            plotty.addColorScale('ylgnbu',
-                ["#081d58", "#253494", "#225ea8", "#1d91c0", "#41b6c4", "#7fcdbb", "#c7e9b4", "#edf8d9", "#ffffd9"],
-                [1, 0.875, 0.75, 0.625, 0.5, 0.375, 0.25, 0.125, 0]
-            );
-
-            plotty.addColorScale('ylorrd',
-                ["#800026", "#bd0026", "#e31a1c", "#fc4e2a", "#fd8d3c", "#feb24c", "#fed976", "#ffeda0", "#ffffcc"],
-                [1, 0.875, 0.75, 0.625, 0.5, 0.375, 0.25, 0.125, 0]
-            );
-
             this.connectDataEvents();
         },
 
         createMap: function () {
-
             // Problem arose in some browsers where aspect ratio was kept not adapting
             // to height; Added height style attribute to 100% to solve problem
             this.$el.attr('style', 'height:100%;');
@@ -126,6 +95,7 @@ define([
                 }
             };
 
+            this.$el.append('<div id="fieldlines_label" class="hidden"></div>');
             this.$el.append('<div id="coordinates_label"></div>');
             this.$el.append('<div id="cesium_attribution"></div>');
             this.$el.append('<div id="cesium_custom_attribution"></div>');
@@ -207,16 +177,18 @@ define([
                     navigationInstructionsInitiallyVisible: false,
                     animation: false,
                     imageryProvider: initialLayer,
-                    terrainProvider: new Cesium.CesiumTerrainProvider({
+                    /*terrainProvider: new Cesium.CesiumTerrainProvider({
                         url: '//dem.maps.eox.at/'
-                    }),
+                    }),*/
                     creditContainer: 'cesium_attribution',
                     contextOptions: {webgl: {preserveDrawingBuffer: true}},
                     clock: clock
                 };
                 //COLUMBUS_VIEW SCENE2D SCENE3D
-                if (localStorage.getItem('sceneMode') !== null) {
-                    options.sceneMode = Number(localStorage.getItem('sceneMode'));
+                if (localStorage.getItem('mapSceneMode') !== null) {
+                    options.sceneMode = this.sceneModeMatrix[
+                        JSON.parse(localStorage.getItem('mapSceneMode'))
+                    ];
                     if (options.sceneMode !== 3) {
                         $('#poleViewDiv').addClass("hidden");
                     }
@@ -239,6 +211,17 @@ define([
                 this.map.scene.camera.right = new Cesium.Cartesian3(
                     c.right[0], c.right[1], c.right[2]
                 );
+
+                if (options.sceneMode === 2) {
+
+                    var frustum = JSON.parse(localStorage.getItem('frustum'));
+                    if(frustum){
+                        this.map.scene.camera.frustum.right = frustum.right;
+                        this.map.scene.camera.frustum.left = frustum.left;
+                        this.map.scene.camera.frustum.top = frustum.top;
+                        this.map.scene.camera.frustum.bottom = frustum.bottom;
+                    }
+                }
             }
 
             var mm = globals.objects.get('mapmodel');
@@ -324,6 +307,9 @@ define([
             this.billboards = this.map.scene.primitives.add(
                 new Cesium.BillboardCollection()
             );
+            this.FLbillboards = this.map.scene.primitives.add(
+                new Cesium.BillboardCollection()
+            );
             this.drawhelper = new DrawHelper(this.map.cesiumWidget);
             // It seems that if handlers are active directly there are some
             // object deleted issues when the draw helper tries to pick elements
@@ -400,7 +386,12 @@ define([
             }, this);
 
             this.map.scene.morphComplete.addEventListener(function () {
-                localStorage.setItem('sceneMode', this.map.scene.mode);
+                localStorage.setItem(
+                    'mapSceneMode', 
+                    JSON.stringify(
+                        this.sceneModeMatrixReverse[this.map.scene.mode]
+                    )
+                );
                 var c = this.map.scene.camera;
                 localStorage.setItem('cameraPosition',
                     JSON.stringify({
@@ -411,6 +402,17 @@ define([
                     })
                 );
             }, this);
+            // add event handler for fieldlines click
+            var scene = this.map.scene;
+            var handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+            handler.setInputAction(function (click) {
+                var pickedObject = scene.pick(click.position);
+                if (Cesium.defined(pickedObject) && typeof pickedObject.id !== 'undefined' && pickedObject.id.toString().indexOf('vec_line_fl') !== -1) {
+                    this.onFieldlineClicked(pickedObject, click.position);
+                } else {
+                    this.hideFieldLinesLabel();
+                }
+            }.bind(this), Cesium.ScreenSpaceEventType.LEFT_CLICK);
         }, // END of createMap
 
         onShow: function () {
@@ -522,6 +524,10 @@ define([
 
         connectDataEvents: function () {
             globals.swarm.on('change:data', function (model, data) {
+                function synchronizeColorLegend(p) {
+                    this.checkColorscale(p.get('download').id);
+                }
+                globals.products.each(synchronizeColorLegend, this);
                 var refKey = 'Timestamp';
                 if (!data.hasOwnProperty(refKey)) {
                     refKey = 'timestamp';
@@ -551,6 +557,10 @@ define([
             if (this.map._sceneModePicker) {
                 var container = this.map._sceneModePicker.container;
                 var scene = this.map._sceneModePicker.viewModel._scene;
+
+                // Delete previous scenemodepicker
+                delete this.map._sceneModePicker;
+                $('.cesium-sceneModePicker-wrapper.cesium-toolbar-button').remove();
                 var modepicker = new Cesium.SceneModePicker(container, scene);
                 this.map._sceneModePicker = modepicker;
             }
@@ -1249,7 +1259,8 @@ define([
             this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
         },
 
-        onLayerParametersChanged: function (layer) {
+        onLayerParametersChanged: function (layer, onlyStyleChange) {
+            // optional bool argument onlyStyleChange to allow fieldlines re-rendering without fetching new data
 
             var product = globals.products.find(function (product) {
                 return product.get('name') === layer;
@@ -1275,10 +1286,8 @@ define([
                         this.updateWMSLayer(product);
                     }
                 }
-
-                this.updateFieldLines();
+                this.updateFieldLines(onlyStyleChange);
             }
-
             this.checkColorscale(product.get('download').id);
         },
 
@@ -1422,6 +1431,7 @@ define([
                 this.map.scene.primitives.remove(this.colorscales[pId].csPrim);
                 indexDel = this.colorscales[pId].index;
                 delete this.colorscales[pId];
+                this.removeColorscaleTooltipDiv(pId);
 
                 // Modify all indices and related height of all colorscales
                 // which are over deleted position
@@ -1440,7 +1450,11 @@ define([
                             this.createViewportQuad(csImg, 20, i * 55 + 42, scalewidth, 10)
                         );
                         obj[key].index = i;
-
+                        // needed to refresh colorscale tooltip divs when products are added or removed
+                        var productFromColorscale = _.find(globals.products.models, function (prod) {
+                            return prod.get('download').id === key;
+                        });
+                        this.createModelColorscaleTooltipDiv(productFromColorscale, i);
                     }
                 }, this);
             }
@@ -1455,7 +1469,7 @@ define([
             }
 
             if (product && product.get('showColorscale') &&
-                product.get('visible') && visible) {
+                product.get('visible')) {
 
                 var options = product.get('parameters');
 
@@ -1469,130 +1483,171 @@ define([
                         }
                     });
 
-                    var rangeMin = product.get('parameters')[sel].range[0];
-                    var rangeMax = product.get('parameters')[sel].range[1];
-                    var uom = product.get('parameters')[sel].uom;
-                    var style = product.get('parameters')[sel].colorscale;
-                    var logscale = defaultFor(product.get('parameters')[sel].logarithmic, false);
-                    var axisScale;
-
-
-                    this.plot.setColorScale(style);
-                    var colorscaleimage = this.plot.getColorScaleImage().toDataURL();
-
-                    $('#svgcolorscalecontainer').remove();
-                    var svgContainer = d3.select('body').append('svg')
-                        .attr('width', 300)
-                        .attr('height', 60)
-                        .attr('id', 'svgcolorscalecontainer');
-
-                    if (logscale) {
-                        axisScale = d3.scale.log();
-                    } else {
-                        axisScale = d3.scale.linear();
+                    var prodToSat = {};
+                    var proObj = globals.swarm.products;
+                    for (var coll in proObj){
+                        for (var sat in proObj[coll]){
+                            prodToSat[proObj[coll][sat]] = sat;
+                        }
                     }
+                    var data = globals.swarm.get('data');
+                    var sat = prodToSat[pId];
 
-                    axisScale.domain([rangeMin, rangeMax]);
-                    axisScale.range([0, scalewidth]);
-
-                    var xAxis = d3.svg.axis()
-                        .scale(axisScale);
-
-                    if (logscale) {
-                        var numberFormat = d3.format(',f');
-                        xAxis.tickFormat(function logFormat(d) {
-                            var x = Math.log(d) / Math.log(10) + 1e-6;
-                            return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
-                        });
-
-                    } else {
-                        var step = Number(((rangeMax - rangeMin) / 5).toPrecision(3));
-                        var ticks = d3.range(rangeMin, rangeMax + step, step);
-                        xAxis.tickValues(ticks);
-                        xAxis.tickFormat(d3.format('g'));
-                    }
-
-                    var g = svgContainer.append('g')
-                        .attr('class', 'x axis')
-                        .attr('transform', 'translate(' + [margin, 20] + ')')
-                        .call(xAxis);
-
-                    // Add layer info
-                    var info;
-                    if (product.get('model')) {
-                        info = product.getTruncatedPrettyModelExpression(38);
-                        _.each(
-                            {'\u2212': /&minus;/, '\u2026': /&hellip;/},
-                            function (regex, newString) {
-                                info = info.replace(regex, newString);
+                    if(data.hasOwnProperty('__info__') && data['__info__'].hasOwnProperty('variables')){
+                        if(data.__info__.variables.hasOwnProperty(sat)){
+                            if(data.__info__.variables[sat].indexOf(sel) === -1){
+                                visible = false;
                             }
+                        } else {
+                            visible = false;
+                        }
+                    }
+
+                    if(visible){
+                        var rangeMin = product.get('parameters')[sel].range[0];
+                        var rangeMax = product.get('parameters')[sel].range[1];
+                        var uom = product.get('parameters')[sel].uom;
+                        var style = product.get('parameters')[sel].colorscale;
+                        var logscale = defaultFor(product.get('parameters')[sel].logarithmic, false);
+                        var axisScale;
+
+
+                        this.plot.setColorScale(style);
+                        var colorscaleimage = this.plot.getColorScaleImage().toDataURL();
+
+                        $('#svgcolorscalecontainer').remove();
+                        var svgContainer = d3.select('body').append('svg')
+                            .attr('width', 300)
+                            .attr('height', 60)
+                            .attr('id', 'svgcolorscalecontainer');
+
+                        if (logscale) {
+                            axisScale = d3.scale.log();
+                        } else {
+                            axisScale = d3.scale.linear();
+                        }
+
+                        axisScale.domain([rangeMin, rangeMax]);
+                        axisScale.range([0, scalewidth]);
+
+                        var xAxis = d3.svg.axis()
+                            .scale(axisScale);
+
+                        if (logscale) {
+                            var numberFormat = d3.format(',f');
+                            xAxis.tickFormat(function logFormat(d) {
+                                var x = Math.log10(d) + 1e-6;
+                                return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
+                            });
+
+                        } else {
+                            var step = Number(((rangeMax - rangeMin) / 5).toPrecision(3));
+                            var ticks = d3.range(rangeMin, rangeMax + step, step);
+                            xAxis.tickValues(ticks);
+                            xAxis.tickFormat(d3.format('g'));
+                        }
+
+                        var g = svgContainer.append('g')
+                            .attr('class', 'x axis')
+                            .attr('transform', 'translate(' + [margin, 20] + ')')
+                            .call(xAxis);
+
+                        // Add layer info
+                        var info;
+                        if (product.get('model')) {
+                            if (product.get('components').length === 1) {
+                                info = product.getPrettyModelExpression(true);
+                            } else {
+                                info = product.get('download').id;
+                            }
+                            _.each(
+                                {'\u2212': /&minus;/, '\u2026': /&hellip;/},
+                                function (regex, newString) {
+                                    info = info.replace(regex, newString);
+                                }
+                            );
+                        } else {
+                            info = product.get('name');
+                        }
+
+                        info += ' - ' + sel;
+                        if (uom) {
+                            info += ' [' + uom + ']';
+                        }
+
+                        g.append('text')
+                            .style('text-anchor', 'middle')
+                            .attr('transform', 'translate(' + [scalewidth / 2, 30] + ')')
+                            .attr('font-weight', 'bold')
+                            .text(info);
+
+                        svgContainer.selectAll('text')
+                            .attr('stroke', 'none')
+                            .attr('fill', 'black')
+                            .attr('font-weight', 'bold');
+
+                        svgContainer.selectAll('.tick').select('line')
+                            .attr('stroke', 'black');
+
+                        svgContainer.selectAll('.axis .domain')
+                            .attr('stroke-width', '2')
+                            .attr('stroke', '#000')
+                            .attr('shape-rendering', 'crispEdges')
+                            .attr('fill', 'none');
+
+                        svgContainer.selectAll('.axis path')
+                            .attr('stroke-width', '2')
+                            .attr('shape-rendering', 'crispEdges')
+                            .attr('stroke', '#000');
+
+                        var svgHtml = d3.select('#svgcolorscalecontainer')
+                            .attr('version', 1.1)
+                            .attr('xmlns', 'http://www.w3.org/2000/svg')
+                            .node().innerHTML;
+
+                        var renderHeight = 55;
+                        var renderWidth = width;
+
+                        var index = Object.keys(this.colorscales).length;
+
+                        var prim = this.map.scene.primitives.add(
+                            this.createViewportQuad(
+                                this.renderSVG(svgHtml, renderWidth, renderHeight),
+                                0, index * 55 + 5, renderWidth, renderHeight
+                            )
                         );
-                    } else {
-                        info = product.get('name');
+                        var csPrim = this.map.scene.primitives.add(
+                            this.createViewportQuad(
+                                colorscaleimage, 20, index * 55 + 42, scalewidth, 10
+                            )
+                        );
+
+                        this.createModelColorscaleTooltipDiv(product, index);
+                        this.colorscales[pId] = {
+                            index: index,
+                            prim: prim,
+                            csPrim: csPrim
+                        };
+
+                        svgContainer.remove();
                     }
-
-                    info += ' - ' + sel;
-                    if (uom) {
-                        info += ' [' + uom + ']';
-                    }
-
-                    g.append('text')
-                        .style('text-anchor', 'middle')
-                        .attr('transform', 'translate(' + [scalewidth / 2, 30] + ')')
-                        .attr('font-weight', 'bold')
-                        .text(info);
-
-                    svgContainer.selectAll('text')
-                        .attr('stroke', 'none')
-                        .attr('fill', 'black')
-                        .attr('font-weight', 'bold');
-
-                    svgContainer.selectAll('.tick').select('line')
-                        .attr('stroke', 'black');
-
-                    svgContainer.selectAll('.axis .domain')
-                        .attr('stroke-width', '2')
-                        .attr('stroke', '#000')
-                        .attr('shape-rendering', 'crispEdges')
-                        .attr('fill', 'none');
-
-                    svgContainer.selectAll('.axis path')
-                        .attr('stroke-width', '2')
-                        .attr('shape-rendering', 'crispEdges')
-                        .attr('stroke', '#000');
-
-                    var svgHtml = d3.select('#svgcolorscalecontainer')
-                        .attr('version', 1.1)
-                        .attr('xmlns', 'http://www.w3.org/2000/svg')
-                        .node().innerHTML;
-
-                    var renderHeight = 55;
-                    var renderWidth = width;
-
-                    var index = Object.keys(this.colorscales).length;
-
-                    var prim = this.map.scene.primitives.add(
-                        this.createViewportQuad(
-                            this.renderSVG(svgHtml, renderWidth, renderHeight),
-                            0, index * 55 + 5, renderWidth, renderHeight
-                        )
-                    );
-                    var csPrim = this.map.scene.primitives.add(
-                        this.createViewportQuad(
-                            colorscaleimage, 20, index * 55 + 42, scalewidth, 10
-                        )
-                    );
-
-                    this.colorscales[pId] = {
-                        index: index,
-                        prim: prim,
-                        csPrim: csPrim
-                    };
-
-                    svgContainer.remove();
                 }
             }
+        },
 
+        createModelColorscaleTooltipDiv: function (product, index) {
+            var prodId = product.get('download').id;
+            var elId = 'colorscale_label_' + prodId;
+            this.removeColorscaleTooltipDiv(prodId);
+            if (product.get('model') && product.get('components').length > 1 && product.get('showColorscale') && product.get('visible')) {
+                var bottom = (57 * index) + parseInt($('.cesium-viewer').css('padding-bottom'), 10);
+                this.$el.append('<div class="colorscaleLabel" id="' + elId + '" style="bottom:' + bottom + 'px;" title="' + product.getPrettyModelExpression(true) + '"></div>');
+            }
+        },
+
+        removeColorscaleTooltipDiv: function (pId) {
+            var id = 'colorscale_label_' + pId;
+            $('#' + id).remove();
         },
 
         onSelectionActivated: function (arg) {
@@ -1665,15 +1720,21 @@ define([
             );
         },
 
-        updateFieldLines: function () {
+        updateFieldLines: function (onlyStyleChange) {
+            if (typeof this.showFieldLinesDebounced === 'undefined') {
+                this.showFieldLinesDebounced = _.debounce(function (onlyStyleChange) {
+                    this.showFieldLines(onlyStyleChange);
+                }, 2000);
+            }
+            this.hideFieldLinesLabel();
             if (this.activeFL.length > 0 && this.bboxsel) {
-                this.showFieldLines();
+                this.showFieldLinesDebounced(onlyStyleChange);
             } else {
                 this.hideFieldLines();
             }
         },
 
-        showFieldLines: function () {
+        showFieldLines: function (onlyStyleChange) {
             _.each(
                 globals.products.filter(function (product) {
                     return this.activeFL.indexOf(product.get('download').id) !== -1;
@@ -1682,39 +1743,61 @@ define([
                     var name = product.get('name');
                     var parameters = product.get('parameters');
                     var variable = this.getSelectedVariable(parameters);
-
+                    var style = parameters[variable].colorscale;
+                    var range_min = parameters[variable].range[0];
+                    var range_max = parameters[variable].range[1];
+                    var log_scale = parameters[variable].logarithmic;
+                    var time = meanDate(this.beginTime, this.endTime);
                     this.removeFLPrimitives(name);
 
                     if (variable !== 'Fieldlines') return;
 
+                    if (product.getModelValidity().start > time || product.getModelValidity().end < time) return;
                     var options = {
                         model_ids: product.getModelExpression(product.get('download').id),
                         shc: product.getCustomShcIfSelected(),
-                        begin_time: getISODateTimeString(this.beginTime),
-                        end_time: getISODateTimeString(this.endTime),
+                        time: getISODateTimeString(time),
                         bbox: [
                             this.bboxsel[0], this.bboxsel[1], this.bboxsel[2], this.bboxsel[3]
                         ].join(','),
-                        style: parameters[variable].colorscale,
-                        log_scale: parameters[variable].logarithmic
                     };
-
-                    $.post(product.get('views')[0].urls[0], tmplGetFieldLines(options))
-                        .done(_.bind(function (data) {
-                            Papa.parse(data, {
-                                header: true,
-                                dynamicTyping: true,
-                                complete: _.bind(function (results) {
-                                    this.createFLPrimitives(results, name);
-                                }, this)
-                            });
-                        }, this));
+                    if (onlyStyleChange && typeof this.FLStoredData[name] !== 'undefined') {
+                        // do not send request to server if no new data needed
+                        this.createFLPrimitives(this.FLStoredData[name], name, style, range_min, range_max, log_scale);
+                    } else {
+                        // send regular request
+                        httpRequest.asyncHttpRequest({
+                            context: this,
+                            type: 'POST',
+                            url: product.get('views')[0].urls[0],
+                            data: tmplGetFieldLines(options),
+                            responseType: 'arraybuffer',
+                            parse: function (data, xhr) {
+                                return msgpack.decode(new Uint8Array(data));
+                            },
+                            success: function (data, xhr) {
+                                this.createFLPrimitives(data, name, style, range_min, range_max, log_scale);
+                                this.FLStoredData[name] = data;
+                            },
+                            error: function (xhr) {
+                                if (xhr.responseText === "") {return;}
+                                var error_text = xhr.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
+                                if (error_text && error_text.length > 1) {
+                                    error_text = error_text[1];
+                                } else {
+                                    error_text = 'Please contact feedback@vires.services if issue persists.';
+                                }
+                                showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+                            }
+                        });
+                    }
                 }, this
             );
         },
 
         hideFieldLines: function () {
             _.each(_.keys(this.FLCollection), this.removeFLPrimitives, this);
+            this.hideFieldLinesLabel();
         },
 
         getSelectedVariable: function (parameters) {
@@ -1758,40 +1841,65 @@ define([
             if (this.FLCollection.hasOwnProperty(name)) {
                 this.map.scene.primitives.remove(this.FLCollection[name]);
                 delete this.FLCollection[name];
+                delete this.FLData[name];
             }
         },
 
-        createFLPrimitives: function (results, name) {
+        createFLPrimitives: function (data, name, style, range_min, range_max, log_scale) {
             this.removeFLPrimitives(name);
+            var instances = _.chain(data.fieldlines)
+                .map(function (fieldlines, modelId) {
+                    return _.map(fieldlines, function (fieldline, index) {
+                        // Note that all coordinates are in Geocentric Spherical CS,
+                        // i.e., [latitude, longitude, radius]
+                        // The angles are in degrees and lengths in meters.
+                        var positions = _.map(fieldline.coordinates, function (coords) {
+                            return Cesium.Cartesian3.fromDegrees(
+                                coords[1], coords[0], coords[2], GEOCENTRIC_SPHERICAL
+                            );
+                        });
+                        // compute colors from values using plotty plot
+                        this.plot.setColorScale(style);
+                        if (log_scale) {
+                            this.plot.setDomain([Math.log10(range_min), Math.log10(range_max)]);
+                            var colors = _.map(fieldline.values, function (value) {
+                                var color = this.plot.getColor(Math.log10(value));
+                                return Cesium.Color.fromBytes(color[0], color[1], color[2], 255);
+                            }.bind(this));
+                        } else {
+                            this.plot.setDomain([range_min, range_max]);
+                            var colors = _.map(fieldline.values, function (value) {
+                                var color = this.plot.getColor(value);
+                                return Cesium.Color.fromBytes(color[0], color[1], color[2], 255);
+                            }.bind(this));
+                        }
 
-            var parsedData = {};
-            _.each(results.data, function (row) {
-                var data = parsedData[row.id];
-                if (data === undefined) {
-                    parsedData[row.id] = data = {colors: [], positions: []};
-                }
-                data.colors.push(
-                    Cesium.Color.fromBytes(row.color_r, row.color_g, row.color_b, 255)
-                );
-                data.positions.push(
-                    new Cesium.Cartesian3(row.pos_x, row.pos_y, row.pos_z)
-                );
-            });
+                        // save data to get fieldline info later
+                        if (typeof this.FLData[name] === 'undefined') {
+                            this.FLData[name] = {};
+                        }
+                        var id = 'vec_line_fl_' + modelId + '_' + index;
+                        this.FLData[name][id] = {
+                            'apex_point': fieldline.apex_point,
+                            'apex_height': fieldline.apex_height,
+                            'ground_points': fieldline.ground_points,
+                        };
 
-            var instances = _.values(parsedData).map(function (data, index) {
-                return new Cesium.GeometryInstance({
-                    id: 'vec_line_' + index,
-                    geometry: new Cesium.PolylineGeometry({
-                        positions: data.positions,
-                        width: 2.0,
-                        vertexFormat: Cesium.PolylineColorAppearance.VERTEX_FORMAT,
-                        colors: data.colors,
-                        colorsPerVertex: true,
-                    })
-                });
-            });
+                        return new Cesium.GeometryInstance({
+                            id: id,
+                            geometry: new Cesium.PolylineGeometry({
+                                width: 2.0,
+                                vertexFormat: Cesium.PolylineColorAppearance.VERTEX_FORMAT,
+                                colorsPerVertex: true,
+                                positions: positions,
+                                colors: colors,
+                            })
+                        });
+                    }, this);
+                }, this)
+                .flatten()
+                .value();
 
-            // TODO: Possibly needed geometry instances if transparency should work for fieldlines
             this.FLCollection[name] = new Cesium.Primitive({
                 geometryInstances: instances,
                 appearance: new Cesium.PolylineColorAppearance()
@@ -1799,8 +1907,79 @@ define([
             this.map.scene.primitives.add(this.FLCollection[name]);
         },
 
-        onHighlightPoint: function (coords) {
-            this.billboards.removeAll();
+        onFieldlineClicked: function (fieldline, clickPosition) {
+            var FLProduct = _.find(Object.keys(this.FLData), function (item) {
+                // find product where searched id exists as value
+                return this.FLData[item][fieldline.id];
+            }.bind(this));
+            if (typeof FLProduct !== 'undefined') {
+                var fl_data = this.FLData[FLProduct][fieldline.id];
+                // prepare template data
+                var apex;
+                if(fl_data.hasOwnProperty('apex_point') && fl_data.apex_point !== null) {
+                    apex = {
+                        lat: fl_data['apex_point'][0].toFixed(3),
+                        lon: fl_data['apex_point'][1].toFixed(3),
+                        height: (fl_data['apex_height'] / 1000).toFixed(1)
+                    };
+                }
+
+                var ground_points = [{
+                    lat: fl_data['ground_points'][0][0].toFixed(3),
+                    lon: fl_data['ground_points'][0][1].toFixed(3),
+                }];
+
+                if(fl_data.ground_points.length>1){
+                    ground_points.push({
+                        lat: fl_data['ground_points'][1][0].toFixed(3),
+                        lon: fl_data['ground_points'][1][1].toFixed(3)
+                    });
+                }
+                var options = {
+                    ground_points: ground_points,
+                    apex: apex,
+                };
+
+                $('#fieldlines_label').html(tmplFieldLinesLabel(options));
+                $('#fieldlines_label').removeClass('hidden');
+                $('#fieldlines_label').offset({left: clickPosition.x + 18, top: clickPosition.y});
+                $('.close-fieldline-label').off('click');
+                $('.close-fieldline-label').on('click', this.hideFieldLinesLabel.bind(this));
+                // highlight points
+                this.FLbillboards.removeAll();
+                if(apex){
+                    this.highlightFieldLinesPoints(
+                        [].concat(
+                            [fl_data['apex_point']],
+                            fl_data['ground_points']
+                        )
+                    );
+                } else {
+                    this.highlightFieldLinesPoints(
+                        fl_data.ground_points
+                    );
+                }
+            }
+        },
+
+        hideFieldLinesLabel: function () {
+            $('#fieldlines_label').addClass('hidden');
+            if(this.FLbillboards){
+                this.FLbillboards.removeAll();
+            }
+        },
+
+        onHighlightPoint: function (coords, fieldlines_highlight) {
+            var wrongInput = !coords || (coords.length === 3 && _.some(coords, function (el) {
+              return isNaN(el);
+            }));
+            if (wrongInput) {
+              return null;
+            }
+            // either highlight single point or point on a fieldline
+            if (!fieldlines_highlight) {
+                this.billboards.removeAll();
+            }
             var canvas = document.createElement('canvas');
             canvas.width = 32;
             canvas.height = 32;
@@ -1818,14 +1997,25 @@ define([
             context2D.strokeStyle = 'rgb(0, 0, 0)';
             context2D.lineWidth = 3;
             context2D.stroke();
-
-            this.billboards.add({
+            var canvasPoint = {
                 imageId: 'custom canvas point',
                 image: canvas,
                 position: Cesium.Cartesian3.fromDegrees(coords[1], coords[0], parseInt(coords[2] - 6384100)),
                 radius: coords[2],
                 scale: 1
-            });
+            };
+            if (!fieldlines_highlight) {
+                this.billboards.add(canvasPoint);
+            } else {
+                this.FLbillboards.add(canvasPoint);
+            }
+        },
+
+        highlightFieldLinesPoints: function (fieldlines) {
+            // accepts a list of fieldline points to be highlighted
+            _.each(fieldlines, function (item) {
+                this.onHighlightPoint([item[0], item[1], item[2]], true);
+            }.bind(this));
         },
 
         onRemoveHighlights: function () {
@@ -1939,6 +2129,19 @@ define([
                         up: [c.up.x, c.up.y, c.up.z],
                         right: [c.right.x, c.right.y, c.right.z]
                     }));
+
+                    if(this.map.scene.mode === 2){
+                        localStorage.setItem('frustum', JSON.stringify({
+                            bottom: c.frustum.bottom,
+                            left: c.frustum.left,
+                            right: c.frustum.right,
+                            top: c.frustum.top
+                        }));
+                    } else {
+                        localStorage.removeItem('frustum');
+                    }
+
+
                 } else {
                     this.cameraLastPosition.x = c.position.x;
                     this.cameraLastPosition.y = c.position.y;

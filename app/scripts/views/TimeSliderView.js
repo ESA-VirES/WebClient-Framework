@@ -56,6 +56,11 @@
                     this.onDateSelectionChange
                 );
 
+                this.listenTo(
+                    Communicator.mediator, 'userData:fetch:complete',
+                    this.checkUserLayer
+                );
+
                 Communicator.reqres.setHandler('get:time', this.returnTime);
 
                 // Try to get CSRF token, if available set it for
@@ -436,8 +441,25 @@
                                         source: {fetch: this.fetch.bind(attrs)}
                                     });
                                     break;
+                                // TODO: Commenting product-wise creating of TimeSlider entries of user data for now, currently only one entry for uploaded data is created
+                                // case 'USER_DATA':
+                                //   if (globals.userData.models.length > 0) {
+                                //       var records = [];
+                                //       _.each(globals.userData.models, function (file) {
+                                //           var record =
+                                //           [new Date(file.get('start')), new Date(file.get('end')), {
+                                //             id: file.get('filename') }];
+                                //           records.push(record);
+                                //       });
+                                //       this.slider.removeDataset(product.get('download').id);
+                                //       this.slider.addDataset({
+                                //           id: product.get('download').id,
+                                //           color: product.get('color'),
+                                //           records: records,
+                                //       });
+                                //   }
+                                // break;
                             } // END of switch
-
                         } else {
                             this.slider.removeDataset(product.get('download').id);
                             if (this.activeWPSproducts.indexOf(product.get('download').id) !== -1) {
@@ -446,6 +468,28 @@
                         }
                     }
                 }
+            },
+
+            checkUserLayer: function () {
+              if (globals.userData.models.length > 0) {
+                if (!this.slider.hasDataset(globals.userData.views[0].id)) {
+                  const records = [];
+                  _.each(globals.userData.models, function (file) {
+                      var record =
+                      [new Date(file.get('start')), new Date(file.get('end')), {
+                        id: file.get('filename') }];
+                      records.push(record);
+                  });
+                  this.slider.removeDataset(globals.userData.views[0].id);
+                  this.slider.addDataset({
+                      id: globals.userData.views[0].id,
+                      color: globals.userData.color || '#ff0000',
+                      records: records,
+                  });
+                }
+              } else {
+                this.slider.removeDataset(globals.userData.views[0].id);
+              }
             },
 
             returnTime: function () {

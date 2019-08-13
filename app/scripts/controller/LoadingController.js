@@ -28,7 +28,9 @@
             else
                 this.progress_count-=1;
 
-
+            if(this.progress_count<0){
+                this.progress_count = 0;
+            }
             if (this.progress_count > 0) {
                 $("body").addClass("wait");
                 //$(document.body).css({ 'cursor': 'wait' })
