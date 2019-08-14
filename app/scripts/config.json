@@ -2437,6 +2437,963 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
+            "name": "IPDAIRR 2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#ff7f0e",
+            "views": [{
+                "id": "SW_OPER_IPDAIRR_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_IPDAIRR_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_IPDAIRR_2F"
+                }
+            ],
+            "parameters": {
+                "Ne": {
+                    "selected": true,
+                    "range": [0, 200000],
+                    "colorscale": "plasma",
+                    "uom": "cm -3",
+                    "name": "Plasma density"
+                },
+                "Background_Ne": {
+                    "range": [0, 200000],
+                    "colorscale": "plasma",
+                    "uom": "cm -3",
+                    "name": "Background plasma density"
+                },
+                "Foreground_Ne": {
+                    "range": [0, 200000],
+                    "colorscale": "plasma",
+                    "uom": "cm -3",
+                    "name": "Foreground plasma density"
+                },
+                "Te": {
+                    "range": [0, 50000],
+                    "colorscale": "portland",
+                    "uom":"K",
+                    "name": "Plasma electron temperature"
+                },
+                "PCP_flag": {
+                    "range": [0, 4],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Polar cap patch flag"
+                },
+                "Grad_Ne_at_100km": {
+                    "range": [-20, 20],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (27 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_50km": {
+                    "range": [-30, 30],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (13 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_20km": {
+                    "range": [-60, 60],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (5 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_PCP_edge": {
+                    "range": [-2, 2],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "The linear electron density gradient over patch edges"
+                },
+                "ROD": {
+                    "range": [-300000, 300000],
+                    "colorscale": "diverging_2",
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density"
+                },
+                "RODI10s": {
+                    "range": [0, 2500],
+                    "colorscale": "jet",
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density index (ROD std.dev. over 10 s)"
+                },
+                "RODI20s": {
+                    "range": [0, 5000],
+                    "colorscale": "jet",
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density index (ROD std.dev. over 20 s)"
+                },
+                "delta_Ne10s": {
+                    "range": [0, 5000],
+                    "colorscale": "jet",
+                    "uom": "cm -3",
+                    "name": "10s Ne median subtracted from Ne (< 75 km fluctuations)"
+                },
+                "delta_Ne20s": {
+                    "range": [0, 10000],
+                    "colorscale": "jet",
+                    "uom": "cm -3",
+                    "name": "20s Ne median subtracted from Ne (< 150 km fluctuations)"
+                },
+                "delta_Ne40s": {
+                    "range": [0, 20000],
+                    "colorscale": "jet",
+                    "uom": "cm -3",
+                    "name": "40s Ne median subtracted from Ne (< 300 km fluctuations)"
+                },
+                "Num_GPS_satellites": {
+                    "range": [0, 10],
+                    "colorscale": "jet",
+                    "uom": null,
+                    "name": "Total number of tracked GPS satellites above 20 degrees"
+                },
+                "mVTEC": {
+                    "range": [0, 50],
+                    "colorscale": "jet",
+                    "uom": "TECU",
+                    "name": "Median of VTEC (GPS > 30 deg)"
+                },
+                "mROT": {
+                    "range": [-0.5, 0.5],
+                    "colorscale": "diverging_1",
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of VTEC (GPS > 30 deg)"
+                },
+                "mROTI10s": {
+                    "range": [0, 0.025],
+                    "colorscale": "diverging_1",
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 10 s)"
+                },
+                "mROTI20s": {
+                    "range": [0, 0.025],
+                    "colorscale": "diverging_1",
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 20 s)"
+                },
+                "IBI_flag": {
+                    "range": [-2, 2],
+                    "colorscale": "diverging_1",
+                    "uom": null,
+                    "name": "Plasma Bubble Index (from IBIxTMS_2F)"
+                },
+                "Ionosphere_region_flag": {
+                    "range": [0, 3],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Ionosphere region flag"
+                },
+                "IPIR_index": {
+                    "range": [0, 8],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Plasma fluctuations and irregularities index"
+                },
+                "Ne_quality_flag": {
+                    "range": [0, 9000],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Plasma density quality flag"
+                },
+                "TEC_STD": {
+                    "range": [0, 10],
+                    "colorscale": "rainbow",
+                    "uom": "TECU",
+                    "name": "STD of VTEC from all GPS satellites"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "Ne": {
+                    "uom": "cm -3",
+                    "name": "Plasma density"
+                },
+                "Background_Ne": {
+                    "uom": "cm -3",
+                    "name": "Background plasma density"
+                },
+                "Foreground_Ne": {
+                    "uom": "cm -3",
+                    "name": "Foreground plasma density"
+                },
+                "Te": {
+                    "uom": "K",
+                    "name": "Plasma electron temperature"
+                },
+                "PCP_flag": {
+                    "uom": null,
+                    "name": "Polar cap patch flag"
+                },
+                "Grad_Ne_at_100km": {
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (27 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_50km": {
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (13 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_20km": {
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (5 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_PCP_edge": {
+                    "uom": "cm -3 / m",
+                    "name": "The linear electron density gradient over patch edges"
+                },
+                "ROD": {
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density"
+                },
+                "RODI10s": {
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density index (ROD std.dev. over 10 s)"
+                },
+                "RODI20s": {
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density index (ROD std.dev. over 20 s)"
+                },
+                "delta_Ne10s": {
+                    "uom": "cm -3",
+                    "name": "10s Ne median subtracted from Ne (< 75 km fluctuations)"
+                },
+                "delta_Ne20s": {
+                    "uom": "cm -3",
+                    "name": "20s Ne median subtracted from Ne (< 150 km fluctuations)"
+                },
+                "delta_Ne40s": {
+                    "uom": "cm -3",
+                    "name": "40s Ne median subtracted from Ne (< 300 km fluctuations)"
+                },
+                "Num_GPS_satellites": {
+                    "uom": null,
+                    "name": "Total number of tracked GPS satellites above 20 degrees"
+                },
+                "mVTEC": {
+                    "uom": "TECU",
+                    "name": "Median of VTEC (GPS > 30 deg)"
+                },
+                "mROT": {
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of VTEC (GPS > 30 deg)"
+                },
+                "mROTI10s": {
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 10 s)"
+                },
+                "mROTI20s": {
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 20 s)"
+                },
+                "IBI_flag": {
+                    "uom": null,
+                    "name": "Plasma Bubble Index (from IBIxTMS_2F)"
+                },
+                "Ionosphere_region_flag": {
+                    "uom": null,
+                    "name": "Ionosphere region flag"
+                },
+                "IPIR_index": {
+                    "uom": null,
+                    "name": "Plasma fluctuations and irregularities index"
+                },
+                "Ne_quality_flag": {
+                    "uom": null,
+                    "name": "Plasma density quality flag"
+                },
+                "TEC_STD": {
+                    "uom": "TECU",
+                    "name": "STD of VTEC from all GPS satellites"
+                },
+                "QDLat": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude"
+                },
+                "QDLon": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude"
+                },
+                "MLT": {
+                    "uom": null,
+                    "name": "Magnetic local time"
+                },
+                "OrbitNumber": {
+                    "uom": null,
+                    "name": "Orbit Number"
+                }
+            },"processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_IPDAIRR_2F"
+                }
+            ],
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "IPDBIRR 2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#ff7f0e",
+            "views": [{
+                "id": "SW_OPER_IPDBIRR_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_IPDBIRR_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_IPDBIRR_2F"
+                }
+            ],
+            "parameters": {
+                "Ne": {
+                    "selected": true,
+                    "range": [0, 200000],
+                    "colorscale": "plasma",
+                    "uom": "cm -3",
+                    "name": "Plasma density"
+                },
+                "Background_Ne": {
+                    "range": [0, 200000],
+                    "colorscale": "plasma",
+                    "uom": "cm -3",
+                    "name": "Background plasma density"
+                },
+                "Foreground_Ne": {
+                    "range": [0, 200000],
+                    "colorscale": "plasma",
+                    "uom": "cm -3",
+                    "name": "Foreground plasma density"
+                },
+                "Te": {
+                    "range": [0, 50000],
+                    "colorscale": "portland",
+                    "uom":"K",
+                    "name": "Plasma electron temperature"
+                },
+                "PCP_flag": {
+                    "range": [0, 4],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Polar cap patch flag"
+                },
+                "Grad_Ne_at_100km": {
+                    "range": [-20, 20],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (27 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_50km": {
+                    "range": [-30, 30],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (13 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_20km": {
+                    "range": [-60, 60],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (5 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_PCP_edge": {
+                    "range": [-2, 2],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "The linear electron density gradient over patch edges"
+                },
+                "ROD": {
+                    "range": [-300000, 300000],
+                    "colorscale": "diverging_2",
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density"
+                },
+                "RODI10s": {
+                    "range": [0, 2500],
+                    "colorscale": "jet",
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density index (ROD std.dev. over 10 s)"
+                },
+                "RODI20s": {
+                    "range": [0, 5000],
+                    "colorscale": "jet",
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density index (ROD std.dev. over 20 s)"
+                },
+                "delta_Ne10s": {
+                    "range": [0, 5000],
+                    "colorscale": "jet",
+                    "uom": "cm -3",
+                    "name": "10s Ne median subtracted from Ne (< 75 km fluctuations)"
+                },
+                "delta_Ne20s": {
+                    "range": [0, 10000],
+                    "colorscale": "jet",
+                    "uom": "cm -3",
+                    "name": "20s Ne median subtracted from Ne (< 150 km fluctuations)"
+                },
+                "delta_Ne40s": {
+                    "range": [0, 20000],
+                    "colorscale": "jet",
+                    "uom": "cm -3",
+                    "name": "40s Ne median subtracted from Ne (< 300 km fluctuations)"
+                },
+                "Num_GPS_satellites": {
+                    "range": [0, 10],
+                    "colorscale": "jet",
+                    "uom": null,
+                    "name": "Total number of tracked GPS satellites above 20 degrees"
+                },
+                "mVTEC": {
+                    "range": [0, 50],
+                    "colorscale": "jet",
+                    "uom": "TECU",
+                    "name": "Median of VTEC (GPS > 30 deg)"
+                },
+                "mROT": {
+                    "range": [-0.5, 0.5],
+                    "colorscale": "diverging_1",
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of VTEC (GPS > 30 deg)"
+                },
+                "mROTI10s": {
+                    "range": [0, 0.025],
+                    "colorscale": "diverging_1",
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 10 s)"
+                },
+                "mROTI20s": {
+                    "range": [0, 0.025],
+                    "colorscale": "diverging_1",
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 20 s)"
+                },
+                "IBI_flag": {
+                    "range": [-2, 2],
+                    "colorscale": "diverging_1",
+                    "uom": null,
+                    "name": "Plasma Bubble Index (from IBIxTMS_2F)"
+                },
+                "Ionosphere_region_flag": {
+                    "range": [0, 3],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Ionosphere region flag"
+                },
+                "IPIR_index": {
+                    "range": [0, 8],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Plasma fluctuations and irregularities index"
+                },
+                "Ne_quality_flag": {
+                    "range": [0, 9000],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Plasma density quality flag"
+                },
+                "TEC_STD": {
+                    "range": [0, 10],
+                    "colorscale": "rainbow",
+                    "uom": "TECU",
+                    "name": "STD of VTEC from all GPS satellites"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "Ne": {
+                    "uom": "cm -3",
+                    "name": "Plasma density"
+                },
+                "Background_Ne": {
+                    "uom": "cm -3",
+                    "name": "Background plasma density"
+                },
+                "Foreground_Ne": {
+                    "uom": "cm -3",
+                    "name": "Foreground plasma density"
+                },
+                "Te": {
+                    "uom": "K",
+                    "name": "Plasma electron temperature"
+                },
+                "PCP_flag": {
+                    "uom": null,
+                    "name": "Polar cap patch flag"
+                },
+                "Grad_Ne_at_100km": {
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (27 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_50km": {
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (13 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_20km": {
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (5 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_PCP_edge": {
+                    "uom": "cm -3 / m",
+                    "name": "The linear electron density gradient over patch edges"
+                },
+                "ROD": {
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density"
+                },
+                "RODI10s": {
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density index (ROD std.dev. over 10 s)"
+                },
+                "RODI20s": {
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density index (ROD std.dev. over 20 s)"
+                },
+                "delta_Ne10s": {
+                    "uom": "cm -3",
+                    "name": "10s Ne median subtracted from Ne (< 75 km fluctuations)"
+                },
+                "delta_Ne20s": {
+                    "uom": "cm -3",
+                    "name": "20s Ne median subtracted from Ne (< 150 km fluctuations)"
+                },
+                "delta_Ne40s": {
+                    "uom": "cm -3",
+                    "name": "40s Ne median subtracted from Ne (< 300 km fluctuations)"
+                },
+                "Num_GPS_satellites": {
+                    "uom": null,
+                    "name": "Total number of tracked GPS satellites above 20 degrees"
+                },
+                "mVTEC": {
+                    "uom": "TECU",
+                    "name": "Median of VTEC (GPS > 30 deg)"
+                },
+                "mROT": {
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of VTEC (GPS > 30 deg)"
+                },
+                "mROTI10s": {
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 10 s)"
+                },
+                "mROTI20s": {
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 20 s)"
+                },
+                "IBI_flag": {
+                    "uom": null,
+                    "name": "Plasma Bubble Index (from IBIxTMS_2F)"
+                },
+                "Ionosphere_region_flag": {
+                    "uom": null,
+                    "name": "Ionosphere region flag"
+                },
+                "IPIR_index": {
+                    "uom": null,
+                    "name": "Plasma fluctuations and irregularities index"
+                },
+                "Ne_quality_flag": {
+                    "uom": null,
+                    "name": "Plasma density quality flag"
+                },
+                "TEC_STD": {
+                    "uom": "TECU",
+                    "name": "STD of VTEC from all GPS satellites"
+                },
+                "QDLat": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude"
+                },
+                "QDLon": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude"
+                },
+                "MLT": {
+                    "uom": null,
+                    "name": "Magnetic local time"
+                },
+                "OrbitNumber": {
+                    "uom": null,
+                    "name": "Orbit Number"
+                }
+            },"processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_IPDBIRR_2F"
+                }
+            ],
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "IPDCIRR 2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#ff7f0e",
+            "views": [{
+                "id": "SW_OPER_IPDCIRR_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_IPDCIRR_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_IPDCIRR_2F"
+                }
+            ],
+            "parameters": {
+                "Ne": {
+                    "selected": true,
+                    "range": [0, 200000],
+                    "colorscale": "plasma",
+                    "uom": "cm -3",
+                    "name": "Plasma density"
+                },
+                "Background_Ne": {
+                    "range": [0, 200000],
+                    "colorscale": "plasma",
+                    "uom": "cm -3",
+                    "name": "Background plasma density"
+                },
+                "Foreground_Ne": {
+                    "range": [0, 200000],
+                    "colorscale": "plasma",
+                    "uom": "cm -3",
+                    "name": "Foreground plasma density"
+                },
+                "Te": {
+                    "range": [0, 50000],
+                    "colorscale": "portland",
+                    "uom":"K",
+                    "name": "Plasma electron temperature"
+                },
+                "PCP_flag": {
+                    "range": [0, 4],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Polar cap patch flag"
+                },
+                "Grad_Ne_at_100km": {
+                    "range": [-20, 20],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (27 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_50km": {
+                    "range": [-30, 30],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (13 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_20km": {
+                    "range": [-60, 60],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (5 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_PCP_edge": {
+                    "range": [-2, 2],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "The linear electron density gradient over patch edges"
+                },
+                "ROD": {
+                    "range": [-300000, 300000],
+                    "colorscale": "diverging_2",
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density"
+                },
+                "RODI10s": {
+                    "range": [0, 2500],
+                    "colorscale": "jet",
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density index (ROD std.dev. over 10 s)"
+                },
+                "RODI20s": {
+                    "range": [0, 5000],
+                    "colorscale": "jet",
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density index (ROD std.dev. over 20 s)"
+                },
+                "delta_Ne10s": {
+                    "range": [0, 5000],
+                    "colorscale": "jet",
+                    "uom": "cm -3",
+                    "name": "10s Ne median subtracted from Ne (< 75 km fluctuations)"
+                },
+                "delta_Ne20s": {
+                    "range": [0, 10000],
+                    "colorscale": "jet",
+                    "uom": "cm -3",
+                    "name": "20s Ne median subtracted from Ne (< 150 km fluctuations)"
+                },
+                "delta_Ne40s": {
+                    "range": [0, 20000],
+                    "colorscale": "jet",
+                    "uom": "cm -3",
+                    "name": "40s Ne median subtracted from Ne (< 300 km fluctuations)"
+                },
+                "Num_GPS_satellites": {
+                    "range": [0, 10],
+                    "colorscale": "jet",
+                    "uom": null,
+                    "name": "Total number of tracked GPS satellites above 20 degrees"
+                },
+                "mVTEC": {
+                    "range": [0, 50],
+                    "colorscale": "jet",
+                    "uom": "TECU",
+                    "name": "Median of VTEC (GPS > 30 deg)"
+                },
+                "mROT": {
+                    "range": [-0.5, 0.5],
+                    "colorscale": "diverging_1",
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of VTEC (GPS > 30 deg)"
+                },
+                "mROTI10s": {
+                    "range": [0, 0.025],
+                    "colorscale": "diverging_1",
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 10 s)"
+                },
+                "mROTI20s": {
+                    "range": [0, 0.025],
+                    "colorscale": "diverging_1",
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 20 s)"
+                },
+                "IBI_flag": {
+                    "range": [-2, 2],
+                    "colorscale": "diverging_1",
+                    "uom": null,
+                    "name": "Plasma Bubble Index (from IBIxTMS_2F)"
+                },
+                "Ionosphere_region_flag": {
+                    "range": [0, 3],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Ionosphere region flag"
+                },
+                "IPIR_index": {
+                    "range": [0, 8],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Plasma fluctuations and irregularities index"
+                },
+                "Ne_quality_flag": {
+                    "range": [0, 9000],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Plasma density quality flag"
+                },
+                "TEC_STD": {
+                    "range": [0, 10],
+                    "colorscale": "rainbow",
+                    "uom": "TECU",
+                    "name": "STD of VTEC from all GPS satellites"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "Ne": {
+                    "uom": "cm -3",
+                    "name": "Plasma density"
+                },
+                "Background_Ne": {
+                    "uom": "cm -3",
+                    "name": "Background plasma density"
+                },
+                "Foreground_Ne": {
+                    "uom": "cm -3",
+                    "name": "Foreground plasma density"
+                },
+                "Te": {
+                    "uom": "K",
+                    "name": "Plasma electron temperature"
+                },
+                "PCP_flag": {
+                    "uom": null,
+                    "name": "Polar cap patch flag"
+                },
+                "Grad_Ne_at_100km": {
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (27 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_50km": {
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (13 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_20km": {
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (5 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_PCP_edge": {
+                    "uom": "cm -3 / m",
+                    "name": "The linear electron density gradient over patch edges"
+                },
+                "ROD": {
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density"
+                },
+                "RODI10s": {
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density index (ROD std.dev. over 10 s)"
+                },
+                "RODI20s": {
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density index (ROD std.dev. over 20 s)"
+                },
+                "delta_Ne10s": {
+                    "uom": "cm -3",
+                    "name": "10s Ne median subtracted from Ne (< 75 km fluctuations)"
+                },
+                "delta_Ne20s": {
+                    "uom": "cm -3",
+                    "name": "20s Ne median subtracted from Ne (< 150 km fluctuations)"
+                },
+                "delta_Ne40s": {
+                    "uom": "cm -3",
+                    "name": "40s Ne median subtracted from Ne (< 300 km fluctuations)"
+                },
+                "Num_GPS_satellites": {
+                    "uom": null,
+                    "name": "Total number of tracked GPS satellites above 20 degrees"
+                },
+                "mVTEC": {
+                    "uom": "TECU",
+                    "name": "Median of VTEC (GPS > 30 deg)"
+                },
+                "mROT": {
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of VTEC (GPS > 30 deg)"
+                },
+                "mROTI10s": {
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 10 s)"
+                },
+                "mROTI20s": {
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 20 s)"
+                },
+                "IBI_flag": {
+                    "uom": null,
+                    "name": "Plasma Bubble Index (from IBIxTMS_2F)"
+                },
+                "Ionosphere_region_flag": {
+                    "uom": null,
+                    "name": "Ionosphere region flag"
+                },
+                "IPIR_index": {
+                    "uom": null,
+                    "name": "Plasma fluctuations and irregularities index"
+                },
+                "Ne_quality_flag": {
+                    "uom": null,
+                    "name": "Plasma density quality flag"
+                },
+                "TEC_STD": {
+                    "uom": "TECU",
+                    "name": "STD of VTEC from all GPS satellites"
+                },
+                "QDLat": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude"
+                },
+                "QDLon": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude"
+                },
+                "MLT": {
+                    "uom": null,
+                    "name": "Magnetic local time"
+                },
+                "OrbitNumber": {
+                    "uom": null,
+                    "name": "Orbit Number"
+                }
+            },"processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_IPDCIRR_2F"
+                }
+            ],
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
             "name": "MAGU LR 1B",
             "color": "#1f77b4",
             "timeSlider": true,
@@ -2697,6 +3654,184 @@
                     "colorscale": "jet",
                     "selected": true,
                     "name": "Detection probability of the plasma bubble"
+                }
+            },
+            "outlines": false,
+            "satellite": "Upload"
+          },{
+            "name": "IPDUIRR 2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#ff7f0e",
+            "views": [{
+                "id": "SW_OPER_IPDUIRR_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_IPDUIRR_2F"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "parameters": {
+                "Ne": {
+                    "selected": true,
+                    "range": [0, 200000],
+                    "colorscale": "plasma",
+                    "uom": "cm -3",
+                    "name": "Plasma density"
+                },
+                "Background_Ne": {
+                    "range": [0, 200000],
+                    "colorscale": "plasma",
+                    "uom": "cm -3",
+                    "name": "Background plasma density"
+                },
+                "Foreground_Ne": {
+                    "range": [0, 200000],
+                    "colorscale": "plasma",
+                    "uom": "cm -3",
+                    "name": "Foreground plasma density"
+                },
+                "Te": {
+                    "range": [0, 50000],
+                    "colorscale": "portland",
+                    "uom":"K",
+                    "name": "Plasma electron temperature"
+                },
+                "PCP_flag": {
+                    "range": [0, 4],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Polar cap patch flag"
+                },
+                "Grad_Ne_at_100km": {
+                    "range": [-20, 20],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (27 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_50km": {
+                    "range": [-30, 30],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (13 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_20km": {
+                    "range": [-60, 60],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "Electron density gradient (5 data points @ 2Hz)"
+                },
+                "Grad_Ne_at_PCP_edge": {
+                    "range": [-2, 2],
+                    "colorscale": "diverging_1",
+                    "uom": "cm -3 / m",
+                    "name": "The linear electron density gradient over patch edges"
+                },
+                "ROD": {
+                    "range": [-300000, 300000],
+                    "colorscale": "diverging_2",
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density"
+                },
+                "RODI10s": {
+                    "range": [0, 2500],
+                    "colorscale": "jet",
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density index (ROD std.dev. over 10 s)"
+                },
+                "RODI20s": {
+                    "range": [0, 5000],
+                    "colorscale": "jet",
+                    "uom": "cm -3 / s",
+                    "name": "Rate of change of electron density index (ROD std.dev. over 20 s)"
+                },
+                "delta_Ne10s": {
+                    "range": [0, 5000],
+                    "colorscale": "jet",
+                    "uom": "cm -3",
+                    "name": "10s Ne median subtracted from Ne (< 75 km fluctuations)"
+                },
+                "delta_Ne20s": {
+                    "range": [0, 10000],
+                    "colorscale": "jet",
+                    "uom": "cm -3",
+                    "name": "20s Ne median subtracted from Ne (< 150 km fluctuations)"
+                },
+                "delta_Ne40s": {
+                    "range": [0, 20000],
+                    "colorscale": "jet",
+                    "uom": "cm -3",
+                    "name": "40s Ne median subtracted from Ne (< 300 km fluctuations)"
+                },
+                "Num_GPS_satellites": {
+                    "range": [0, 10],
+                    "colorscale": "jet",
+                    "uom": null,
+                    "name": "Total number of tracked GPS satellites above 20 degrees"
+                },
+                "mVTEC": {
+                    "range": [0, 50],
+                    "colorscale": "jet",
+                    "uom": "TECU",
+                    "name": "Median of VTEC (GPS > 30 deg)"
+                },
+                "mROT": {
+                    "range": [-0.5, 0.5],
+                    "colorscale": "diverging_1",
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of VTEC (GPS > 30 deg)"
+                },
+                "mROTI10s": {
+                    "range": [0, 0.025],
+                    "colorscale": "diverging_1",
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 10 s)"
+                },
+                "mROTI20s": {
+                    "range": [0, 0.025],
+                    "colorscale": "diverging_1",
+                    "uom": "TECU / s",
+                    "name": "Median of rate of change of TEC index (GPS > 30 deg; std.dev. 20 s)"
+                },
+                "IBI_flag": {
+                    "range": [-2, 2],
+                    "colorscale": "diverging_1",
+                    "uom": null,
+                    "name": "Plasma Bubble Index (from IBIxTMS_2F)"
+                },
+                "Ionosphere_region_flag": {
+                    "range": [0, 3],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Ionosphere region flag"
+                },
+                "IPIR_index": {
+                    "range": [0, 8],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Plasma fluctuations and irregularities index"
+                },
+                "Ne_quality_flag": {
+                    "range": [0, 9000],
+                    "colorscale": "rainbow",
+                    "uom": null,
+                    "name": "Plasma density quality flag"
+                },
+                "TEC_STD": {
+                    "range": [0, 10],
+                    "colorscale": "rainbow",
+                    "uom": "TECU",
+                    "name": "STD of VTEC from all GPS satellites"
                 }
             },
             "outlines": false,

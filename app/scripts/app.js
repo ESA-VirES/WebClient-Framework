@@ -2,7 +2,12 @@
 
 var SCALAR_PARAM = [
     "F", "Ne", "Te", "Vs", "U_orbit", "Bubble_Index", "Bubble_Probability",
-    "IRC", "FAC", "EEF"
+    "IRC", "FAC", "EEF",
+    "Background_Ne", "Foreground_Ne", "PCP_flag", "Grad_Ne_at_100km", "Grad_Ne_at_50km",
+    "Grad_Ne_at_20km", "Grad_Ne_at_PCP_edge", "ROD", "RODI10s", "RODI20s", "delta_Ne10s",
+    "delta_Ne20s", "delta_Ne40s", "Num_GPS_satellites", "mVTEC", "mROT", "mROTI10s",
+    "mROTI20s", "IBI_flag", "Ionosphere_region_flag", "IPIR_index", "Ne_quality_flag",
+    "TEC_STD"
 ];
 
 var VECTOR_PARAM = [
@@ -565,7 +570,7 @@ var MASTER_PRIORITY = [
                 var filtered = globals.products.filter(function (product) {
                     var id = product.get("download").id;
                     return !(id && id.match(
-                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF)[ABCU_]/
+                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD)[ABCU_]/
                     ));
                 });
 
@@ -606,6 +611,12 @@ var MASTER_PRIORITY = [
                         "Alpha": "SW_OPER_EEFATMS_2F",
                         "Bravo": "SW_OPER_EEFBTMS_2F",
                         "Upload": "SW_OPER_EEFUTMS_2F",
+                    },
+                    "IPD": {
+                        "Alpha": "SW_OPER_IPDAIRR_2F",
+                        "Bravo": "SW_OPER_IPDBIRR_2F",
+                        "Charlie": "SW_OPER_IPDCIRR_2F",
+                        "Upload": "SW_OPER_IPDUIRR_2F",
                     }
                 };
 
@@ -661,7 +672,8 @@ var MASTER_PRIORITY = [
                     'IBI': false,
                     'TEC': false,
                     'FAC': false,
-                    'EEF': false
+                    'EEF': false,
+                    'IPD': false
                 };
 
                 var clickEvent = "require(['communicator'], function(Communicator){Communicator.mediator.trigger('application:reset');});";
@@ -715,6 +727,14 @@ var MASTER_PRIORITY = [
                 }
 
                 // Add generic product (which is container for A,B and C sats)
+                filtered_collection.add({
+                    name: "Ionospheric Plasma Irregularities (IPD IRR)",
+                    visible: containerSelection['IPD'],
+                    //color: "#b82e2e", # TODO: set a sensible colour
+                    protocol: null,
+                    containerproduct: true,
+                    id: "IPD"
+                }, {at: 0});
                 filtered_collection.add({
                     name: "Equatorial electric field (EEF)",
                     visible: containerSelection['EEF'],
