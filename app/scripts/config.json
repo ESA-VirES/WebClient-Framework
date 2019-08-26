@@ -4064,7 +4064,7 @@
                 "style": "default",
                 "format": "image/png",
                 "maxExtent": [-180.000000, -90.000000, 180.000000, 90.000000],
-                
+
                 "projection": "EPSG:4326",
                 "gutter": 0,
                 "buffer": 0,
@@ -4138,7 +4138,7 @@
             "icon": "fa-globe",
             "eventToRaise": "ui:open:layercontrol",
             "template": "LayerControl"
-        }, 
+        },
         {
             "name": "Download",
             "icon": "fa-download",
