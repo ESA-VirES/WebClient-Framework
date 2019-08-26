@@ -453,7 +453,7 @@
             },
 
             checkUserLayer: function () {
-                const datsetId = globals.userData.views[0].id;
+                const datasetId = globals.userData.views[0].id;
                 const records = _.map(
                     globals.userData.getValidUploads(),
                     function (item) {
@@ -464,12 +464,10 @@
                         ];
                     }
                 );
-                if (this.slider.hasDataset(datsetId)) {
-                    this.slider.removeDataset(datsetId);
-                }
+                this.slider.removeDataset(datasetId);
                 if (records.length > 0) {
                     this.slider.addDataset({
-                        id: datsetId,
+                        id: datasetId,
                         records: records,
                         color: globals.userData.color || '#ff0000'
                     });
