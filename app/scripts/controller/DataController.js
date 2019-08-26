@@ -212,7 +212,7 @@
 
         if (this.activeWPSproducts.length > 0 && this.selected_time) {
           this.sendRequest();
-        } else if (globals.swarm.satellites['Upload'] && globals.userData.models.length>0){
+        } else if (globals.swarm.satellites['Upload'] && globals.userData.hasValidUploads()) {
           this.sendRequest();
         } else {
           globals.swarm.set({data: []});
@@ -255,24 +255,25 @@
             }, this);
           }
         }, this);
+
+        // handling user uploads
+        var userDataVariables = {};
         var uploadedHasResiduals = false;
-        // hack arount different naming of process and layer (USER_DATA vs upload product view id)
-        if (globals.userData.models.length > 0 && globals.swarm.satellites['Upload']) {
+        if (globals.swarm.satellites['Upload'] && globals.userData.hasValidUploads()) {
+          // workaround for different process and layer names (USER_DATA vs upload product view id)
           retrieve_data.push({
-              layer: globals.userData.views[0].id,
-              url: globals.userData.views[0].url,
+            layer: globals.userData.views[0].id,
+            url: globals.userData.views[0].url,
           });
 
           // check if uploaded data has F or B_NEC, then do NOT remove residuals
-          _.each(globals.userData.models, function (model) {
-            var containedVariables = model.get('info');
-            if (containedVariables) {
-              if (containedVariables.F || containedVariables.B_NEC) {
-                uploadedHasResiduals = true;
-              }
-            }
-          });
+          userDataVariables = globals.userData.getCommonFields();
+          uploadedHasResiduals = (
+            userDataVariables.hasOwnProperty('F') ||
+            userDataVariables.hasOwnProperty('B_NEC')
+          );
         }
+
         if (retrieve_data.length > 0) {
 
           var collections = DataUtil.parseCollections(retrieve_data);
@@ -326,21 +327,8 @@
             variables = _.difference(variables, ["QDLat", "QDLon", "MLT"]);
           }
 
-          // Check if user uploaded parameters should be requested
-          var uD = globals.userData;
-          if(uD.hasOwnProperty('models')){
-            for (var i = 0; i < uD.models.length; i++) {
-              var info = uD.models[i].get('info');
-              if(info !== null){
-                for (var parK in info){
-                  // Only add if not already there
-                  if(variables.indexOf(parK) === -1){
-                    variables.push(parK);
-                  }
-                }
-              }
-            }
-          }
+          // Add extra variables from the user uploaded files.
+          variables = _.union(variables, _.keys(userDataVariables));
 
           options.variables = variables.join(",");
           options.mimeType = 'application/msgpack';
@@ -407,7 +395,7 @@
 
             success: function (dat) {
 
-              if(Object.keys(dat).length === 1 && dat.hasOwnProperty('__info__')){
+              if (Object.keys(dat).length === 1 && dat.hasOwnProperty('__info__')) {
                 globals.swarm.set({data: []});
                 return;
               }
@@ -457,7 +445,7 @@
               } else {
                 // Check to see if NaN data is inside of the array
                 for (var i = 0; i < dat['Radius'].length; i++) {
-                  if(Number.isNaN(dat['Radius'][i])){
+                  if (Number.isNaN(dat['Radius'][i])) {
                     dat['Radius'][i] = 6378137;
                   }
                 }
@@ -529,33 +517,22 @@
                 delete dat[key];
               });
 
-              // Also break down vector userdata 
-              var userVec = [];
-              if(globals.hasOwnProperty('userData') && globals.userData.hasOwnProperty('models')){
-                globals.userData.models.forEach(function(mo){
-                  var pars = mo.get('info');
-                  for (var pk in pars) {
-                    if(pars[pk].hasOwnProperty('shape') && pars[pk].shape.length>1){
-                      userVec.push(pk);
-                    }
-                  }
-                });
-              }
-
-              for (var i = 0; i < userVec.length; i++) {
-                if(dat.hasOwnProperty(userVec[i])){
-                  var pardat = dat[userVec[i]];
-                  dat[userVec[i]+'_1'] = [];
-                  dat[userVec[i]+'_2'] = [];
-                  dat[userVec[i]+'_3'] = [];
-                  _.each(pardat, function (item) {
-                    dat[userVec[i]+'_1'].push(item[0]);
-                    dat[userVec[i]+'_2'].push(item[1]);
-                    dat[userVec[i]+'_3'].push(item[2]);
+              // Break down custom user vector variables.
+              _.each(
+                globals.userData.getVectorBreakdown(),
+                function (components, variable) {
+                  if (!dat.hasOwnProperty(variable)) return;
+                  _.each(components, function (component) {
+                    dat[component] = [];
                   });
-                  delete dat[userVec[i]];
+                  _.each(dat[variable], function (vector) {
+                    _.each(components, function (component, index) {
+                      dat[component].push(vector[index]);
+                    });
+                  });
+                  delete dat[variable];
                 }
-              }
+              );
 
               // This should only happen here if there has been
               // some issue with the saved filter configuration

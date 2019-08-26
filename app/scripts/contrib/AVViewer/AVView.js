@@ -874,44 +874,20 @@ define(['backbone.marionette',
                         identifiers: identifiers
                     };
 
-                    var userVec = [];
-                    if (globals.hasOwnProperty('userData') &&
-                        globals.userData.hasOwnProperty('models')) {
-                        globals.userData.models.forEach(function (mo) {
-                            var pars = mo.get('info');
-                            for (var pk in pars) {
-                                if (pars[pk].hasOwnProperty('shape') &&
-                                    pars[pk].shape.length > 1) {
-                                    userVec.push(pk);
-                                }
-                            }
-                        });
-                    }
-
-                    var availablePars = {};
-                    var datInf = data.__info__.variables;
-                    for (var vk in datInf) {
-                        var parArr = [];
-                        for (var i = 0; i < datInf[vk].length; i++) {
-                            // We need to "decompose" also the name for vector data
-                            if (VECTOR_BREAKDOWN.hasOwnProperty(datInf[vk][i])) {
-                                for (var ii = 0; ii < VECTOR_BREAKDOWN[datInf[vk][i]].length; ii++) {
-                                    parArr.push(VECTOR_BREAKDOWN[datInf[vk][i]][ii]);
-                                }
-                            } else if (userVec.indexOf(datInf[vk][i]) !== -1) {
-                                // Check for parameters that need to be
-                                // decomposed inuploaded data
-                                parArr.push(datInf[vk][i] + '_1');
-                                parArr.push(datInf[vk][i] + '_2');
-                                parArr.push(datInf[vk][i] + '_3');
-                            } else {
-                                parArr.push(datInf[vk][i]);
-                            }
-                        }
-                        availablePars[vk] = parArr;
-                    }
-
-                    this.renderSettings.availableParameters = availablePars;
+                    var userVectorBreakDown = globals.userData.getVectorBreakdown();
+                    var availableParameters = {};
+                    _.each(data.__info__.variables, function (variables, label) {
+                        availableParameters[label] = _.flatten(
+                            _.map(variables, function (variable) {
+                                return (
+                                    VECTOR_BREAKDOWN[variable] ||
+                                    userVectorBreakDown[variable] ||
+                                    [variable]
+                                );
+                            })
+                        );
+                    });
+                    this.renderSettings.availableParameters = availableParameters;
 
                     // Calculate very rough estimate of rendered points
                     var dataLength = data[idKeys[0]].length;

@@ -441,24 +441,6 @@
                                         source: {fetch: this.fetch.bind(attrs)}
                                     });
                                     break;
-                                // TODO: Commenting product-wise creating of TimeSlider entries of user data for now, currently only one entry for uploaded data is created
-                                // case 'USER_DATA':
-                                //   if (globals.userData.models.length > 0) {
-                                //       var records = [];
-                                //       _.each(globals.userData.models, function (file) {
-                                //           var record =
-                                //           [new Date(file.get('start')), new Date(file.get('end')), {
-                                //             id: file.get('filename') }];
-                                //           records.push(record);
-                                //       });
-                                //       this.slider.removeDataset(product.get('download').id);
-                                //       this.slider.addDataset({
-                                //           id: product.get('download').id,
-                                //           color: product.get('color'),
-                                //           records: records,
-                                //       });
-                                //   }
-                                // break;
                             } // END of switch
                         } else {
                             this.slider.removeDataset(product.get('download').id);
@@ -471,25 +453,27 @@
             },
 
             checkUserLayer: function () {
-              if (globals.userData.models.length > 0) {
-                if (!this.slider.hasDataset(globals.userData.views[0].id)) {
-                  const records = [];
-                  _.each(globals.userData.models, function (file) {
-                      var record =
-                      [new Date(file.get('start')), new Date(file.get('end')), {
-                        id: file.get('filename') }];
-                      records.push(record);
-                  });
-                  this.slider.removeDataset(globals.userData.views[0].id);
-                  this.slider.addDataset({
-                      id: globals.userData.views[0].id,
-                      color: globals.userData.color || '#ff0000',
-                      records: records,
-                  });
+                const datsetId = globals.userData.views[0].id;
+                const records = _.map(
+                    globals.userData.getValidUploads(),
+                    function (item) {
+                        return [
+                            new Date(item.get('start')),
+                            new Date(item.get('end')),
+                            {id: item.get('filename')}
+                        ];
+                    }
+                );
+                if (this.slider.hasDataset(datsetId)) {
+                    this.slider.removeDataset(datsetId);
                 }
-              } else {
-                this.slider.removeDataset(globals.userData.views[0].id);
-              }
+                if (records.length > 0) {
+                    this.slider.addDataset({
+                        id: datsetId,
+                        records: records,
+                        color: globals.userData.color || '#ff0000'
+                    });
+                }
             },
 
             returnTime: function () {
