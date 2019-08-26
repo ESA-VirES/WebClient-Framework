@@ -4147,7 +4147,7 @@
         {
             "name": "Upload",
             "icon": "fa-upload",
-            "eventToRaise": "dialog:show:upload"
+            "eventToRaise": "dialog:open:upload"
         },
         {
             "name": "Views",
@@ -4226,7 +4226,8 @@
         "views/DownloadView",
         "views/DownloadFilterView",
         "views/StoryBannerView",
-        "views/LayerSettings"
+        "views/LayerSettings",
+        "views/UploadView"
     ],
 
     "models": [

@@ -32,7 +32,6 @@
                 this.listenTo(Communicator.mediator, "application:reset", this.onApplicationReset);
                 this.listenTo(Communicator.mediator, "application:save", this.onApplicationSave);
                 this.listenTo(Communicator.mediator, "application:load", this.onApplicationLoad);
-                this.listenTo(Communicator.mediator, "dialog:show:upload", this.onShowUpload);
             },
 
             onFullscrenGlobe: function () {
@@ -48,14 +47,6 @@
                 App.dialogRegion.show(App.DialogContentView);
             },
 
-            onShowUpload: function () {
-                if ($('#uploadDialogContainer').is(':visible')) {
-                    $('#uploadDialogContainer').hide();
-                } else {
-                    $('#uploadDialogContainer').show();
-                }
-            },
-
             onLayerControlOpen: function (event) {
                 //We have to render the layout before we can
                 //call show() on the layout's regions
@@ -67,8 +58,8 @@
                 } else {
                     App.layout.close();
                 }
-
             },
+
             onToolSelectionOpen: function (event) {
                 if (_.isUndefined(App.toolLayout.isClosed) || App.toolLayout.isClosed) {
                     App.rightSideBar.show(App.toolLayout);

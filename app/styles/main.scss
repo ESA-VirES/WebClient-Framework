@@ -20,6 +20,7 @@ $iconWhiteSpritePath: "../images/glyphicons-halflings-white.png";
 @import "spinner";
 @import "social";
 @import "download";
+@import "upload";
 
 
 /*
@@ -309,7 +310,7 @@ button[active=active] {
 /*
  * Selection Manager, Download Manager
  */
-.selectionManager, .download {
+.selectionManager, .download, .upload {
   width: 55em;
   top: 10em;
   left: 50%;

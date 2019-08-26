@@ -50,13 +50,15 @@ var MASTER_PRIORITY = [
     root.define([
         'backbone',
         'globals',
-        'regions/DialogRegion', 'regions/UIRegion',
+        'regions/DialogRegion',
+        'regions/UIRegion',
         'layouts/LayerControlLayout',
         'layouts/ToolControlLayout',
         'layouts/OptionsLayout',
         'core/SplitView/WindowView',
-        'communicator', 'filepond',
-        'jquery', 'backbone.marionette',
+        'communicator',
+        'jquery',
+        'backbone.marionette',
         'controller/ContentController',
         'controller/DownloadController',
         'controller/UploadController',
@@ -69,7 +71,7 @@ var MASTER_PRIORITY = [
 
     function (
         Backbone, globals, DialogRegion, UIRegion, LayerControlLayout,
-        ToolControlLayout, OptionsLayout, WindowView, Communicator, FilePond
+        ToolControlLayout, OptionsLayout, WindowView, Communicator
     ) {
 
         var Application = Backbone.Marionette.Application.extend({
@@ -101,61 +103,6 @@ var MASTER_PRIORITY = [
 
                 var imagerenderercanvas = $('<canvas/>', {id: 'imagerenderercanvas'});
                 $('body').append(imagerenderercanvas);
-
-                var uploadDialogContainer = $('<div/>', {id: 'uploadDialogContainer'});
-                $('body').append(uploadDialogContainer);
-
-                // Create a single file upload component
-                this.pond = FilePond.create({
-                    allowMultiple: false,
-                    labelIdle: (
-                        'Drag & Drop your file or <span class="filepond--label-action"> Browse </span><br>' +
-                        'Max. file size 256 MB | <a href="/accounts/custom_data_format_description/" target="_blank">File format spec.</a>'
-                    ),
-                    name: 'file',
-                    onaddfilestart: function () {
-                        $('#fpfilenamelabel').remove();
-                    },
-                    server: {
-                        url: 'custom_data/',
-                        revert: null,
-                        restore: null,
-                        load: null,
-                        fetch: null,
-                        process: {
-                            onload: function () {
-                                globals.swarm.satellites['Upload'] = true;
-                                if (typeof(Storage) !== 'undefined') {
-                                    localStorage.setItem('satelliteSelection', JSON.stringify(globals.swarm.satellites));
-                                }
-                                globals.userData.fetch();
-                            },
-                            onerror: function (response) {
-                                showMessage('danger',
-                                    'The user file upload failed: ' + response, 30);
-                            },
-                        }
-                    }
-                });
-
-                var that = this;
-                this.pond.on('processfile', function (error, file) {
-                    if (error) {
-                        console.log('Oh no');
-                        return;
-                    }
-                    //file.filename
-                    $('#fpfilenamelabel').remove();
-                    $('#uploadDialogContainer').append(
-                        '<div class="filepond--drip" id="fpfilenamelabel">' +
-                        ' Uploaded file: ' + file.filename + '</div>'
-                    );
-                    that.pond.removeFile(file.id);
-                });
-
-                // Add it to the DOM
-                $(uploadDialogContainer)[0].appendChild(this.pond.element);
-
 
                 var v = {}; //views
                 var m = {}; //models
@@ -1018,7 +965,7 @@ var MASTER_PRIORITY = [
                     show: {effect: false, delay: 700}
                 });
 
-                // Now that products and data are loaded make sure datacontroller is correctly initialized
+                // Now that products and data are loaded make sure data controller is correctly initialized
                 Communicator.mediator.trigger('manual:init');
                 this.timeSliderView.manualInit();
 
