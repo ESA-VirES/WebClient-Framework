@@ -1,0 +1,17 @@
+<div class="panel {{#if is_valid}}panel-default{{else}}panel-danger{{/if}}">
+  <div class="panel-heading">
+    {{ filename }}
+    <button type="button" id="delete-item" class="close"><i class="fa fa-times-circle"></i></button>
+  </div>
+  <div class="panel-body">
+    <table class="upload-item-info">
+      <tr><td class="row-label">Start:</td><td>{{ start }}</td></tr>
+      <tr><td class="row-label">End:</td><td>{{ end }}</td></tr>
+      <tr><td class="row-label">Uploaded on:</td><td>{{ created }}</td></tr>
+      <tr><td class="row-label">Is valid:</td><td>{{ is_valid }}</td></tr>
+      <tr><td class="row-label">Missing fields:</td><td>{{ _missing_fields }}</td></tr>
+      <tr><td class="row-label">Extra fields:</td><td>{{ _extra_fields }}</td></tr>
+      <tr><td class="row-label">Source fields:</td><td>{{ source_fields }}</td></tr>
+    </table>
+  </div>
+</div>

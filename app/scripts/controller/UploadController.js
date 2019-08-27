@@ -19,13 +19,14 @@
 
       initialize: function (options) {
         this.view = null;
-        console.trace()
         this.listenTo(Communicator.mediator, "dialog:open:upload", this.showView);
       },
 
       showView: function () {
         if (!this.view) {
-          this.view = new UploadView.UploadView();
+          this.view = new UploadView.UploadView({
+            collection: globals.userData
+          });
         }
         App.viewContent.show(this.view);
       }

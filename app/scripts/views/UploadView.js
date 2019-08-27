@@ -8,37 +8,87 @@
     'backbone',
     'communicator',
     'globals',
-    'hbs!tmpl/Upload',
+    'hbs!tmpl/UploadManager',
+    'hbs!tmpl/UploadItem',
     'filepond',
     'underscore'
-  ], function (Backbone, Communicator, globals, UploadTemplate, FilePond) {
+  ], function (Backbone, Communicator, globals, UploadManagerTemplate, UploadItemTemplate, FilePond) {
 
-    var UploadView = Backbone.Marionette.ItemView.extend({
+    var UploadItemView = Backbone.Marionette.ItemView.extend({
+      tagName: "div",
+      className: "uplolad-item",
+      template: {
+        type: 'handlebars',
+        template: UploadItemTemplate
+      },
+      templateHelpers: function () {
+        return {
+          _missing_fields: _.map(
+            this.model.get("missing_fields") || {},
+            function (value, key) {return key;}
+          ),
+          _extra_fields: _.map(
+            this.model.get("extra_fields") || {},
+            function (value, key) {return key;}
+          )
+        };
+      },
+      events: {
+        "click #delete-item": "deleteItem"
+      },
+      deleteItem: function () {
+        this.model.destroy();
+      }
+    });
+
+    var UploadView = Backbone.Marionette.CompositeView.extend({
       tagName: "div",
       id: "modal-data-upload",
       className: "panel panel-default upload ui-draggable",
       template: {
         type: 'handlebars',
-        template: UploadTemplate
+        template: UploadManagerTemplate
       },
+      itemView: UploadItemView,
+      itemViewContainer: "#upload-items",
 
       modelEvents: {
-        //"reset": "onCoveragesReset"
       },
 
       events: {
-        //"click #btn-select-all-coverages": "onSelectAllCoveragesClicked",
-        //"click #btn-invert-coverage-selection": "onInvertCoverageSelectionClicked",
-        //'change input[type="checkbox"]': "onCoverageSelected",
-        //"click #btn-start-download": "onStartDownloadClicked"
+        "click #close-panel": "onClose"
       },
 
       initialize: function (options) {
         this.uploads = globals.userData;
-        //this.coverages = new Backbone.Collection([]);
-
         this.pond = this._createPond();
+      },
 
+      onShow: function (view) {
+        this.$el.draggable({
+          containment: "#content",
+          scroll: false,
+          handle: '.panel-heading'
+        });
+        this.$("#upload-pond-container")[0].appendChild(this.pond.element);
+      },
+
+      onClose: function () {
+        this.close();
+      },
+
+      onCompletedUpload: function () {
+        console.trace();
+        globals.swarm.satellites['Upload'] = true;
+        if (typeof(Storage) !== 'undefined') {
+          localStorage.setItem('satelliteSelection', JSON.stringify(globals.swarm.satellites));
+        }
+        globals.userData.fetch();
+      },
+
+      onFailedUpload: function (response) {
+        console.trace();
+        showMessage('danger', 'The user file upload failed: ' + response, 30);
       },
 
       _createPond: function () {
@@ -76,34 +126,6 @@
         });
 
         return pond;
-      },
-
-      onShow: function (view) {
-        this.$('.close').on("click", _.bind(this.onClose, this));
-        this.$el.draggable({
-          containment: "#content",
-          scroll: false,
-          handle: '.panel-heading'
-        });
-        this.$("#upload-pond-container")[0].appendChild(this.pond.element);
-      },
-
-      onCompletedUpload: function () {
-        console.trace();
-        globals.swarm.satellites['Upload'] = true;
-        if (typeof(Storage) !== 'undefined') {
-          localStorage.setItem('satelliteSelection', JSON.stringify(globals.swarm.satellites));
-        }
-        globals.userData.fetch();
-      },
-
-      onFailedUpload: function (response) {
-        console.trace();
-        showMessage('danger', 'The user file upload failed: ' + response, 30);
-      },
-
-      onClose: function () {
-        this.close();
       }
     });
 

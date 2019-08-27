@@ -84,6 +84,10 @@
     }
 
     var UserDataModel = Backbone.Model.extend({
+      idAttribute: 'identifier',
+      url: function () {
+        return this.collection.url + this.id;
+      }
     });
 
     var UserDataCollection = Backbone.Collection.extend({
