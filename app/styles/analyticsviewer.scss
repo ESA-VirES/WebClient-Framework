@@ -350,6 +350,10 @@ text.nvd3.nv-noData {
     z-index: 1005;
 }
 
+.yAxisPanel, .y2AxisPanel{
+    z-index: 1006!important;
+}
+
 .paramTable{
     z-index:1006!important;
 }
