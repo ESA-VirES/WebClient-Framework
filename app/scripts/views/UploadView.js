@@ -1,4 +1,4 @@
-/* global $ _ showMessage */
+/* global $ _ showMessage getISODateTimeString */
 
 (function () {
   'use strict';
@@ -10,36 +10,261 @@
     'globals',
     'hbs!tmpl/UploadManager',
     'hbs!tmpl/UploadItem',
+    'hbs!tmpl/UploadParameter',
     'filepond',
     'underscore'
-  ], function (Backbone, Communicator, globals, UploadManagerTemplate, UploadItemTemplate, FilePond) {
+  ], function (Backbone, Communicator, globals, UploadManagerTemplate, UploadItemTemplate, UploadParameterTemplate, FilePond) {
 
-    var UploadItemView = Backbone.Marionette.ItemView.extend({
+    var ParameterModel = Backbone.Model.extend({
+      idAttribute: 'name',
+      isNew: function () {
+        return this.get('isNew');
+      },
+      isModified: function () {
+        return this.get('value') != this.get('originalValue');
+      },
+      isFilled: function () {
+        return this.get('value') != null;
+      }
+    });
+
+
+    var ParameterCollection = Backbone.Collection.extend({
+      model: ParameterModel,
+      isModified: function () {
+        return this.some(function (model) {return model.isModified();});
+      },
+      isFilled: function () {
+        return this.every(function (model) {return model.isFilled();});
+      },
+      hasNew: function () {
+        return this.some(function (model) {return model.isNew();});
+      },
+    });
+
+
+    var ParameterView = Backbone.Marionette.ItemView.extend({
+      tagName: "div",
+      className: "form-group",
+      template: {
+        type: 'handlebars',
+        template: UploadParameterTemplate
+      },
+
+      modelEvents: {
+        'change': "onModelChange"
+      },
+
+      events: {
+        'click #btn-remove-parameter': "removeParameter",
+        'change input[type="text"]': "onInputChange"
+      },
+
+      onShow: function (view) {
+        this.setInputValue(this.model.get('value'));
+      },
+
+      removeParameter: function () {
+        console.log("removeParameter()");
+        this.model.collection.remove(this.model.id);
+      },
+
+      getInputValue: function () {
+        return parseFloat(this.$('input[type="text"]').val());
+      },
+
+      setInputValue: function (value) {
+        this.$('input[type="text"]').val(value);
+        this._setConditionalClass(value == null, "has-error");
+        this._setConditionalClass(this.model.isModified(), "has-success");
+      },
+
+      onModelChange: function () {
+        this.setInputValue(this.model.get('value'));
+      },
+
+      onInputChange: function () {
+        var value = this.getInputValue();
+        value = isNaN(value) ? this.model.get('originalValue') : value;
+        this.model.set('value', value);
+        this.setInputValue(value);
+      },
+
+      _setConditionalClass: function (condition, className) {
+        if (condition) {
+          if (!this.$el.hasClass(className)) {
+            this.$el.addClass(className);
+          }
+        } else {
+          if (this.$el.hasClass(className)) {
+            this.$el.removeClass(className);
+          }
+        }
+      }
+    });
+
+
+    var UploadItemView = Backbone.Marionette.CompositeView.extend({
       tagName: "div",
       className: "uplolad-item",
       template: {
         type: 'handlebars',
         template: UploadItemTemplate
       },
+      itemView: ParameterView,
+      itemViewContainer: "#extra-parameters",
+
+      initialize: function (options) {
+        this.collection = new ParameterCollection();
+        var attributes = this.model.attributes;
+
+        // missing mandatory fields
+        _.each(attributes.missing_fields, _.bind(function (fieldInfo, name) {
+          this.collection.add({
+            name: name,
+            required: true,
+            value: null,
+            originalValue: null
+          });
+        }, this));
+
+        // special treatment of the optional Radius
+        if (!attributes.fields.Radius && !attributes.constant_fields.Radius) {
+          this.collection.add({
+            name: "Radius",
+            required: false,
+            isNew: true,
+            value: 6371200,
+            originalValue: null
+          });
+        }
+
+        // existing constant fields
+        _.each(attributes.constant_fields, _.bind(function (fieldInfo, name) {
+          this.collection.add({
+            name: name,
+            required: fieldInfo.required || false,
+            value: fieldInfo.value,
+            originalValue: fieldInfo.value
+          });
+        }, this));
+
+        this.removed = {};
+      },
+
+      collectionEvents: {
+        "change": "onParametersChange",
+        "remove": "onParameterRemove"
+      },
+
+      events: {
+        "click #btn-update-item": "updateParameters",
+        "click #btn-zoom-to-extent": "zoomToExtent",
+        "click #btn-delete-item": "deleteItem"
+      },
+
+      onShow: function () {
+        this.onParametersChange();
+      },
+
+      onParameterRemove: function (model) {
+        if (!model.isNew()) {
+          this.removed[model.id] = model.attributes;
+        }
+        console.log(this.removed);
+        this.onParametersChange();
+      },
+
+      onParametersChange: function () {
+        var changed = (
+          !_.isEmpty(this.removed) || this.collection.hasNew() ||
+          (this.collection.isModified() && this.collection.isFilled())
+        );
+        if (changed) {
+          this.$("#btn-update-item").prop("disabled", false);
+        } else {
+          this.$("#btn-update-item").prop("disabled", true);
+        }
+      },
+
+      updateParameters: function () {
+        var constantFields = {};
+        this.collection.each(function (model) {
+          constantFields[model.get('name')] = {value: model.get('value')};
+        });
+        console.log(constantFields);
+        this.model.save({constant_fields: constantFields}, {patch: true});
+      },
+
+      zoomToExtent: function () {
+        var minSelection = 1000 * 60; // milliseconds
+        var maxSelection = 1000 * 60 * 60 * 24 * 30; // milliseconds
+        var start = Date.parse(this.model.get('start'));
+        var end = Date.parse(this.model.get('end')) + 1;
+
+        if ((end - start) < minSelection) end = start + minSelection;
+        if ((end - start) > maxSelection) end = start + maxSelection;
+
+        var domainStart = start - (end - start);
+        var domainEnd = end + (end - start);
+
+        Communicator.mediator.trigger('date:domain:change', {
+          start: new Date(domainStart),
+          end: new Date(domainEnd)
+        });
+        Communicator.mediator.trigger('date:selection:change', {
+          start: new Date(start),
+          end: new Date(end)
+        });
+      },
+
+      deleteItem: function () {
+        this.model.destroy();
+      },
+
       templateHelpers: function () {
+        function _truncateTime(isoDateString) {
+          return getISODateTimeString(new Date(Date.parse(isoDateString)), true);
+        }
+
+        function _fancyByteSize(size) {
+          if (size < 1024) {
+            return size + " B";
+          }
+          var units = ['kB', 'MB', 'GB'];
+          for (var i = 0; i < units.length; ++i) {
+            size = size / 1024.0;
+            if ((size < 1024) || (i + 1 == units.length)) {
+              return size.toFixed(size < 10 ? 1 : 0) + " " + units[i];
+            }
+          }
+        }
+
+        var formats = {
+          "text/csv": "CSV",
+          "application/x-cdf": "CDF"
+        };
+
+        var attributes = this.model.attributes;
+
         return {
+          _format: formats[attributes.content_type] || attributes.content_type,
+          _size: _fancyByteSize(attributes.size),
+          _start: _truncateTime(attributes.start),
+          _end: _truncateTime(attributes.end),
+          _created: _truncateTime(attributes.created),
           _missing_fields: _.map(
-            this.model.get("missing_fields") || {},
+            attributes.missing_fields || {},
             function (value, key) {return key;}
-          ),
-          _extra_fields: _.map(
-            this.model.get("extra_fields") || {},
+          ).join(", "),
+          _constant_fields: _.map(
+            attributes.constant_fields || {},
             function (value, key) {return key;}
           )
         };
-      },
-      events: {
-        "click #delete-item": "deleteItem"
-      },
-      deleteItem: function () {
-        this.model.destroy();
       }
     });
+
 
     var UploadView = Backbone.Marionette.CompositeView.extend({
       tagName: "div",
@@ -52,11 +277,8 @@
       itemView: UploadItemView,
       itemViewContainer: "#upload-items",
 
-      modelEvents: {
-      },
-
-      events: {
-        "click #close-panel": "onClose"
+      collectionEvents: {
+        "change": "render"
       },
 
       initialize: function (options) {
@@ -65,11 +287,15 @@
       },
 
       onShow: function (view) {
+        this.$('#btn-close-panel').on("click", _.bind(this.onClose, this));
         this.$el.draggable({
           containment: "#content",
           scroll: false,
           handle: '.panel-heading'
         });
+      },
+
+      onRender: function () {
         this.$("#upload-pond-container")[0].appendChild(this.pond.element);
       },
 

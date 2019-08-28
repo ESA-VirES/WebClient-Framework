@@ -396,10 +396,6 @@ var MASTER_PRIORITY = [
                     }
                 });
 
-                var userDataConfig = _.keys(config.userData);
-                _.each(userDataConfig, function (key) {
-                    globals.userData[key] = config.userData[key];
-                });
                 // periodic update magnetic models' metadata
                 globals.models.url = config.magneticModels.infoUrl;
                 globals.models.on('fetch:success', function () {
@@ -440,19 +436,16 @@ var MASTER_PRIORITY = [
                 }, this);
 
                 // fetch user data info
-                globals.userData.on('fetch:complete', function () {
-                    if (globals.userData.models.length > 0) {
-                        Communicator.mediator.trigger('userData:fetch:complete');
-                        $('#uploadcheck').prop('disabled', false);
-                        $('#uploadcheck').prop('checked', globals.swarm.satellites['Upload']);
-                        Communicator.mediator.trigger('layers:refresh');
-                        $('#fpfilenamelabel').remove();
-                        $('#uploadDialogContainer').append(
-                            '<div class="filepond--drip" id="fpfilenamelabel">' +
-                          ' Uploaded file: ' + globals.userData.models[0].get('filename') + '</div>'
-                        );
-                    }
-                });
+                _.extend(globals.userData, config.userData);
+
+                var userDataChanged = function () {
+                    Communicator.mediator.trigger('userData:change');
+                    Communicator.mediator.trigger('layers:refresh');
+                };
+
+                globals.userData.on('destroy', userDataChanged);
+                globals.userData.on('sync', userDataChanged);
+
                 globals.userData.fetch();
 
                 // If Navigation Bar is set in configuration go through the

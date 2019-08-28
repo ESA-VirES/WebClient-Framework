@@ -1,0 +1,11 @@
+<label for="{{ name }}" class="col-sm-2 control-label">{{ name }}</label>
+<div class="col-sm-4">
+  <input type="text" class="form-control" id="{{ name }}" value="{{ value }}" placeholder="{{ originalValue }}">
+</div>
+<span style="float: right; margin-right: 2em">
+{{#if required}}
+<span class="error">Required</span>
+{{else}}
+<button type="button" class="btn btn-default" id="btn-remove-parameter"><i class="fa fa-fw fa-times"></i> Remove</button>
+{{/if}}
+</span>

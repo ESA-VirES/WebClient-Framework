@@ -25,12 +25,13 @@ var getISODateString = function (date) {
   return getDateString(date) + "T";
 };
 
-var getISODateTimeString = function (date) {
+var getISODateTimeString = function (date, truncateMiliseconds) {
   return getISODateString(date)
     + padLeft(String(date.getUTCHours()), "0", 2) + ":"
     + padLeft(String(date.getUTCMinutes()), "0", 2) + ":"
-    + padLeft(String(date.getUTCSeconds()), "0", 2) + "."
-    + padLeft(String(date.getUTCMilliseconds()), "0", 3) + "Z";
+    + padLeft(String(date.getUTCSeconds()), "0", 2) + (
+      truncateMiliseconds ? "" : ("." + padLeft(String(date.getUTCMilliseconds()), "0", 3))
+    ) + "Z";
 };
 
 var getISOTimeString = function (date) {

@@ -55,9 +55,13 @@
                     Communicator.mediator, 'date:selection:change',
                     this.onDateSelectionChange
                 );
+                this.listenTo(
+                    Communicator.mediator, 'date:domain:change',
+                    this.onDateDomainChange
+                );
 
                 this.listenTo(
-                    Communicator.mediator, 'userData:fetch:complete',
+                    Communicator.mediator, 'userData:change',
                     this.checkUserLayer
                 );
 
@@ -131,7 +135,7 @@
                     brushTooltip: true,
                     debounce: 300,
                     ticksize: 4,
-                    selectionLimit: (60 * 60 * 24 * 30), //15 Days
+                    selectionLimit: (60 * 60 * 24 * 30), // seconds
                     datasets: []
                 };
 
@@ -230,7 +234,7 @@
             }, // END of onShow
 
             onChangeTime: function (evt) {
-                // Check if start and end time is equal if yes increse end time by 1 minute
+                // Check if start and end times are equal. If so, increase end time by 1 minute.
                 var start = evt.originalEvent.detail.start;
                 var end = evt.originalEvent.detail.end;
                 if (end.getTime() - start.getTime() === 0) {
@@ -249,6 +253,10 @@
 
             onDateSelectionChange: function (opt) {
                 this.slider.select(opt.start, opt.end);
+            },
+
+            onDateDomainChange: function (opt) {
+                this.slider.center(opt.start, opt.end);
             },
 
             fetch: function (start, end, params, callback) {

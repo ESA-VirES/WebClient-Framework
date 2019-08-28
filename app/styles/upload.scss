@@ -1,2 +1,27 @@
 @import "defaults";
 
+#modal-data-upload .error {
+  color: red;
+}
+
+#modal-data-upload .row-label {
+  text-align: right;
+  padding-right: 1em;
+  padding-left: 2em;
+  font-weight: bold;
+}
+
+#modal-data-upload .upload-title {
+  padding-right: 1em;
+  font-weight: bold;
+}
+
+#extra-parameters .form-group {
+  margin-bottom: 5px;
+}
+
+#modal-data-upload .section-title {
+  padding-top: 5px;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
