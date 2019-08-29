@@ -15,6 +15,18 @@
     'underscore'
   ], function (Backbone, Communicator, globals, UploadManagerTemplate, UploadItemTemplate, UploadParameterTemplate, FilePond) {
 
+    function _setConditionalClass($element, className, condition) {
+      if (condition) {
+        if (!$element.hasClass(className)) {
+          $element.addClass(className);
+        }
+      } else {
+        if ($element.hasClass(className)) {
+          $element.removeClass(className);
+        }
+      }
+    }
+
     var ParameterModel = Backbone.Model.extend({
       idAttribute: 'name',
       isNew: function () {
@@ -65,7 +77,6 @@
       },
 
       removeParameter: function () {
-        console.log("removeParameter()");
         this.model.collection.remove(this.model.id);
       },
 
@@ -75,8 +86,8 @@
 
       setInputValue: function (value) {
         this.$('input[type="text"]').val(value);
-        this._setConditionalClass(value == null, "has-error");
-        this._setConditionalClass(this.model.isModified(), "has-success");
+        _setConditionalClass(this.$el, "has-error", value == null);
+        _setConditionalClass(this.$el, "has-success", this.model.isModified());
       },
 
       onModelChange: function () {
@@ -88,18 +99,6 @@
         value = isNaN(value) ? this.model.get('originalValue') : value;
         this.model.set('value', value);
         this.setInputValue(value);
-      },
-
-      _setConditionalClass: function (condition, className) {
-        if (condition) {
-          if (!this.$el.hasClass(className)) {
-            this.$el.addClass(className);
-          }
-        } else {
-          if (this.$el.hasClass(className)) {
-            this.$el.removeClass(className);
-          }
-        }
       }
     });
 
@@ -154,10 +153,13 @@
 
       collectionEvents: {
         "change": "onParametersChange",
+        "add": "onParametersChange",
         "remove": "onParameterRemove"
       },
 
       events: {
+        "input #parameter-name-input": "onParameterNameInput",
+        "click #btn-add-parameter": "onParameterAddRequest",
         "click #btn-update-item": "updateParameters",
         "click #btn-zoom-to-extent": "zoomToExtent",
         "click #btn-delete-item": "deleteItem"
@@ -171,15 +173,14 @@
         if (!model.isNew()) {
           this.removed[model.id] = model.attributes;
         }
-        console.log(this.removed);
         this.onParametersChange();
       },
 
       onParametersChange: function () {
         var changed = (
-          !_.isEmpty(this.removed) || this.collection.hasNew() ||
-          (this.collection.isModified() && this.collection.isFilled())
-        );
+          !_.isEmpty(this.removed) || this.collection.hasNew()
+          || this.collection.isModified()
+        ) && this.collection.isFilled();
         if (changed) {
           this.$("#btn-update-item").prop("disabled", false);
         } else {
@@ -187,12 +188,57 @@
         }
       },
 
+      onParameterAddRequest: function () {
+        this.addNewParameter(this.getParameterName());
+      },
+
+      addNewParameter: function (name) {
+        if (!name || this.parameterExists(name)) return;
+        this.collection.add(this.removed[name] || {
+          name: name,
+          required: false,
+          isNew: true,
+          value: null,
+          originalValue: null
+        });
+        this.setParameterName("");
+      },
+
+      onParameterNameInput: function () {
+        var name = this.getParameterName();
+        this.setParameterName(this.sanitizeParameterName(name));
+      },
+
+      sanitizeParameterName: function (name) {
+        return name.replace(/^[0-9-]/, "").replace(/[^A-Za-z0-9_-]/g, "");
+      },
+
+      getParameterName: function () {
+        return this.$("#parameter-name-input").val();
+      },
+
+      setParameterName: function (name) {
+        $("#parameter-name-input").val(name);
+        var isEmpty = (name === "");
+        var parameterExists = !isEmpty && this.parameterExists(name);
+        var $formGroup = $("#parameter-name-form-group");
+        _setConditionalClass($formGroup, "has-error", !isEmpty && parameterExists);
+        _setConditionalClass($formGroup, "has-success", !isEmpty && !parameterExists);
+        $("#btn-add-parameter").prop("disabled", isEmpty || parameterExists);
+      },
+
+      parameterExists: function (name) {
+        return (
+          (this.collection.get(name) != null)
+          || (_.indexOf(this.model.get('source_fields') || [], name) != -1)
+        );
+      },
+
       updateParameters: function () {
         var constantFields = {};
         this.collection.each(function (model) {
           constantFields[model.get('name')] = {value: model.get('value')};
         });
-        console.log(constantFields);
         this.model.save({constant_fields: constantFields}, {patch: true});
       },
 
@@ -278,6 +324,7 @@
       itemViewContainer: "#upload-items",
 
       collectionEvents: {
+        "sync": "render",
         "change": "render"
       },
 
@@ -287,7 +334,6 @@
       },
 
       onShow: function (view) {
-        this.$('#btn-close-panel').on("click", _.bind(this.onClose, this));
         this.$el.draggable({
           containment: "#content",
           scroll: false,
@@ -296,6 +342,7 @@
       },
 
       onRender: function () {
+        this.$('#btn-close-panel').on("click", _.bind(this.onClose, this));
         this.$("#upload-pond-container")[0].appendChild(this.pond.element);
       },
 
@@ -304,7 +351,6 @@
       },
 
       onCompletedUpload: function () {
-        console.trace();
         globals.swarm.satellites['Upload'] = true;
         if (typeof(Storage) !== 'undefined') {
           localStorage.setItem('satelliteSelection', JSON.stringify(globals.swarm.satellites));
@@ -313,7 +359,6 @@
       },
 
       onFailedUpload: function (response) {
-        console.trace();
         showMessage('danger', 'The user file upload failed: ' + response, 30);
       },
 

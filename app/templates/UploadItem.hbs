@@ -1,6 +1,6 @@
 <div class="panel {{#if is_valid}}panel-default{{else}}panel-danger{{/if}}" style="box-shadow: none!important">
   <div class="panel-heading">
-    <span class="upload-title">{{ filename }}<span>
+    <span class="upload-title">{{ filename }}{{#if is_valid}}{{else}} [incomlpete]{{/if}}<span>
     <button type="button" id="btn-delete-item" class="close" title='delete uploaded file'><i class="fa fa-times-circle"></i></button>
   </div>
   <div class="panel-body">
@@ -17,7 +17,14 @@
     </table>
     <hr>
     <span style="float: right; margin-right: 1em">
-      <button type="button" class="btn btn-default" id="btn-add-parameter"><i class="fa fa-fw fa-plus"></i> Add</button>
+      <div class="form-group" id="parameter-name-form-group">
+        <div class="input-group">
+          <input type="text" class="form-control" id="parameter-name-input">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button" id="btn-add-parameter" disabled><i class="fa fa-fw fa-plus"></i> Add</button>
+          </span>
+        </div>
+      </div>
     </span>
     <div class="section-title">Additional Constant Parameters</div>
     <form id="extra-parameters" class="form-horizontal" role="form"></form>
