@@ -105,7 +105,7 @@
 
     var UploadItemView = Backbone.Marionette.CompositeView.extend({
       tagName: "div",
-      className: "uplolad-item",
+      className: "upload-item",
       template: {
         type: 'handlebars',
         template: UploadItemTemplate
@@ -372,7 +372,6 @@
           ),
           name: 'file',
           onaddfilestart: function () {
-            $('#fpfilenamelabel').remove();
           },
           server: {
             url: 'custom_data/',
@@ -392,7 +391,6 @@
             console.error(error);
             return;
           }
-          $('#fpfilenamelabel').remove();
           pond.removeFile(file.id);
         });
 

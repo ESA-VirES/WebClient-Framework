@@ -467,7 +467,7 @@ define(['backbone.marionette',
             if (data.hasOwnProperty('__info__')) {
                 var infoDat = data.__info__.sources;
                 this.$el.append('<div id="productSourcesInfoContainer" class="sourcesInfoContainer"></div>');
-                $('#productSourcesInfoContainer').append('<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>');
+                $('#productSourcesInfoContainer').append('<button type="button" class="close" title="Close panel" data-dismiss="alert" aria-hidden="true">&times;</button>');
                 $('#productSourcesInfoContainer').append('<h4>Data sources:</h4>');
                 $('#productSourcesInfoContainer').append('<ul id="productInfoList"></ul>');
                 for (var i = 0; i < infoDat.length; i++) {

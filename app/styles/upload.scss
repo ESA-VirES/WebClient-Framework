@@ -1,4 +1,7 @@
 @import "defaults";
+modal-data-upload {
+  z-index: 1005;
+}
 
 #modal-data-upload .error {
   color: red;
@@ -24,4 +27,19 @@
   padding-top: 5px;
   margin-bottom: 15px;
   font-weight: bold;
+}
+
+.filepond--root{
+  margin-bottom: 0.8em!important;
+  padding-top: 0.8em!important;
+  font-size: 1.2em!important;
+}
+
+.filepond--drop-label {
+  margin-top: 15px !important;
+  transform: none !important;
+}
+
+.upload-item > .panel {
+  margin-bottom: 8px;
 }
