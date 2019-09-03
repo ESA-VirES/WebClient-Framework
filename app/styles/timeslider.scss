@@ -36,3 +36,30 @@
   top: -260px;
   z-index: 3;
 }
+
+#timeslider .control{
+  z-index: 1004;
+  color: white;
+  .arrow-right{
+    border-left: 9px solid white;
+  }
+  .arrow-left {
+    border-right: 9px solid white;
+  }
+}
+
+#reload{
+  display: none;
+}
+
+.timeslider .brush{
+  fill: #333333!important;
+}
+
+#zoom-in{
+  margin-left: calc(50% + 4px);
+}
+
+#zoom-out{
+  margin-right: calc(50% + 4px);
+}

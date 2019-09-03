@@ -131,12 +131,13 @@
                     brushTooltip: true,
                     debounce: 300,
                     ticksize: 4,
-                    selectionLimit: (60 * 60 * 24 * 30), //15 Days
-                    datasets: []
+                    selectionLimit: (60 * 60 * 24 * 30), // seconds
+                    datasets: [],
+                    controls: true
                 };
 
+              
                 this.slider = new TimeSlider(this.el, initopt);
-
                 // Add selection helpers
                 //this.slider.setBrushTooltip(true);
 
@@ -226,7 +227,7 @@
                         $('#calendarwidgetholder').show();
                     }
                 });
-                $('.timeslider .brush').attr('fill', '#333');
+                $('#timeslider .control').addClass('darkbutton');
             }, // END of onShow
 
             onChangeTime: function (evt) {
