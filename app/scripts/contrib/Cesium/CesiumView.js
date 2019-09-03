@@ -33,6 +33,16 @@ define([
         model: new MapModel.MapModel(),
 
         initialize: function (options) {
+            this.sceneModeMatrix = {
+                'columbus': 1,
+                '2dview': 2, 
+                'globe': 3
+            },
+            this.sceneModeMatrixReverse = {
+                1: 'columbus',
+                2: '2dview', 
+                3: 'globe'
+            },
             this.map = undefined;
             this.isClosed = true;
             this.tileManager = options.tileManager;
@@ -167,16 +177,18 @@ define([
                     navigationInstructionsInitiallyVisible: false,
                     animation: false,
                     imageryProvider: initialLayer,
-                    terrainProvider: new Cesium.CesiumTerrainProvider({
+                    /*terrainProvider: new Cesium.CesiumTerrainProvider({
                         url: '//dem.maps.eox.at/'
-                    }),
+                    }),*/
                     creditContainer: 'cesium_attribution',
                     contextOptions: {webgl: {preserveDrawingBuffer: true}},
                     clock: clock
                 };
                 //COLUMBUS_VIEW SCENE2D SCENE3D
-                if (localStorage.getItem('sceneMode') !== null) {
-                    options.sceneMode = Number(localStorage.getItem('sceneMode'));
+                if (localStorage.getItem('mapSceneMode') !== null) {
+                    options.sceneMode = this.sceneModeMatrix[
+                        JSON.parse(localStorage.getItem('mapSceneMode'))
+                    ];
                     if (options.sceneMode !== 3) {
                         $('#poleViewDiv').addClass("hidden");
                     }
@@ -199,6 +211,17 @@ define([
                 this.map.scene.camera.right = new Cesium.Cartesian3(
                     c.right[0], c.right[1], c.right[2]
                 );
+
+                if (options.sceneMode === 2) {
+
+                    var frustum = JSON.parse(localStorage.getItem('frustum'));
+                    if(frustum){
+                        this.map.scene.camera.frustum.right = frustum.right;
+                        this.map.scene.camera.frustum.left = frustum.left;
+                        this.map.scene.camera.frustum.top = frustum.top;
+                        this.map.scene.camera.frustum.bottom = frustum.bottom;
+                    }
+                }
             }
 
             var mm = globals.objects.get('mapmodel');
@@ -363,7 +386,12 @@ define([
             }, this);
 
             this.map.scene.morphComplete.addEventListener(function () {
-                localStorage.setItem('sceneMode', this.map.scene.mode);
+                localStorage.setItem(
+                    'mapSceneMode', 
+                    JSON.stringify(
+                        this.sceneModeMatrixReverse[this.map.scene.mode]
+                    )
+                );
                 var c = this.map.scene.camera;
                 localStorage.setItem('cameraPosition',
                     JSON.stringify({
@@ -496,6 +524,10 @@ define([
 
         connectDataEvents: function () {
             globals.swarm.on('change:data', function (model, data) {
+                function synchronizeColorLegend(p) {
+                    this.checkColorscale(p.get('download').id);
+                }
+                globals.products.each(synchronizeColorLegend, this);
                 var refKey = 'Timestamp';
                 if (!data.hasOwnProperty(refKey)) {
                     refKey = 'timestamp';
@@ -525,6 +557,10 @@ define([
             if (this.map._sceneModePicker) {
                 var container = this.map._sceneModePicker.container;
                 var scene = this.map._sceneModePicker.viewModel._scene;
+
+                // Delete previous scenemodepicker
+                delete this.map._sceneModePicker;
+                $('.cesium-sceneModePicker-wrapper.cesium-toolbar-button').remove();
                 var modepicker = new Cesium.SceneModePicker(container, scene);
                 this.map._sceneModePicker = modepicker;
             }
@@ -1433,7 +1469,7 @@ define([
             }
 
             if (product && product.get('showColorscale') &&
-                product.get('visible') && visible) {
+                product.get('visible')) {
 
                 var options = product.get('parameters');
 
@@ -1447,132 +1483,154 @@ define([
                         }
                     });
 
-                    var rangeMin = product.get('parameters')[sel].range[0];
-                    var rangeMax = product.get('parameters')[sel].range[1];
-                    var uom = product.get('parameters')[sel].uom;
-                    var style = product.get('parameters')[sel].colorscale;
-                    var logscale = defaultFor(product.get('parameters')[sel].logarithmic, false);
-                    var axisScale;
-
-
-                    this.plot.setColorScale(style);
-                    var colorscaleimage = this.plot.getColorScaleImage().toDataURL();
-
-                    $('#svgcolorscalecontainer').remove();
-                    var svgContainer = d3.select('body').append('svg')
-                        .attr('width', 300)
-                        .attr('height', 60)
-                        .attr('id', 'svgcolorscalecontainer');
-
-                    if (logscale) {
-                        axisScale = d3.scale.log();
-                    } else {
-                        axisScale = d3.scale.linear();
-                    }
-
-                    axisScale.domain([rangeMin, rangeMax]);
-                    axisScale.range([0, scalewidth]);
-
-                    var xAxis = d3.svg.axis()
-                        .scale(axisScale);
-
-                    if (logscale) {
-                        var numberFormat = d3.format(',f');
-                        xAxis.tickFormat(function logFormat(d) {
-                            var x = Math.log10(d) + 1e-6;
-                            return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
-                        });
-
-                    } else {
-                        var step = Number(((rangeMax - rangeMin) / 5).toPrecision(3));
-                        var ticks = d3.range(rangeMin, rangeMax + step, step);
-                        xAxis.tickValues(ticks);
-                        xAxis.tickFormat(d3.format('g'));
-                    }
-
-                    var g = svgContainer.append('g')
-                        .attr('class', 'x axis')
-                        .attr('transform', 'translate(' + [margin, 20] + ')')
-                        .call(xAxis);
-
-                    // Add layer info
-                    var info;
-                    if (product.get('model')) {
-                        if (product.get('components').length === 1) {
-                            info = product.getPrettyModelExpression(true);
-                        } else {
-                            info = product.get('download').id;
+                    var prodToSat = {};
+                    var proObj = globals.swarm.products;
+                    for (var coll in proObj){
+                        for (var sat in proObj[coll]){
+                            prodToSat[proObj[coll][sat]] = sat;
                         }
-                        _.each(
-                            {'\u2212': /&minus;/, '\u2026': /&hellip;/},
-                            function (regex, newString) {
-                                info = info.replace(regex, newString);
+                    }
+                    var data = globals.swarm.get('data');
+                    var sat = prodToSat[pId];
+
+                    if(data.hasOwnProperty('__info__') && data['__info__'].hasOwnProperty('variables')){
+                        if(data.__info__.variables.hasOwnProperty(sat)){
+                            if(data.__info__.variables[sat].indexOf(sel) === -1){
+                                visible = false;
                             }
+                        } else {
+                            visible = false;
+                        }
+                    }
+
+                    if(visible){
+                        var rangeMin = product.get('parameters')[sel].range[0];
+                        var rangeMax = product.get('parameters')[sel].range[1];
+                        var uom = product.get('parameters')[sel].uom;
+                        var style = product.get('parameters')[sel].colorscale;
+                        var logscale = defaultFor(product.get('parameters')[sel].logarithmic, false);
+                        var axisScale;
+
+
+                        this.plot.setColorScale(style);
+                        var colorscaleimage = this.plot.getColorScaleImage().toDataURL();
+
+                        $('#svgcolorscalecontainer').remove();
+                        var svgContainer = d3.select('body').append('svg')
+                            .attr('width', 300)
+                            .attr('height', 60)
+                            .attr('id', 'svgcolorscalecontainer');
+
+                        if (logscale) {
+                            axisScale = d3.scale.log();
+                        } else {
+                            axisScale = d3.scale.linear();
+                        }
+
+                        axisScale.domain([rangeMin, rangeMax]);
+                        axisScale.range([0, scalewidth]);
+
+                        var xAxis = d3.svg.axis()
+                            .scale(axisScale);
+
+                        if (logscale) {
+                            var numberFormat = d3.format(',f');
+                            xAxis.tickFormat(function logFormat(d) {
+                                var x = Math.log10(d) + 1e-6;
+                                return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
+                            });
+
+                        } else {
+                            var step = Number(((rangeMax - rangeMin) / 5).toPrecision(3));
+                            var ticks = d3.range(rangeMin, rangeMax + step, step);
+                            xAxis.tickValues(ticks);
+                            xAxis.tickFormat(d3.format('g'));
+                        }
+
+                        var g = svgContainer.append('g')
+                            .attr('class', 'x axis')
+                            .attr('transform', 'translate(' + [margin, 20] + ')')
+                            .call(xAxis);
+
+                        // Add layer info
+                        var info;
+                        if (product.get('model')) {
+                            if (product.get('components').length === 1) {
+                                info = product.getPrettyModelExpression(true);
+                            } else {
+                                info = product.get('download').id;
+                            }
+                            _.each(
+                                {'\u2212': /&minus;/, '\u2026': /&hellip;/},
+                                function (regex, newString) {
+                                    info = info.replace(regex, newString);
+                                }
+                            );
+                        } else {
+                            info = product.get('name');
+                        }
+
+                        info += ' - ' + sel;
+                        if (uom) {
+                            info += ' [' + uom + ']';
+                        }
+
+                        g.append('text')
+                            .style('text-anchor', 'middle')
+                            .attr('transform', 'translate(' + [scalewidth / 2, 30] + ')')
+                            .attr('font-weight', 'bold')
+                            .text(info);
+
+                        svgContainer.selectAll('text')
+                            .attr('stroke', 'none')
+                            .attr('fill', 'black')
+                            .attr('font-weight', 'bold');
+
+                        svgContainer.selectAll('.tick').select('line')
+                            .attr('stroke', 'black');
+
+                        svgContainer.selectAll('.axis .domain')
+                            .attr('stroke-width', '2')
+                            .attr('stroke', '#000')
+                            .attr('shape-rendering', 'crispEdges')
+                            .attr('fill', 'none');
+
+                        svgContainer.selectAll('.axis path')
+                            .attr('stroke-width', '2')
+                            .attr('shape-rendering', 'crispEdges')
+                            .attr('stroke', '#000');
+
+                        var svgHtml = d3.select('#svgcolorscalecontainer')
+                            .attr('version', 1.1)
+                            .attr('xmlns', 'http://www.w3.org/2000/svg')
+                            .node().innerHTML;
+
+                        var renderHeight = 55;
+                        var renderWidth = width;
+
+                        var index = Object.keys(this.colorscales).length;
+
+                        var prim = this.map.scene.primitives.add(
+                            this.createViewportQuad(
+                                this.renderSVG(svgHtml, renderWidth, renderHeight),
+                                0, index * 55 + 5, renderWidth, renderHeight
+                            )
                         );
-                    } else {
-                        info = product.get('name');
+                        var csPrim = this.map.scene.primitives.add(
+                            this.createViewportQuad(
+                                colorscaleimage, 20, index * 55 + 42, scalewidth, 10
+                            )
+                        );
+
+                        this.createModelColorscaleTooltipDiv(product, index);
+                        this.colorscales[pId] = {
+                            index: index,
+                            prim: prim,
+                            csPrim: csPrim
+                        };
+
+                        svgContainer.remove();
                     }
-
-                    info += ' - ' + sel;
-                    if (uom) {
-                        info += ' [' + uom + ']';
-                    }
-
-                    g.append('text')
-                        .style('text-anchor', 'middle')
-                        .attr('transform', 'translate(' + [scalewidth / 2, 30] + ')')
-                        .attr('font-weight', 'bold')
-                        .text(info);
-
-                    svgContainer.selectAll('text')
-                        .attr('stroke', 'none')
-                        .attr('fill', 'black')
-                        .attr('font-weight', 'bold');
-
-                    svgContainer.selectAll('.tick').select('line')
-                        .attr('stroke', 'black');
-
-                    svgContainer.selectAll('.axis .domain')
-                        .attr('stroke-width', '2')
-                        .attr('stroke', '#000')
-                        .attr('shape-rendering', 'crispEdges')
-                        .attr('fill', 'none');
-
-                    svgContainer.selectAll('.axis path')
-                        .attr('stroke-width', '2')
-                        .attr('shape-rendering', 'crispEdges')
-                        .attr('stroke', '#000');
-
-                    var svgHtml = d3.select('#svgcolorscalecontainer')
-                        .attr('version', 1.1)
-                        .attr('xmlns', 'http://www.w3.org/2000/svg')
-                        .node().innerHTML;
-
-                    var renderHeight = 55;
-                    var renderWidth = width;
-
-                    var index = Object.keys(this.colorscales).length;
-
-                    var prim = this.map.scene.primitives.add(
-                        this.createViewportQuad(
-                            this.renderSVG(svgHtml, renderWidth, renderHeight),
-                            0, index * 55 + 5, renderWidth, renderHeight
-                        )
-                    );
-                    var csPrim = this.map.scene.primitives.add(
-                        this.createViewportQuad(
-                            colorscaleimage, 20, index * 55 + 42, scalewidth, 10
-                        )
-                    );
-
-                    this.createModelColorscaleTooltipDiv(product, index);
-                    this.colorscales[pId] = {
-                        index: index,
-                        prim: prim,
-                        csPrim: csPrim
-                    };
-
-                    svgContainer.remove();
                 }
             }
         },
@@ -1857,18 +1915,26 @@ define([
             if (typeof FLProduct !== 'undefined') {
                 var fl_data = this.FLData[FLProduct][fieldline.id];
                 // prepare template data
-                var apex = {
-                    lat: fl_data['apex_point'][0].toFixed(3),
-                    lon: fl_data['apex_point'][1].toFixed(3),
-                    height: (fl_data['apex_height'] / 1000).toFixed(1),
-                };
+                var apex;
+                if(fl_data.hasOwnProperty('apex_point') && fl_data.apex_point !== null) {
+                    apex = {
+                        lat: fl_data['apex_point'][0].toFixed(3),
+                        lon: fl_data['apex_point'][1].toFixed(3),
+                        height: (fl_data['apex_height'] / 1000).toFixed(1)
+                    };
+                }
+
                 var ground_points = [{
                     lat: fl_data['ground_points'][0][0].toFixed(3),
                     lon: fl_data['ground_points'][0][1].toFixed(3),
-                }, {
-                    lat: fl_data['ground_points'][1][0].toFixed(3),
-                    lon: fl_data['ground_points'][1][1].toFixed(3),
                 }];
+
+                if(fl_data.ground_points.length>1){
+                    ground_points.push({
+                        lat: fl_data['ground_points'][1][0].toFixed(3),
+                        lon: fl_data['ground_points'][1][1].toFixed(3)
+                    });
+                }
                 var options = {
                     ground_points: ground_points,
                     apex: apex,
@@ -1881,16 +1947,35 @@ define([
                 $('.close-fieldline-label').on('click', this.hideFieldLinesLabel.bind(this));
                 // highlight points
                 this.FLbillboards.removeAll();
-                this.highlightFieldLinesPoints([fl_data['apex_point'], fl_data['ground_points'][0], fl_data['ground_points'][1]]);
+                if(apex){
+                    this.highlightFieldLinesPoints(
+                        [].concat(
+                            [fl_data['apex_point']],
+                            fl_data['ground_points']
+                        )
+                    );
+                } else {
+                    this.highlightFieldLinesPoints(
+                        fl_data.ground_points
+                    );
+                }
             }
         },
 
         hideFieldLinesLabel: function () {
             $('#fieldlines_label').addClass('hidden');
-            this.FLbillboards.removeAll();
+            if(this.FLbillboards){
+                this.FLbillboards.removeAll();
+            }
         },
 
         onHighlightPoint: function (coords, fieldlines_highlight) {
+            var wrongInput = !coords || (coords.length === 3 && _.some(coords, function (el) {
+              return isNaN(el);
+            }));
+            if (wrongInput) {
+              return null;
+            }
             // either highlight single point or point on a fieldline
             if (!fieldlines_highlight) {
                 this.billboards.removeAll();
@@ -2044,6 +2129,19 @@ define([
                         up: [c.up.x, c.up.y, c.up.z],
                         right: [c.right.x, c.right.y, c.right.z]
                     }));
+
+                    if(this.map.scene.mode === 2){
+                        localStorage.setItem('frustum', JSON.stringify({
+                            bottom: c.frustum.bottom,
+                            left: c.frustum.left,
+                            right: c.frustum.right,
+                            top: c.frustum.top
+                        }));
+                    } else {
+                        localStorage.removeItem('frustum');
+                    }
+
+
                 } else {
                     this.cameraLastPosition.x = c.position.x;
                     this.cameraLastPosition.y = c.position.y;

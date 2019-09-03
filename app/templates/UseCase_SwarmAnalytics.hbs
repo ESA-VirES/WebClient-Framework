@@ -1,5 +1,5 @@
 
-<section id="cover" class="cover active" data-zoom="-10000000" data-events="layout:switch:singleview" data-reset="" data-parameter="IGRF12_view::coefficients_range:-1,-1" data-set-parameter="IGRF12_view:F">
+<section id="cover" class="cover active" data-zoom="-10000000" data-events="layout:switch:singleview" data-reset="" data-set-parameter="Model:F">
     <span class="close"><i class="fa fa-times-circle"/></span>
     <small class='scroll'>Scroll ▼</small>
     <h2>Swarm Analytics</h2>
@@ -8,17 +8,17 @@
     <p>The tutorial can be closed at any point in time.</p>
     <small class='scroll'>Scroll ▼</small>
 </section>
-<section data-events="ui:open:layercontrol" data-parameter="IGRF12_view:Y:range:-7000,7000;IGRF12_view::coefficients_range:-1,-1">
+<section data-events="ui:open:layercontrol" data-parameter="Model:Y:range:-7000,7000">
     <span class="close"><i class="fa fa-times-circle"/></span>
     <h3>Layer Selection</h3>
     <p>In order to visualise a product we first have to activate it in the Layer Selection Window.</p>
-    <p>Currently there are products for Magnetic, Plasama and Bubble index data. Each of them have information from the sensors of Alpha, Bravo and Charlie satellites which can be activated at the top of the Multi-satellite product box. The products can be activated each on its own or in combination.</p>
+    <p>Currently there are products for Magnetic, Plasma, Bubble index, Total electron, Electric current and Equatorial electric field data. Each of them have information from the sensors of Alpha, Bravo and Charlie satellites which can be activated at the top of the Multi-satellite product box. The products can be activated each on its own or in combination.</p>
     <p>We have just opened it, you can see it on the left side of the screen.</p>
     <p>You can open and close it at any time by clicking in the navigation bar (top of the screen) on the <i class="fa fa-fw fa-globe"/> Layers button.</p>
-    <p>You can move the window to another position by clicking and dragging on its header.</p>
+    <p>You can move the window to another position by clicking and dragging its header.</p>
     <p>A product can be activated by clicking on its corresponding check box.</p>
 </section>
-<section data-layers="MAG" data-set-parameter="SW_OPER_MAGA_LR_1B:F" data-settings="MAG">
+<section data-layers="MAG" data-set-parameter="SW_OPER_MAGA_LR_1B:F" data-settings="MAG" data-satellite="Alpha:true">
     <span class="close"><i class="fa fa-times-circle"/></span>
     <h3>Settings</h3>
     <p>The Magnetic data for the Alpha satellite has been activated now and is rendered in the 3D globe.</p>
@@ -26,37 +26,38 @@
     <p>It is possible to zoom in and out using the mouse wheel over the time-line as well as panning by clicking and dragging on the bottom of the time-line.</p>
     <p>Additionally we opened the product settings window (on the right). Product settings can be accessed by clicking on the <i class="fa fa-sliders"/>-symbol of a product.</p>
     <p>In the product settings you can select among other things which parameter to visualise, what color scale to use and the range for the color scale.</p>
-    <p>Swarm Magnetic data products have two parameters for visualisation:</p>
+    <p>Swarm Magnetic data products have three parameters for visualisation:</p>
     <ul>
         <li style="list-style-type: circle; margin-left:-15px;">Magnetic Field Intensity</li>
         <li style="list-style-type: circle; margin-left:-15px;">Magnetic Field Vector</li>
+        <li style="list-style-type: circle; margin-left:-15px;">Magnetic Field Vector Residual</li>
     </ul>
     <p>At any point you can use the "Save as Image" button of the 3D Globe (top right) to save the current visualisation.</p>
 </section>
-<section data-layers="IGRF12_view">
+<section data-layers="Model">
     <span class="close"><i class="fa fa-times-circle"/></span>
     <h2>Geomagnetic Field Model</h2>
     <p>As you can see on the virtual globe we now activated a Geomagnetic Field Model product (more information about this can be found in the "Geomagnetic Field Model" Tutorial).</p>
     <p>This allows a visual comparison between model and measurements.</p>
 </section>
-<section data-set-parameter="SW_OPER_MAGA_LR_1B:IGRF12">
+<section data-set-parameter="SW_OPER_MAGA_LR_1B:Model">
     <span class="close"><i class="fa fa-times-circle"/></span>
     <h2>Residuals</h2>
     <p>When a Swarm product is selected in combination with one of the Geomagnetic Field Model products it is also possible to see the Residuals by selecting the corresponding residual parameter in the Settings window (which we have done right now). These new parameters appear when activating models.</p>
     <p>As you can see now the Magnetic Field Residuals are visualised on the 3D globe.</p>
 </section>
-<section data-events="layout:switch:splitview" data-yAxis="F_res_IGRF12" data-settings="MAG">
+<section data-events="layout:switch:splitview;" data-yAxis="F_res_Model" data-settings="MAG">
     <span class="close"><i class="fa fa-times-circle"/></span>
     <h3>Analytics Viewer</h3>
     <p>We now changed to the Split Screen mode which allows further analysis of the data.</p>
     <p>The Split Screen can be accessed through the <i class="fa fa-eye"/> Views menu on the navigation bar at the top.</p>
     <p>The Analytics Viewer (right side of the screen) is divided into two sections.</p>
-    <p>On the top half there is an interactive Scatter Plot of the selected data (right now residuals of Swarm A L1b and IGRF12).
+    <p>On the top half there is an interactive Scatter Plot of the selected data (right now residuals of Swarm A L1b and Magnetic Model).
         At the Drop-Down element situated on the top of the left axis, the parameter(s) to be plotted on that axis can be selected. At the Drop-Down element situated on the right of the bottom axis, the parameter to plot against can be selected.</p>
     <p>Residuals for models are available when the model is activated in the layers panel.
-    <p>On the bottom half of the Analytics Viewer axes are represented for each parameter and a histogramm which visualises the amount of data at different ranges.
+    <p>On the bottom half of the Analytics Viewer axes are represented for each parameter and a histogram which visualises the amount of data at different ranges.
         It is possible to click and drag on the axes to create filters for the visualised data.</p>
-    <p>The buttons on the top right allow adding a grid to the Scatter plot (Toggle Grid), save the plot as png (Save as Image) and Download the original Swarm data based on the created filters (Download).</p>
+    <p>The buttons on the top left allow save the plot as png (Save as Image), reset the plot zoom and show additional information about product sources.</p>
 </section>
 
 

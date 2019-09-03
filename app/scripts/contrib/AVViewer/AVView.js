@@ -207,30 +207,41 @@ define(['backbone.marionette',
             }
 
             var xax = 'Latitude';
+            var xlabel = null;
             var yax = ['F'];
+            var yAxisLabel = [];
             var y2ax = [];
+            var y2AxisLabel = [];
             var colax = [];
             var colax2 = [];
+
+            if (localStorage.getItem('plotConfiguration') !== null) {
+
+                var plotConfiguration = JSON.parse(localStorage.getItem('plotConfiguration'));
+                yax = [];
+                for (var i = 0; i < plotConfiguration.length; i++) {
+                    yax.push(plotConfiguration[i].yAxis);
+                    y2ax.push(plotConfiguration[i].y2Axis);
+                    colax.push(plotConfiguration[i].colorAxis);
+                    colax2.push(plotConfiguration[i].colorAxis2);
+
+                    if(plotConfiguration[i].hasOwnProperty('yAxisLabel')){
+                        yAxisLabel.push(plotConfiguration[i].yAxisLabel);
+                    }
+                    if(plotConfiguration[i].hasOwnProperty('y2AxisLabel')){
+                        y2AxisLabel.push(plotConfiguration[i].y2AxisLabel);
+                    }
+                }
+            }
 
             if (localStorage.getItem('xAxisSelection') !== null) {
                 xax = JSON.parse(localStorage.getItem('xAxisSelection'));
             }
 
-            if (localStorage.getItem('yAxisSelection') !== null) {
-                yax = JSON.parse(localStorage.getItem('yAxisSelection'));
+            if (localStorage.getItem('xAxisLabel') !== null) {
+                xlabel = JSON.parse(localStorage.getItem('xAxisLabel'));
             }
 
-            if (localStorage.getItem('y2AxisSelection') !== null) {
-                y2ax = JSON.parse(localStorage.getItem('y2AxisSelection'));
-            }
-
-            if (localStorage.getItem('colorAxisSelection') !== null) {
-                colax = JSON.parse(localStorage.getItem('colorAxisSelection'));
-            }
-
-            if (localStorage.getItem('colorAxis2Selection') !== null) {
-                colax2 = JSON.parse(localStorage.getItem('colorAxis2Selection'));
-            }
             // Check if previous config used multiaxis
 
             var multipleAxis = false;
@@ -318,6 +329,16 @@ define(['backbone.marionette',
                 }
             };
 
+            if(yAxisLabel.length>0){
+                this.renderSettings.yAxisLabel = yAxisLabel;
+            }
+            if(y2AxisLabel.length>0){
+                this.renderSettings.y2AxisLabel = y2AxisLabel;
+            }
+            if(xlabel){
+                this.renderSettings.xAxisLabel = xlabel;
+            }
+
             var cols = [
                 'coolwarm', 'rainbow', 'jet', 'diverging_1', 'diverging_2',
                 'blackwhite', 'viridis', 'inferno', 'hsv', 'hot', 'cool',
@@ -339,7 +360,7 @@ define(['backbone.marionette',
                 filterManager: this.filterManager,
                 enableFit: false,
                 multiYAxis: true,
-                margin: {top: 40, left: 90, bottom: 50, right: 35},
+                margin: {top: 40, left: 90, bottom: 50, right: 45},
                 enableSubXAxis: 'Timestamp',
                 enableSubYAxis: false,
                 colorscaleOptionLabel: 'Add third variable',
@@ -356,34 +377,34 @@ define(['backbone.marionette',
 
 
             this.graph.on('axisChange', function () {
+
                 localStorage.setItem(
                     'xAxisSelection',
                     JSON.stringify(this.renderSettings.xAxis)
                 );
                 localStorage.setItem(
-                    'yAxisSelection',
-                    JSON.stringify(this.renderSettings.yAxis)
-                );
-                localStorage.setItem(
-                    'y2AxisSelection',
-                    JSON.stringify(this.renderSettings.y2Axis)
+                    'xAxisLabel',
+                    JSON.stringify(this.xAxisLabel)
                 );
 
-                localStorage.setItem(
-                    'colorAxisSelection',
-                    JSON.stringify(this.renderSettings.colorAxis)
-                );
+                var currL = this.renderSettings.yAxis.length;
+                var confArr = [];
+                for (var i = 0; i < currL; i++) {
+                    confArr.push({
+                        yAxis: this.renderSettings.yAxis[i],
+                        yAxisLabel: this.yAxisLabel[i],
+                        y2Axis: this.renderSettings.y2Axis[i],
+                        y2AxisLabel: this.y2AxisLabel[i],
+                        colorAxis: this.renderSettings.colorAxis[i],
+                        colorAxis2: this.renderSettings.colorAxis2[i]
+                    });
+                }
 
                 localStorage.setItem(
-                    'colorAxis2Selection',
-                    JSON.stringify(this.renderSettings.colorAxis2)
+                    'plotConfiguration', JSON.stringify(confArr)
                 );
 
-                // Save parameter style changes
-                localStorage.setItem(
-                    'parameterSettings',
-                    JSON.stringify(globals.swarm.get('uom_set'))
-                );
+                savePrameterStatus(globals);
 
             });
 
@@ -613,11 +634,13 @@ define(['backbone.marionette',
             };
 
             // Check if styling settings have been saved
-            if (localStorage.getItem('parameterSettings') !== null) {
-                var parameterSettings = JSON.parse(localStorage.getItem('parameterSettings'));
+            if (localStorage.getItem('parameterConfiguration') !== null) {
+                var parameterSettings = JSON.parse(localStorage.getItem('parameterConfiguration'));
                 for (var k in parameterSettings) {
                     if (this.sp.uom_set.hasOwnProperty(k)) {
-                        this.sp.uom_set[k] = parameterSettings[k];
+                        for (var innerKey in parameterSettings[k]){
+                            this.sp.uom_set[k][innerKey] = parameterSettings[k][innerKey];
+                        }
                     }
                 }
             }
@@ -855,6 +878,45 @@ define(['backbone.marionette',
                         identifiers: identifiers
                     };
 
+                    var userVec = [];
+                    if(globals.hasOwnProperty('userData') && 
+                        globals.userData.hasOwnProperty('models')){
+                        globals.userData.models.forEach(function(mo){
+                            var pars = mo.get('info');
+                            for (var pk in pars) {
+                                if(pars[pk].hasOwnProperty('shape') && 
+                                    pars[pk].shape.length>1){
+                                    userVec.push(pk);
+                                }
+                            }
+                        });
+                    }
+
+                    var availablePars = {};
+                    var datInf = data.__info__.variables;
+                    for(var vk in datInf){
+                        var parArr = [];
+                         for (var i = 0; i < datInf[vk].length; i++) {
+                            // We need to "decompose" also the name for vector data
+                            if(VECTOR_BREAKDOWN.hasOwnProperty(datInf[vk][i])){
+                                for(var ii=0; ii<VECTOR_BREAKDOWN[datInf[vk][i]].length; ii++){
+                                    parArr.push(VECTOR_BREAKDOWN[datInf[vk][i]][ii]);
+                                }
+                            } else if (userVec.indexOf(datInf[vk][i])!==-1){
+                                // Check for parameters that need to be
+                                // decomposed inuploaded data
+                                parArr.push(datInf[vk][i]+'_1');
+                                parArr.push(datInf[vk][i]+'_2');
+                                parArr.push(datInf[vk][i]+'_3');
+                            } else {
+                                parArr.push(datInf[vk][i]);
+                            }
+                        }
+                        availablePars[vk] = parArr;
+                    }
+
+                    this.renderSettings.availableParameters = availablePars;
+
                     // Calculate very rough estimate of rendered points
                     var dataLength = data[idKeys[0]].length;
                     var renderedPoints = (
@@ -868,10 +930,19 @@ define(['backbone.marionette',
 
                     var needsResize = false;
 
+                    if(this.prevParams === null){
+                        // First time loading data we set previous to current data
+                        if(localStorage.getItem('plotConfiguration') !== null){
+                            // this is first load and no config is available
+                            // so we need to load default values
+                            this.prevParams = idKeys;
+                        }
+                    }
+
                     // If data parameters have changed
                     // if this is first data load prev params is empty so ideally
                     // config from last time should be loaded
-                    if (!_.isEqual(this.prevParams, idKeys) && this.prevParams !== null) {
+                    if (!_.isEqual(this.prevParams, idKeys)) {
                         // Define which parameters should be selected defaultwise as filtering
                         var filterstouse = [
                             'Ne', 'Te', 'Bubble_Probability',
@@ -1059,6 +1130,12 @@ define(['backbone.marionette',
                             'colorAxis2Selection',
                             JSON.stringify(this.graph.renderSettings.colorAxis2)
                         );
+
+                        this.graph.renderSettings.yAxis = renSetY ;
+                        this.graph.renderSettings.y2Axis = renSetY2;
+                        this.graph.renderSettings.colorAxis = colAx;
+                        this.graph.renderSettings.colorAxis2 = colAx2;
+
                         // End of IF to see if data parameters have changed
                     } else if (this.prevParams === null) {
                         // TODO: We should not need to do anything here but we
@@ -1081,10 +1158,11 @@ define(['backbone.marionette',
                     }
 
                     this.prevParams = idKeys;
-                    localStorage.setItem('prevParams', JSON.stringify(this.prevParams));
 
                     this.$('#filterSelectDrop').remove();
                     this.$('#filterDivContainer').append('<div id="filterSelectDrop"></div>');
+
+                    
 
                     this.graph.loadData(data);
                     if (needsResize) {
@@ -1100,8 +1178,39 @@ define(['backbone.marionette',
         },
 
         onChangeAxisParameters: function (selection) {
-            this.sp.sel_y = selection;
-            this.sp.render();
+            this.graph.renderSettings.yAxis = [selection];
+            // reset all other plots and configurations
+            this.graph.renderSettings.yAxis = [selection];
+            this.graph.renderSettings.y2Axis = [[]];
+            this.graph.renderSettings.colorAxis = [[null]];
+            this.graph.renderSettings.colorAxis2 = [[]];
+
+
+            // Make sure filters are shown
+            var filtersMinimized = localStorage.getItem('filtersMinimized');
+            if (filtersMinimized === null) {
+                filtersMinimized = false;
+            } else {
+                filtersMinimized = JSON.parse(filtersMinimized);
+            }
+
+            if (filtersMinimized) {
+                var height = ($('#graph').height() - 270) + 'px';
+                $('#filterSelectDrop').css('opacity', 1.0);
+                $('#analyticsFilters').css('opacity', 1.0);
+                $('#graph').css('height', height);
+                $('#minimizeFilters i').attr('class',
+                    'fa fa-chevron-circle-down'
+                );
+                localStorage.setItem(
+                    'filtersMinimized', JSON.stringify(false)
+                );
+            }
+
+
+            this.graph.initAxis();
+            this.graph.resize();
+            //this.graph.renderData();
         },
 
         onResize: function () {

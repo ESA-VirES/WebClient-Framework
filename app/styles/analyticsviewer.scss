@@ -347,8 +347,21 @@ text.nvd3.nv-noData {
 /*For some reason the width when integrated into framework is changed*/
 #parameterSettings{
     width: 270px!important;
+    z-index: 1005;
+}
+
+.yAxisPanel, .y2AxisPanel{
+    z-index: 1006!important;
 }
 
 .paramTable{
     z-index:1006!important;
+}
+
+.pencilIcon.editButton{
+    display: none;
+}
+
+.eraserIcon.editButton{
+    right: 10px;
 }

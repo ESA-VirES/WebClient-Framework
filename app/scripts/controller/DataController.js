@@ -10,17 +10,17 @@
     'backbone',
     'communicator',
     'globals',
+    'msgpack',
     'hbs!tmpl/wps_getdata',
     'hbs!tmpl/wps_fetchData',
     'app',
     'httpRequest',
     'dataUtil',
-    'msgpack',
     'underscore'
   ],
 
   function (
-    Backbone, Communicator, globals, wps_getdataTmpl, wps_fetchDataTmpl, App,
+    Backbone, Communicator, globals, msgpack, wps_getdataTmpl, wps_fetchDataTmpl, App,
     httpRequest, DataUtil
   ) {
 
@@ -111,9 +111,7 @@
       updateLayerResidualParameters: function () {
         // Manage additional residual parameter for Swarm layers
         globals.products.each(function (product) {
-
-          if (product.get("satellite") == "Swarm") {
-
+          if (['Swarm', 'Upload'].includes(product.get('satellite'))) {
             // Get Layer parameters
             var pars = product.get("parameters");
 
@@ -187,7 +185,6 @@
             }
           }
         }
-        localStorage.setItem('swarmProductSelection', JSON.stringify(this.activeWPSproducts));
         this.checkSelections();
         this.checkModelValidity();
       },
@@ -214,6 +211,8 @@
           this.selected_time = Communicator.reqres.request('get:time');
 
         if (this.activeWPSproducts.length > 0 && this.selected_time) {
+          this.sendRequest();
+        } else if (globals.swarm.satellites['Upload'] && globals.userData.models.length>0){
           this.sendRequest();
         } else {
           globals.swarm.set({data: []});
@@ -256,11 +255,22 @@
             }, this);
           }
         }, this);
+        var uploadedHasResiduals = false;
         // hack arount different naming of process and layer (USER_DATA vs upload product view id)
         if (globals.userData.models.length > 0 && globals.swarm.satellites['Upload']) {
           retrieve_data.push({
               layer: globals.userData.views[0].id,
               url: globals.userData.views[0].url,
+          });
+
+          // check if uploaded data has F or B_NEC, then do NOT remove residuals
+          _.each(globals.userData.models, function (model) {
+            var containedVariables = model.get('info');
+            if (containedVariables) {
+              if (containedVariables.F || containedVariables.B_NEC) {
+                uploadedHasResiduals = true;
+              }
+            }
           });
         }
         if (retrieve_data.length > 0) {
@@ -281,6 +291,10 @@
             "IRC", "IRC_Error", "FAC", "FAC_Error",
             "EEF", "RelErr", "OrbitNumber", "OrbitDirection", "QDOrbitDirection",
             "SunDeclination", "SunRightAscension", "SunHourAngle", "SunAzimuthAngle", "SunZenithAngle",
+            "Background_Ne", "Foreground_Ne", "PCP_flag", "Grad_Ne_at_100km", "Grad_Ne_at_50km", "Grad_Ne_at_20km",
+            "Grad_Ne_at_PCP_edge", "ROD", "RODI10s", "RODI20s", "delta_Ne10s", "delta_Ne20s", "delta_Ne40s",
+            "Num_GPS_satellites", "mVTEC", "mROT", "mROTI10s", "mROTI20s", "IBI_flag",
+            "Ionosphere_region_flag", "IPIR_index", "Ne_quality_flag", "TEC_STD",
             "B_NEC_res_Model", "F_res_Model",
           ];
 
@@ -294,7 +308,7 @@
             return collection.indexOf("MAG") !== -1;
           });
 
-          if (!magSelected) {
+          if (!magSelected && !uploadedHasResiduals) {
             variables = _.filter(variables, function (v) {
               return v.indexOf("_res_") === -1;
             });
@@ -310,6 +324,22 @@
 
           if (noLocation) {
             variables = _.difference(variables, ["QDLat", "QDLon", "MLT"]);
+          }
+
+          // Check if user uploaded parameters should be requested
+          var uD = globals.userData;
+          if(uD.hasOwnProperty('models')){
+            for (var i = 0; i < uD.models.length; i++) {
+              var info = uD.models[i].get('info');
+              if(info !== null){
+                for (var parK in info){
+                  // Only add if not already there
+                  if(variables.indexOf(parK) === -1){
+                    variables.push(parK);
+                  }
+                }
+              }
+            }
           }
 
           options.variables = variables.join(",");
@@ -350,7 +380,8 @@
             responseType: 'arraybuffer',
 
             parse: function (data, xhr) {
-              return msgpack.decode(new Uint8Array(data));
+              var decodedObj = msgpack.decode(new Uint8Array(data));
+              return decodedObj;
             },
 
             opened: function () {
@@ -375,6 +406,11 @@
             },
 
             success: function (dat) {
+
+              if(Object.keys(dat).length === 1 && dat.hasOwnProperty('__info__')){
+                globals.swarm.set({data: []});
+                return;
+              }
 
               var ids = {
                 'A': 'Alpha',
@@ -418,6 +454,13 @@
                 for (var i = 0; i < dat[refKey].length; i++) {
                   dat['Radius'].push(6832000);
                 }
+              } else {
+                // Check to see if NaN data is inside of the array
+                for (var i = 0; i < dat['Radius'].length; i++) {
+                  if(Number.isNaN(dat['Radius'][i])){
+                    dat['Radius'][i] = 6378137;
+                  }
+                }
               }
 
               if (dat.hasOwnProperty('Latitude') && dat.hasOwnProperty('OrbitDirection')) {
@@ -437,6 +480,11 @@
 
                   } else if (dat.OrbitDirection[i] === 0) {
                     //TODO what to do here? Should in principle not happen
+                    // for now we just use original value
+                    dat.Latitude_periodic.push(dat.Latitude[i]);
+                  } else if (Number.isNaN(dat.OrbitDirection[i])) {
+                    // If no orbit info for now we just use original value
+                    dat.Latitude_periodic.push(dat.Latitude[i]);
                   }
                 }
               }
@@ -458,6 +506,11 @@
 
                   } else if (dat.QDOrbitDirection[i] === 0) {
                     //TODO what to do here? Should in principle not happen
+                    //for now we just use original value
+                    dat.QDLatitude_periodic.push(dat.QDLat[i]);
+                  } else if (Number.isNaN(dat.QDOrbitDirection[i])) {
+                    // If no orbit info for now we just use original value
+                    dat.QDLatitude_periodic.push(dat.QDLat[i]);
                   }
                 }
               }
@@ -475,6 +528,34 @@
                 });
                 delete dat[key];
               });
+
+              // Also break down vector userdata 
+              var userVec = [];
+              if(globals.hasOwnProperty('userData') && globals.userData.hasOwnProperty('models')){
+                globals.userData.models.forEach(function(mo){
+                  var pars = mo.get('info');
+                  for (var pk in pars) {
+                    if(pars[pk].hasOwnProperty('shape') && pars[pk].shape.length>1){
+                      userVec.push(pk);
+                    }
+                  }
+                });
+              }
+
+              for (var i = 0; i < userVec.length; i++) {
+                if(dat.hasOwnProperty(userVec[i])){
+                  var pardat = dat[userVec[i]];
+                  dat[userVec[i]+'_1'] = [];
+                  dat[userVec[i]+'_2'] = [];
+                  dat[userVec[i]+'_3'] = [];
+                  _.each(pardat, function (item) {
+                    dat[userVec[i]+'_1'].push(item[0]);
+                    dat[userVec[i]+'_2'].push(item[1]);
+                    dat[userVec[i]+'_3'].push(item[2]);
+                  });
+                  delete dat[userVec[i]];
+                }
+              }
 
               // This should only happen here if there has been
               // some issue with the saved filter configuration
