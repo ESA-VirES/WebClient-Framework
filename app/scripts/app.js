@@ -50,15 +50,18 @@ var MASTER_PRIORITY = [
     root.define([
         'backbone',
         'globals',
-        'regions/DialogRegion', 'regions/UIRegion',
+        'regions/DialogRegion',
+        'regions/UIRegion',
         'layouts/LayerControlLayout',
         'layouts/ToolControlLayout',
         'layouts/OptionsLayout',
         'core/SplitView/WindowView',
-        'communicator', 'filepond',
-        'jquery', 'backbone.marionette',
+        'communicator',
+        'jquery',
+        'backbone.marionette',
         'controller/ContentController',
         'controller/DownloadController',
+        'controller/UploadController',
         'controller/SelectionManagerController',
         'controller/LoadingController',
         'controller/LayerController',
@@ -68,7 +71,7 @@ var MASTER_PRIORITY = [
 
     function (
         Backbone, globals, DialogRegion, UIRegion, LayerControlLayout,
-        ToolControlLayout, OptionsLayout, WindowView, Communicator, FilePond
+        ToolControlLayout, OptionsLayout, WindowView, Communicator
     ) {
 
         var Application = Backbone.Marionette.Application.extend({
@@ -100,61 +103,6 @@ var MASTER_PRIORITY = [
 
                 var imagerenderercanvas = $('<canvas/>', {id: 'imagerenderercanvas'});
                 $('body').append(imagerenderercanvas);
-
-                var uploadDialogContainer = $('<div/>', { id: 'uploadDialogContainer' });
-                $('body').append(uploadDialogContainer);
-
-                // Create a single file upload component
-                this.pond = FilePond.create({
-                    allowMultiple: false,
-                    labelIdle: (
-                        'Drag & Drop your file or <span class="filepond--label-action"> Browse </span><br>' +
-                        'Max. file size 256 MB | <a href="/accounts/custom_data_format_description/" target="_blank">File format spec.</a>'
-                    ),
-                    name: 'file',
-                    onaddfilestart: function () {
-                      $('#fpfilenamelabel').remove();
-                    },
-                    server: {
-                      url: 'custom_data/',
-                      revert: null,
-                      restore: null,
-                      load: null,
-                      fetch: null,
-                      process: {
-                        onload: function () {
-                          globals.swarm.satellites['Upload'] = true;
-                          if (typeof(Storage) !== 'undefined') {
-                            localStorage.setItem('satelliteSelection', JSON.stringify(globals.swarm.satellites));
-                          }
-                          globals.userData.fetch();
-                        },
-                        onerror: function (response) {
-                          showMessage('danger',
-                            'The user file upload failed: ' + response, 30);
-                        },
-                      }
-                    }
-                });
-
-                var that = this;
-                this.pond.on('processfile', function(error, file) {
-                    if (error) {
-                        console.log('Oh no');
-                        return;
-                    }
-                    //file.filename
-                    $('#fpfilenamelabel').remove();
-                    $('#uploadDialogContainer').append(
-                        '<div class="filepond--drip" id="fpfilenamelabel">'+
-                        ' Uploaded file: '+file.filename+'</div>'
-                    );
-                    that.pond.removeFile(file.id);
-                });
-
-                // Add it to the DOM
-                $(uploadDialogContainer)[0].appendChild(this.pond.element);
-
 
                 var v = {}; //views
                 var m = {}; //models
@@ -255,7 +203,7 @@ var MASTER_PRIORITY = [
 
                 _.each(config.mapConfig.baseLayers, function (baselayer) {
                     var visible = false;
-                    if(activeBaselayer === baselayer.name){
+                    if (activeBaselayer === baselayer.name) {
                         visible = true;
                     }
 
@@ -318,35 +266,35 @@ var MASTER_PRIORITY = [
                         // We only allow configuration of specific attributes
                         var prodId = product.download.id;
 
-                        if(pC.hasOwnProperty(prodId)){
+                        if (pC.hasOwnProperty(prodId)) {
 
-                            if(pC[prodId].hasOwnProperty('visible')){
+                            if (pC[prodId].hasOwnProperty('visible')) {
                                 product.visible = pC[prodId].visible;
                             }
-                            if(pC[prodId].hasOwnProperty('outlines')){
+                            if (pC[prodId].hasOwnProperty('outlines')) {
                                 product.outlines = pC[prodId].outlines;
                             }
-                            if(pC[prodId].hasOwnProperty('opacity')){
+                            if (pC[prodId].hasOwnProperty('opacity')) {
                                 product.opacity = pC[prodId].opacity;
                             }
-                            if(pC[prodId].hasOwnProperty('parameters')){
+                            if (pC[prodId].hasOwnProperty('parameters')) {
                                 // Go through all parameters and extend where
                                 // necessary
                                 var pars = pC[prodId].parameters;
-                                for(var pk in pars){
-                                    if(product.parameters.hasOwnProperty(pk)){
-                                        if(pars[pk].hasOwnProperty('range')){
+                                for (var pk in pars) {
+                                    if (product.parameters.hasOwnProperty(pk)) {
+                                        if (pars[pk].hasOwnProperty('range')) {
                                             product.parameters[pk].range = pars[pk].range;
                                         }
-                                        if(pars[pk].hasOwnProperty('colorscale')){
+                                        if (pars[pk].hasOwnProperty('colorscale')) {
                                             product.parameters[pk].colorscale = pars[pk].colorscale;
                                         }
-                                        if(pars[pk].hasOwnProperty('selected')){
+                                        if (pars[pk].hasOwnProperty('selected')) {
                                             product.parameters[pk].selected = pars[pk].selected;
-                                            if(pars[pk].selected === true){
+                                            if (pars[pk].selected === true) {
                                                 // TODO: If selected remove all other selected
-                                                for(var spk in pars){
-                                                    if(spk !== pk && product.parameters[spk] &&
+                                                for (var spk in pars) {
+                                                    if (spk !== pk && product.parameters[spk] &&
                                                         product.parameters[spk].hasOwnProperty('selected')) {
                                                         delete product.parameters[spk].selected;
                                                     }
@@ -356,11 +304,11 @@ var MASTER_PRIORITY = [
                                     }
                                 }
                             }
-                            if(pC[prodId].hasOwnProperty.download_parameters){
+                            if (pC[prodId].hasOwnProperty.download_parameters) {
                                 // Go through all download parameters and extend
                                 // where necessary
                             }
-                            if(pC[prodId].hasOwnProperty('components')){
+                            if (pC[prodId].hasOwnProperty('components')) {
                                 product.components = pC[prodId].components;
                             }
                         }
@@ -448,10 +396,6 @@ var MASTER_PRIORITY = [
                     }
                 });
 
-                var userDataConfig = _.keys(config.userData);
-                _.each(userDataConfig, function (key) {
-                    globals.userData[key] = config.userData[key];
-                });
                 // periodic update magnetic models' metadata
                 globals.models.url = config.magneticModels.infoUrl;
                 globals.models.on('fetch:success', function () {
@@ -477,7 +421,7 @@ var MASTER_PRIORITY = [
                 //Overlays are loaded and added to the global collection
                 _.each(config.mapConfig.overlays, function (overlay) {
                     var overlayActive = false;
-                    if(activeOverlays.indexOf(overlay.name) !== -1){
+                    if (activeOverlays.indexOf(overlay.name) !== -1) {
                         overlayActive = true;
                     }
                     globals.overlays.add(
@@ -492,19 +436,16 @@ var MASTER_PRIORITY = [
                 }, this);
 
                 // fetch user data info
-                globals.userData.on('fetch:complete', function () {
-                  if (globals.userData.models.length > 0) {
-                      Communicator.mediator.trigger('userData:fetch:complete');
-                      $('#uploadcheck').prop('disabled', false);
-                      $('#uploadcheck').prop('checked', globals.swarm.satellites['Upload']);
-                      Communicator.mediator.trigger('layers:refresh');
-                      $('#fpfilenamelabel').remove();
-                      $('#uploadDialogContainer').append(
-                          '<div class="filepond--drip" id="fpfilenamelabel">' + 
-                          ' Uploaded file: ' + globals.userData.models[0].get('filename') + '</div>'
-                      );
-                  }
-                });
+                _.extend(globals.userData, config.userData);
+
+                var userDataChanged = function () {
+                    Communicator.mediator.trigger('userData:change');
+                    Communicator.mediator.trigger('layers:refresh');
+                };
+
+                globals.userData.on('destroy', userDataChanged);
+                globals.userData.on('sync', userDataChanged);
+
                 globals.userData.fetch();
 
                 // If Navigation Bar is set in configuration go through the
@@ -620,7 +561,7 @@ var MASTER_PRIORITY = [
                     }
                 };
 
-                 globals.swarm.satellites = {
+                globals.swarm.satellites = {
                     "Alpha": false,
                     "Bravo": false,
                     "Charlie": false,
@@ -630,19 +571,19 @@ var MASTER_PRIORITY = [
 
                 var prodToSat = {};
                 var proObj = globals.swarm.products;
-                for (var coll in proObj){
-                    for (var sat in proObj[coll]){
+                for (var coll in proObj) {
+                    for (var sat in proObj[coll]) {
                         prodToSat[proObj[coll][sat]] = {
                             sat: sat,
                             coll: coll
-                        }
+                        };
                     }
                 }
-                
+
                 // Derive which satellites should be active from active products
-                globals.products.forEach( function (product) {
-                    if(product.get('visible')){
-                        if(prodToSat.hasOwnProperty(product.get('download').id)) {
+                globals.products.forEach(function (product) {
+                    if (product.get('visible')) {
+                        if (prodToSat.hasOwnProperty(product.get('download').id)) {
                             var sat = prodToSat[product.get('download').id].sat;
                             globals.swarm.satellites[sat] = true;
                         }
@@ -680,15 +621,15 @@ var MASTER_PRIORITY = [
 
                 // Derive what container need to be active from products
                 globals.products.forEach(function (product) {
-                    if(product.get('visible') &&
-                       prodToSat.hasOwnProperty(product.get('download').id)){
+                    if (product.get('visible') &&
+                       prodToSat.hasOwnProperty(product.get('download').id)) {
                         var coll = prodToSat[product.get('download').id].coll;
                         containerSelection[coll] = true;
                     }
                 });
 
 
-                if(savedChangesApplied){
+                if (savedChangesApplied) {
                     showMessage('success',
                         'The configuration of your last visit has been loaded, ' +
                      'if you would like to reset to the default configuration click ' +
@@ -1017,7 +958,7 @@ var MASTER_PRIORITY = [
                     show: {effect: false, delay: 700}
                 });
 
-                // Now that products and data are loaded make sure datacontroller is correctly initialized
+                // Now that products and data are loaded make sure data controller is correctly initialized
                 Communicator.mediator.trigger('manual:init');
                 this.timeSliderView.manualInit();
 

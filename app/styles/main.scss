@@ -20,6 +20,7 @@ $iconWhiteSpritePath: "../images/glyphicons-halflings-white.png";
 @import "spinner";
 @import "social";
 @import "download";
+@import "upload";
 
 
 /*
@@ -309,7 +310,7 @@ button[active=active] {
 /*
  * Selection Manager, Download Manager
  */
-.selectionManager, .download {
+.selectionManager, .download, .upload {
   width: 55em;
   top: 10em;
   left: 50%;
@@ -505,32 +506,4 @@ button[active=active] {
 
 .w2ui-list ul li{
   font-family: "Helvetica Neue",Helvetica,Arial,sans-serif !important;
-}
-
-#uploadDialogContainer{
-  top: 63px;
-  width: 400px;
-  position: absolute;
-  right: 10px;
-  z-index: 501;
-  display: none;
-}
-
-.filepond--root{
-  margin-bottom: 0.8em!important;
-  padding-top: 0.8em!important;
-  font-size: 1.2em!important;
-}
-
-#fpfilenamelabel {
-  color: black;
-  text-align: center;
-  opacity: 1;
-  text-overflow: ellipsis;
-  margin-left: 10px;
-  margin-right: 10px;
-}
-
-.filepond--drop-label {
-  margin-top: 15px !important;
 }
