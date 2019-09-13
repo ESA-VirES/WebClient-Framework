@@ -143,3 +143,8 @@
     padding: 10px 10px 0 0;
     user-select: text;
 }
+
+#options {
+  max-width: 325px;
+  text-overflow: ellipsis;
+}
