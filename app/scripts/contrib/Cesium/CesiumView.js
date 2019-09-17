@@ -8,6 +8,7 @@ define([
     'app',
     'models/MapModel',
     'globals',
+    'msgpack',
     'httpRequest',
     'hbs!tmpl/wps_eval_composed_model',
     'hbs!tmpl/wps_get_field_lines',
@@ -15,10 +16,9 @@ define([
     'cesium/Cesium',
     'drawhelper',
     'FileSaver',
-    'msgpack',
     'plotty'
 ], function (
-    Marionette, Communicator, App, MapModel, globals, httpRequest,
+    Marionette, Communicator, App, MapModel, globals, msgpack, httpRequest,
     tmplEvalModel, tmplGetFieldLines, tmplFieldLinesLabel
 ) {
     'use strict';
