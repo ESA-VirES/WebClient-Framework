@@ -297,6 +297,7 @@
             "Num_GPS_satellites", "mVTEC", "mROT", "mROTI10s", "mROTI20s", "IBI_flag",
             "Ionosphere_region_flag", "IPIR_index", "Ne_quality_flag", "TEC_STD",
             "B_NEC_res_Model", "F_res_Model",
+            "J", "J_QD"
           ];
 
           var collectionList = _.chain(collections)
@@ -506,14 +507,13 @@
               _.each(dat, function (data, key) {
                 var components = VECTOR_BREAKDOWN[key];
                 if (!components) {return;}
-                dat[components[0]] = [];
-                dat[components[1]] = [];
-                dat[components[2]] = [];
-                _.each(data, function (item) {
-                  dat[components[0]].push(item[0]);
-                  dat[components[1]].push(item[1]);
-                  dat[components[2]].push(item[2]);
-                });
+                for (var i = 0; i < components.length; i++) {
+                  dat[components[i]] = [];
+                  _.each(data, function (item) {
+                    dat[components[i]].push(item[i]);
+                  });
+                }
+                
                 delete dat[key];
               });
 
