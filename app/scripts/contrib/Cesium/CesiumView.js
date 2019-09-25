@@ -1003,6 +1003,8 @@ define([
                 this.activeCollections = [];
                 var settings = {};
 
+                var vectorLenghtsObject = {};
+
                 globals.products.each(function (product) {
                     if (!product.get('visible')) {return;}
 
@@ -1027,6 +1029,35 @@ define([
                         });
                     });
                 });
+
+                // Check if special settings have been selected (AEJ LPS)
+                for(var sat in settings){
+                    if(settings[sat].hasOwnProperty('J_combined')){
+                        settings[sat]['J'] = settings[sat]['J_combined'];
+                        settings[sat]['J'].band = 'J';
+                        delete settings[sat]['J_combined'];
+                        // Add as active also J_C to show the scalar element
+                        globals.products.each(function (product) {
+                            if (!product.get('visible')) {return;}
+                            _.each(product.get('parameters'), function (param, name) {
+                                if (param.name === 'J_C') {
+                                    if (!settings.hasOwnProperty(sat)) {
+                                        settings[sat] = {};
+                                    }
+                                    if (!settings[sat].hasOwnProperty(k)) {
+                                        settings[sat][name] = _.clone(param);
+                                    }
+                                    _.extend(settings[sat][name], {
+                                        band: name,
+                                        alpha: Math.floor(product.get('opacity') * 255),
+                                        outlines: product.get('outlines'),
+                                        outline_color: product.get('color')
+                                    });
+                                }
+                            });
+                        });
+                    }
+                }
 
                 if (!_.isEmpty(settings)) {
 
@@ -1066,6 +1097,22 @@ define([
                                     }),
                                     releaseGeometryInstances: false
                                 });
+
+                                // Calculate maximum lengt of vectors
+                                var vPars = VECTOR_BREAKDOWN[parameters[i]];
+                                var lengths = [];
+                                for (var j = 0; j < results[vPars[0]].length; j++) {
+                                    var sum = 0;
+                                    for (var vp = 0; vp < vPars.length;vp++) {
+                                        sum += Math.pow(results[vPars[vp]][j],2);
+                                    }
+                                    lengths.push(Math.sqrt(sum));
+                                }
+                                var maxLength = d3.max(lengths);
+                                vectorLenghtsObject[parameters[i]] = {
+                                    maxLength: maxLength,
+                                    lengths: lengths
+                                };
                             }
                         }, this);
 
@@ -1099,11 +1146,13 @@ define([
                                 // Check if component is vector component
                                 if (VECTOR_BREAKDOWN.hasOwnProperty(ap)) {
                                     var b = VECTOR_BREAKDOWN[ap];
-                                    return (
-                                        row.hasOwnProperty(b[0]) &&
-                                        row.hasOwnProperty(b[1]) &&
-                                        row.hasOwnProperty(b[2])
-                                    );
+                                    var allAvailable = true;
+                                    for (var i = 0; i < b.length; i++) {
+                                        if(!row.hasOwnProperty(b[i])){
+                                            allAvailable = false;
+                                        }
+                                    }
+                                    return allAvailable;
                                 } else {
                                     return row.hasOwnProperty(ap);
                                 }
@@ -1115,6 +1164,8 @@ define([
                                 this.plot.setColorScale(set.colorscale);
                                 this.plot.setDomain(set.range);
 
+                                var pixelSize = 8;
+
                                 if (_.find(SCALAR_PARAM, function (par) {
                                     return set.band === par;
                                 })) {
@@ -1124,6 +1175,10 @@ define([
                                         }
                                     }
                                     heightOffset = i * 210000;
+                                    if(set.band === 'J_QD' || set.band === 'J_C'){
+                                        heightOffset = 10000;
+                                        pixelSize = 3;
+                                    }
 
                                     if (!isNaN(row[set.band])) {
                                         color = this.plot.getColor(row[set.band]);
@@ -1135,7 +1190,7 @@ define([
                                             color: new Cesium.Color.fromBytes(
                                                 color[0], color[1], color[2], alpha
                                             ),
-                                            pixelSize: 8,
+                                            pixelSize: pixelSize,
                                             scaleByDistance: scaltype
                                         };
                                         if (set.outlines) {
@@ -1209,24 +1264,55 @@ define([
 
                                         var sb = VECTOR_BREAKDOWN[set.band];
                                         heightOffset = i * 210000;
+                                        if(set.band === 'J' || set.band === 'J_C'){
+                                            heightOffset = 0;
+                                        }
 
-                                        // Check if residuals are active!
-                                        if (!isNaN(row[sb[0]]) &&
-                                           !isNaN(row[sb[1]]) &&
-                                           !isNaN(row[sb[2]])) {
-                                            var vLen = Math.sqrt(Math.pow(row[sb[0]], 2) + Math.pow(row[sb[1]], 2) + Math.pow(row[sb[2]], 2));
+                                        // Check if breakdown parameters are available
+                                        var allAvailable = true;
+                                        for (var j = 0; j < sb.length; j++) {
+                                            if(!row.hasOwnProperty(sb[j])){
+                                                allAvailable = false;
+                                            }
+                                        }
+                                        if (allAvailable) {
+                                            var altComp, radius;
+                                            if(sb.length === 2){
+                                                altComp = 0;
+                                            } else {
+                                                altComp = row[sb[2]];
+                                            }
+                                            if(row.hasOwnProperty('Radius')){
+                                                radius = row.Radius;
+                                            } else {
+                                                radius = 6800000;
+                                            }
+                                            
+
+                                            var maxLength = vectorLenghtsObject[set.band].maxLength;
+                                            var vectorLenghts = vectorLenghtsObject[set.band].lengths;
+
+                                            var vLen = vectorLenghts[r];
                                             color = this.plot.getColor(vLen);
-                                            var addLen = 10;
-                                            var vN = (row[sb[0]] / vLen) * addLen;
-                                            var vE = (row[sb[1]] / vLen) * addLen;
-                                            var vC = (row[sb[2]] / vLen) * addLen;
+                                            var maxLen = 600000;
+
+                                            var vN = (row[sb[0]]/maxLength) * maxLen;
+                                            var vE = (row[sb[1]]/maxLength) * maxLen;
+                                            var vC = (altComp/maxLength) * maxLen;
+
+                                            // calculate initial cartesian position from coordinates
+                                            var startCartPos = Cesium.Cartesian3.fromDegrees(
+                                                row.Longitude, row.Latitude, (radius - maxRad + heightOffset)
+                                            );
+                                            var endCartPos = Cesium.Cartesian3.fromArray([
+                                                (startCartPos.x + vE),
+                                                (startCartPos.y + vN),
+                                                (startCartPos.z + vC)
+                                            ]);
                                             this.featuresCollection[row.id + set.band].geometryInstances.push(
                                                 new Cesium.GeometryInstance({
                                                     geometry: new Cesium.PolylineGeometry({
-                                                        positions: Cesium.Cartesian3.fromDegreesArrayHeights([
-                                                            row.Longitude, row.Latitude, (row.Radius - maxRad + heightOffset),
-                                                            (row.Longitude + vE), (row.Latitude + vN), ((row.Radius - maxRad) + vC * 30000)
-                                                        ]),
+                                                        positions: [startCartPos, endCartPos],
                                                         followSurface: false,
                                                         width: 1.7
                                                     }),

@@ -7,14 +7,18 @@ var SCALAR_PARAM = [
     "Grad_Ne_at_20km", "Grad_Ne_at_PCP_edge", "ROD", "RODI10s", "RODI20s", "delta_Ne10s",
     "delta_Ne20s", "delta_Ne40s", "Num_GPS_satellites", "mVTEC", "mROT", "mROTI10s",
     "mROTI20s", "IBI_flag", "Ionosphere_region_flag", "IPIR_index", "Ne_quality_flag",
-    "TEC_STD"
+    "TEC_STD",
+    "J_QD",
+    "J_C", "J_CF_SemiQD","J_DF_SemiQD"
 ];
 
 var VECTOR_PARAM = [
     "Model", // needed by CesiumView
     "B_NEC", "B_NEC_resAC", "GPS_Position", "LEO_Position",
     "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle",
-    'dB_other', 'dB_AOCS', 'dB_Sun'
+    'dB_other', 'dB_AOCS', 'dB_Sun',
+    'J',
+    'J_CF', 'J_DF'
 ];
 
 var VECTOR_BREAKDOWN = {
@@ -29,7 +33,10 @@ var VECTOR_BREAKDOWN = {
     'LEO_Position': ['LEO_Position_X', 'LEO_Position_Y', 'LEO_Position_Z'],
     'dB_other': ['dB_other_X', 'dB_other_Y', 'dB_other_Z'],
     'dB_AOCS': ['dB_AOCS_X', 'dB_AOCS_Y', 'dB_AOCS_Z'],
-    'dB_Sun': ['dB_Sun_X', 'dB_Sun_Y', 'dB_Sun_Z']
+    'dB_Sun': ['dB_Sun_X', 'dB_Sun_Y', 'dB_Sun_Z'],
+    'J': ['J_N', 'J_E'],
+    'J_CF': ['J_CF_X', 'J_CF_Y'],
+    'J_DF': ['J_DF_X', 'J_DF_Y'],
 };
 
 // Ordered from highest resolution to lowest with the exception of FAC that
@@ -41,6 +48,8 @@ var MASTER_PRIORITY = [
     'SW_OPER_TECATMS_2F', 'SW_OPER_TECBTMS_2F', 'SW_OPER_TECCTMS_2F', 'SW_OPER_TECUTMS_2F',
     'SW_OPER_IBIATMS_2F', 'SW_OPER_IBIBTMS_2F', 'SW_OPER_IBICTMS_2F', 'SW_OPER_IBIUTMS_2F',
     'SW_OPER_EEFATMS_2F', 'SW_OPER_EEFBTMS_2F', 'SW_OPER_EEFCTMS_2F', 'SW_OPER_EEFUTMS_2F',
+    'SW_OPER_AEJALPL_2F', 'SW_OPER_AEJBLPL_2F', 'SW_OPER_AEJCLPL_2F',
+    'SW_OPER_AEJALPS_2F', 'SW_OPER_AEJBLPS_2F', 'SW_OPER_AEJCLPS_2F',
 ];
 
 
@@ -513,7 +522,7 @@ var MASTER_PRIORITY = [
                 var filtered = globals.products.filter(function (product) {
                     var id = product.get("download").id;
                     return !(id && id.match(
-                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD)[ABCU_]/
+                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ)[ABCU_]/
                     ));
                 });
 
@@ -560,6 +569,18 @@ var MASTER_PRIORITY = [
                         "Bravo": "SW_OPER_IPDBIRR_2F",
                         "Charlie": "SW_OPER_IPDCIRR_2F",
                         "Upload": "SW_OPER_IPDUIRR_2F",
+                    },
+                    "AEJ_LPL": {
+                        "Alpha": "SW_OPER_AEJALPL_2F",
+                        "Bravo": "SW_OPER_AEJBLPL_2F",
+                        "Charlie": "SW_OPER_AEJCLPL_2F",
+                        "Upload": "SW_OPER_AEJULPL_2F",
+                    },
+                    "AEJ_LPS": {
+                        "Alpha": "SW_OPER_AEJALPS_2F",
+                        "Bravo": "SW_OPER_AEJBLPS_2F",
+                        "Charlie": "SW_OPER_AEJCLPS_2F",
+                        "Upload": "SW_OPER_AEJULPS_2F",
                     }
                 };
 
@@ -616,7 +637,9 @@ var MASTER_PRIORITY = [
                     'TEC': false,
                     'FAC': false,
                     'EEF': false,
-                    'IPD': false
+                    'IPD': false,
+                    'AEJ_LPL': false,
+                    'AEJ_LPS': false
                 };
 
                 var clickEvent = "require(['communicator'], function(Communicator){Communicator.mediator.trigger('application:reset');});";
@@ -670,6 +693,22 @@ var MASTER_PRIORITY = [
                 }
 
                 // Add generic product (which is container for A,B and C sats)
+                filtered_collection.add({
+                    name: "AEJ LPS",
+                    visible: containerSelection['AEJ_LPS'],
+                    color: "#0f0",
+                    protocol: null,
+                    containerproduct: true,
+                    id: "AEJ_LPS"
+                }, {at: 0});
+                filtered_collection.add({
+                    name: "AEJ LPL",
+                    visible: containerSelection['AEJ_LPL'],
+                    color: "#f00",
+                    protocol: null,
+                    containerproduct: true,
+                    id: "AEJ_LPL"
+                }, {at: 0});
                 filtered_collection.add({
                     name: "Ionospheric Plasma Irregularities (IPD IRR)",
                     visible: containerSelection['IPD'],
