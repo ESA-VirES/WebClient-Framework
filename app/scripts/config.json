@@ -3421,14 +3421,14 @@
             "parameters": {
                 "J": {
                     "range": [-400, 400],
-                    "colorscale": "plasma",
+                    "colorscale": "diverging_1",
                     "uom": "A/km",
                     "name": "Horizontal sheet current density vector"
                 },
                 "J_QD": {
                     "selected": true,
                     "range": [-400, 400],
-                    "colorscale": "plasma",
+                    "colorscale": "diverging_1",
                     "uom": "A/km",
                     "name": "Horizontal sheet current density vector (QD frame)"
                 }
@@ -3489,14 +3489,14 @@
             "parameters": {
                 "J": {
                     "range": [-400, 400],
-                    "colorscale": "plasma",
+                    "colorscale": "diverging_1",
                     "uom": "A/km",
                     "name": "Horizontal sheet current density vector"
                 },
                 "J_QD": {
                     "selected": true,
                     "range": [-400, 400],
-                    "colorscale": "plasma",
+                    "colorscale": "diverging_1",
                     "uom": "A/km",
                     "name": "Horizontal sheet current density vector (QD frame)"
                 }
@@ -3557,14 +3557,14 @@
             "parameters": {
                 "J": {
                     "range": [-400, 400],
-                    "colorscale": "plasma",
+                    "colorscale": "diverging_1",
                     "uom": "A/km",
                     "name": "Horizontal sheet current density vector"
                 },
                 "J_QD": {
                     "selected": true,
                     "range": [-400, 400],
-                    "colorscale": "plasma",
+                    "colorscale": "diverging_1",
                     "uom": "A/km",
                     "name": "Horizontal sheet current density vector (QD frame)"
                 }
