@@ -1030,6 +1030,35 @@ define([
                     });
                 });
 
+                // Check if special settings have been selected (AEJ LPS)
+                for(var sat in settings){
+                    if(settings[sat].hasOwnProperty('J_combined')){
+                        settings[sat]['J'] = settings[sat]['J_combined'];
+                        settings[sat]['J'].band = 'J';
+                        delete settings[sat]['J_combined'];
+                        // Add as active also J_C to show the scalar element
+                        globals.products.each(function (product) {
+                            if (!product.get('visible')) {return;}
+                            _.each(product.get('parameters'), function (param, name) {
+                                if (param.name === 'J_C') {
+                                    if (!settings.hasOwnProperty(sat)) {
+                                        settings[sat] = {};
+                                    }
+                                    if (!settings[sat].hasOwnProperty(k)) {
+                                        settings[sat][name] = _.clone(param);
+                                    }
+                                    _.extend(settings[sat][name], {
+                                        band: name,
+                                        alpha: Math.floor(product.get('opacity') * 255),
+                                        outlines: product.get('outlines'),
+                                        outline_color: product.get('color')
+                                    });
+                                }
+                            });
+                        });
+                    }
+                }
+
                 if (!_.isEmpty(settings)) {
 
                     _.uniq(results.id)
@@ -1135,6 +1164,8 @@ define([
                                 this.plot.setColorScale(set.colorscale);
                                 this.plot.setDomain(set.range);
 
+                                var pixelSize = 8;
+
                                 if (_.find(SCALAR_PARAM, function (par) {
                                     return set.band === par;
                                 })) {
@@ -1144,6 +1175,10 @@ define([
                                         }
                                     }
                                     heightOffset = i * 210000;
+                                    if(set.band === 'J_QD' || set.band === 'J_C'){
+                                        heightOffset = 10000;
+                                        pixelSize = 3;
+                                    }
 
                                     if (!isNaN(row[set.band])) {
                                         color = this.plot.getColor(row[set.band]);
@@ -1155,7 +1190,7 @@ define([
                                             color: new Cesium.Color.fromBytes(
                                                 color[0], color[1], color[2], alpha
                                             ),
-                                            pixelSize: 8,
+                                            pixelSize: pixelSize,
                                             scaleByDistance: scaltype
                                         };
                                         if (set.outlines) {
@@ -1229,6 +1264,9 @@ define([
 
                                         var sb = VECTOR_BREAKDOWN[set.band];
                                         heightOffset = i * 210000;
+                                        if(set.band === 'J' || set.band === 'J_C'){
+                                            heightOffset = 0;
+                                        }
 
                                         // Check if breakdown parameters are available
                                         var allAvailable = true;
@@ -1255,26 +1293,12 @@ define([
                                             var vectorLenghts = vectorLenghtsObject[set.band].lengths;
 
                                             var vLen = vectorLenghts[r];
-                                            /*Math.sqrt(Math.pow(row[sb[0]], 2) + Math.pow(row[sb[1]], 2) + Math.pow(altComp, 2));*/
                                             color = this.plot.getColor(vLen);
                                             var maxLen = 600000;
-
-                                            /*var vN = (row[sb[0]] / vLen) * addLen;
-                                            var vE = (row[sb[1]] / vLen) * addLen;
-                                            var vC = (altComp / vLen) * addLen;*/
 
                                             var vN = (row[sb[0]]/maxLength) * maxLen;
                                             var vE = (row[sb[1]]/maxLength) * maxLen;
                                             var vC = (altComp/maxLength) * maxLen;
-
-                                            /*var offsetLen = Math.sqrt(Math.pow(vN, 2) + Math.pow(vE, 2) + Math.pow(vC, 2));
-
-                                            var maxLen = 600000;
-                                            if(offsetLen>maxLen){
-                                                vN*=maxLen/offsetLen;
-                                                vE*=maxLen/offsetLen;
-                                                vC*=maxLen/offsetLen;
-                                            }*/
 
                                             // calculate initial cartesian position from coordinates
                                             var startCartPos = Cesium.Cartesian3.fromDegrees(

@@ -3598,6 +3598,318 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
+            "name": "SW_OPER_AEJALPS_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#ff7f0e",
+            "views": [{
+                "id": "SW_OPER_AEJALPS_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AEJALPS_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_AEJALPS_2F"
+                }
+            ],
+            "parameters": {
+                "J_C": {
+                    "selected": true,
+                    "range": [-1, 1],
+                    "colorscale": "plasma",
+                    "uom": "A/km^2",
+                    "name": "J_C"
+                },
+                "J_CF": {
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "J_CF"
+                },
+                "J_DF": {
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "J_DF"
+                },
+                "J_CF_SemiQD": {
+                    "range": [-100, 100],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "J_CF_SemiQD"
+                },
+                "J_DF_SemiQD": {
+                    "range": [-100, 100],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "J_DF_SemiQD"
+                },
+                "J_combined": {
+                    "range": [0, 500],
+                    "colorscale": "jet",
+                    "uom": "A/km",
+                    "name": "Sheet currents"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "J_C": {
+                    "uom": "A/km^2",
+                    "name": "J_C"
+                },
+                "J_CF": {
+                    "uom": "A/km",
+                    "name": "J_CF"
+                },
+                "J_DF": {
+                    "uom": "A/km",
+                    "name": "J_DF"
+                },
+                "J_CF_SemiQD": {
+                    "uom": "A/km",
+                    "name": "J_CF_SemiQD"
+                },
+                "J_DF_SemiQD": {
+                    "uom": "A/km",
+                    "name": "J_DF_SemiQD"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "SW_OPER_AEJBLPS_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#ff7f0e",
+            "views": [{
+                "id": "SW_OPER_AEJBLPS_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AEJBLPS_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_AEJBLPS_2F"
+                }
+            ],
+            "parameters": {
+                "J_C": {
+                    "selected": true,
+                    "range": [-1, 1],
+                    "colorscale": "plasma",
+                    "uom": "A/km^2",
+                    "name": "J_C"
+                },
+                "J_CF": {
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "J_CF"
+                },
+                "J_DF": {
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "J_DF"
+                },
+                "J_CF_SemiQD": {
+                    "range": [-100, 100],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "J_CF_SemiQD"
+                },
+                "J_DF_SemiQD": {
+                    "range": [-100, 100],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "J_DF_SemiQD"
+                },
+                "J_combined": {
+                    "range": [0, 500],
+                    "colorscale": "jet",
+                    "uom": "A/km",
+                    "name": "Sheet currents"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "J_C": {
+                    "uom": "A/km^2",
+                    "name": "J_C"
+                },
+                "J_CF": {
+                    "uom": "A/km",
+                    "name": "J_CF"
+                },
+                "J_DF": {
+                    "uom": "A/km",
+                    "name": "J_DF"
+                },
+                "J_CF_SemiQD": {
+                    "uom": "A/km",
+                    "name": "J_CF_SemiQD"
+                },
+                "J_DF_SemiQD": {
+                    "uom": "A/km",
+                    "name": "J_DF_SemiQD"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "SW_OPER_AEJCLPS_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#ff7f0e",
+            "views": [{
+                "id": "SW_OPER_AEJCLPS_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AEJCLPS_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_AEJCLPS_2F"
+                }
+            ],
+            "parameters": {
+                "J_C": {
+                    "selected": true,
+                    "range": [-1, 1],
+                    "colorscale": "plasma",
+                    "uom": "A/km^2",
+                    "name": "J_C"
+                },
+                "J_CF": {
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "J_CF"
+                },
+                "J_DF": {
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "J_DF"
+                },
+                "J_CF_SemiQD": {
+                    "range": [-100, 100],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "J_CF_SemiQD"
+                },
+                "J_DF_SemiQD": {
+                    "range": [-100, 100],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "J_DF_SemiQD"
+                },
+                "J_combined": {
+                    "range": [0, 500],
+                    "colorscale": "jet",
+                    "uom": "A/km",
+                    "name": "Sheet currents"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "J_C": {
+                    "uom": "A/km^2",
+                    "name": "J_C"
+                },
+                "J_CF": {
+                    "uom": "A/km",
+                    "name": "J_CF"
+                },
+                "J_DF": {
+                    "uom": "A/km",
+                    "name": "J_DF"
+                },
+                "J_CF_SemiQD": {
+                    "uom": "A/km",
+                    "name": "J_CF_SemiQD"
+                },
+                "J_DF_SemiQD": {
+                    "uom": "A/km",
+                    "name": "J_DF_SemiQD"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
             "name": "MAGU LR 1B",
             "color": "#1f77b4",
             "timeSlider": true,
