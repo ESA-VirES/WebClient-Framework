@@ -3397,7 +3397,7 @@
             "name": "SW_OPER_AEJALPL_2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
-            "color": "#ff7f0e",
+            "color": "#024573",
             "views": [{
                 "id": "SW_OPER_AEJALPL_2F",
                 "protocol": "CZML",
@@ -3465,7 +3465,7 @@
             "name": "SW_OPER_AEJBLPL_2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
-            "color": "#ff7f0e",
+            "color": "#024573",
             "views": [{
                 "id": "SW_OPER_AEJBLPL_2F",
                 "protocol": "CZML",
@@ -3533,7 +3533,7 @@
             "name": "SW_OPER_AEJCLPL_2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
-            "color": "#ff7f0e",
+            "color": "#024573",
             "views": [{
                 "id": "SW_OPER_AEJCLPL_2F",
                 "protocol": "CZML",
@@ -3601,7 +3601,7 @@
             "name": "SW_OPER_AEJALPS_2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
-            "color": "#ff7f0e",
+            "color": "#145600",
             "views": [{
                 "id": "SW_OPER_AEJALPS_2F",
                 "protocol": "CZML",
@@ -3654,11 +3654,16 @@
                     "uom": "A/km",
                     "name": "J_DF_SemiQD"
                 },
-                "J_combined": {
+                "J": {
                     "range": [0, 500],
                     "colorscale": "jet",
                     "uom": "A/km",
-                    "name": "Sheet currents"
+                    "name": "J"
+                },
+                "J_combined": {
+                    "name": "Sheet currents (J_C, J)", 
+                    "description": "Please use the corresponding J_C and J parameters for display and range settings",
+                    "referencedParameters": ["J", "J_C"]
                 }
             },
             "download_parameters": {
@@ -3705,7 +3710,7 @@
             "name": "SW_OPER_AEJBLPS_2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
-            "color": "#ff7f0e",
+            "color": "#145600",
             "views": [{
                 "id": "SW_OPER_AEJBLPS_2F",
                 "protocol": "CZML",
@@ -3758,11 +3763,15 @@
                     "uom": "A/km",
                     "name": "J_DF_SemiQD"
                 },
-                "J_combined": {
+                "J": {
                     "range": [0, 500],
                     "colorscale": "jet",
                     "uom": "A/km",
-                    "name": "Sheet currents"
+                    "name": "J"
+                },
+                "J_combined": {
+                    "name": "Sheet currents (J_C, J)", 
+                    "description": "Please use the corresponding J_C and J parameters for display and range settings"
                 }
             },
             "download_parameters": {
@@ -3809,7 +3818,7 @@
             "name": "SW_OPER_AEJCLPS_2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
-            "color": "#ff7f0e",
+            "color": "#145600",
             "views": [{
                 "id": "SW_OPER_AEJCLPS_2F",
                 "protocol": "CZML",
@@ -3862,11 +3871,15 @@
                     "uom": "A/km",
                     "name": "J_DF_SemiQD"
                 },
-                "J_combined": {
+                "J": {
                     "range": [0, 500],
                     "colorscale": "jet",
                     "uom": "A/km",
-                    "name": "Sheet currents"
+                    "name": "J"
+                },
+                "J_combined": {
+                    "name": "Sheet currents (J_C, J)", 
+                    "description": "Please use the corresponding J_C and J parameters for display and range settings"
                 }
             },
             "download_parameters": {
