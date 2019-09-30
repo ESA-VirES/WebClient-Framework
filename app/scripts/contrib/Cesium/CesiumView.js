@@ -10,16 +10,18 @@ define([
     'globals',
     'msgpack',
     'httpRequest',
+    'dataUtil',
     'hbs!tmpl/wps_eval_composed_model',
     'hbs!tmpl/wps_get_field_lines',
     'hbs!tmpl/FieldlinesLabel',
+    'hbs!tmpl/wps_fetchData',
     'cesium/Cesium',
     'drawhelper',
     'FileSaver',
     'plotty'
 ], function (
     Marionette, Communicator, App, MapModel, globals, msgpack, httpRequest,
-    tmplEvalModel, tmplGetFieldLines, tmplFieldLinesLabel
+    DataUtil, tmplEvalModel, tmplGetFieldLines, tmplFieldLinesLabel, wps_fetchDataTmpl
 ) {
     'use strict';
 
@@ -70,6 +72,7 @@ define([
             this.beginTime = null;
             this.endTime = null;
             this.plot = null;
+            this.xhr = null;
             this.connectDataEvents();
         },
 
@@ -310,6 +313,9 @@ define([
             this.FLbillboards = this.map.scene.primitives.add(
                 new Cesium.BillboardCollection()
             );
+            this.PBxBillboards = this.map.scene.primitives.add(
+                new Cesium.BillboardCollection()
+            );
             this.drawhelper = new DrawHelper(this.map.cesiumWidget);
             // It seems that if handlers are active directly there are some
             // object deleted issues when the draw helper tries to pick elements
@@ -451,9 +457,7 @@ define([
                     }
                 }
             }
-            function synchronizeColorLegend(p) {
-                this.checkColorscale(p.get('download').id);
-            }
+            
             // Go through config to make any changes done while widget
             // not active (not in view)
             globals.baseLayers.each(synchronizeLayer, this);
@@ -461,7 +465,7 @@ define([
             globals.overlays.each(synchronizeLayer, this);
 
             // Recheck color legends
-            globals.products.each(synchronizeColorLegend, this);
+            globals.products.each(this.synchronizeColorLegend, this);
 
             this.connectDataEvents();
 
@@ -522,16 +526,33 @@ define([
             $("#bboxSouthForm").val(bboxFixed.s.toFixed(4));
         },
 
+        synchronizeColorLegend: function(p) {
+            // See if active parameter has referencedParameter to show multiple 
+            // colorscales per product
+            if(p.get('parameters')){
+                var parameters = p.get('parameters');
+                var band = this.getSelectedVariable(parameters);
+                if(parameters[band].hasOwnProperty('referencedParameters')){
+                    var refPars = parameters[band].referencedParameters;
+                    for (var i = 0; i < refPars.length; i++) {
+                        this.checkColorscale(p.get('download').id, refPars[i], i);
+                    }
+                } else {
+                    this.checkColorscale(p.get('download').id, band, -1);
+                }
+            }
+        },
+
         connectDataEvents: function () {
             globals.swarm.on('change:data', function (model, data) {
-                function synchronizeColorLegend(p) {
-                    this.checkColorscale(p.get('download').id);
-                }
-                globals.products.each(synchronizeColorLegend, this);
+                
+                globals.products.each(this.synchronizeColorLegend, this);
+
                 var refKey = 'Timestamp';
                 if (!data.hasOwnProperty(refKey)) {
                     refKey = 'timestamp';
                 }
+                this.fetchAndDisplayPBxData();
                 if (data.hasOwnProperty(refKey) && data[refKey].length > 0) {
                     this.createDataFeatures(data, 'pointcollection', 'band');
                 } else {
@@ -726,7 +747,8 @@ define([
                     return product.get('model') && product.get('visible');
                 }),
                 function (product) {
-                    this.checkColorscale(product.get('download').id);
+                    var variable = this.getSelectedVariable(product.get('parameters'));
+                    this.checkColorscale(product.get('download').id, variable, -1);
                 }, this
             );
         },
@@ -835,7 +857,6 @@ define([
                 globals.products.each(function (product) {
                     if (product.get('name') === options.name) {
                         product.set('visible', options.visible);
-                        this.checkColorscale(product.get('download').id);
 
                         if (product.get('model') && this.isCustomModelSelected(product)) {
                             // When custom SHC selected switch to WPS visualization.
@@ -895,6 +916,8 @@ define([
                     }
                 }, this); // END of global products loop
             }
+            // Recheck color legends
+            globals.products.each(this.synchronizeColorLegend, this);
         }, // END of changeLayer
 
         isCustomModelSelected: function (product) {
@@ -981,6 +1004,137 @@ define([
             }
         },
 
+
+        fetchAndDisplayPBxData: function(){
+
+          var that = this;
+          var retrieve_data = [];
+
+          this.PBxBillboards.removeAll();
+
+          var relatedlayer = [
+            'SW_OPER_AEJALPS_2F', 'SW_OPER_AEJBLPS_2F', 'SW_OPER_AEJCLPS_2F',
+            'SW_OPER_AEJALPL_2F', 'SW_OPER_AEJBLPL_2F', 'SW_OPER_AEJCLPL_2F'
+          ];
+
+          globals.products.each(function (product) {
+            if (relatedlayer.indexOf(product.get("views")[0].id) != -1) {
+              if (!product.get('visible')) {return;}
+              var processes = product.get("processes");
+              _.each(processes, function (process) {
+                if (process) {
+                  switch (process.id) {
+                    case "retrieve_data":
+                      retrieve_data.push({
+                        layer: process.layer_id,
+                        url: product.get("views")[0].urls[0]
+                      });
+                      break;
+                  }
+                }
+              }, this);
+            }
+          }, this);
+
+          if (retrieve_data.length > 0) {
+
+            var collections = DataUtil.parseCollections(retrieve_data);
+
+            var options = {
+              "collections_ids": DataUtil.formatCollections(collections),
+              "begin_time": getISODateTimeString(this.beginTime),
+              "end_time": getISODateTimeString(this.endTime)
+            };
+
+            options.collections_ids = options.collections_ids.replace('LPS_2F', 'PBS_2F');
+            options.collections_ids = options.collections_ids.replace('LPL_2F', 'PBL_2F');
+
+            var variables = ['PointType'];
+
+            var collectionList = _.chain(collections)
+              .values()
+              .flatten()
+              .value();
+
+            options.variables = variables.join(",");
+            options.mimeType = 'application/msgpack';
+
+            if (this.bboxsel !== null) {
+              var bbox = this.bboxsel;
+              options["bbox"] = [bbox.s, bbox.w, bbox.n, bbox.e].join(",");
+            }
+
+            if (this.xhr !== null) {
+              // A request has been sent that is not yet been returned so we need to cancel it
+              Communicator.mediator.trigger("progress:change", false);
+              this.xhr.abort();
+              this.xhr = null;
+            }
+
+            this.xhr = httpRequest.asyncHttpRequest({
+                context: this,
+                type: 'POST',
+                url: retrieve_data[0].url,
+                data: wps_fetchDataTmpl(options),
+                responseType: 'arraybuffer',
+
+                parse: function (data, xhr) {
+                  var decodedObj = msgpack.decode(new Uint8Array(data));
+                  return decodedObj;
+                },
+
+                opened: function () {
+                  Communicator.mediator.trigger("progress:change", true);
+                },
+
+                completed: function () {
+                  this.xhr = null;
+                  Communicator.mediator.trigger("progress:change", false);
+                },
+
+                error: function (xhr) {
+                  globals.swarm.set({data: {}});
+                  if (xhr.responseText === "") {return;}
+                  var error_text = xhr.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
+                  if (error_text && error_text.length > 1) {
+                    error_text = error_text[1];
+                  } else {
+                    error_text = 'Please contact feedback@vires.services if issue persists.';
+                  }
+                  showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+                },
+
+                success: function (dat) {
+
+                  var maxRad = this.map.scene.globe.ellipsoid.maximumRadius;
+                  for (var i = 0; i < dat.Latitude.length; i++) {
+                    var imageString;
+                    if((dat.PointType[i]&4)==0){
+                      imageString = '../../../images/rectangle.png';
+                    } else if ((dat.PointType[i]&4)==4){
+                      imageString = '../../../images/triangle.png';
+                    }
+                    var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
+                    var canvasPoint = {
+                      /*imageId: '',*/
+                      image: imageString,
+                      position: Cesium.Cartesian3.fromDegrees(
+                        dat.Longitude[i], dat.Latitude[i],
+                        6835000-maxRad
+                      ),
+                      eyeOffset : new Cesium.Cartesian3(0, 0, -50000),
+                      radius: 0,
+                      scale: 0.35,
+                      scaleByDistance: scaltype
+                    };
+                    this.PBxBillboards.add(canvasPoint);
+                  }
+
+              }
+            });
+          }
+        },
+
         createDataFeatures: function (results) {
             var refKey = 'Timestamp';
             if (!results.hasOwnProperty(refKey)) {
@@ -1012,6 +1166,7 @@ define([
                     var sat = globals.swarm.collection2satellite[collection];
 
                     if (!sat) {return;}
+                    var combPar = false;
 
                     _.each(product.get('parameters'), function (param, name) {
                         if (!param.selected) {return;}
@@ -1021,43 +1176,33 @@ define([
                         if (!settings[sat].hasOwnProperty(k)) {
                             settings[sat][name] = _.clone(param);
                         }
-                        _.extend(settings[sat][name], {
-                            band: name,
-                            alpha: Math.floor(product.get('opacity') * 255),
-                            outlines: product.get('outlines'),
-                            outline_color: product.get('color')
-                        });
+                        if(param.hasOwnProperty('referencedParameters')){
+                          var refPars = param.referencedParameters;
+                          for (var i = 0; i < refPars.length; i++) {
+
+                            if(product.get('parameters').hasOwnProperty(refPars[i])){
+                              settings[sat][refPars[i]] = _.clone(
+                                product.get('parameters')[refPars[i]]
+                              );
+                              _.extend(settings[sat][refPars[i]], {
+                                  band: refPars[i],
+                                  //alpha: Math.floor(product.get('opacity') * 255),
+                                  outlines: product.get('outlines'),
+                                  outline_color: product.get('color')
+                              });
+                            }
+                          }
+                          delete settings[sat][name];
+                        } else {
+                          _.extend(settings[sat][name], {
+                              band: name,
+                              alpha: Math.floor(product.get('opacity') * 255),
+                              outlines: product.get('outlines'),
+                              outline_color: product.get('color')
+                          });
+                        }
                     });
                 });
-
-                // Check if special settings have been selected (AEJ LPS)
-                for(var sat in settings){
-                    if(settings[sat].hasOwnProperty('J_combined')){
-                        settings[sat]['J'] = settings[sat]['J_combined'];
-                        settings[sat]['J'].band = 'J';
-                        delete settings[sat]['J_combined'];
-                        // Add as active also J_C to show the scalar element
-                        globals.products.each(function (product) {
-                            if (!product.get('visible')) {return;}
-                            _.each(product.get('parameters'), function (param, name) {
-                                if (param.name === 'J_C') {
-                                    if (!settings.hasOwnProperty(sat)) {
-                                        settings[sat] = {};
-                                    }
-                                    if (!settings[sat].hasOwnProperty(k)) {
-                                        settings[sat][name] = _.clone(param);
-                                    }
-                                    _.extend(settings[sat][name], {
-                                        band: name,
-                                        alpha: Math.floor(product.get('opacity') * 255),
-                                        outlines: product.get('outlines'),
-                                        outline_color: product.get('color')
-                                    });
-                                }
-                            });
-                        });
-                    }
-                }
 
                 if (!_.isEmpty(settings)) {
 
@@ -1352,12 +1497,12 @@ define([
                 return product.get('name') === layer;
             });
 
+            var variable = this.getSelectedVariable(product.get('parameters'));
             if (product === undefined) {
                 return;
             } else if (product.get('views')[0].protocol === 'CZML') {
                 this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
             } else if (product.get('views')[0].protocol === 'WMS') {
-                var variable = this.getSelectedVariable(product.get('parameters'));
 
                 if (variable === 'Fieldlines') {
                     this.hideCustomModel(product);
@@ -1374,7 +1519,8 @@ define([
                 }
                 this.updateFieldLines(onlyStyleChange);
             }
-            this.checkColorscale(product.get('download').id);
+            // Recheck color legends
+            globals.products.each(this.synchronizeColorLegend, this);
         },
 
         hideWMSLayer: function (product) {
@@ -1497,7 +1643,7 @@ define([
             );
         },
 
-        checkColorscale: function (pId) {
+        checkColorscale: function (pId, parameter, parIdx) {
             var visible = true;
             var product = false;
             var indexDel;
@@ -1505,19 +1651,48 @@ define([
             var width = 300;
             var scalewidth = width - margin * 2;
 
+            var combinedId = pId;
+            if(parIdx !== -1){
+                /*If original collection identifier available remove it*/
+                if (_.has(this.colorscales, combinedId)) {
+                    // remove object from cesium scene
+                    this.map.scene.primitives.remove(this.colorscales[combinedId].prim);
+                    this.map.scene.primitives.remove(this.colorscales[combinedId].csPrim);
+                    indexDel = this.colorscales[combinedId].index;
+                    delete this.colorscales[combinedId];
+                    this.removeColorscaleTooltipDiv(combinedId);
+                }
+                combinedId+=parIdx;
+            } else {
+                // Check if some version with indexes are still there
+                // maximum of 10 referenced parameters expected
+                for (var i = 0; i < 10; i++) {
+                    var tmpid = pId+i;
+                    if (_.has(this.colorscales, tmpid)) {
+                    // remove object from cesium scene
+                    this.map.scene.primitives.remove(this.colorscales[tmpid].prim);
+                    this.map.scene.primitives.remove(this.colorscales[tmpid].csPrim);
+                    indexDel = this.colorscales[tmpid].index;
+                    delete this.colorscales[tmpid];
+                    this.removeColorscaleTooltipDiv(tmpid);
+                }
+                }
+            }
+
             globals.products.each(function (p) {
                 if (p.get('download').id === pId) {
                     product = p;
                 }
             }, this);
 
-            if (_.has(this.colorscales, pId)) {
+            
+            if (_.has(this.colorscales, combinedId)) {
                 // remove object from cesium scene
-                this.map.scene.primitives.remove(this.colorscales[pId].prim);
-                this.map.scene.primitives.remove(this.colorscales[pId].csPrim);
-                indexDel = this.colorscales[pId].index;
-                delete this.colorscales[pId];
-                this.removeColorscaleTooltipDiv(pId);
+                this.map.scene.primitives.remove(this.colorscales[combinedId].prim);
+                this.map.scene.primitives.remove(this.colorscales[combinedId].csPrim);
+                indexDel = this.colorscales[combinedId].index;
+                delete this.colorscales[combinedId];
+                this.removeColorscaleTooltipDiv(combinedId);
 
                 // Modify all indices and related height of all colorscales
                 // which are over deleted position
@@ -1537,6 +1712,9 @@ define([
                         );
                         obj[key].index = i;
                         // needed to refresh colorscale tooltip divs when products are added or removed
+                        if(parIdx!==-1){
+                            key = key.slice(0, -1);
+                        }
                         var productFromColorscale = _.find(globals.products.models, function (prod) {
                             return prod.get('download').id === key;
                         });
@@ -1559,164 +1737,158 @@ define([
 
                 var options = product.get('parameters');
 
-                if (options) {
-                    var keys = _.keys(options);
-                    var sel = false;
+                var sel = parameter;
 
-                    _.each(keys, function (key) {
-                        if (options[key].selected) {
-                            sel = key;
-                        }
-                    });
-
-                    var prodToSat = {};
-                    var proObj = globals.swarm.products;
-                    for (var coll in proObj){
-                        for (var sat in proObj[coll]){
-                            prodToSat[proObj[coll][sat]] = sat;
-                        }
+                var prodToSat = {};
+                var proObj = globals.swarm.products;
+                for (var coll in proObj){
+                    for (var sat in proObj[coll]){
+                        prodToSat[proObj[coll][sat]] = sat;
                     }
-                    var data = globals.swarm.get('data');
-                    var sat = prodToSat[pId];
+                }
+                var data = globals.swarm.get('data');
+                var sat = prodToSat[pId];
 
-                    if(data.hasOwnProperty('__info__') && data['__info__'].hasOwnProperty('variables')){
-                        if(data.__info__.variables.hasOwnProperty(sat)){
-                            if(data.__info__.variables[sat].indexOf(sel) === -1){
-                                visible = false;
-                            }
-                        } else {
+                var variableExceptions = ['J'];
+
+                if(data.hasOwnProperty('__info__') && data['__info__'].hasOwnProperty('variables')){
+                    if(data.__info__.variables.hasOwnProperty(sat)){
+                        if(data.__info__.variables[sat].indexOf(sel) === -1 &&
+                            variableExceptions.indexOf(sel) === -1){
                             visible = false;
                         }
+                    } else {
+                        visible = false;
+                    }
+                }
+
+                if(visible){
+                    var rangeMin = product.get('parameters')[sel].range[0];
+                    var rangeMax = product.get('parameters')[sel].range[1];
+                    var uom = product.get('parameters')[sel].uom;
+                    var style = product.get('parameters')[sel].colorscale;
+                    var logscale = defaultFor(product.get('parameters')[sel].logarithmic, false);
+                    var axisScale;
+
+
+                    this.plot.setColorScale(style);
+                    var colorscaleimage = this.plot.getColorScaleImage().toDataURL();
+
+                    $('#svgcolorscalecontainer').remove();
+                    var svgContainer = d3.select('body').append('svg')
+                        .attr('width', 300)
+                        .attr('height', 60)
+                        .attr('id', 'svgcolorscalecontainer');
+
+                    if (logscale) {
+                        axisScale = d3.scale.log();
+                    } else {
+                        axisScale = d3.scale.linear();
                     }
 
-                    if(visible){
-                        var rangeMin = product.get('parameters')[sel].range[0];
-                        var rangeMax = product.get('parameters')[sel].range[1];
-                        var uom = product.get('parameters')[sel].uom;
-                        var style = product.get('parameters')[sel].colorscale;
-                        var logscale = defaultFor(product.get('parameters')[sel].logarithmic, false);
-                        var axisScale;
+                    axisScale.domain([rangeMin, rangeMax]);
+                    axisScale.range([0, scalewidth]);
 
+                    var xAxis = d3.svg.axis()
+                        .scale(axisScale);
 
-                        this.plot.setColorScale(style);
-                        var colorscaleimage = this.plot.getColorScaleImage().toDataURL();
+                    if (logscale) {
+                        var numberFormat = d3.format(',f');
+                        xAxis.tickFormat(function logFormat(d) {
+                            var x = Math.log10(d) + 1e-6;
+                            return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
+                        });
 
-                        $('#svgcolorscalecontainer').remove();
-                        var svgContainer = d3.select('body').append('svg')
-                            .attr('width', 300)
-                            .attr('height', 60)
-                            .attr('id', 'svgcolorscalecontainer');
+                    } else {
+                        var step = Number(((rangeMax - rangeMin) / 5).toPrecision(3));
+                        var ticks = d3.range(rangeMin, rangeMax + step, step);
+                        xAxis.tickValues(ticks);
+                        xAxis.tickFormat(d3.format('g'));
+                    }
 
-                        if (logscale) {
-                            axisScale = d3.scale.log();
+                    var g = svgContainer.append('g')
+                        .attr('class', 'x axis')
+                        .attr('transform', 'translate(' + [margin, 20] + ')')
+                        .call(xAxis);
+
+                    // Add layer info
+                    var info;
+                    if (product.get('model')) {
+                        if (product.get('components').length === 1) {
+                            info = product.getPrettyModelExpression(true);
                         } else {
-                            axisScale = d3.scale.linear();
+                            info = product.get('download').id;
                         }
-
-                        axisScale.domain([rangeMin, rangeMax]);
-                        axisScale.range([0, scalewidth]);
-
-                        var xAxis = d3.svg.axis()
-                            .scale(axisScale);
-
-                        if (logscale) {
-                            var numberFormat = d3.format(',f');
-                            xAxis.tickFormat(function logFormat(d) {
-                                var x = Math.log10(d) + 1e-6;
-                                return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
-                            });
-
-                        } else {
-                            var step = Number(((rangeMax - rangeMin) / 5).toPrecision(3));
-                            var ticks = d3.range(rangeMin, rangeMax + step, step);
-                            xAxis.tickValues(ticks);
-                            xAxis.tickFormat(d3.format('g'));
-                        }
-
-                        var g = svgContainer.append('g')
-                            .attr('class', 'x axis')
-                            .attr('transform', 'translate(' + [margin, 20] + ')')
-                            .call(xAxis);
-
-                        // Add layer info
-                        var info;
-                        if (product.get('model')) {
-                            if (product.get('components').length === 1) {
-                                info = product.getPrettyModelExpression(true);
-                            } else {
-                                info = product.get('download').id;
+                        _.each(
+                            {'\u2212': /&minus;/, '\u2026': /&hellip;/},
+                            function (regex, newString) {
+                                info = info.replace(regex, newString);
                             }
-                            _.each(
-                                {'\u2212': /&minus;/, '\u2026': /&hellip;/},
-                                function (regex, newString) {
-                                    info = info.replace(regex, newString);
-                                }
-                            );
-                        } else {
-                            info = product.get('name');
-                        }
-
-                        info += ' - ' + sel;
-                        if (uom) {
-                            info += ' [' + uom + ']';
-                        }
-
-                        g.append('text')
-                            .style('text-anchor', 'middle')
-                            .attr('transform', 'translate(' + [scalewidth / 2, 30] + ')')
-                            .attr('font-weight', 'bold')
-                            .text(info);
-
-                        svgContainer.selectAll('text')
-                            .attr('stroke', 'none')
-                            .attr('fill', 'black')
-                            .attr('font-weight', 'bold');
-
-                        svgContainer.selectAll('.tick').select('line')
-                            .attr('stroke', 'black');
-
-                        svgContainer.selectAll('.axis .domain')
-                            .attr('stroke-width', '2')
-                            .attr('stroke', '#000')
-                            .attr('shape-rendering', 'crispEdges')
-                            .attr('fill', 'none');
-
-                        svgContainer.selectAll('.axis path')
-                            .attr('stroke-width', '2')
-                            .attr('shape-rendering', 'crispEdges')
-                            .attr('stroke', '#000');
-
-                        var svgHtml = d3.select('#svgcolorscalecontainer')
-                            .attr('version', 1.1)
-                            .attr('xmlns', 'http://www.w3.org/2000/svg')
-                            .node().innerHTML;
-
-                        var renderHeight = 55;
-                        var renderWidth = width;
-
-                        var index = Object.keys(this.colorscales).length;
-
-                        var prim = this.map.scene.primitives.add(
-                            this.createViewportQuad(
-                                this.renderSVG(svgHtml, renderWidth, renderHeight),
-                                0, index * 55 + 5, renderWidth, renderHeight
-                            )
                         );
-                        var csPrim = this.map.scene.primitives.add(
-                            this.createViewportQuad(
-                                colorscaleimage, 20, index * 55 + 42, scalewidth, 10
-                            )
-                        );
-
-                        this.createModelColorscaleTooltipDiv(product, index);
-                        this.colorscales[pId] = {
-                            index: index,
-                            prim: prim,
-                            csPrim: csPrim
-                        };
-
-                        svgContainer.remove();
+                    } else {
+                        info = product.get('name');
                     }
+
+                    info += ' - ' + sel;
+                    if (uom) {
+                        info += ' [' + uom + ']';
+                    }
+
+                    g.append('text')
+                        .style('text-anchor', 'middle')
+                        .attr('transform', 'translate(' + [scalewidth / 2, 30] + ')')
+                        .attr('font-weight', 'bold')
+                        .text(info);
+
+                    svgContainer.selectAll('text')
+                        .attr('stroke', 'none')
+                        .attr('fill', 'black')
+                        .attr('font-weight', 'bold');
+
+                    svgContainer.selectAll('.tick').select('line')
+                        .attr('stroke', 'black');
+
+                    svgContainer.selectAll('.axis .domain')
+                        .attr('stroke-width', '2')
+                        .attr('stroke', '#000')
+                        .attr('shape-rendering', 'crispEdges')
+                        .attr('fill', 'none');
+
+                    svgContainer.selectAll('.axis path')
+                        .attr('stroke-width', '2')
+                        .attr('shape-rendering', 'crispEdges')
+                        .attr('stroke', '#000');
+
+                    var svgHtml = d3.select('#svgcolorscalecontainer')
+                        .attr('version', 1.1)
+                        .attr('xmlns', 'http://www.w3.org/2000/svg')
+                        .node().innerHTML;
+
+                    var renderHeight = 55;
+                    var renderWidth = width;
+
+                    var index = Object.keys(this.colorscales).length;
+
+                    var prim = this.map.scene.primitives.add(
+                        this.createViewportQuad(
+                            this.renderSVG(svgHtml, renderWidth, renderHeight),
+                            0, index * 55 + 5, renderWidth, renderHeight
+                        )
+                    );
+                    var csPrim = this.map.scene.primitives.add(
+                        this.createViewportQuad(
+                            colorscaleimage, 20, index * 55 + 42, scalewidth, 10
+                        )
+                    );
+
+                    this.createModelColorscaleTooltipDiv(product, index);
+                    this.colorscales[combinedId] = {
+                        index: index,
+                        prim: prim,
+                        csPrim: csPrim
+                    };
+
+                    svgContainer.remove();
                 }
             }
         },

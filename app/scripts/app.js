@@ -696,7 +696,7 @@ var MASTER_PRIORITY = [
                 filtered_collection.add({
                     name: "AEJ LPS",
                     visible: containerSelection['AEJ_LPS'],
-                    color: "#0f0",
+                    color: "#145600",
                     protocol: null,
                     containerproduct: true,
                     id: "AEJ_LPS"
@@ -704,7 +704,7 @@ var MASTER_PRIORITY = [
                 filtered_collection.add({
                     name: "AEJ LPL",
                     visible: containerSelection['AEJ_LPL'],
-                    color: "#f00",
+                    color: "#024573",
                     protocol: null,
                     containerproduct: true,
                     id: "AEJ_LPL"
