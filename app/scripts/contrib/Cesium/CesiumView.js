@@ -10,16 +10,18 @@ define([
     'globals',
     'msgpack',
     'httpRequest',
+    'dataUtil',
     'hbs!tmpl/wps_eval_composed_model',
     'hbs!tmpl/wps_get_field_lines',
     'hbs!tmpl/FieldlinesLabel',
+    'hbs!tmpl/wps_fetchData',
     'cesium/Cesium',
     'drawhelper',
     'FileSaver',
     'plotty'
 ], function (
     Marionette, Communicator, App, MapModel, globals, msgpack, httpRequest,
-    tmplEvalModel, tmplGetFieldLines, tmplFieldLinesLabel
+    DataUtil, tmplEvalModel, tmplGetFieldLines, tmplFieldLinesLabel, wps_fetchDataTmpl
 ) {
     'use strict';
 
@@ -70,6 +72,7 @@ define([
             this.beginTime = null;
             this.endTime = null;
             this.plot = null;
+            this.xhr = null;
             this.connectDataEvents();
         },
 
@@ -310,6 +313,9 @@ define([
             this.FLbillboards = this.map.scene.primitives.add(
                 new Cesium.BillboardCollection()
             );
+            this.PBxBillboards = this.map.scene.primitives.add(
+                new Cesium.BillboardCollection()
+            );
             this.drawhelper = new DrawHelper(this.map.cesiumWidget);
             // It seems that if handlers are active directly there are some
             // object deleted issues when the draw helper tries to pick elements
@@ -532,6 +538,7 @@ define([
                 if (!data.hasOwnProperty(refKey)) {
                     refKey = 'timestamp';
                 }
+                this.fetchAndDisplayPBxData();
                 if (data.hasOwnProperty(refKey) && data[refKey].length > 0) {
                     this.createDataFeatures(data, 'pointcollection', 'band');
                 } else {
@@ -979,6 +986,137 @@ define([
             } else {
                 return this.hideCustomModel(product);
             }
+        },
+
+
+        fetchAndDisplayPBxData: function(){
+
+          var that = this;
+          var retrieve_data = [];
+
+          this.PBxBillboards.removeAll();
+
+          var relatedlayer = [
+            'SW_OPER_AEJALPS_2F', 'SW_OPER_AEJBLPS_2F', 'SW_OPER_AEJCLPS_2F',
+            'SW_OPER_AEJALPL_2F', 'SW_OPER_AEJBLPL_2F', 'SW_OPER_AEJCLPL_2F'
+          ];
+
+          globals.products.each(function (product) {
+            if (relatedlayer.indexOf(product.get("views")[0].id) != -1) {
+              if (!product.get('visible')) {return;}
+              var processes = product.get("processes");
+              _.each(processes, function (process) {
+                if (process) {
+                  switch (process.id) {
+                    case "retrieve_data":
+                      retrieve_data.push({
+                        layer: process.layer_id,
+                        url: product.get("views")[0].urls[0]
+                      });
+                      break;
+                  }
+                }
+              }, this);
+            }
+          }, this);
+
+          if (retrieve_data.length > 0) {
+
+            var collections = DataUtil.parseCollections(retrieve_data);
+
+            var options = {
+              "collections_ids": DataUtil.formatCollections(collections),
+              "begin_time": getISODateTimeString(this.beginTime),
+              "end_time": getISODateTimeString(this.endTime)
+            };
+
+            options.collections_ids = options.collections_ids.replace('LPS_2F', 'PBS_2F');
+            options.collections_ids = options.collections_ids.replace('LPL_2F', 'PBL_2F');
+
+            var variables = ['PointType'];
+
+            var collectionList = _.chain(collections)
+              .values()
+              .flatten()
+              .value();
+
+            options.variables = variables.join(",");
+            options.mimeType = 'application/msgpack';
+
+            if (this.bboxsel !== null) {
+              var bbox = this.bboxsel;
+              options["bbox"] = [bbox.s, bbox.w, bbox.n, bbox.e].join(",");
+            }
+
+            if (this.xhr !== null) {
+              // A request has been sent that is not yet been returned so we need to cancel it
+              Communicator.mediator.trigger("progress:change", false);
+              this.xhr.abort();
+              this.xhr = null;
+            }
+
+            this.xhr = httpRequest.asyncHttpRequest({
+                context: this,
+                type: 'POST',
+                url: retrieve_data[0].url,
+                data: wps_fetchDataTmpl(options),
+                responseType: 'arraybuffer',
+
+                parse: function (data, xhr) {
+                  var decodedObj = msgpack.decode(new Uint8Array(data));
+                  return decodedObj;
+                },
+
+                opened: function () {
+                  Communicator.mediator.trigger("progress:change", true);
+                },
+
+                completed: function () {
+                  this.xhr = null;
+                  Communicator.mediator.trigger("progress:change", false);
+                },
+
+                error: function (xhr) {
+                  globals.swarm.set({data: {}});
+                  if (xhr.responseText === "") {return;}
+                  var error_text = xhr.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
+                  if (error_text && error_text.length > 1) {
+                    error_text = error_text[1];
+                  } else {
+                    error_text = 'Please contact feedback@vires.services if issue persists.';
+                  }
+                  showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+                },
+
+                success: function (dat) {
+
+                  var maxRad = this.map.scene.globe.ellipsoid.maximumRadius;
+                  for (var i = 0; i < dat.Latitude.length; i++) {
+                    var imageString;
+                    if((dat.PointType[i]&4)==0){
+                      imageString = '../../../images/rectangle.png';
+                    } else if ((dat.PointType[i]&4)==4){
+                      imageString = '../../../images/triangle.png';
+                    }
+                    var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
+                    var canvasPoint = {
+                      /*imageId: '',*/
+                      image: imageString,
+                      position: Cesium.Cartesian3.fromDegrees(
+                        dat.Longitude[i], dat.Latitude[i],
+                        6835000-maxRad
+                      ),
+                      eyeOffset : new Cesium.Cartesian3(0, 0, -50000),
+                      radius: 0,
+                      scale: 0.35,
+                      scaleByDistance: scaltype
+                    };
+                    this.PBxBillboards.add(canvasPoint);
+                  }
+
+              }
+            });
+          }
         },
 
         createDataFeatures: function (results) {
