@@ -489,6 +489,12 @@
                     dat.Latitude_periodic.push(dat.Latitude[i]);
                   }
                 }
+                // Add new parameter to data info if available
+                if(dat.hasOwnProperty('__info__') && dat.__info__.hasOwnProperty('variables')){
+                  for(var satKey in dat.__info__.variables){
+                    dat.__info__.variables[satKey].push('Latitude_periodic');
+                  }
+                }
               }
 
               if (dat.hasOwnProperty('QDLat') && dat.hasOwnProperty('QDOrbitDirection')) {
@@ -513,6 +519,12 @@
                   } else if (Number.isNaN(dat.QDOrbitDirection[i])) {
                     // If no orbit info for now we just use original value
                     dat.QDLatitude_periodic.push(dat.QDLat[i]);
+                  }
+                }
+                // Add new parameter to data info if available
+                if(dat.hasOwnProperty('__info__') && dat.__info__.hasOwnProperty('variables')){
+                  for(var satKey in dat.__info__.variables){
+                    dat.__info__.variables[satKey].push('QDLatitude_periodic');
                   }
                 }
               }
