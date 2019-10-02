@@ -1061,7 +1061,7 @@ define([
 
             if (this.bboxsel !== null) {
               var bbox = this.bboxsel;
-              options["bbox"] = [bbox.s, bbox.w, bbox.n, bbox.e].join(",");
+              options["bbox"] = bbox.join(",");
             }
 
             if (this.xhr !== null) {
