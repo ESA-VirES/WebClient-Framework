@@ -34,13 +34,22 @@
             {"id": "IGRF12"},
             {"id": "LCS-1"},
             {"id": "MF7"},
-            {"id": "CHAOS-6-Core"},
             {
-                "id": "CHAOS-6-Static",
-                "name": "CHAOS-6-Crust"
+                "id": "CHAOS-Core",
+                "name": "CHAOS-7 Core"
             },
-            {"id": "CHAOS-6-MMA-Primary"},
-            {"id": "CHAOS-6-MMA-Secondary"},
+            {
+                "id": "CHAOS-Static",
+                "name": "CHAOS-7 Crust"
+            },
+            {
+                "id": "CHAOS-MMA-Primary",
+                "name": "CHAOS-MMA Primary"
+            },
+            {
+                "id": "CHAOS-MMA-Secondary",
+                "name": "CHAOS-MMA Secondary"
+            },
             {
                 "id": "Custom_Model",
                 "name": "Custom Model",
