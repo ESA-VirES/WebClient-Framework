@@ -1110,6 +1110,25 @@ define(['backbone.marionette',
                         this.graph.renderSettings.colorAxis = colAx;
                         this.graph.renderSettings.colorAxis2 = colAx2;
 
+                        // Save all changes done to plotConfiguration
+                        var grapRS = this.graph.renderSettings;
+                        var currL = grapRS.yAxis.length;
+                        var confArr = [];
+                        for (var i = 0; i < currL; i++) {
+                            confArr.push({
+                                yAxis: grapRS.yAxis[i],
+                                yAxisLabel: this.graph.yAxisLabel[i],
+                                y2Axis: grapRS.y2Axis[i],
+                                y2AxisLabel: this.graph.y2AxisLabel[i],
+                                colorAxis: grapRS.colorAxis[i],
+                                colorAxis2: grapRS.colorAxis2[i]
+                            });
+                        }
+
+                        localStorage.setItem(
+                            'plotConfiguration', JSON.stringify(confArr)
+                        );
+
                         // End of IF to see if data parameters have changed
                     } else if (this.prevParams === null) {
                         // TODO: We should not need to do anything here but we
@@ -1145,6 +1164,7 @@ define(['backbone.marionette',
                     this.filterManager.loadData(data);
                     this.renderFilterList();
                 } else {
+                    this.prevParams = idKeys;
                     $('#nodataavailable').show();
                     $('.d3canvas').hide();
                 }
