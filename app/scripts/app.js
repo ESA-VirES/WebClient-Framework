@@ -468,13 +468,15 @@ var MASTER_PRIORITY = [
                         );
                     }, this);
 
-                    this.topBar.show(new v.NavBarCollectionView(
-                        {template: t.NavBar({
+                    this.topBar.show(new v.NavBarCollectionView({
+                        template: t.NavBar({
                             title: config.navBarConfig.title,
-                            url: config.navBarConfig.url}),
+                            url: config.navBarConfig.url
+                        }),
                         className: "navbar navbar-inverse navbar-fixed-top not-selectable",
                         itemView: v.NavBarItemView, tag: "div",
-                        collection: navBarItemCollection}));
+                        collection: navBarItemCollection
+                    }));
 
                 }
 
@@ -501,7 +503,8 @@ var MASTER_PRIORITY = [
                     itemView: v.LayerItemView.extend({
                         template: {
                             type: 'handlebars',
-                            template: t.BulletLayer},
+                            template: t.BulletLayer
+                        },
                         className: "radio-inline"
                     })
                 });
