@@ -79,7 +79,13 @@
                 "name": "Custom Model",
                 "isCustomModel": true
             }
-        ]
+        ],
+        "modelIdTranslation": {
+            "CHAOS-6-Core": "CHAOS-Core",
+            "CHAOS-6-Static": "CHAOS-Static",
+            "CHAOS-6-MMA-Primary": "CHAOS-MMA-Primary",
+            "CHAOS-6-MMA-Secondary": "CHAOS-MMA-Secondary"
+        }
     },
 
     "mapConfig": {
