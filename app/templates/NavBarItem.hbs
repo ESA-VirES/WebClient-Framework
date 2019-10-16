@@ -9,7 +9,8 @@
 {{#if subitems}}
 <ul class="dropdown-menu" role="menu">
   {{#each subitems}}
-    <li>
+  <li{{#if this._class}} class="{{this._class}}"{{/if}}>
+      {{#unless this._empty}}
       {{#if this.url}}
         <a href="{{this.url}}">{{this.name}}</a>
       {{else}}
@@ -19,6 +20,7 @@
           <a href="javascript:void(0);" onclick="require(['communicator'], function(Communicator){Communicator.mediator.trigger('{{this.eventToRaise}}', '{{this.template}}');});">{{this.name}}</a>
         {{/if}}
       {{/if}}
+      {{/unless}}
     </li>
   {{/each}}
 </ul>
