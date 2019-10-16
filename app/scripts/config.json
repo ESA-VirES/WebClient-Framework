@@ -3976,7 +3976,7 @@
             "components": [
                 {
                     "sign": "+",
-                    "id": "CHAOS-6-Core",
+                    "id": "CHAOS-Core",
                     "parameters": {}
                 }
             ]
