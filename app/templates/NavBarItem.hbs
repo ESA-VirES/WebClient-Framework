@@ -12,7 +12,7 @@
   <li{{#if this._class}} class="{{this._class}}"{{/if}}>
       {{#unless this._empty}}
       {{#if this.url}}
-        <a href="{{this.url}}">{{this.name}}</a>
+      <a href="{{this.url}}"{{#if this.target}} target="{{this.target}}"{{/if}}>{{this.name}}</a>
       {{else}}
         {{#if this.modalId}}
           <a href="javascript:void(0);" onclick="$('#{{this.modalId}}').modal('show');">{{this.name}}</a>
