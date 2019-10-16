@@ -309,7 +309,12 @@ var MASTER_PRIORITY = [
                                 // where necessary
                             }
                             if (pC[prodId].hasOwnProperty('components')) {
-                                product.components = pC[prodId].components;
+                                // translate renamed models
+                                product.components = _.map(pC[prodId].components, function (component) {
+                                    var table = config.magneticModels.modelIdTranslation || {};
+                                    component.id = table[component.id] || component.id;
+                                    return component;
+                                });
                             }
                         }
 

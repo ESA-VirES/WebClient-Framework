@@ -29,9 +29,9 @@ var getISODateTimeString = function (date, truncateMiliseconds) {
   return getISODateString(date)
     + padLeft(String(date.getUTCHours()), "0", 2) + ":"
     + padLeft(String(date.getUTCMinutes()), "0", 2) + ":"
-    + padLeft(String(date.getUTCSeconds()), "0", 2) + (
-      truncateMiliseconds ? "" : ("." + padLeft(String(date.getUTCMilliseconds()), "0", 3))
-    ) + "Z";
+    + padLeft(String(date.getUTCSeconds()), "0", 2)
+    + (truncateMiliseconds ? "" : ("." + padLeft(String(date.getUTCMilliseconds()), "0", 3)))
+    + "Z";
 };
 
 var getISOTimeString = function (date) {
@@ -229,9 +229,7 @@ var saveProductStatus = function (product) {
 
   prevConf[prdId] = prod;
 
-  localStorage.setItem(
-    'productsConfiguration', JSON.stringify(prevConf)
-  );
+  localStorage.setItem('productsConfiguration', JSON.stringify(prevConf));
 };
 
 
@@ -269,8 +267,5 @@ var savePrameterStatus = function (globals) {
     }
   }
   // Save parameter style changes
-  localStorage.setItem(
-    'parameterConfiguration',
-    JSON.stringify(parConf)
-  );
+  localStorage.setItem('parameterConfiguration', JSON.stringify(parConf));
 };
