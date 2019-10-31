@@ -150,45 +150,23 @@ var MASTER_PRIORITY = [
                 })
                 );
 
-                // Check if version of service is set and if it differs from the
-                // current version
-                if (localStorage.getItem('serviceVersion') !== null) {
-                    var serviceVersion = JSON.parse(
-                        localStorage.getItem('serviceVersion')
-                    );
-                    if (!_.contains(globals.supportedVersions, serviceVersion)) {
-                        // The version of the loaded configuration is not in the
-                        // list of supported version. The client does not know
-                        // how to handle it and gets reset to its default state.
-                        showMessage('success',
-                            'A new version (' + globals.version + ') of the service has been released. ' +
-                            'Your configuration has been updated.</br>' +
-                            'You can find information on the changes in the ' +
-                            '<b><a target="_blank" href="/changelog">changelog</a></b>.', 35
-                        );
-                        localStorage.clear();
-                        localStorage.setItem(
-                            'serviceVersion',
-                            JSON.stringify(globals.version)
-                        );
-                    }
-                } else {
-                    // This should be the case when loading version 2.3 for the
-                    // first time (or when the local storage is empty)
-                    localStorage.clear();
+                // Check compatibility of the saved configuration.
 
-                    localStorage.setItem(
-                        'serviceVersion',
-                        JSON.stringify(globals.version)
-                    );
+                var serviceVersion = JSON.parse(localStorage.getItem('serviceVersion'));
 
+                if (!_.contains(globals.supportedVersions, serviceVersion)) {
+                    // The version of the loaded configuration is not in the
+                    // list of supported version. The client does not know
+                    // how to handle it and gets reset to its default state.
                     showMessage('success',
                         'A new version (' + globals.version + ') of the service has been released. ' +
                         'Your configuration has been updated.</br>' +
                         'You can find information on the changes in the ' +
                         '<b><a target="_blank" href="/changelog">changelog</a></b>.', 35
                     );
+                    localStorage.clear();
                 }
+                localStorage.setItem('serviceVersion', JSON.stringify(globals.version));
 
                 //Base Layers are loaded and added to the global collection
                 // If there are already saved baselayer config in the local
