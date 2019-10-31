@@ -156,11 +156,10 @@ var MASTER_PRIORITY = [
                     var serviceVersion = JSON.parse(
                         localStorage.getItem('serviceVersion')
                     );
-                    if (serviceVersion !== globals.version) {
-                        // A new version has been loaded, here we could
-                        // differentiate which version was previous and which
-                        // one is the new, for now we reset and save the new
-                        // version
+                    if (!_.contains(globals.supportedVersions, serviceVersion)) {
+                        // The version of the loaded configuration is not in the
+                        // list of supported version. The client does not know
+                        // how to handle it and gets reset to its default state.
                         showMessage('success',
                             'A new version (' + globals.version + ') of the service has been released. ' +
                             'Your configuration has been updated.</br>' +
