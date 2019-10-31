@@ -165,7 +165,7 @@ var MASTER_PRIORITY = [
                             'A new version (' + globals.version + ') of the service has been released. ' +
                             'Your configuration has been updated.</br>' +
                             'You can find information on the changes in the ' +
-                            '<b><a target="_blank" href="/accounts/changelog">changelog</a></b>.', 35
+                            '<b><a target="_blank" href="/changelog">changelog</a></b>.', 35
                         );
                         localStorage.clear();
                         localStorage.setItem(
@@ -187,7 +187,7 @@ var MASTER_PRIORITY = [
                         'A new version (' + globals.version + ') of the service has been released. ' +
                         'Your configuration has been updated.</br>' +
                         'You can find information on the changes in the ' +
-                        '<b><a target="_blank" href="/accounts/changelog">changelog</a></b>.', 35
+                        '<b><a target="_blank" href="/changelog">changelog</a></b>.', 35
                     );
                 }
 
