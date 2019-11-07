@@ -232,6 +232,12 @@
                     }
                 });
                 $('#timeslider .control').addClass('darkbutton');
+                $(this.el).mouseenter(function () {
+                  $('.control').show();
+                });
+                $(this.el).mouseleave(function () {
+                  $('.control').hide();
+                });
             }, // END of onShow
 
             onChangeTime: function (evt) {
