@@ -243,7 +243,7 @@ define([
                     $('#poleViewDiv').addClass("hidden");
                 } else {
                     $('#poleViewDiv').removeClass("hidden");
-                    setTimeout(this.resetInitialView.bind(this), 0);
+                    setTimeout(this.resetInitialView.bind(this), 500);
                 }
             }.bind(this));
 
