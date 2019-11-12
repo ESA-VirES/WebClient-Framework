@@ -224,10 +224,7 @@ define([
                 }
             } else {
               // set initial camera this way, so we can reset to the exactly same values later on
-              this.map.scene.camera.flyTo({
-                  destination: Cesium.Cartesian3.fromDegrees(20, 30, 10000000),
-                  duration: 0.1,
-              });
+              this.resetInitialView();
             }
 
             var mm = globals.objects.get('mapmodel');
@@ -246,6 +243,7 @@ define([
                     $('#poleViewDiv').addClass("hidden");
                 } else {
                     $('#poleViewDiv').removeClass("hidden");
+                    setTimeout(this.resetInitialView.bind(this), 0);
                 }
             }.bind(this));
 
@@ -2334,6 +2332,13 @@ define([
                     complete: this.globalViewZoomReset.bind(this)
                 });
             }.bind(this));
+        },
+
+        resetInitialView: function () {
+          this.map.scene.camera.flyTo({
+              destination: Cesium.Cartesian3.fromDegrees(20, 30, 10000000),
+              duration: 0.2,
+          });
         },
 
         toggleDebug: function () {
