@@ -1,4 +1,6 @@
 /* global $ _ define w2popup w2utils showMessage graphly plotty FilterManager */
+/* global savePrameterStatus VECTOR_BREAKDOWN */
+
 define(['backbone.marionette',
     'communicator',
     'app',
@@ -225,10 +227,10 @@ define(['backbone.marionette',
                     colax.push(plotConfiguration[i].colorAxis);
                     colax2.push(plotConfiguration[i].colorAxis2);
 
-                    if(plotConfiguration[i].hasOwnProperty('yAxisLabel')){
+                    if (plotConfiguration[i].hasOwnProperty('yAxisLabel')) {
                         yAxisLabel.push(plotConfiguration[i].yAxisLabel);
                     }
-                    if(plotConfiguration[i].hasOwnProperty('y2AxisLabel')){
+                    if (plotConfiguration[i].hasOwnProperty('y2AxisLabel')) {
                         y2AxisLabel.push(plotConfiguration[i].y2AxisLabel);
                     }
                 }
@@ -316,7 +318,6 @@ define(['backbone.marionette',
             }
 
 
-
             this.renderSettings = {
                 xAxis: xax,
                 yAxis: yax,
@@ -329,13 +330,13 @@ define(['backbone.marionette',
                 }
             };
 
-            if(yAxisLabel.length>0){
+            if (yAxisLabel.length > 0) {
                 this.renderSettings.yAxisLabel = yAxisLabel;
             }
-            if(y2AxisLabel.length>0){
+            if (y2AxisLabel.length > 0) {
                 this.renderSettings.y2AxisLabel = y2AxisLabel;
             }
-            if(xlabel){
+            if (xlabel) {
                 this.renderSettings.xAxisLabel = xlabel;
             }
 
@@ -405,7 +406,6 @@ define(['backbone.marionette',
                 );
 
                 savePrameterStatus(globals);
-
             });
 
             this.graph.on('pointSelect', function (values) {
@@ -456,8 +456,6 @@ define(['backbone.marionette',
 
             this.isClosed = false;
 
-
-
             return this;
         }, //onShow end
 
@@ -469,7 +467,7 @@ define(['backbone.marionette',
             if (data.hasOwnProperty('__info__')) {
                 var infoDat = data.__info__.sources;
                 this.$el.append('<div id="productSourcesInfoContainer" class="sourcesInfoContainer"></div>');
-                $('#productSourcesInfoContainer').append('<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>');
+                $('#productSourcesInfoContainer').append('<button type="button" class="close" title="Close panel" data-dismiss="alert" aria-hidden="true">&times;</button>');
                 $('#productSourcesInfoContainer').append('<h4>Data sources:</h4>');
                 $('#productSourcesInfoContainer').append('<ul id="productInfoList"></ul>');
                 for (var i = 0; i < infoDat.length; i++) {
@@ -638,7 +636,7 @@ define(['backbone.marionette',
                 var parameterSettings = JSON.parse(localStorage.getItem('parameterConfiguration'));
                 for (var k in parameterSettings) {
                     if (this.sp.uom_set.hasOwnProperty(k)) {
-                        for (var innerKey in parameterSettings[k]){
+                        for (var innerKey in parameterSettings[k]) {
                             this.sp.uom_set[k][innerKey] = parameterSettings[k][innerKey];
                         }
                     }
@@ -772,7 +770,6 @@ define(['backbone.marionette',
                 }
             }
 
-
             // Remove unwanted parameters
             if (aUOM.hasOwnProperty('Timestamp')) {delete aUOM.Timestamp;}
             if (aUOM.hasOwnProperty('timestamp')) {delete aUOM.timestamp;}
@@ -835,7 +832,6 @@ define(['backbone.marionette',
             $('.w2ui-field-helper input').attr('placeholder', 'Type to search');
 
             $('#inputAnalyticsAddfilter').change(this.handleItemSelected.bind(this));
-
         },
 
         reloadData: function (model, data) {
@@ -878,44 +874,20 @@ define(['backbone.marionette',
                         identifiers: identifiers
                     };
 
-                    var userVec = [];
-                    if(globals.hasOwnProperty('userData') && 
-                        globals.userData.hasOwnProperty('models')){
-                        globals.userData.models.forEach(function(mo){
-                            var pars = mo.get('info');
-                            for (var pk in pars) {
-                                if(pars[pk].hasOwnProperty('shape') && 
-                                    pars[pk].shape.length>1){
-                                    userVec.push(pk);
-                                }
-                            }
-                        });
-                    }
-
-                    var availablePars = {};
-                    var datInf = data.__info__.variables;
-                    for(var vk in datInf){
-                        var parArr = [];
-                         for (var i = 0; i < datInf[vk].length; i++) {
-                            // We need to "decompose" also the name for vector data
-                            if(VECTOR_BREAKDOWN.hasOwnProperty(datInf[vk][i])){
-                                for(var ii=0; ii<VECTOR_BREAKDOWN[datInf[vk][i]].length; ii++){
-                                    parArr.push(VECTOR_BREAKDOWN[datInf[vk][i]][ii]);
-                                }
-                            } else if (userVec.indexOf(datInf[vk][i])!==-1){
-                                // Check for parameters that need to be
-                                // decomposed inuploaded data
-                                parArr.push(datInf[vk][i]+'_1');
-                                parArr.push(datInf[vk][i]+'_2');
-                                parArr.push(datInf[vk][i]+'_3');
-                            } else {
-                                parArr.push(datInf[vk][i]);
-                            }
-                        }
-                        availablePars[vk] = parArr;
-                    }
-
-                    this.renderSettings.availableParameters = availablePars;
+                    var userVectorBreakDown = globals.userData.getVectorBreakdown();
+                    var availableParameters = {};
+                    _.each(data.__info__.variables, function (variables, label) {
+                        availableParameters[label] = _.flatten(
+                            _.map(variables, function (variable) {
+                                return (
+                                    VECTOR_BREAKDOWN[variable] ||
+                                    userVectorBreakDown[variable] ||
+                                    [variable]
+                                );
+                            })
+                        );
+                    });
+                    this.renderSettings.availableParameters = availableParameters;
 
                     // Calculate very rough estimate of rendered points
                     var dataLength = data[idKeys[0]].length;
@@ -930,9 +902,9 @@ define(['backbone.marionette',
 
                     var needsResize = false;
 
-                    if(this.prevParams === null){
+                    if (this.prevParams === null) {
                         // First time loading data we set previous to current data
-                        if(localStorage.getItem('plotConfiguration') !== null){
+                        if (localStorage.getItem('plotConfiguration') !== null) {
                             // this is first load and no config is available
                             // so we need to load default values
                             this.prevParams = idKeys;
@@ -1162,7 +1134,7 @@ define(['backbone.marionette',
                     this.$('#filterSelectDrop').remove();
                     this.$('#filterDivContainer').append('<div id="filterSelectDrop"></div>');
 
-                    
+
 
                     this.graph.loadData(data);
                     if (needsResize) {
@@ -1179,12 +1151,12 @@ define(['backbone.marionette',
 
         onChangeAxisParameters: function (selection) {
             this.graph.renderSettings.yAxis = [selection];
+
             // reset all other plots and configurations
             this.graph.renderSettings.yAxis = [selection];
             this.graph.renderSettings.y2Axis = [[]];
             this.graph.renderSettings.colorAxis = [[null]];
             this.graph.renderSettings.colorAxis2 = [[]];
-
 
             // Make sure filters are shown
             var filtersMinimized = localStorage.getItem('filtersMinimized');
@@ -1206,7 +1178,6 @@ define(['backbone.marionette',
                     'filtersMinimized', JSON.stringify(false)
                 );
             }
-
 
             this.graph.initAxis();
             this.graph.resize();

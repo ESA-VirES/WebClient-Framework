@@ -1,0 +1,38 @@
+<div class="panel {{#if is_valid}}panel-default{{else}}panel-danger{{/if}}" style="box-shadow: none!important">
+  <div class="panel-heading">
+    <span class="upload-title">{{ filename }}{{#if is_valid}}{{else}} [incomplete]{{/if}}<span>
+    <button type="button" id="btn-delete-item" class="close" title='delete uploaded file'><i class="fa fa-times-circle"></i></button>
+  </div>
+  <div class="panel-body">
+    {{#if is_valid}}{{else}}<!-- <p class="error">Error: the following mandatory parameters are missing: {{ _missing_fields }}</p><hr> -->{{/if}}
+    <table class="upload-item-info">
+      <tr>
+        <td class="row-label">Data Start</td><td>{{ _start }}</td>
+        <td class="row-label">Data End</td><td>{{ _end }}</td>
+      </tr>
+      <tr>
+        <td class="row-label">Uploaded</td><td>{{ _created }}</td>
+        <td class="row-label">Size</td><td>{{ _size }}</td>
+      </tr>
+    </table>
+    <hr>
+    <span style="float: right; margin-right: 1em">
+      <div class="form-group" id="parameter-name-form-group">
+        <div class="input-group">
+          <input type="text" class="form-control" id="parameter-name-input">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button" id="btn-add-parameter" disabled><i class="fa fa-fw fa-plus"></i> Add</button>
+          </span>
+        </div>
+      </div>
+    </span>
+    <div class="section-title">Additional Constant Parameters</div>
+    <form id="extra-parameters" class="form-horizontal" role="form"></form>
+  </div>
+  <a>
+  <div class="panel-footer">
+  <button type="button" class="btn btn-default" id="btn-zoom-to-extent"><i class="fa fa-fw fa-arrows-h"></i> Zoom to temporal extent</button>
+  <div style="float: right">
+    <button type="button" class="btn btn-primary" id="btn-update-item" disabled><i class="fa fa-fw fa-upload"></i> Apply changes</button>
+  </div>
+</div>

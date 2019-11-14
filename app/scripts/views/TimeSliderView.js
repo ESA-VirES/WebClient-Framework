@@ -55,9 +55,13 @@
                     Communicator.mediator, 'date:selection:change',
                     this.onDateSelectionChange
                 );
+                this.listenTo(
+                    Communicator.mediator, 'date:domain:change',
+                    this.onDateDomainChange
+                );
 
                 this.listenTo(
-                    Communicator.mediator, 'userData:fetch:complete',
+                    Communicator.mediator, 'userData:change',
                     this.checkUserLayer
                 );
 
@@ -131,12 +135,13 @@
                     brushTooltip: true,
                     debounce: 300,
                     ticksize: 4,
-                    selectionLimit: (60 * 60 * 24 * 30), //15 Days
-                    datasets: []
+                    selectionLimit: (60 * 60 * 24 * 30), // seconds
+                    datasets: [],
+                    controls: true
                 };
 
+              
                 this.slider = new TimeSlider(this.el, initopt);
-
                 // Add selection helpers
                 //this.slider.setBrushTooltip(true);
 
@@ -226,11 +231,17 @@
                         $('#calendarwidgetholder').show();
                     }
                 });
-                $('.timeslider .brush').attr('fill', '#333');
+                $('#timeslider .control').addClass('darkbutton');
+                $(this.el).mouseenter(function () {
+                  $('.control').show();
+                });
+                $(this.el).mouseleave(function () {
+                  $('.control').hide();
+                });
             }, // END of onShow
 
             onChangeTime: function (evt) {
-                // Check if start and end time is equal if yes increse end time by 1 minute
+                // Check if start and end times are equal. If so, increase end time by 1 minute.
                 var start = evt.originalEvent.detail.start;
                 var end = evt.originalEvent.detail.end;
                 if (end.getTime() - start.getTime() === 0) {
@@ -249,6 +260,10 @@
 
             onDateSelectionChange: function (opt) {
                 this.slider.select(opt.start, opt.end);
+            },
+
+            onDateDomainChange: function (opt) {
+                this.slider.center(opt.start, opt.end);
             },
 
             fetch: function (start, end, params, callback) {
@@ -441,24 +456,6 @@
                                         source: {fetch: this.fetch.bind(attrs)}
                                     });
                                     break;
-                                // TODO: Commenting product-wise creating of TimeSlider entries of user data for now, currently only one entry for uploaded data is created
-                                // case 'USER_DATA':
-                                //   if (globals.userData.models.length > 0) {
-                                //       var records = [];
-                                //       _.each(globals.userData.models, function (file) {
-                                //           var record =
-                                //           [new Date(file.get('start')), new Date(file.get('end')), {
-                                //             id: file.get('filename') }];
-                                //           records.push(record);
-                                //       });
-                                //       this.slider.removeDataset(product.get('download').id);
-                                //       this.slider.addDataset({
-                                //           id: product.get('download').id,
-                                //           color: product.get('color'),
-                                //           records: records,
-                                //       });
-                                //   }
-                                // break;
                             } // END of switch
                         } else {
                             this.slider.removeDataset(product.get('download').id);
@@ -471,25 +468,25 @@
             },
 
             checkUserLayer: function () {
-              if (globals.userData.models.length > 0) {
-                if (!this.slider.hasDataset(globals.userData.views[0].id)) {
-                  const records = [];
-                  _.each(globals.userData.models, function (file) {
-                      var record =
-                      [new Date(file.get('start')), new Date(file.get('end')), {
-                        id: file.get('filename') }];
-                      records.push(record);
-                  });
-                  this.slider.removeDataset(globals.userData.views[0].id);
-                  this.slider.addDataset({
-                      id: globals.userData.views[0].id,
-                      color: globals.userData.color || '#ff0000',
-                      records: records,
-                  });
+                const datasetId = globals.userData.views[0].id;
+                const records = _.map(
+                    globals.userData.getValidUploads(),
+                    function (item) {
+                        return [
+                            new Date(item.get('start')),
+                            new Date(item.get('end')),
+                            {id: item.get('filename')}
+                        ];
+                    }
+                );
+                this.slider.removeDataset(datasetId);
+                if (records.length > 0) {
+                    this.slider.addDataset({
+                        id: datasetId,
+                        records: records,
+                        color: globals.userData.color || '#ff0000'
+                    });
                 }
-              } else {
-                this.slider.removeDataset(globals.userData.views[0].id);
-              }
             },
 
             returnTime: function () {
