@@ -84,7 +84,7 @@ define([
             // TODO: We dont use bing maps layer, but it still reports use of default key in console.
             // For now we just set it to something else just in case.
             Cesium.BingMapsApi.defaultKey = 'NOTHING';
-            Cesium.Camera.DEFAULT_VIEW_RECTANGLE = Cesium.Rectangle.fromDegrees(0.0, -10.0, 30.0, 55.0);
+            Cesium.Camera.DEFAULT_VIEW_RECTANGLE = Cesium.Rectangle.fromDegrees(0.0, 0.0, 40.0, 60.0);
 
             Cesium.WebMapServiceImageryProvider.prototype.updateProperties = function (property, value) {
                 property = '&' + property + '=';
@@ -225,6 +225,9 @@ define([
                         this.map.scene.camera.frustum.bottom = frustum.bottom;
                     }
                 }
+            } else {
+              // set initial camera this way, so we can reset to the exactly same values later on
+              this.resetInitialView();
             }
 
             var mm = globals.objects.get('mapmodel');
@@ -243,6 +246,7 @@ define([
                     $('#poleViewDiv').addClass("hidden");
                 } else {
                     $('#poleViewDiv').removeClass("hidden");
+                    setTimeout(this.resetInitialView.bind(this), 500);
                 }
             }.bind(this));
 
@@ -2529,6 +2533,7 @@ define([
                         direction: new Cesium.Cartesian3(-0.011449873133578228, 0.12003352097560159, -0.9927038099289358),
                         up: new Cesium.Cartesian3(-0.2418134773341136, 0.9629699323710552, 0.11922731033143948)
                     },
+                    duration: 2,
                     complete: function () {
                         this.polarViewZoom();
                         $('#poleViewButton').text('Mag. North');
@@ -2545,6 +2550,7 @@ define([
                         direction: new Cesium.Cartesian3(0.1572357407963758, -0.21851202199924571, 0.963083287186532),
                         up: new Cesium.Cartesian3(0.25309094759697687, -0.9337284667987544, -0.25317212037290326)
                     },
+                    duration: 2,
                     complete: function () {
                         this.polarViewZoom();
                         $('#poleViewButton').text('Mag. South');
@@ -2556,6 +2562,7 @@ define([
             $(".geoN").click(function () {
                 this.map.scene.camera.flyTo({
                     destination: Cesium.Cartesian3.fromDegrees(0, 90, 10000000),
+                    duration: 2,
                     complete: function () {
                         this.polarViewZoom();
                         $('#poleViewButton').text('Geo. North');
@@ -2567,6 +2574,7 @@ define([
             $(".geoS").click(function () {
                 this.map.scene.camera.flyTo({
                     destination: Cesium.Cartesian3.fromDegrees(0, -90, 10000000),
+                    duration: 2,
                     complete: function () {
                         this.polarViewZoom();
                         $('#poleViewButton').text('Geo. South');
@@ -2577,10 +2585,18 @@ define([
 
             $("#resetCameraView").click(function () {
                 this.map.scene.camera.flyTo({
-                    destination: Cesium.Rectangle.fromDegrees(-20.0, -15.0, 45.0, 60.0),
+                    destination: Cesium.Cartesian3.fromDegrees(20, 30, 10000000),
+                    duration: 2,
                     complete: this.globalViewZoomReset.bind(this)
                 });
             }.bind(this));
+        },
+
+        resetInitialView: function () {
+          this.map.scene.camera.flyTo({
+              destination: Cesium.Cartesian3.fromDegrees(20, 30, 10000000),
+              duration: 0.2,
+          });
         },
 
         toggleDebug: function () {

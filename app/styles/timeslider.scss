@@ -39,6 +39,7 @@
 
 #timeslider .control{
   z-index: 1004;
+  display: none;
   color: white;
   .arrow-right{
     border-left: 9px solid white;
@@ -49,7 +50,7 @@
 }
 
 #reload{
-  display: none;
+  display: none!important;
 }
 
 .timeslider .brush{
@@ -57,9 +58,9 @@
 }
 
 #zoom-in{
-  margin-left: calc(50% + 4px);
+  margin-left: calc(50% + 8px);
 }
 
 #zoom-out{
-  margin-right: calc(50% + 4px);
+  margin-right: calc(50% + 8px);
 }

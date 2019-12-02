@@ -36,12 +36,17 @@
                 if (this.model.get("subitems")) {
                     this.$el.attr("class", "dropdown");
                     this.model.set("subitems", _.map(
-                        this.model.get("subitems"), function (item) {
+                        this.model.get("subitems"),
+                        function (item) {
                             if (item.eventToRaise) {
                                 var modalId = getModalId(item.eventToRaise);
                                 if (modalId) {
                                     item.modalId = modalId;
                                 }
+                            }
+                            if (item.type === "divider") {
+                                item._class = "divider";
+                                item._empty = true;
                             }
                             return item;
                         }

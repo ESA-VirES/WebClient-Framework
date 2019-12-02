@@ -161,46 +161,23 @@ var MASTER_PRIORITY = [
                 })
                 );
 
-                // Check if version of service is set and if it differs from the
-                // current version
-                if (localStorage.getItem('serviceVersion') !== null) {
-                    var serviceVersion = JSON.parse(
-                        localStorage.getItem('serviceVersion')
-                    );
-                    if (serviceVersion !== globals.version) {
-                        // A new version has been loaded, here we could
-                        // differentiate which version was previous and which
-                        // one is the new, for now we reset and save the new
-                        // version
-                        showMessage('success',
-                            'A new version (' + globals.version + ') of the service has been released. ' +
-                            'Your configuration has been updated.</br>' +
-                            'You can find information on the changes in the ' +
-                            '<b><a target="_blank" href="/accounts/changelog">changelog</a></b>.', 35
-                        );
-                        localStorage.clear();
-                        localStorage.setItem(
-                            'serviceVersion',
-                            JSON.stringify(globals.version)
-                        );
-                    }
-                } else {
-                    // This should be the case when loading version 2.3 for the
-                    // first time (or when the local storage is empty)
-                    localStorage.clear();
+                // Check compatibility of the saved configuration.
 
-                    localStorage.setItem(
-                        'serviceVersion',
-                        JSON.stringify(globals.version)
-                    );
+                var serviceVersion = JSON.parse(localStorage.getItem('serviceVersion'));
 
+                if (!_.contains(globals.supportedVersions, serviceVersion)) {
+                    // The version of the loaded configuration is not in the
+                    // list of supported version. The client does not know
+                    // how to handle it and gets reset to its default state.
                     showMessage('success',
                         'A new version (' + globals.version + ') of the service has been released. ' +
                         'Your configuration has been updated.</br>' +
                         'You can find information on the changes in the ' +
-                        '<b><a target="_blank" href="/accounts/changelog">changelog</a></b>.', 35
+                        '<b><a target="_blank" href="/changelog">changelog</a></b>.', 35
                     );
+                    localStorage.clear();
                 }
+                localStorage.setItem('serviceVersion', JSON.stringify(globals.version));
 
                 //Base Layers are loaded and added to the global collection
                 // If there are already saved baselayer config in the local
@@ -320,7 +297,12 @@ var MASTER_PRIORITY = [
                                 // where necessary
                             }
                             if (pC[prodId].hasOwnProperty('components')) {
-                                product.components = pC[prodId].components;
+                                // translate renamed models
+                                product.components = _.map(pC[prodId].components, function (component) {
+                                    var table = config.magneticModels.modelIdTranslation || {};
+                                    component.id = table[component.id] || component.id;
+                                    return component;
+                                });
                             }
                         }
 
@@ -474,13 +456,15 @@ var MASTER_PRIORITY = [
                         );
                     }, this);
 
-                    this.topBar.show(new v.NavBarCollectionView(
-                        {template: t.NavBar({
+                    this.topBar.show(new v.NavBarCollectionView({
+                        template: t.NavBar({
                             title: config.navBarConfig.title,
-                            url: config.navBarConfig.url}),
+                            url: config.navBarConfig.url
+                        }),
                         className: "navbar navbar-inverse navbar-fixed-top not-selectable",
                         itemView: v.NavBarItemView, tag: "div",
-                        collection: navBarItemCollection}));
+                        collection: navBarItemCollection
+                    }));
 
                 }
 
@@ -507,7 +491,8 @@ var MASTER_PRIORITY = [
                     itemView: v.LayerItemView.extend({
                         template: {
                             type: 'handlebars',
-                            template: t.BulletLayer},
+                            template: t.BulletLayer
+                        },
                         className: "radio-inline"
                     })
                 });
