@@ -138,8 +138,10 @@
                 var expression = _.map(
                     this.get('components'),
                     function (item) {
+                        var defaults = globals.models.get(item.id).get('parameters');
+                        var parameters = _.extend(_.clone(defaults), item.parameters);
                         return item.sign + '"' + item.id + '"(' + _.map(
-                            item.parameters,
+                            parameters,
                             function (value, key) {return key + '=' + value;}
                         ).join(',') + ')';
                     }
