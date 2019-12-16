@@ -558,7 +558,7 @@ define(['backbone.marionette',
             this.separateVector('B', 'B_NEC', ['N', 'E', 'C'], '_');
             this.separateVector('B_VFM', 'B_VFM', ['X', 'Y', 'Z'], '_');
             this.separateVector('B', 'B_NEC_resAC',
-                ['resAC_N', 'resAC_E', 'resAC_C'], '_'
+                ['N_resAC', 'E_resAC', 'C_resAC'], '_'
             );
 
             var models = globals.products.filter(function (p) {
