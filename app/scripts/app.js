@@ -23,7 +23,7 @@ var VECTOR_PARAM = [
 
 var VECTOR_BREAKDOWN = {
     'B_NEC': ['B_N', 'B_E', 'B_C'],
-    'B_NEC_resAC': ['B_resAC_N', 'B_resAC_E', 'B_resAC_C'],
+    'B_NEC_resAC': ['B_N_resAC', 'B_E_resAC', 'B_C_resAC'],
     'Model': ['B_N_res_Model', 'B_E_res_Model', 'B_C_res_Model'], // needed by CesiumView
     'B_NEC_res_Model': ['B_N_res_Model', 'B_E_res_Model', 'B_C_res_Model'],
     'B_NEC_Model': ['B_N_Model', 'B_E_Model', 'B_C_Model'],
@@ -51,6 +51,13 @@ var MASTER_PRIORITY = [
     'SW_OPER_AEJALPL_2F', 'SW_OPER_AEJBLPL_2F', 'SW_OPER_AEJCLPL_2F',
     'SW_OPER_AEJALPS_2F', 'SW_OPER_AEJBLPS_2F', 'SW_OPER_AEJCLPS_2F',
 ];
+
+// variable translations
+var REPLACED_SCALAR_VARIABLES = {
+    'B_resAC_N': 'B_N_resAC',
+    'B_resAC_E': 'B_E_resAC',
+    'B_resAC_C': 'B_C_resAC'
+};
 
 
 (function () {
@@ -177,6 +184,86 @@ var MASTER_PRIORITY = [
                     );
                     localStorage.clear();
                 }
+
+                // migrate configuration
+
+                var translateKeys = function (object, translation_table) {
+                    _.each(object, function (value, key) {
+                        if (translation_table.hasOwnProperty(key)) {
+                            object[translation_table[key]] = object[key];
+                            delete object[key];
+                        }
+                    });
+                    return object;
+                };
+
+                var translate = function (translation_table) {
+                    return function (key) {
+                        return translation_table[key] || key;
+                    };
+                };
+
+                var translateItems = function (array, translation_table) {
+                    return _.map(array, translate(translation_table));
+                };
+
+
+                var translatePropertyItems = function (keys, translation_table) {
+                    return function (object) {
+                        _.each(keys, function (key) {
+                            object[key] = translateItems(object[key], translation_table);
+                        });
+                        return object;
+                    };
+                };
+
+                if (JSON.parse(localStorage.getItem('parameterConfiguration')) !== null) {
+                    localStorage.setItem('parameterConfiguration', JSON.stringify(
+                        translateKeys(
+                            JSON.parse(localStorage.getItem('parameterConfiguration')),
+                            REPLACED_SCALAR_VARIABLES
+                        )
+                    ));
+                }
+
+                if (JSON.parse(localStorage.getItem('filterSelection')) !== null) {
+                    localStorage.setItem('filterSelection', JSON.stringify(
+                        translateKeys(
+                            JSON.parse(localStorage.getItem('filterSelection')),
+                            REPLACED_SCALAR_VARIABLES
+                        )
+                    ));
+                }
+
+                if (JSON.parse(localStorage.getItem('selectedFilterList')) !== null) {
+                    localStorage.setItem('selectedFilterList', JSON.stringify(
+                        translateItems(
+                            JSON.parse(localStorage.getItem('selectedFilterList')),
+                            REPLACED_SCALAR_VARIABLES
+                        )
+                    ));
+                }
+
+                if (JSON.parse(localStorage.getItem('xAxisSelection')) !== null) {
+                    localStorage.setItem('xAxisSelection', JSON.stringify(
+                        translate(REPLACED_SCALAR_VARIABLES)(
+                            JSON.parse(localStorage.getItem('xAxisSelection'))
+                        )
+                    ));
+                }
+
+                if (JSON.parse(localStorage.getItem('plotConfiguration')) !== null) {
+                    localStorage.setItem('plotConfiguration', JSON.stringify(
+                        _.map(
+                            JSON.parse(localStorage.getItem('plotConfiguration')),
+                            translatePropertyItems(
+                                ['yAxis', 'y2Axis', 'colorAxis', 'colorAxis2'],
+                                REPLACED_SCALAR_VARIABLES
+                            )
+                        )
+                    ));
+                }
+
                 localStorage.setItem('serviceVersion', JSON.stringify(globals.version));
 
                 //Base Layers are loaded and added to the global collection
