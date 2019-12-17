@@ -52,6 +52,34 @@ define(['backbone.marionette',
         "QDLatitude_periodic": {
             "uom": "deg",
             "periodic": {"period": 360, "offset": 0, "specialTicks": true}
+        },
+        "SunAzimuthAngle": {
+            "uom": "deg",
+            "name": "Local Sun azimuth angle"
+        },
+        "SunZenithAngle": {
+            "uom": "deg",
+            "name": "Local Sun zenith angle"
+        },
+        "SunHourAngle": {
+            "uom": "deg",
+            "name": "Local Sun hour angle"
+        },
+        "SunDeclination": {
+            "uom": "deg",
+            "name": "Sun declination"
+        },
+        "SunRightAscension": {
+            "uom": "deg",
+            "name": "Sun right ascension"
+        },
+        "OrbitDirection": {
+            "uom": null,
+            "name": "Orbit direction in geographic coordinates."
+        },
+        "QDOrbitDirection": {
+            "uom": null,
+            "name": "Orbit direction in Quasi-dipole coordinates."
         }
     };
 
