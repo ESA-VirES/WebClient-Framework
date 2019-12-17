@@ -9,7 +9,7 @@ var SCALAR_PARAM = [
     "mROTI20s", "IBI_flag", "Ionosphere_region_flag", "IPIR_index", "Ne_quality_flag",
     "TEC_STD",
     "J_QD",
-    "J_C", "J_CF_SemiQD","J_DF_SemiQD"
+    "J_C", "J_CF_SemiQD", "J_DF_SemiQD"
 ];
 
 var VECTOR_PARAM = [

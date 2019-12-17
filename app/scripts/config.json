@@ -4505,6 +4505,14 @@
                 "F_res_Model": {
                     "uom":"nT",
                     "name": "Residuals of Magnetic field intensity to magnetic model coefficients"
+                },
+                "B_NEC_Model": {
+                    "uom":"nT",
+                    "name": "Magnetic field calculated from the model, NEC frame"
+                },
+                "F_Model": {
+                    "uom":"nT",
+                    "name": "Magnetic field intensity from the model"
                 }
             },
             "height": 450,

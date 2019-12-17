@@ -41,6 +41,22 @@ define(['backbone.marionette',
             "uom": "1e-22 J/s/m^2/Hz",
             "name": "Observed 10.7cm Solar Radio Flux"
         },
+        "IMF_BY_GSM": {
+            "uom": "nT",
+            "name": "By GSM - merged 1 hour OMNI data"
+        },
+        "IMF_BZ_GSM": {
+            "uom": "nT",
+            "name": "Bz GSM - merged 1 hour OMNI data"
+        },
+        "IMF_V": {
+            "uom": "km/s",
+            "name": "Plasma flow speed- merged 1 hour OMNI data"
+        },
+        "F10_INDEX": {
+            "uom": "1e-22 J/s/m^2/Hz",
+            "name": "F10.7 - Daily 10.7 cm solar radio flux from NGDC (1963/001-2017/341)"
+        },
         "OrbitNumber": {
             "uom": null,
             "name": "Orbit number"
