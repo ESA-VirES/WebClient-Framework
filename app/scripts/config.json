@@ -23,30 +23,69 @@
             {"id": "MCO_SHA_2D"},
             {"id": "MLI_SHA_2C"},
             {"id": "MLI_SHA_2D"},
-            {"id": "MIO_SHA_2C-Primary"},
-            {"id": "MIO_SHA_2C-Secondary"},
-            {"id": "MIO_SHA_2D-Primary"},
-            {"id": "MIO_SHA_2D-Secondary"},
-            {"id": "MMA_SHA_2C-Primary"},
-            {"id": "MMA_SHA_2C-Secondary"},
-            {"id": "MMA_SHA_2F-Primary"},
-            {"id": "MMA_SHA_2F-Secondary"},
+            {
+                "id": "MIO_SHA_2C-Primary",
+                "name": "MIO_SHA_2C Primary"
+            },
+            {
+                "id": "MIO_SHA_2C-Secondary",
+                "name": "MIO_SHA_2C Secondary"
+            },
+            {
+                "id": "MIO_SHA_2D-Primary",
+                "name": "MIO_SHA_2D Primary"
+            },
+            {
+                "id": "MIO_SHA_2D-Secondary",
+                "name": "MIO_SHA_2D Secondary"
+            },
+            {
+                "id": "MMA_SHA_2C-Primary",
+                "name": "MMA_SHA_2C Primary"
+            },
+            {
+                "id": "MMA_SHA_2C-Secondary",
+                "name": "MMA_SHA_2C Secondary"
+            },
+            {
+                "id": "MMA_SHA_2F-Primary",
+                "name": "MMA_SHA_2F Primary"
+            },
+            {
+                "id": "MMA_SHA_2F-Secondary",
+                "name": "MMA_SHA_2F Secondary"
+            },
             {"id": "IGRF12"},
             {"id": "LCS-1"},
             {"id": "MF7"},
-            {"id": "CHAOS-6-Core"},
             {
-                "id": "CHAOS-6-Static",
-                "name": "CHAOS-6-Crust"
+                "id": "CHAOS-Core",
+                "name": "CHAOS-7 Core"
             },
-            {"id": "CHAOS-6-MMA-Primary"},
-            {"id": "CHAOS-6-MMA-Secondary"},
+            {
+                "id": "CHAOS-Static",
+                "name": "CHAOS-7 Crust"
+            },
+            {
+                "id": "CHAOS-MMA-Primary",
+                "name": "CHAOS-MMA Primary"
+            },
+            {
+                "id": "CHAOS-MMA-Secondary",
+                "name": "CHAOS-MMA Secondary"
+            },
             {
                 "id": "Custom_Model",
                 "name": "Custom Model",
                 "isCustomModel": true
             }
-        ]
+        ],
+        "modelIdTranslation": {
+            "CHAOS-6-Core": "CHAOS-Core",
+            "CHAOS-6-Static": "CHAOS-Static",
+            "CHAOS-6-MMA-Primary": "CHAOS-MMA-Primary",
+            "CHAOS-6-MMA-Secondary": "CHAOS-MMA-Secondary"
+        }
     },
 
     "mapConfig": {
@@ -4472,7 +4511,7 @@
             "components": [
                 {
                     "sign": "+",
-                    "id": "CHAOS-6-Core",
+                    "id": "CHAOS-Core",
                     "parameters": {}
                 }
             ]
