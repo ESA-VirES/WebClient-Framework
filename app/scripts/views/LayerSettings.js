@@ -203,7 +203,7 @@
                     this.$("#colorscale").hide();
                     $("#opacitysilder").parent().hide();
 
-                    if(!selectedOption.hasOwnProperty('referencedParameters')){
+                    if (!selectedOption.hasOwnProperty('referencedParameters')) {
                         this.$("#range_min").show();
                         this.$("#range_max").show();
                         this.$("#colorscale").show();
@@ -428,7 +428,7 @@
                 this.$("#colorscale").hide();
                 $("#opacitysilder").parent().hide();
 
-                if(!selectedOption.hasOwnProperty('referencedParameters')){
+                if (!selectedOption.hasOwnProperty('referencedParameters')) {
 
                     this.$("#range_min").show();
                     this.$("#range_max").show();
@@ -721,7 +721,7 @@
                 */
                 $("#setting_colorscale").empty();
 
-                if(this.current_model.get("parameters")[this.selected].hasOwnProperty('referencedParameters')){
+                if (this.current_model.get("parameters")[this.selected].hasOwnProperty('referencedParameters')) {
                     return;
                 }
 

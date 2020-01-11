@@ -298,8 +298,8 @@
             "Ionosphere_region_flag", "IPIR_index", "Ne_quality_flag", "TEC_STD",
             "B_NEC_res_Model", "F_res_Model",
             "J", "J_QD",
-            "J_C","J_CF","J_DF","J_CF_SemiQD","J_DF_SemiQD"
-        ];
+            "J_C", "J_CF", "J_DF", "J_CF_SemiQD", "J_DF_SemiQD"
+          ];
 
           var collectionList = _.chain(collections)
             .values()
@@ -489,8 +489,8 @@
                   }
                 }
                 // Add new parameter to data info if available
-                if(dat.hasOwnProperty('__info__') && dat.__info__.hasOwnProperty('variables')){
-                  for(var satKey in dat.__info__.variables){
+                if (dat.hasOwnProperty('__info__') && dat.__info__.hasOwnProperty('variables')) {
+                  for (var satKey in dat.__info__.variables) {
                     dat.__info__.variables[satKey].push('Latitude_periodic');
                   }
                 }
@@ -521,8 +521,8 @@
                   }
                 }
                 // Add new parameter to data info if available
-                if(dat.hasOwnProperty('__info__') && dat.__info__.hasOwnProperty('variables')){
-                  for(var satKey in dat.__info__.variables){
+                if (dat.hasOwnProperty('__info__') && dat.__info__.hasOwnProperty('variables')) {
+                  for (var satKey in dat.__info__.variables) {
                     dat.__info__.variables[satKey].push('QDLatitude_periodic');
                   }
                 }
@@ -537,7 +537,7 @@
                     dat[components[i]].push(item[i]);
                   });
                 }
-                
+
                 delete dat[key];
               });
 

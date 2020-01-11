@@ -3700,7 +3700,7 @@
                     "name": "J"
                 },
                 "J_combined": {
-                    "name": "Sheet currents (J_C, J)", 
+                    "name": "Sheet currents (J_C, J)",
                     "description": "Please use the corresponding J_C and J parameters for display and range settings",
                     "referencedParameters": ["J", "J_C"]
                 }
