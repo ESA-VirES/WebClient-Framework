@@ -1241,21 +1241,29 @@ define([
                                     releaseGeometryInstances: false
                                 });
 
-                                // Calculate maximum lengt of vectors
-                                var vPars = VECTOR_BREAKDOWN[parameters[i]];
-                                var lengths = [];
-                                for (var j = 0; j < results[vPars[0]].length; j++) {
-                                    var sum = 0;
-                                    for (var vp = 0; vp < vPars.length;vp++) {
-                                        sum += Math.pow(results[vPars[vp]][j], 2);
+                                // Calculate maximum length of vectors
+                                var components = VECTOR_BREAKDOWN[parameters[i]];
+                                if (components) {
+                                        var lengths = [], maxLength = 0;
+                                        var data = _.map(
+                                            components,
+                                            function (parameter) {return results[parameter];}
+                                        );
+                                        for (var j = 0; j < data[0].length; j++) {
+                                        var sum = 0;
+                                            for (var k = 0; k < data.length; k++)
+                                            {
+                                                var value = data[k][j];
+                                                sum += value * value;
+                                        }
+                                        lengths.push(Math.sqrt(sum));
+                                            maxLength = sum > maxLength ? sum : maxLength;
                                     }
-                                    lengths.push(Math.sqrt(sum));
+                                    vectorLenghtsObject[parameters[i]] = {
+                                        maxLength: maxLength,
+                                        lengths: lengths
+                                    };
                                 }
-                                var maxLength = d3.max(lengths);
-                                vectorLenghtsObject[parameters[i]] = {
-                                    maxLength: maxLength,
-                                    lengths: lengths
-                                };
                             }
                         }, this);
 
