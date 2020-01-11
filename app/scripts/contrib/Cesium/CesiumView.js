@@ -37,12 +37,12 @@ define([
         initialize: function (options) {
             this.sceneModeMatrix = {
                 'columbus': 1,
-                '2dview': 2, 
+                '2dview': 2,
                 'globe': 3
             },
             this.sceneModeMatrixReverse = {
                 1: 'columbus',
-                2: '2dview', 
+                2: '2dview',
                 3: 'globe'
             },
             this.map = undefined;
@@ -218,7 +218,7 @@ define([
                 if (options.sceneMode === 2) {
 
                     var frustum = JSON.parse(localStorage.getItem('frustum'));
-                    if(frustum){
+                    if (frustum) {
                         this.map.scene.camera.frustum.right = frustum.right;
                         this.map.scene.camera.frustum.left = frustum.left;
                         this.map.scene.camera.frustum.top = frustum.top;
@@ -226,8 +226,8 @@ define([
                     }
                 }
             } else {
-              // set initial camera this way, so we can reset to the exactly same values later on
-              this.resetInitialView();
+                // set initial camera this way, so we can reset to the exactly same values later on
+                this.resetInitialView();
             }
 
             var mm = globals.objects.get('mapmodel');
@@ -397,7 +397,7 @@ define([
 
             this.map.scene.morphComplete.addEventListener(function () {
                 localStorage.setItem(
-                    'mapSceneMode', 
+                    'mapSceneMode',
                     JSON.stringify(
                         this.sceneModeMatrixReverse[this.map.scene.mode]
                     )
@@ -461,7 +461,7 @@ define([
                     }
                 }
             }
-            
+
             // Go through config to make any changes done while widget
             // not active (not in view)
             globals.baseLayers.each(synchronizeLayer, this);
@@ -530,13 +530,13 @@ define([
             $("#bboxSouthForm").val(bboxFixed.s.toFixed(4));
         },
 
-        synchronizeColorLegend: function(p) {
-            // See if active parameter has referencedParameter to show multiple 
+        synchronizeColorLegend: function (p) {
+            // See if active parameter has referencedParameter to show multiple
             // colorscales per product
-            if(p.get('parameters')){
+            if (p.get('parameters')) {
                 var parameters = p.get('parameters');
                 var band = this.getSelectedVariable(parameters);
-                if(parameters[band].hasOwnProperty('referencedParameters')){
+                if (parameters[band].hasOwnProperty('referencedParameters')) {
                     var refPars = parameters[band].referencedParameters;
                     for (var i = 0; i < refPars.length; i++) {
                         this.checkColorscale(p.get('download').id, refPars[i], i);
@@ -549,7 +549,7 @@ define([
 
         connectDataEvents: function () {
             globals.swarm.on('change:data', function (model, data) {
-                
+
                 globals.products.each(this.synchronizeColorLegend, this);
 
                 var refKey = 'Timestamp';
@@ -1009,134 +1009,129 @@ define([
         },
 
 
-        fetchAndDisplayPBxData: function(){
+        fetchAndDisplayPBxData: function () {
 
-          var that = this;
-          var retrieve_data = [];
+            var retrieve_data = [];
 
-          this.PBxBillboards.removeAll();
+            this.PBxBillboards.removeAll();
 
-          var relatedlayer = [
-            'SW_OPER_AEJALPS_2F', 'SW_OPER_AEJBLPS_2F', 'SW_OPER_AEJCLPS_2F',
-            'SW_OPER_AEJALPL_2F', 'SW_OPER_AEJBLPL_2F', 'SW_OPER_AEJCLPL_2F'
-          ];
+            var relatedlayer = [
+                'SW_OPER_AEJALPS_2F', 'SW_OPER_AEJBLPS_2F', 'SW_OPER_AEJCLPS_2F',
+                'SW_OPER_AEJALPL_2F', 'SW_OPER_AEJBLPL_2F', 'SW_OPER_AEJCLPL_2F'
+            ];
 
-          globals.products.each(function (product) {
-            if (relatedlayer.indexOf(product.get("views")[0].id) != -1) {
-              if (!product.get('visible')) {return;}
-              var processes = product.get("processes");
-              _.each(processes, function (process) {
-                if (process) {
-                  switch (process.id) {
-                    case "retrieve_data":
-                      retrieve_data.push({
-                        layer: process.layer_id,
-                        url: product.get("views")[0].urls[0]
-                      });
-                      break;
-                  }
+            globals.products.each(function (product) {
+                if (relatedlayer.indexOf(product.get("views")[0].id) != -1) {
+                    if (!product.get('visible')) {return;}
+                    var processes = product.get("processes");
+                    _.each(processes, function (process) {
+                        if (process) {
+                            switch (process.id) {
+                                case "retrieve_data":
+                                    retrieve_data.push({
+                                        layer: process.layer_id,
+                                        url: product.get("views")[0].urls[0]
+                                    });
+                                    break;
+                            }
+                        }
+                    }, this);
                 }
-              }, this);
-            }
-          }, this);
+            }, this);
 
-          if (retrieve_data.length > 0) {
+            if (retrieve_data.length > 0) {
 
-            var collections = DataUtil.parseCollections(retrieve_data);
+                var collections = DataUtil.parseCollections(retrieve_data);
 
-            var options = {
-              "collections_ids": DataUtil.formatCollections(collections),
-              "begin_time": getISODateTimeString(this.beginTime),
-              "end_time": getISODateTimeString(this.endTime)
-            };
+                var options = {
+                    "collections_ids": DataUtil.formatCollections(collections),
+                    "begin_time": getISODateTimeString(this.beginTime),
+                    "end_time": getISODateTimeString(this.endTime)
+                };
 
-            options.collections_ids = options.collections_ids.replace('LPS_2F', 'PBS_2F');
-            options.collections_ids = options.collections_ids.replace('LPL_2F', 'PBL_2F');
+                options.collections_ids = options.collections_ids.replace('LPS_2F', 'PBS_2F');
+                options.collections_ids = options.collections_ids.replace('LPL_2F', 'PBL_2F');
 
-            var variables = ['PointType'];
+                var variables = ['PointType'];
 
-            var collectionList = _.chain(collections)
-              .values()
-              .flatten()
-              .value();
 
-            options.variables = variables.join(",");
-            options.mimeType = 'application/msgpack';
+                options.variables = variables.join(",");
+                options.mimeType = 'application/msgpack';
 
-            if (this.bboxsel !== null) {
-              var bbox = this.bboxsel;
-              options["bbox"] = bbox.join(",");
-            }
+                if (this.bboxsel !== null) {
+                    var bbox = this.bboxsel;
+                    options["bbox"] = bbox.join(",");
+                }
 
-            if (this.xhr !== null) {
-              // A request has been sent that is not yet been returned so we need to cancel it
-              Communicator.mediator.trigger("progress:change", false);
-              this.xhr.abort();
-              this.xhr = null;
-            }
+                if (this.xhr !== null) {
+                    // A request has been sent that is not yet been returned so we need to cancel it
+                    Communicator.mediator.trigger("progress:change", false);
+                    this.xhr.abort();
+                    this.xhr = null;
+                }
 
-            this.xhr = httpRequest.asyncHttpRequest({
-                context: this,
-                type: 'POST',
-                url: retrieve_data[0].url,
-                data: wps_fetchDataTmpl(options),
-                responseType: 'arraybuffer',
+                this.xhr = httpRequest.asyncHttpRequest({
+                    context: this,
+                    type: 'POST',
+                    url: retrieve_data[0].url,
+                    data: wps_fetchDataTmpl(options),
+                    responseType: 'arraybuffer',
 
-                parse: function (data, xhr) {
-                  var decodedObj = msgpack.decode(new Uint8Array(data));
-                  return decodedObj;
-                },
+                    parse: function (data, xhr) {
+                        var decodedObj = msgpack.decode(new Uint8Array(data));
+                        return decodedObj;
+                    },
 
-                opened: function () {
-                  Communicator.mediator.trigger("progress:change", true);
-                },
+                    opened: function () {
+                        Communicator.mediator.trigger("progress:change", true);
+                    },
 
-                completed: function () {
-                  this.xhr = null;
-                  Communicator.mediator.trigger("progress:change", false);
-                },
+                    completed: function () {
+                        this.xhr = null;
+                        Communicator.mediator.trigger("progress:change", false);
+                    },
 
-                error: function (xhr) {
-                  globals.swarm.set({data: {}});
-                  if (xhr.responseText === "") {return;}
-                  var error_text = xhr.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
-                  if (error_text && error_text.length > 1) {
-                    error_text = error_text[1];
-                  } else {
-                    error_text = 'Please contact feedback@vires.services if issue persists.';
-                  }
-                  showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
-                },
+                    error: function (xhr) {
+                        globals.swarm.set({data: {}});
+                        if (xhr.responseText === "") {return;}
+                        var error_text = xhr.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
+                        if (error_text && error_text.length > 1) {
+                            error_text = error_text[1];
+                        } else {
+                            error_text = 'Please contact feedback@vires.services if issue persists.';
+                        }
+                        showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+                    },
 
-                success: function (dat) {
+                    success: function (dat) {
 
-                  var maxRad = this.map.scene.globe.ellipsoid.maximumRadius;
-                  for (var i = 0; i < dat.Latitude.length; i++) {
-                    var imageString;
-                    if((dat.PointType[i]&4)==0){
-                      imageString = '../../../images/rectangle.png';
-                    } else if ((dat.PointType[i]&4)==4){
-                      imageString = '../../../images/triangle.png';
+                        var maxRad = this.map.scene.globe.ellipsoid.maximumRadius;
+                        for (var i = 0; i < dat.Latitude.length; i++) {
+                            var imageString;
+                            if ((dat.PointType[i] & 4) == 0) {
+                                imageString = '../../../images/rectangle.png';
+                            } else if ((dat.PointType[i] & 4) == 4) {
+                                imageString = '../../../images/triangle.png';
+                            }
+                            var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
+                            var canvasPoint = {
+                                /*imageId: '',*/
+                                image: imageString,
+                                position: Cesium.Cartesian3.fromDegrees(
+                                    dat.Longitude[i], dat.Latitude[i],
+                                    6835000 - maxRad
+                                ),
+                                eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
+                                radius: 0,
+                                scale: 0.35,
+                                scaleByDistance: scaltype
+                            };
+                            this.PBxBillboards.add(canvasPoint);
+                        }
+
                     }
-                    var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
-                    var canvasPoint = {
-                      /*imageId: '',*/
-                      image: imageString,
-                      position: Cesium.Cartesian3.fromDegrees(
-                        dat.Longitude[i], dat.Latitude[i],
-                        6835000-maxRad
-                      ),
-                      eyeOffset : new Cesium.Cartesian3(0, 0, -50000),
-                      radius: 0,
-                      scale: 0.35,
-                      scaleByDistance: scaltype
-                    };
-                    this.PBxBillboards.add(canvasPoint);
-                  }
-
-              }
-            });
-          }
+                });
+            }
         },
 
         createDataFeatures: function (results) {
@@ -1170,7 +1165,6 @@ define([
                     var sat = globals.swarm.collection2satellite[collection];
 
                     if (!sat) {return;}
-                    var combPar = false;
 
                     _.each(product.get('parameters'), function (param, name) {
                         if (!param.selected) {return;}
@@ -1180,30 +1174,30 @@ define([
                         if (!settings[sat].hasOwnProperty(k)) {
                             settings[sat][name] = _.clone(param);
                         }
-                        if(param.hasOwnProperty('referencedParameters')){
-                          var refPars = param.referencedParameters;
-                          for (var i = 0; i < refPars.length; i++) {
+                        if (param.hasOwnProperty('referencedParameters')) {
+                            var refPars = param.referencedParameters;
+                            for (var i = 0; i < refPars.length; i++) {
 
-                            if(product.get('parameters').hasOwnProperty(refPars[i])){
-                              settings[sat][refPars[i]] = _.clone(
-                                product.get('parameters')[refPars[i]]
-                              );
-                              _.extend(settings[sat][refPars[i]], {
-                                  band: refPars[i],
-                                  //alpha: Math.floor(product.get('opacity') * 255),
-                                  outlines: product.get('outlines'),
-                                  outline_color: product.get('color')
-                              });
+                                if (product.get('parameters').hasOwnProperty(refPars[i])) {
+                                    settings[sat][refPars[i]] = _.clone(
+                                        product.get('parameters')[refPars[i]]
+                                    );
+                                    _.extend(settings[sat][refPars[i]], {
+                                        band: refPars[i],
+                                        //alpha: Math.floor(product.get('opacity') * 255),
+                                        outlines: product.get('outlines'),
+                                        outline_color: product.get('color')
+                                    });
+                                }
                             }
-                          }
-                          delete settings[sat][name];
+                            delete settings[sat][name];
                         } else {
-                          _.extend(settings[sat][name], {
-                              band: name,
-                              alpha: Math.floor(product.get('opacity') * 255),
-                              outlines: product.get('outlines'),
-                              outline_color: product.get('color')
-                          });
+                            _.extend(settings[sat][name], {
+                                band: name,
+                                alpha: Math.floor(product.get('opacity') * 255),
+                                outlines: product.get('outlines'),
+                                outline_color: product.get('color')
+                            });
                         }
                     });
                 });
@@ -1247,21 +1241,29 @@ define([
                                     releaseGeometryInstances: false
                                 });
 
-                                // Calculate maximum lengt of vectors
-                                var vPars = VECTOR_BREAKDOWN[parameters[i]];
-                                var lengths = [];
-                                for (var j = 0; j < results[vPars[0]].length; j++) {
-                                    var sum = 0;
-                                    for (var vp = 0; vp < vPars.length;vp++) {
-                                        sum += Math.pow(results[vPars[vp]][j],2);
+                                // Calculate maximum length of vectors
+                                var components = VECTOR_BREAKDOWN[parameters[i]];
+                                if (components) {
+                                        var lengths = [], maxLength = 0;
+                                        var data = _.map(
+                                            components,
+                                            function (parameter) {return results[parameter];}
+                                        );
+                                        for (var j = 0; j < data[0].length; j++) {
+                                        var sum = 0;
+                                            for (var k = 0; k < data.length; k++)
+                                            {
+                                                var value = data[k][j];
+                                                sum += value * value;
+                                        }
+                                        lengths.push(Math.sqrt(sum));
+                                            maxLength = sum > maxLength ? sum : maxLength;
                                     }
-                                    lengths.push(Math.sqrt(sum));
+                                    vectorLenghtsObject[parameters[i]] = {
+                                        maxLength: maxLength,
+                                        lengths: lengths
+                                    };
                                 }
-                                var maxLength = d3.max(lengths);
-                                vectorLenghtsObject[parameters[i]] = {
-                                    maxLength: maxLength,
-                                    lengths: lengths
-                                };
                             }
                         }, this);
 
@@ -1297,7 +1299,7 @@ define([
                                     var b = VECTOR_BREAKDOWN[ap];
                                     var allAvailable = true;
                                     for (var i = 0; i < b.length; i++) {
-                                        if(!row.hasOwnProperty(b[i])){
+                                        if (!row.hasOwnProperty(b[i])) {
                                             allAvailable = false;
                                         }
                                     }
@@ -1324,7 +1326,7 @@ define([
                                         }
                                     }
                                     heightOffset = i * 210000;
-                                    if(set.band === 'J_QD' || set.band === 'J_C'){
+                                    if (set.band === 'J_QD' || set.band === 'J_C') {
                                         heightOffset = 10000;
                                         pixelSize = 3;
                                     }
@@ -1413,30 +1415,30 @@ define([
 
                                         var sb = VECTOR_BREAKDOWN[set.band];
                                         heightOffset = i * 210000;
-                                        if(set.band === 'J' || set.band === 'J_C'){
+                                        if (set.band === 'J' || set.band === 'J_C') {
                                             heightOffset = 0;
                                         }
 
                                         // Check if breakdown parameters are available
                                         var allAvailable = true;
                                         for (var j = 0; j < sb.length; j++) {
-                                            if(!row.hasOwnProperty(sb[j])){
+                                            if (!row.hasOwnProperty(sb[j])) {
                                                 allAvailable = false;
                                             }
                                         }
                                         if (allAvailable) {
                                             var altComp, radius;
-                                            if(sb.length === 2){
+                                            if (sb.length === 2) {
                                                 altComp = 0;
                                             } else {
                                                 altComp = row[sb[2]];
                                             }
-                                            if(row.hasOwnProperty('Radius')){
+                                            if (row.hasOwnProperty('Radius')) {
                                                 radius = row.Radius;
                                             } else {
                                                 radius = 6800000;
                                             }
-                                            
+
 
                                             var maxLength = vectorLenghtsObject[set.band].maxLength;
                                             var vectorLenghts = vectorLenghtsObject[set.band].lengths;
@@ -1445,9 +1447,9 @@ define([
                                             color = this.plot.getColor(vLen);
                                             var maxLen = 600000;
 
-                                            var vN = (row[sb[0]]/maxLength) * maxLen;
-                                            var vE = (row[sb[1]]/maxLength) * maxLen;
-                                            var vC = (altComp/maxLength) * maxLen;
+                                            var vN = (row[sb[0]] / maxLength) * maxLen;
+                                            var vE = (row[sb[1]] / maxLength) * maxLen;
+                                            var vC = (altComp / maxLength) * maxLen;
 
                                             // calculate initial cartesian position from coordinates
                                             var startCartPos = Cesium.Cartesian3.fromDegrees(
@@ -1656,7 +1658,7 @@ define([
             var scalewidth = width - margin * 2;
 
             var combinedId = pId;
-            if(parIdx !== -1){
+            if (parIdx !== -1) {
                 /*If original collection identifier available remove it*/
                 if (_.has(this.colorscales, combinedId)) {
                     // remove object from cesium scene
@@ -1666,20 +1668,20 @@ define([
                     delete this.colorscales[combinedId];
                     this.removeColorscaleTooltipDiv(combinedId);
                 }
-                combinedId+=parIdx;
+                combinedId += parIdx;
             } else {
                 // Check if some version with indexes are still there
                 // maximum of 10 referenced parameters expected
                 for (var i = 0; i < 10; i++) {
-                    var tmpid = pId+i;
+                    var tmpid = pId + i;
                     if (_.has(this.colorscales, tmpid)) {
                     // remove object from cesium scene
-                    this.map.scene.primitives.remove(this.colorscales[tmpid].prim);
-                    this.map.scene.primitives.remove(this.colorscales[tmpid].csPrim);
-                    indexDel = this.colorscales[tmpid].index;
-                    delete this.colorscales[tmpid];
-                    this.removeColorscaleTooltipDiv(tmpid);
-                }
+                        this.map.scene.primitives.remove(this.colorscales[tmpid].prim);
+                        this.map.scene.primitives.remove(this.colorscales[tmpid].csPrim);
+                        indexDel = this.colorscales[tmpid].index;
+                        delete this.colorscales[tmpid];
+                        this.removeColorscaleTooltipDiv(tmpid);
+                    }
                 }
             }
 
@@ -1689,7 +1691,7 @@ define([
                 }
             }, this);
 
-            
+
             if (_.has(this.colorscales, combinedId)) {
                 // remove object from cesium scene
                 this.map.scene.primitives.remove(this.colorscales[combinedId].prim);
@@ -1716,7 +1718,7 @@ define([
                         );
                         obj[key].index = i;
                         // needed to refresh colorscale tooltip divs when products are added or removed
-                        if(parIdx!==-1){
+                        if (parIdx !== -1) {
                             key = key.slice(0, -1);
                         }
                         var productFromColorscale = _.find(globals.products.models, function (prod) {
@@ -1739,14 +1741,12 @@ define([
             if (product && product.get('showColorscale') &&
                 product.get('visible')) {
 
-                var options = product.get('parameters');
-
                 var sel = parameter;
 
                 var prodToSat = {};
                 var proObj = globals.swarm.products;
-                for (var coll in proObj){
-                    for (var sat in proObj[coll]){
+                for (var coll in proObj) {
+                    for (var sat in proObj[coll]) {
                         prodToSat[proObj[coll][sat]] = sat;
                     }
                 }
@@ -1755,10 +1755,10 @@ define([
 
                 var variableExceptions = ['J'];
 
-                if(data.hasOwnProperty('__info__') && data['__info__'].hasOwnProperty('variables')){
-                    if(data.__info__.variables.hasOwnProperty(sat)){
-                        if(data.__info__.variables[sat].indexOf(sel) === -1 &&
-                            variableExceptions.indexOf(sel) === -1){
+                if (data.hasOwnProperty('__info__') && data['__info__'].hasOwnProperty('variables')) {
+                    if (data.__info__.variables.hasOwnProperty(sat)) {
+                        if (data.__info__.variables[sat].indexOf(sel) === -1 &&
+                            variableExceptions.indexOf(sel) === -1) {
                             visible = false;
                         }
                     } else {
@@ -1766,7 +1766,7 @@ define([
                     }
                 }
 
-                if(visible){
+                if (visible) {
                     var rangeMin = product.get('parameters')[sel].range[0];
                     var rangeMax = product.get('parameters')[sel].range[1];
                     var uom = product.get('parameters')[sel].uom;
@@ -2178,7 +2178,7 @@ define([
                 var fl_data = this.FLData[FLProduct][fieldline.id];
                 // prepare template data
                 var apex;
-                if(fl_data.hasOwnProperty('apex_point') && fl_data.apex_point !== null) {
+                if (fl_data.hasOwnProperty('apex_point') && fl_data.apex_point !== null) {
                     apex = {
                         lat: fl_data['apex_point'][0].toFixed(3),
                         lon: fl_data['apex_point'][1].toFixed(3),
@@ -2191,7 +2191,7 @@ define([
                     lon: fl_data['ground_points'][0][1].toFixed(3),
                 }];
 
-                if(fl_data.ground_points.length>1){
+                if (fl_data.ground_points.length > 1) {
                     ground_points.push({
                         lat: fl_data['ground_points'][1][0].toFixed(3),
                         lon: fl_data['ground_points'][1][1].toFixed(3)
@@ -2209,7 +2209,7 @@ define([
                 $('.close-fieldline-label').on('click', this.hideFieldLinesLabel.bind(this));
                 // highlight points
                 this.FLbillboards.removeAll();
-                if(apex){
+                if (apex) {
                     this.highlightFieldLinesPoints(
                         [].concat(
                             [fl_data['apex_point']],
@@ -2226,17 +2226,17 @@ define([
 
         hideFieldLinesLabel: function () {
             $('#fieldlines_label').addClass('hidden');
-            if(this.FLbillboards){
+            if (this.FLbillboards) {
                 this.FLbillboards.removeAll();
             }
         },
 
         onHighlightPoint: function (coords, fieldlines_highlight) {
             var wrongInput = !coords || (coords.length === 3 && _.some(coords, function (el) {
-              return isNaN(el);
+                return isNaN(el);
             }));
             if (wrongInput) {
-              return null;
+                return null;
             }
             // either highlight single point or point on a fieldline
             if (!fieldlines_highlight) {
@@ -2392,7 +2392,7 @@ define([
                         right: [c.right.x, c.right.y, c.right.z]
                     }));
 
-                    if(this.map.scene.mode === 2){
+                    if (this.map.scene.mode === 2) {
                         localStorage.setItem('frustum', JSON.stringify({
                             bottom: c.frustum.bottom,
                             left: c.frustum.left,
@@ -2593,10 +2593,10 @@ define([
         },
 
         resetInitialView: function () {
-          this.map.scene.camera.flyTo({
-              destination: Cesium.Cartesian3.fromDegrees(20, 30, 10000000),
-              duration: 0.2,
-          });
+            this.map.scene.camera.flyTo({
+                destination: Cesium.Cartesian3.fromDegrees(20, 30, 10000000),
+                duration: 0.2,
+            });
         },
 
         toggleDebug: function () {
