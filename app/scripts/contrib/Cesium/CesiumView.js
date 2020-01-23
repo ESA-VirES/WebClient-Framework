@@ -1486,7 +1486,7 @@ define([
                             sel = key;
                         }
                     });
-
+                    // disabling colorscale when data do not contain selected parameter
                     var prodToSat = {};
                     var proObj = globals.swarm.products;
                     for (var coll in proObj){
@@ -1505,6 +1505,12 @@ define([
                         } else {
                             visible = false;
                         }
+                    }
+
+                    // Magnetic Model product is not under any swarm satellite and does not appear in 'data'
+                    // for above check, therefore it is always marked as invisible, this fixes it
+                    if (product.get('components')) {
+                      visible = true;
                     }
 
                     if(visible){
