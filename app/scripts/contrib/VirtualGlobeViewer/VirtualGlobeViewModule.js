@@ -76,69 +76,6 @@ define([
         };
 
         var setupKeyboardShortcuts = function(controller) {
-            var keypressListener = new keypress.Listener();
-            keypressListener.simple_combo('a', function() {
-                controller.zoomTo(controller.getStartPosition());
-            });
-
-            var speed = 300;
-
-            // FIXXME: for some reasons a keys array as parameter is not working for
-            // registering multiple keys, although the documentation states that that
-            // should work...
-            keypressListener.simple_combo('1', function() {
-                controller.setTilt(90, speed);
-            });
-
-            keypressListener.simple_combo('num_1', function() {
-                controller.setTilt(90, speed);
-            });
-
-            keypressListener.simple_combo('2', function() {
-                controller.setTilt(45, speed);
-            });
-
-            keypressListener.simple_combo('num_2', function() {
-                controller.setTilt(45, speed);
-            });
-
-            keypressListener.simple_combo('3', function() {
-                controller.setTilt(15, speed);
-            });
-
-            keypressListener.simple_combo('num_3', function() {
-                controller.setTilt(15, speed);
-            });
-
-            // // level 0 tiles only:
-            // keypressListener.simple_combo('1', function() {
-            //     controller.zoomTo({
-            //         center: [45, 0],
-            //         distance: 20000000,
-            //         duration: 1,
-            //         tilt: 30
-            //     });
-            // });
-
-            // // level 2 tiles only:
-            // keypressListener.simple_combo('2', function() {
-            //     controller.zoomTo({
-            //         center: [45, 0],
-            //         distance: 15000000,
-            //         duration: 1,
-            //         tilt: 30
-            //     });
-            // });
-
-            // // level 3 tiles only:
-            // keypressListener.simple_combo('3', function() {
-            //     controller.zoomTo({
-            //         center: [45, 0],
-            //         distance: 10000000,
-            //         duration: 1,
-            //         tilt: 30
-            //     });
-            // });
         };
     });
 });

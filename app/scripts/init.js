@@ -49,9 +49,6 @@
             timeslider: {
                 deps: ['d3']
             },
-            keypress: {
-                exports: 'Keypress'
-            },
             xtk: {
                 exports: 'X'
             },
@@ -124,9 +121,6 @@
 
             /* marionette and handlebars plugin */
             'marionette.handlebars': '../bower_components/backbone.marionette.handlebars/backbone.marionette.handlebars.min',
-
-
-            keypress: '../bower_components/Keypress/keypress',
 
             papaparse: '../bower_components/papaparse/papaparse.min',
 
