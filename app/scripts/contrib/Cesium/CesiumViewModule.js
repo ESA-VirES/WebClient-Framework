@@ -3,9 +3,8 @@ define([
     'app',
     'communicator',
     './CesiumViewController',
-    './CesiumViewRouter',
-    'keypress'
-], function(Marionette, App, Communicator, CesiumViewController, CesiumViewRouterController, keypress) {
+    './CesiumViewRouter'
+], function(Marionette, App, Communicator, CesiumViewController, CesiumViewRouterController) {
 
     'use strict';
 
@@ -27,12 +26,7 @@ define([
 
         this.createController = function(opts) {
 
-            var setupKeyboardShortcuts = function(controller) {
-                /*var keypressListener = new keypress.Listener();
-                keypressListener.simple_combo("ctrl d", function() {
-                    controller.toggleDebug();
-                });*/
-            };
+            var setupKeyboardShortcuts = function(controller) {};
 
             var i = this.insance;
             if(this.insance === undefined){

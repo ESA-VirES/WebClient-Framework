@@ -56,7 +56,10 @@
                 "id": "MMA_SHA_2F-Secondary",
                 "name": "MMA_SHA_2F Secondary"
             },
-            {"id": "IGRF12"},
+            {
+                "id": "IGRF",
+                "name": "IGRF-13"
+            },
             {"id": "LCS-1"},
             {"id": "MF7"},
             {
@@ -82,6 +85,7 @@
             }
         ],
         "modelIdTranslation": {
+            "IGRF12": "IGRF",
             "CHAOS-6-Core": "CHAOS-Core",
             "CHAOS-6-Static": "CHAOS-Static",
             "CHAOS-6-MMA-Primary": "CHAOS-MMA-Primary",
