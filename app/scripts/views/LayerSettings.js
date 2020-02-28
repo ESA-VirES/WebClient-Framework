@@ -738,8 +738,10 @@
                     '<div id="gradient" style="width:' + scalewidth + 'px;margin-left:' + margin + 'px"></div>'
                 );
                 /*'<div class="'+style+'" style="width:'+scalewidth+'px; height:20px; margin-left:'+margin+'px"></div>'*/
-
-                this.plot.setColorScale(style);
+                if (this.plot) {
+                  // plotty might not be initialized yet
+                  this.plot.setColorScale(style);
+                }
                 var base64_string = this.plot.colorScaleImage.toDataURL();
                 $('#gradient').css('background-image', 'url(' + base64_string + ')');
 

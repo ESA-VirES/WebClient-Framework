@@ -239,7 +239,7 @@ define(['backbone.marionette',
                 this.$('.d3canvas').append('<div id="filterDivContainer"></div>');
                 this.$('#filterDivContainer').append('<div id="analyticsFilters"></div>');
                 this.$el.append('<div id="nodataavailable"></div>');
-                $('#nodataavailable').text('No data available for current selection');
+                $('#nodataavailable').html('<span>Loading data</span> <i class="fa fa-spinner fa-spin"></i>');
 
             } else if (this.graph) {
                 this.graph.resize();
@@ -1170,6 +1170,7 @@ define(['backbone.marionette',
                     this.renderFilterList();
                 } else {
                     this.prevParams = idKeys;
+                    $('#nodataavailable').text('No data available for current selection');
                     $('#nodataavailable').show();
                     $('.d3canvas').hide();
                 }
