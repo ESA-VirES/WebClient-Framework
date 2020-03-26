@@ -914,18 +914,26 @@
                                     "$('.close-model-sources').on('click', function(){$('.model-sources-label').addClass('hidden')}); }",
                                 ].join('');
 
-                                return template([
+                                var html = [
                                     '<div class="choices__item choices__item--selectable data-item composed_model_choices_holding_div" data-id="', classNames.id, '" data-value="', classNames.value, '" data-deletable>',
                                     '<input type="button" value="', data.signToHtml[data.sign], '" class="composed_model_operation_operand btn-info" title="Change model sign" onclick="', switchSign, '">',
                                     '<span class="composed_model_operation_label">', data.name, '</span>',
                                     '<button type="button" class="composed_model_delete_button choices__button" data-button>Remove item</button>',
-                                    '<div class="degree_range_selection_input">',
-                                    '<input type="text" placeholder="', data.defaults.min_degree, '" value="', data.getMinDegree(), '" onclick="', onClickHandler, '" onkeydown="', onKeyDownHandler, '" onblur="', updateMinDegree, '" class="composed_model_operation_coefficient_min" title="Minimum model degree.">',
-                                    '<input type="text" placeholder="', data.defaults.max_degree, '" value="', data.getMaxDegree(), '" onclick="', onClickHandler, '" onkeydown="', onKeyDownHandler, '" onblur="', updateMaxDegree, '" class="composed_model_operation_coefficient_max" title="Maximum model degree.">',
+                                    '<div class="degree_range_selection_input">'
+                                ];
+                                if ((data.defaults.max_degree !== 0) && (data.defaults.min_degre !== 0)) {
+                                    html = html.concat([
+                                        '<input type="text" placeholder="', data.defaults.min_degree, '" value="', data.getMinDegree(), '" onclick="', onClickHandler, '" onkeydown="', onKeyDownHandler, '" onblur="', updateMinDegree, '" class="composed_model_operation_coefficient_min" title="Minimum model degree.">',
+                                        '<input type="text" placeholder="', data.defaults.max_degree, '" value="', data.getMaxDegree(), '" onclick="', onClickHandler, '" onkeydown="', onKeyDownHandler, '" onblur="', updateMaxDegree, '" class="composed_model_operation_coefficient_max" title="Maximum model degree.">'
+                                    ]);
+                                }
+                                html = html.concat([
                                     '</div>',
                                     '<i type="button" class="composed_model_info_button fa fa-info-circle btn-info" title="Show model sources" onclick="', showInfo, '"></i>',
                                     '</div>'
-                                ].join(''));
+                                ]);
+
+                                return template(html.join(''));
                             }
                         };
                     }
