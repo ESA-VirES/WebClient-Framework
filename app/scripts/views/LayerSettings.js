@@ -733,8 +733,8 @@
                 );
                 /*'<div class="'+style+'" style="width:'+scalewidth+'px; height:20px; margin-left:'+margin+'px"></div>'*/
                 if (this.plot) {
-                  // plotty might not be initialized yet
-                  this.plot.setColorScale(style);
+                    // plotty might not be initialized yet
+                    this.plot.setColorScale(style);
                 }
                 var base64_string = this.plot.colorScaleImage.toDataURL();
                 $('#gradient').css('background-image', 'url(' + base64_string + ')');
