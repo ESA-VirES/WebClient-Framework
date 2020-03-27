@@ -624,6 +624,7 @@ var REPLACED_SCALAR_VARIABLES = {
                     "EEF": {
                         "Alpha": "SW_OPER_EEFATMS_2F",
                         "Bravo": "SW_OPER_EEFBTMS_2F",
+                        "Charlie": "SW_OPER_EEFCTMS_2F",
                         "Upload": "SW_OPER_EEFUTMS_2F",
                     },
                     "IPD": {
