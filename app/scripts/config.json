@@ -2064,8 +2064,8 @@
             ],
             "parameters": {
                 "EEF": {
-                    "range": [-0.001, 0.001],
-                    "uom":"V/m",
+                    "range": [-1.0, 1.0],
+                    "uom":"mV/m",
                     "selected": true,
                     "colorscale": "diverging_1",
                     "name": "Estimate of the equatorial electric field"
@@ -2085,14 +2085,18 @@
                     "name": "Geographic longitude"
                 },
                 "EEF": {
-                    "uom": "V/m",
-                    "name": "Ionospheric radial current"
+                    "uom": "mV/m",
+                    "name": "Estimate of the equatorial electric field"
+                },
+                "EEJ": {
+                    "uom": "mA/m",
+                    "name": "Height-integrated east current profile in QD latitude"
                 },
                 "RelErr": {
                     "uom": null,
-                    "name": "Quality indicator of EEF estimate; relative error between modeled and observed current profil"
+                    "name": "Quality indicator of EEF estimate; relative error between modeled and observed current profile"
                 },
-                "flags": {
+                "Flags": {
                     "uom": null,
                     "name": "Flags describing data gaps and satellite identification"
                 },
@@ -2135,8 +2139,8 @@
             ],
             "parameters": {
                 "EEF": {
-                    "range": [-0.001, 0.001],
-                    "uom":"V/m",
+                    "range": [-1.0, 1.0],
+                    "uom":"mV/m",
                     "selected": true,
                     "colorscale": "diverging_1",
                     "name": "Estimate of the equatorial electric field"
@@ -2156,14 +2160,18 @@
                     "name": "Geographic longitude"
                 },
                 "EEF": {
-                    "uom": "V/m",
-                    "name": "Ionospheric radial current"
+                    "uom": "mV/m",
+                    "name": "Estimate of the equatorial electric field"
+                },
+                "EEJ": {
+                    "uom": "mA/m",
+                    "name": "Height-integrated east current profile in QD latitude"
                 },
                 "RelErr": {
                     "uom": null,
-                    "name": "Quality indicator of EEF estimate; relative error between modeled and observed current profil"
+                    "name": "Quality indicator of EEF estimate; relative error between modeled and observed current profile"
                 },
-                "flags": {
+                "Flags": {
                     "uom": null,
                     "name": "Flags describing data gaps and satellite identification"
                 },
@@ -2175,6 +2183,81 @@
                 {
                     "id": "retrieve_data",
                     "layer_id": "SW_OPER_EEFBTMS_2F"
+                }
+            ],
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "EEF C TMS",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#b82e2e",
+            "views": [{
+                "id": "SW_OPER_EEFCTMS_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_EEFCTMS_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_EEFCTMS_2F"
+                }
+            ],
+            "parameters": {
+                "EEF": {
+                    "range": [-1.0, 1.0],
+                    "uom":"mV/m",
+                    "selected": true,
+                    "colorscale": "diverging_1",
+                    "name": "Estimate of the equatorial electric field"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time stamp in UTC"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Geographic latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Geographic longitude"
+                },
+                "EEF": {
+                    "uom": "mV/m",
+                    "name": "Estimate of the equatorial electric field"
+                },
+                "EEJ": {
+                    "uom": "mA/m",
+                    "name": "Height-integrated east current profile in QD latitude"
+                },
+                "RelErr": {
+                    "uom": null,
+                    "name": "Quality indicator of EEF estimate; relative error between modeled and observed current profile"
+                },
+                "Flags": {
+                    "uom": null,
+                    "name": "Flags describing data gaps and satellite identification"
+                },
+                "OrbitNumber": {
+                    "uom": null,
+                    "name": "Orbit Number"
+                }
+            },"processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_EEFCTMS_2F"
                 }
             ],
             "outlines": false,
@@ -3657,8 +3740,8 @@
               ],
               "parameters": {
                   "EEF": {
-                      "range": [-0.001, 0.001],
-                      "uom":"V/m",
+                      "range": [-1.0, 1.0],
+                      "uom":"mV/m",
                       "selected": true,
                       "colorscale": "diverging_1",
                       "name": "Estimate of the equatorial electric field"
