@@ -780,6 +780,7 @@
         if (filteroptions.hasOwnProperty('q_NEC_CRF')) {delete filteroptions['q_NEC_CRF'];}
         if (filteroptions.hasOwnProperty('GPS_Position')) {delete filteroptions['GPS_Position'];}
         if (filteroptions.hasOwnProperty('LEO_Position')) {delete filteroptions['LEO_Position'];}
+        if (filteroptions.hasOwnProperty('EEJ')) {delete filteroptions['EEJ'];}
 
         $('#filters').append(
           '<div class="w2ui-field"> <input type="list" id="addfilter"> <button id="downloadAddFilter" type="button" class="btn btn-default dropdown-toggle">Add filter <span class="caret"></span></button> </div>'
