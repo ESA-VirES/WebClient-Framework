@@ -12,6 +12,93 @@ define(['backbone.marionette',
     'analytics'
 ], function (Marionette, Communicator, App, AVModel, globals) {
     'use strict';
+
+    // TODO: find a better place to put the extra parameters' configuration
+    var EXTRA_PARAMETERS = {
+        "MLT": {
+            "uom": "hr",
+            "name": "Magnetic Local Time",
+            "periodic": {"period": 24, "offset": 0}
+        },
+        "QDLat": {
+            "uom": "deg",
+            "name": "Quasi-Dipole Latitude"
+        },
+        "QDLon": {
+            "uom": "deg",
+            "name": "Quasi-Dipole Longitude",
+            "periodic": {"period": 360, "offset": -180}
+        },
+        "Dst": {
+            "uom": null,
+            "name": "Disturbance storm time Index"
+        },
+        "Kp": {
+            "uom": null,
+            "name": "Global geomagnetic storm Index"
+        },
+        "F107": {
+            "uom": "1e-22 J/s/m^2/Hz",
+            "name": "Observed 10.7cm Solar Radio Flux"
+        },
+        "OrbitNumber": {
+            "uom": null,
+            "name": "Orbit number"
+        },
+        "Latitude_periodic": {
+            "uom": "deg",
+            "periodic": {"period": 360, "offset": 0, "specialTicks": true}
+        },
+        "QDLatitude_periodic": {
+            "uom": "deg",
+            "periodic": {"period": 360, "offset": 0, "specialTicks": true}
+        },
+        "SunAzimuthAngle": {
+            "uom": "deg",
+            "name": "Local Sun azimuth angle"
+        },
+        "SunZenithAngle": {
+            "uom": "deg",
+            "name": "Local Sun zenith angle"
+        },
+        "SunHourAngle": {
+            "uom": "deg",
+            "name": "Local Sun hour angle"
+        },
+        "SunDeclination": {
+            "uom": "deg",
+            "name": "Sun declination"
+        },
+        "SunRightAscension": {
+            "uom": "deg",
+            "name": "Sun right ascension"
+        },
+        "OrbitDirection": {
+            "uom": null,
+            "name": "Orbit direction in geographic coordinates."
+        },
+        "QDOrbitDirection": {
+            "uom": null,
+            "name": "Orbit direction in Quasi-dipole coordinates."
+        }
+    };
+
+    var UPDATED_PARAMETERS = {
+        "Timestamp": {
+            "uom": null,
+            "scaleFormat": "time"
+        },
+        "timestamp": {
+            "uom": null,
+            "scaleFormat": "time"
+        },
+        "Longitude": {
+            "uom": "deg",
+            "periodic": {"period": 360, "offset": -180}
+        }
+    };
+
+
     var AVView = Marionette.View.extend({
         model: new AVModel.AVModel(),
         className: 'analytics',
@@ -136,7 +223,7 @@ define(['backbone.marionette',
                 this.$('.d3canvas').append('<div id="filterDivContainer"></div>');
                 this.$('#filterDivContainer').append('<div id="analyticsFilters"></div>');
                 this.$el.append('<div id="nodataavailable"></div>');
-                $('#nodataavailable').text('No data available for current selection');
+                $('#nodataavailable').html('<span>Loading data</span> <i class="fa fa-spinner fa-spin"></i>');
 
             } else if (this.graph) {
                 this.graph.resize();
@@ -478,27 +565,6 @@ define(['backbone.marionette',
             }
         },
 
-        separateVector: function (key, previousKey, vectorChars, separator) {
-            if (this.sp.uom_set.hasOwnProperty(previousKey)) {
-                _.each(vectorChars, function (k) {
-                    this.sp.uom_set[key + separator + k] =
-                        $.extend({}, this.sp.uom_set[previousKey]);
-                    this.sp.uom_set[key + separator + k].name =
-                        'Component of ' + this.sp.uom_set[previousKey].name;
-                }, this);
-            }
-            if (this.activeParameters.hasOwnProperty(previousKey)) {
-                _.each(vectorChars, function (k) {
-                    this.activeParameters[key + separator + k] =
-                        $.extend({}, this.activeParameters[previousKey]);
-                    this.activeParameters[key + separator + k].name =
-                        'Component of ' + this.activeParameters[previousKey].name;
-                }, this);
-                delete this.activeParameters[previousKey];
-            }
-
-        },
-
         createSubscript: function createSubscript(string) {
             // Adding subscript elements to string which contain underscores
             var newkey = "";
@@ -515,135 +581,58 @@ define(['backbone.marionette',
         },
 
         reloadUOM: function () {
-            // Prepare to create list of available parameters
             var availableParameters = {};
             var activeParameters = {};
-            this.sp = {
-                uom_set: {}
-            };
-            globals.products.each(function (prod) {
-                if (prod.get('download_parameters')) {
-                    var par = prod.get('download_parameters');
-                    var newKeys = _.keys(par);
-                    _.each(newKeys, function (key) {
-                        availableParameters[key] = par[key];
-                        if (prod.get('visible')) {
-                            activeParameters[key] = par[key];
-                        }
-                    });
 
+            // extract parameters from the product configuration
+            globals.products.each(function (product) {
+                var parameters = product.get('download_parameters') || {};
+                _.extend(availableParameters, parameters);
+                if (product.get('visible')) {
+                    _.extend(activeParameters, parameters);
                 }
             });
-            this.sp.uom_set = availableParameters;
-            this.activeParameters = activeParameters;
 
-            // Remove uom of time
-            if (this.sp.uom_set.hasOwnProperty('Timestamp')) {
-                this.sp.uom_set['Timestamp'].uom = null;
-                this.sp.uom_set['Timestamp'].scaleFormat = 'time';
-            } else {
-                this.sp.uom_set['Timestamp'] = {scaleFormat: 'time'};
-            }
-            // Remove uom of time
-            if (this.sp.uom_set.hasOwnProperty('timestamp')) {
-                this.sp.uom_set['timestamp'].uom = null;
-                this.sp.uom_set['timestamp'].scaleFormat = 'time';
-            } else {
-                this.sp.uom_set['timestamp'] = {scaleFormat: 'time'};
-            }
-
-            // Special cases for separeted vectors
-            this.separateVector('B_error', 'B_error', ['X', 'Y', 'Z'], '_');
-            this.separateVector('B', 'B_NEC', ['N', 'E', 'C'], '_');
-            this.separateVector('B', 'B_NEC', ['N', 'E', 'C'], '_');
-            this.separateVector('B_VFM', 'B_VFM', ['X', 'Y', 'Z'], '_');
-            this.separateVector('B', 'B_NEC_resAC',
-                ['resAC_N', 'resAC_E', 'resAC_C'], '_'
-            );
-
-            var models = globals.products.filter(function (p) {
-                return p.get('model');
-            });
-            var contextHolder = this;
-            _.each(models, function (key) {
-                var n = key.get("download").id;
-                contextHolder.separateVector('B', 'B_NEC_res_' + n,
-                    ['N_res_' + n, 'E_res_' + n, 'C_res_' + n], '_');
+            // update parameters
+            _.each(UPDATED_PARAMETERS, function (values, name) {
+                if (availableParameters.hasOwnProperty(name)) {
+                    _.extend(availableParameters[name], values);
+                }
             });
 
-            this.separateVector('dB_other', 'dB_other', ['X', 'Y', 'Z'], '_');
-            this.separateVector('dB_AOCS', 'dB_AOCS', ['X', 'Y', 'Z'], '_');
-            this.separateVector('dB_Sun', 'dB_Sun', ['X', 'Y', 'Z'], '_');
+            // add extra parameters
+            _.each(EXTRA_PARAMETERS, function (values, name) {
+                availableParameters[name] = _.clone(values);
+            });
 
-            this.separateVector('GPS_Position', 'GPS_Position', ['X', 'Y', 'Z'], '_');
-            this.separateVector('LEO_Position', 'LEO_Position', ['X', 'Y', 'Z'], '_');
-
-            this.sp.uom_set['MLT'] = {
-                uom: null, name: 'Magnetic Local Time',
-                periodic: {
-                    period: 24,
-                    offset: 0
-                }
-            };
-
-            if (this.sp.uom_set.hasOwnProperty('Longitude')) {
-                this.sp.uom_set['Longitude'].periodic = {
-                    period: 360,
-                    offset: -180
-                };
-            }
-            this.sp.uom_set['QDLat'] = {
-                uom: 'deg', name: 'Quasi-Dipole Latitude'
-            };
-            this.sp.uom_set['QDLon'] = {
-                uom: 'deg', name: 'Quasi-Dipole Longitude',
-                periodic: {
-                    period: 360,
-                    offset: -180
-                }
-            };
-            this.sp.uom_set['Dst'] = {
-                uom: null, name: 'Disturbance storm time Index'
-            };
-            this.sp.uom_set['Kp'] = {
-                uom: null, name: 'Global geomagnetic storm Index'
-            };
-            this.sp.uom_set['F107'] = {
-                uom: '1e-22 J/s/m^2/Hz', name: 'Observed 10.7cm Solar Radio Flux'
-            };
-            this.sp.uom_set['OrbitNumber'] = {
-                uom: null, name: 'Orbit number'
+            // split vectors into their components
+            var _splitVector = function (object, vector, components, remove) {
+                if (!object.hasOwnProperty(vector)) {return;}
+                _.each(components, function (component) {
+                    object[component] = _.clone(object[vector]);
+                    object[component].name = 'Component of ' + object[vector].name;
+                });
+                if (remove) {delete object[vector];}
             };
 
-            this.sp.uom_set['Latitude_periodic'] = {
-                periodic: {
-                    period: 360,
-                    offset: 0,
-                    specialTicks: true
-                }
-            };
+            _.each(VECTOR_BREAKDOWN, function (components, vector) {
+                _splitVector(availableParameters, vector, components, false);
+                _splitVector(activeParameters, vector, components, true);
+            });
 
-            this.sp.uom_set['QDLatitude_periodic'] = {
-                periodic: {
-                    period: 360,
-                    offset: 0,
-                    specialTicks: true
-                }
-            };
-
-            // Check if styling settings have been saved
-            if (localStorage.getItem('parameterConfiguration') !== null) {
-                var parameterSettings = JSON.parse(localStorage.getItem('parameterConfiguration'));
-                for (var k in parameterSettings) {
-                    if (this.sp.uom_set.hasOwnProperty(k)) {
-                        for (var innerKey in parameterSettings[k]) {
-                            this.sp.uom_set[k][innerKey] = parameterSettings[k][innerKey];
-                        }
+            // load saved settings
+            var parameterSettings = JSON.parse(localStorage.getItem('parameterConfiguration'));
+            if (parameterSettings !== null) {
+                _.each(parameterSettings, function (values, name) {
+                    if (availableParameters.hasOwnProperty(name)) {
+                        _.extend(availableParameters[name], values);
                     }
-                }
+                });
             }
 
-            globals.swarm.set('uom_set', this.sp.uom_set);
+            this.sp = {uom_set: availableParameters};
+            this.activeParameters = activeParameters;
+            globals.swarm.set('uom_set', availableParameters);
         },
 
         handleItemSelected: function handleItemSelected(evt) {
@@ -1143,6 +1132,7 @@ define(['backbone.marionette',
                     this.filterManager.loadData(data);
                     this.renderFilterList();
                 } else {
+                    $('#nodataavailable').text('No data available for current selection');
                     $('#nodataavailable').show();
                     $('.d3canvas').hide();
                 }

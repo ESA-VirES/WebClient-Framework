@@ -366,6 +366,34 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },
             "outlines": false,
@@ -515,6 +543,34 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },
             "outlines": false,
@@ -663,6 +719,34 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },
             "outlines": false,
@@ -799,6 +883,34 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },"processes" : [
                 {
@@ -941,6 +1053,34 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },"processes" : [
                 {
@@ -1083,6 +1223,34 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },"processes" : [
                 {
@@ -1247,6 +1415,34 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },"processes" : [
                 {
@@ -1411,6 +1607,34 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },"processes" : [
                 {
@@ -1575,6 +1799,34 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },"processes" : [
                 {
@@ -1689,6 +1941,34 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },"processes" : [
                 {
@@ -1802,6 +2082,34 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },"processes" : [
                 {
@@ -1915,6 +2223,34 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },"processes" : [
                 {
@@ -2028,6 +2364,34 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },"processes" : [
                 {
@@ -2103,6 +2467,14 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },"processes" : [
                 {
@@ -2178,6 +2550,14 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },"processes" : [
                 {
@@ -2253,6 +2633,14 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },"processes" : [
                 {
@@ -2353,6 +2741,34 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },"processes" : [
                 {
@@ -2453,6 +2869,34 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },"processes" : [
                 {
@@ -2553,6 +2997,34 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },"processes" : [
                 {
@@ -2872,6 +3344,34 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },"processes" : [
                 {
@@ -3191,6 +3691,34 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },"processes" : [
                 {
@@ -3510,6 +4038,34 @@
                 "OrbitNumber": {
                     "uom": null,
                     "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
                 }
             },"processes" : [
                 {
