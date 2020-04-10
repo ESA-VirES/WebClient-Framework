@@ -38,6 +38,9 @@
                 "id": "MLI_SHA_2D"
             },
             {
+                "id": "MLI_SHA_2E"
+            },
+            {
                 "id": "MIO_SHA_2C",
                 "name": "MIO_SHA_2C (complete)",
                 "blockDegreeSelection": true,
