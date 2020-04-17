@@ -121,7 +121,11 @@
                         index > 0 || item.sign !== '+' ? sign[item.sign] + ' ' : '',
                         conf.name || item.id,
                     ].join('');
-                    if (showDegreeRange) {
+                    var hasDegreeRange = (
+                        (model.parameters.min_degree !== 0) &&
+                        (model.parameters.max_degree !== 0)
+                    );
+                    if (hasDegreeRange && showDegreeRange) {
                         modelString += [
                             '[',
                             _default(item.parameters.min_degree, model.parameters ? model.parameters.min_degree : ''),
