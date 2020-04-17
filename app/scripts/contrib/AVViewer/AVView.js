@@ -41,6 +41,22 @@ define(['backbone.marionette',
             "uom": "1e-22 J/s/m^2/Hz",
             "name": "Observed 10.7cm Solar Radio Flux"
         },
+        "IMF_BY_GSM": {
+            "uom": "nT",
+            "name": "By GSM - merged 1 hour OMNI data"
+        },
+        "IMF_BZ_GSM": {
+            "uom": "nT",
+            "name": "Bz GSM - merged 1 hour OMNI data"
+        },
+        "IMF_V": {
+            "uom": "km/s",
+            "name": "Plasma flow speed- merged 1 hour OMNI data"
+        },
+        "F10_INDEX": {
+            "uom": "1e-22 J/s/m^2/Hz",
+            "name": "F10.7 - Daily 10.7 cm solar radio flux from NGDC (1963/001-2017/341)"
+        },
         "OrbitNumber": {
             "uom": null,
             "name": "Orbit number"
@@ -910,7 +926,9 @@ define(['backbone.marionette',
                             'Relative_STEC_RMS', 'Relative_STEC', 'Absolute_STEC',
                             'Absolute_VTEC', 'Elevation_Angle',
                             'IRC', 'FAC',
-                            'EEF'
+                            'EEF',
+                            'J_QD', 'J_N', 'J_E',
+                            'J_CF_SemiQD', 'J_DF_SemiQD'
                         ];
 
                         filterstouse = filterstouse.concat(['MLT']);
@@ -970,7 +988,7 @@ define(['backbone.marionette',
                         // does we add key parameter to selection in plot
                         var parasToCheck = [
                             'Ne', 'F', 'Bubble_Probability', 'Absolute_STEC',
-                            'FAC', 'EEF'
+                            'FAC', 'EEF', 'J_QD', 'J_CF_SemiQD', 'J_DF_SemiQD'
                         ];
 
                         // Go trough all plots and see if they need to be removed
@@ -1097,6 +1115,25 @@ define(['backbone.marionette',
                         this.graph.renderSettings.colorAxis = colAx;
                         this.graph.renderSettings.colorAxis2 = colAx2;
 
+                        // Save all changes done to plotConfiguration
+                        var grapRS = this.graph.renderSettings;
+                        var currL = grapRS.yAxis.length;
+                        var confArr = [];
+                        for (var i = 0; i < currL; i++) {
+                            confArr.push({
+                                yAxis: grapRS.yAxis[i],
+                                yAxisLabel: this.graph.yAxisLabel[i],
+                                y2Axis: grapRS.y2Axis[i],
+                                y2AxisLabel: this.graph.y2AxisLabel[i],
+                                colorAxis: grapRS.colorAxis[i],
+                                colorAxis2: grapRS.colorAxis2[i]
+                            });
+                        }
+
+                        localStorage.setItem(
+                            'plotConfiguration', JSON.stringify(confArr)
+                        );
+
                         // End of IF to see if data parameters have changed
                     } else if (this.prevParams === null) {
                         // TODO: We should not need to do anything here but we
@@ -1132,6 +1169,7 @@ define(['backbone.marionette',
                     this.filterManager.loadData(data);
                     this.renderFilterList();
                 } else {
+                    this.prevParams = idKeys;
                     $('#nodataavailable').text('No data available for current selection');
                     $('#nodataavailable').show();
                     $('.d3canvas').hide();

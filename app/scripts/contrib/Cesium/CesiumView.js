@@ -10,16 +10,18 @@ define([
     'globals',
     'msgpack',
     'httpRequest',
+    'dataUtil',
     'hbs!tmpl/wps_eval_composed_model',
     'hbs!tmpl/wps_get_field_lines',
     'hbs!tmpl/FieldlinesLabel',
+    'hbs!tmpl/wps_fetchData',
     'cesium/Cesium',
     'drawhelper',
     'FileSaver',
     'plotty'
 ], function (
     Marionette, Communicator, App, MapModel, globals, msgpack, httpRequest,
-    tmplEvalModel, tmplGetFieldLines, tmplFieldLinesLabel
+    DataUtil, tmplEvalModel, tmplGetFieldLines, tmplFieldLinesLabel, wps_fetchDataTmpl
 ) {
     'use strict';
 
@@ -35,12 +37,12 @@ define([
         initialize: function (options) {
             this.sceneModeMatrix = {
                 'columbus': 1,
-                '2dview': 2, 
+                '2dview': 2,
                 'globe': 3
             },
             this.sceneModeMatrixReverse = {
                 1: 'columbus',
-                2: '2dview', 
+                2: '2dview',
                 3: 'globe'
             },
             this.map = undefined;
@@ -70,6 +72,7 @@ define([
             this.beginTime = null;
             this.endTime = null;
             this.plot = null;
+            this.xhr = null;
             this.connectDataEvents();
         },
 
@@ -215,7 +218,7 @@ define([
                 if (options.sceneMode === 2) {
 
                     var frustum = JSON.parse(localStorage.getItem('frustum'));
-                    if(frustum){
+                    if (frustum) {
                         this.map.scene.camera.frustum.right = frustum.right;
                         this.map.scene.camera.frustum.left = frustum.left;
                         this.map.scene.camera.frustum.top = frustum.top;
@@ -223,8 +226,8 @@ define([
                     }
                 }
             } else {
-              // set initial camera this way, so we can reset to the exactly same values later on
-              this.resetInitialView();
+                // set initial camera this way, so we can reset to the exactly same values later on
+                this.resetInitialView();
             }
 
             var mm = globals.objects.get('mapmodel');
@@ -314,6 +317,9 @@ define([
             this.FLbillboards = this.map.scene.primitives.add(
                 new Cesium.BillboardCollection()
             );
+            this.PBxBillboards = this.map.scene.primitives.add(
+                new Cesium.BillboardCollection()
+            );
             this.drawhelper = new DrawHelper(this.map.cesiumWidget);
             // It seems that if handlers are active directly there are some
             // object deleted issues when the draw helper tries to pick elements
@@ -391,7 +397,7 @@ define([
 
             this.map.scene.morphComplete.addEventListener(function () {
                 localStorage.setItem(
-                    'mapSceneMode', 
+                    'mapSceneMode',
                     JSON.stringify(
                         this.sceneModeMatrixReverse[this.map.scene.mode]
                     )
@@ -455,9 +461,7 @@ define([
                     }
                 }
             }
-            function synchronizeColorLegend(p) {
-                this.checkColorscale(p.get('download').id);
-            }
+
             // Go through config to make any changes done while widget
             // not active (not in view)
             globals.baseLayers.each(synchronizeLayer, this);
@@ -465,7 +469,7 @@ define([
             globals.overlays.each(synchronizeLayer, this);
 
             // Recheck color legends
-            globals.products.each(synchronizeColorLegend, this);
+            globals.products.each(this.synchronizeColorLegend, this);
 
             this.connectDataEvents();
 
@@ -526,16 +530,33 @@ define([
             $("#bboxSouthForm").val(bboxFixed.s.toFixed(4));
         },
 
+        synchronizeColorLegend: function (p) {
+            // See if active parameter has referencedParameter to show multiple
+            // colorscales per product
+            if (p.get('parameters')) {
+                var parameters = p.get('parameters');
+                var band = this.getSelectedVariable(parameters);
+                if (parameters[band].hasOwnProperty('referencedParameters')) {
+                    var refPars = parameters[band].referencedParameters;
+                    for (var i = 0; i < refPars.length; i++) {
+                        this.checkColorscale(p.get('download').id, refPars[i], i);
+                    }
+                } else {
+                    this.checkColorscale(p.get('download').id, band, -1);
+                }
+            }
+        },
+
         connectDataEvents: function () {
             globals.swarm.on('change:data', function (model, data) {
-                function synchronizeColorLegend(p) {
-                    this.checkColorscale(p.get('download').id);
-                }
-                globals.products.each(synchronizeColorLegend, this);
+
+                globals.products.each(this.synchronizeColorLegend, this);
+
                 var refKey = 'Timestamp';
                 if (!data.hasOwnProperty(refKey)) {
                     refKey = 'timestamp';
                 }
+                this.fetchAndDisplayPBxData();
                 if (data.hasOwnProperty(refKey) && data[refKey].length > 0) {
                     this.createDataFeatures(data, 'pointcollection', 'band');
                 } else {
@@ -730,7 +751,8 @@ define([
                     return product.get('model') && product.get('visible');
                 }),
                 function (product) {
-                    this.checkColorscale(product.get('download').id);
+                    var variable = this.getSelectedVariable(product.get('parameters'));
+                    this.checkColorscale(product.get('download').id, variable, -1);
                 }, this
             );
         },
@@ -839,7 +861,6 @@ define([
                 globals.products.each(function (product) {
                     if (product.get('name') === options.name) {
                         product.set('visible', options.visible);
-                        this.checkColorscale(product.get('download').id);
 
                         if (product.get('model') && this.isCustomModelSelected(product)) {
                             // When custom SHC selected switch to WPS visualization.
@@ -899,6 +920,8 @@ define([
                     }
                 }, this); // END of global products loop
             }
+            // Recheck color legends
+            globals.products.each(this.synchronizeColorLegend, this);
         }, // END of changeLayer
 
         isCustomModelSelected: function (product) {
@@ -985,6 +1008,132 @@ define([
             }
         },
 
+
+        fetchAndDisplayPBxData: function () {
+
+            var retrieve_data = [];
+
+            this.PBxBillboards.removeAll();
+
+            var relatedlayer = [
+                'SW_OPER_AEJALPS_2F', 'SW_OPER_AEJBLPS_2F', 'SW_OPER_AEJCLPS_2F',
+                'SW_OPER_AEJALPL_2F', 'SW_OPER_AEJBLPL_2F', 'SW_OPER_AEJCLPL_2F'
+            ];
+
+            globals.products.each(function (product) {
+                if (relatedlayer.indexOf(product.get("views")[0].id) != -1) {
+                    if (!product.get('visible')) {return;}
+                    var processes = product.get("processes");
+                    _.each(processes, function (process) {
+                        if (process) {
+                            switch (process.id) {
+                                case "retrieve_data":
+                                    retrieve_data.push({
+                                        layer: process.layer_id,
+                                        url: product.get("views")[0].urls[0]
+                                    });
+                                    break;
+                            }
+                        }
+                    }, this);
+                }
+            }, this);
+
+            if (retrieve_data.length > 0) {
+
+                var collections = DataUtil.parseCollections(retrieve_data);
+
+                var options = {
+                    "collections_ids": DataUtil.formatCollections(collections),
+                    "begin_time": getISODateTimeString(this.beginTime),
+                    "end_time": getISODateTimeString(this.endTime)
+                };
+
+                options.collections_ids = options.collections_ids.replace('LPS_2F', 'PBS_2F');
+                options.collections_ids = options.collections_ids.replace('LPL_2F', 'PBL_2F');
+
+                var variables = ['PointType'];
+
+
+                options.variables = variables.join(",");
+                options.mimeType = 'application/msgpack';
+
+                if (this.bboxsel !== null) {
+                    var bbox = this.bboxsel;
+                    options["bbox"] = bbox.join(",");
+                }
+
+                if (this.xhr !== null) {
+                    // A request has been sent that is not yet been returned so we need to cancel it
+                    Communicator.mediator.trigger("progress:change", false);
+                    this.xhr.abort();
+                    this.xhr = null;
+                }
+
+                this.xhr = httpRequest.asyncHttpRequest({
+                    context: this,
+                    type: 'POST',
+                    url: retrieve_data[0].url,
+                    data: wps_fetchDataTmpl(options),
+                    responseType: 'arraybuffer',
+
+                    parse: function (data, xhr) {
+                        var decodedObj = msgpack.decode(new Uint8Array(data));
+                        return decodedObj;
+                    },
+
+                    opened: function () {
+                        Communicator.mediator.trigger("progress:change", true);
+                    },
+
+                    completed: function () {
+                        this.xhr = null;
+                        Communicator.mediator.trigger("progress:change", false);
+                    },
+
+                    error: function (xhr) {
+                        globals.swarm.set({data: {}});
+                        if (xhr.responseText === "") {return;}
+                        var error_text = xhr.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
+                        if (error_text && error_text.length > 1) {
+                            error_text = error_text[1];
+                        } else {
+                            error_text = 'Please contact feedback@vires.services if issue persists.';
+                        }
+                        showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+                    },
+
+                    success: function (dat) {
+
+                        var maxRad = this.map.scene.globe.ellipsoid.maximumRadius;
+                        for (var i = 0; i < dat.Latitude.length; i++) {
+                            var imageString;
+                            if ((dat.PointType[i] & 4) == 0) {
+                                imageString = '../../../images/rectangle.png';
+                            } else if ((dat.PointType[i] & 4) == 4) {
+                                imageString = '../../../images/triangle.png';
+                            }
+                            var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
+                            var canvasPoint = {
+                                /*imageId: '',*/
+                                image: imageString,
+                                position: Cesium.Cartesian3.fromDegrees(
+                                    dat.Longitude[i], dat.Latitude[i],
+                                    6835000 - maxRad
+                                ),
+                                eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
+                                radius: 0,
+                                scale: 0.35,
+                                scaleByDistance: scaltype
+                            };
+                            this.PBxBillboards.add(canvasPoint);
+                        }
+
+                    }
+                });
+            }
+        },
+
         createDataFeatures: function (results) {
             var refKey = 'Timestamp';
             if (!results.hasOwnProperty(refKey)) {
@@ -1007,6 +1156,8 @@ define([
                 this.activeCollections = [];
                 var settings = {};
 
+                var vectorLenghtsObject = {};
+
                 globals.products.each(function (product) {
                     if (!product.get('visible')) {return;}
 
@@ -1023,12 +1174,31 @@ define([
                         if (!settings[sat].hasOwnProperty(k)) {
                             settings[sat][name] = _.clone(param);
                         }
-                        _.extend(settings[sat][name], {
-                            band: name,
-                            alpha: Math.floor(product.get('opacity') * 255),
-                            outlines: product.get('outlines'),
-                            outline_color: product.get('color')
-                        });
+                        if (param.hasOwnProperty('referencedParameters')) {
+                            var refPars = param.referencedParameters;
+                            for (var i = 0; i < refPars.length; i++) {
+
+                                if (product.get('parameters').hasOwnProperty(refPars[i])) {
+                                    settings[sat][refPars[i]] = _.clone(
+                                        product.get('parameters')[refPars[i]]
+                                    );
+                                    _.extend(settings[sat][refPars[i]], {
+                                        band: refPars[i],
+                                        //alpha: Math.floor(product.get('opacity') * 255),
+                                        outlines: product.get('outlines'),
+                                        outline_color: product.get('color')
+                                    });
+                                }
+                            }
+                            delete settings[sat][name];
+                        } else {
+                            _.extend(settings[sat][name], {
+                                band: name,
+                                alpha: Math.floor(product.get('opacity') * 255),
+                                outlines: product.get('outlines'),
+                                outline_color: product.get('color')
+                            });
+                        }
                     });
                 });
 
@@ -1070,6 +1240,30 @@ define([
                                     }),
                                     releaseGeometryInstances: false
                                 });
+
+                                // Calculate maximum length of vectors
+                                var components = VECTOR_BREAKDOWN[parameters[i]];
+                                if (components) {
+                                        var lengths = [], maxLength = 0;
+                                        var data = _.map(
+                                            components,
+                                            function (parameter) {return results[parameter];}
+                                        );
+                                        for (var j = 0; j < data[0].length; j++) {
+                                        var sum = 0;
+                                            for (var k = 0; k < data.length; k++)
+                                            {
+                                                var value = data[k][j];
+                                                sum += value * value;
+                                        }
+                                        lengths.push(Math.sqrt(sum));
+                                            maxLength = sum > maxLength ? sum : maxLength;
+                                    }
+                                    vectorLenghtsObject[parameters[i]] = {
+                                        maxLength: maxLength,
+                                        lengths: lengths
+                                    };
+                                }
                             }
                         }, this);
 
@@ -1103,11 +1297,13 @@ define([
                                 // Check if component is vector component
                                 if (VECTOR_BREAKDOWN.hasOwnProperty(ap)) {
                                     var b = VECTOR_BREAKDOWN[ap];
-                                    return (
-                                        row.hasOwnProperty(b[0]) &&
-                                        row.hasOwnProperty(b[1]) &&
-                                        row.hasOwnProperty(b[2])
-                                    );
+                                    var allAvailable = true;
+                                    for (var i = 0; i < b.length; i++) {
+                                        if (!row.hasOwnProperty(b[i])) {
+                                            allAvailable = false;
+                                        }
+                                    }
+                                    return allAvailable;
                                 } else {
                                     return row.hasOwnProperty(ap);
                                 }
@@ -1119,6 +1315,8 @@ define([
                                 this.plot.setColorScale(set.colorscale);
                                 this.plot.setDomain(set.range);
 
+                                var pixelSize = 8;
+
                                 if (_.find(SCALAR_PARAM, function (par) {
                                     return set.band === par;
                                 })) {
@@ -1128,6 +1326,10 @@ define([
                                         }
                                     }
                                     heightOffset = i * 210000;
+                                    if (set.band === 'J_QD' || set.band === 'J_C') {
+                                        heightOffset = 10000;
+                                        pixelSize = 3;
+                                    }
 
                                     if (!isNaN(row[set.band])) {
                                         color = this.plot.getColor(row[set.band]);
@@ -1139,7 +1341,7 @@ define([
                                             color: new Cesium.Color.fromBytes(
                                                 color[0], color[1], color[2], alpha
                                             ),
-                                            pixelSize: 8,
+                                            pixelSize: pixelSize,
                                             scaleByDistance: scaltype
                                         };
                                         if (set.outlines) {
@@ -1213,24 +1415,55 @@ define([
 
                                         var sb = VECTOR_BREAKDOWN[set.band];
                                         heightOffset = i * 210000;
+                                        if (set.band === 'J' || set.band === 'J_C') {
+                                            heightOffset = 0;
+                                        }
 
-                                        // Check if residuals are active!
-                                        if (!isNaN(row[sb[0]]) &&
-                                           !isNaN(row[sb[1]]) &&
-                                           !isNaN(row[sb[2]])) {
-                                            var vLen = Math.sqrt(Math.pow(row[sb[0]], 2) + Math.pow(row[sb[1]], 2) + Math.pow(row[sb[2]], 2));
+                                        // Check if breakdown parameters are available
+                                        var allAvailable = true;
+                                        for (var j = 0; j < sb.length; j++) {
+                                            if (!row.hasOwnProperty(sb[j])) {
+                                                allAvailable = false;
+                                            }
+                                        }
+                                        if (allAvailable) {
+                                            var altComp, radius;
+                                            if (sb.length === 2) {
+                                                altComp = 0;
+                                            } else {
+                                                altComp = row[sb[2]];
+                                            }
+                                            if (row.hasOwnProperty('Radius')) {
+                                                radius = row.Radius;
+                                            } else {
+                                                radius = 6800000;
+                                            }
+
+
+                                            var maxLength = vectorLenghtsObject[set.band].maxLength;
+                                            var vectorLenghts = vectorLenghtsObject[set.band].lengths;
+
+                                            var vLen = vectorLenghts[r];
                                             color = this.plot.getColor(vLen);
-                                            var addLen = 10;
-                                            var vN = (row[sb[0]] / vLen) * addLen;
-                                            var vE = (row[sb[1]] / vLen) * addLen;
-                                            var vC = (row[sb[2]] / vLen) * addLen;
+                                            var maxLen = 600000;
+
+                                            var vN = (row[sb[0]] / maxLength) * maxLen;
+                                            var vE = (row[sb[1]] / maxLength) * maxLen;
+                                            var vC = (altComp / maxLength) * maxLen;
+
+                                            // calculate initial cartesian position from coordinates
+                                            var startCartPos = Cesium.Cartesian3.fromDegrees(
+                                                row.Longitude, row.Latitude, (radius - maxRad + heightOffset)
+                                            );
+                                            var endCartPos = Cesium.Cartesian3.fromArray([
+                                                (startCartPos.x + vE),
+                                                (startCartPos.y + vN),
+                                                (startCartPos.z + vC)
+                                            ]);
                                             this.featuresCollection[row.id + set.band].geometryInstances.push(
                                                 new Cesium.GeometryInstance({
                                                     geometry: new Cesium.PolylineGeometry({
-                                                        positions: Cesium.Cartesian3.fromDegreesArrayHeights([
-                                                            row.Longitude, row.Latitude, (row.Radius - maxRad + heightOffset),
-                                                            (row.Longitude + vE), (row.Latitude + vN), ((row.Radius - maxRad) + vC * 30000)
-                                                        ]),
+                                                        positions: [startCartPos, endCartPos],
                                                         followSurface: false,
                                                         width: 1.7
                                                     }),
@@ -1270,12 +1503,12 @@ define([
                 return product.get('name') === layer;
             });
 
+            var variable = this.getSelectedVariable(product.get('parameters'));
             if (product === undefined) {
                 return;
             } else if (product.get('views')[0].protocol === 'CZML') {
                 this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
             } else if (product.get('views')[0].protocol === 'WMS') {
-                var variable = this.getSelectedVariable(product.get('parameters'));
 
                 if (variable === 'Fieldlines') {
                     this.hideCustomModel(product);
@@ -1292,7 +1525,8 @@ define([
                 }
                 this.updateFieldLines(onlyStyleChange);
             }
-            this.checkColorscale(product.get('download').id);
+            // Recheck color legends
+            globals.products.each(this.synchronizeColorLegend, this);
         },
 
         hideWMSLayer: function (product) {
@@ -1415,7 +1649,7 @@ define([
             );
         },
 
-        checkColorscale: function (pId) {
+        checkColorscale: function (pId, parameter, parIdx) {
             var visible = true;
             var product = false;
             var indexDel;
@@ -1423,19 +1657,48 @@ define([
             var width = 300;
             var scalewidth = width - margin * 2;
 
+            var combinedId = pId;
+            if (parIdx !== -1) {
+                /*If original collection identifier available remove it*/
+                if (_.has(this.colorscales, combinedId)) {
+                    // remove object from cesium scene
+                    this.map.scene.primitives.remove(this.colorscales[combinedId].prim);
+                    this.map.scene.primitives.remove(this.colorscales[combinedId].csPrim);
+                    indexDel = this.colorscales[combinedId].index;
+                    delete this.colorscales[combinedId];
+                    this.removeColorscaleTooltipDiv(combinedId);
+                }
+                combinedId += parIdx;
+            } else {
+                // Check if some version with indexes are still there
+                // maximum of 10 referenced parameters expected
+                for (var i = 0; i < 10; i++) {
+                    var tmpid = pId + i;
+                    if (_.has(this.colorscales, tmpid)) {
+                    // remove object from cesium scene
+                        this.map.scene.primitives.remove(this.colorscales[tmpid].prim);
+                        this.map.scene.primitives.remove(this.colorscales[tmpid].csPrim);
+                        indexDel = this.colorscales[tmpid].index;
+                        delete this.colorscales[tmpid];
+                        this.removeColorscaleTooltipDiv(tmpid);
+                    }
+                }
+            }
+
             globals.products.each(function (p) {
                 if (p.get('download').id === pId) {
                     product = p;
                 }
             }, this);
 
-            if (_.has(this.colorscales, pId)) {
+
+            if (_.has(this.colorscales, combinedId)) {
                 // remove object from cesium scene
-                this.map.scene.primitives.remove(this.colorscales[pId].prim);
-                this.map.scene.primitives.remove(this.colorscales[pId].csPrim);
-                indexDel = this.colorscales[pId].index;
-                delete this.colorscales[pId];
-                this.removeColorscaleTooltipDiv(pId);
+                this.map.scene.primitives.remove(this.colorscales[combinedId].prim);
+                this.map.scene.primitives.remove(this.colorscales[combinedId].csPrim);
+                indexDel = this.colorscales[combinedId].index;
+                delete this.colorscales[combinedId];
+                this.removeColorscaleTooltipDiv(combinedId);
 
                 // Modify all indices and related height of all colorscales
                 // which are over deleted position
@@ -1455,6 +1718,9 @@ define([
                         );
                         obj[key].index = i;
                         // needed to refresh colorscale tooltip divs when products are added or removed
+                        if (parIdx !== -1) {
+                            key = key.slice(0, -1);
+                        }
                         var productFromColorscale = _.find(globals.products.models, function (prod) {
                             return prod.get('download').id === key;
                         });
@@ -1475,172 +1741,165 @@ define([
             if (product && product.get('showColorscale') &&
                 product.get('visible')) {
 
-                var options = product.get('parameters');
+                var sel = parameter;
 
-                if (options) {
-                    var keys = _.keys(options);
-                    var sel = false;
-
-                    _.each(keys, function (key) {
-                        if (options[key].selected) {
-                            sel = key;
-                        }
-                    });
-                    // disabling colorscale when data do not contain selected parameter
-                    var prodToSat = {};
-                    var proObj = globals.swarm.products;
-                    for (var coll in proObj){
-                        for (var sat in proObj[coll]){
-                            prodToSat[proObj[coll][sat]] = sat;
-                        }
+                // disabling colorscale when data do not contain selected parameter
+                var prodToSat = {};
+                var proObj = globals.swarm.products;
+                for (var coll in proObj) {
+                    for (var sat in proObj[coll]) {
+                        prodToSat[proObj[coll][sat]] = sat;
                     }
-                    var data = globals.swarm.get('data');
-                    var sat = prodToSat[pId];
+                }
+                var data = globals.swarm.get('data');
+                var sat = prodToSat[pId];
 
-                    if(data.hasOwnProperty('__info__') && data['__info__'].hasOwnProperty('variables')){
-                        if(data.__info__.variables.hasOwnProperty(sat)){
-                            if(data.__info__.variables[sat].indexOf(sel) === -1){
-                                visible = false;
-                            }
-                        } else {
+                var variableExceptions = ['J'];
+
+                if (data.hasOwnProperty('__info__') && data['__info__'].hasOwnProperty('variables')) {
+                    if (data.__info__.variables.hasOwnProperty(sat)) {
+                        if (data.__info__.variables[sat].indexOf(sel) === -1 &&
+                            variableExceptions.indexOf(sel) === -1) {
                             visible = false;
                         }
+                    } else {
+                        visible = false;
+                    }
+                }
+
+                // Magnetic Model product is not under any swarm satellite and does not appear in 'data'
+                // for above check, therefore it is always marked as invisible, this fixes it
+                if (product.get('components')) {
+                    visible = true;
+                }
+
+                if (visible) {
+                    var rangeMin = product.get('parameters')[sel].range[0];
+                    var rangeMax = product.get('parameters')[sel].range[1];
+                    var uom = product.get('parameters')[sel].uom;
+                    var style = product.get('parameters')[sel].colorscale;
+                    var logscale = defaultFor(product.get('parameters')[sel].logarithmic, false);
+                    var axisScale;
+
+
+                    this.plot.setColorScale(style);
+                    var colorscaleimage = this.plot.getColorScaleImage().toDataURL();
+
+                    $('#svgcolorscalecontainer').remove();
+                    var svgContainer = d3.select('body').append('svg')
+                        .attr('width', 300)
+                        .attr('height', 60)
+                        .attr('id', 'svgcolorscalecontainer');
+
+                    if (logscale) {
+                        axisScale = d3.scale.log();
+                    } else {
+                        axisScale = d3.scale.linear();
                     }
 
-                    // Magnetic Model product is not under any swarm satellite and does not appear in 'data'
-                    // for above check, therefore it is always marked as invisible, this fixes it
-                    if (product.get('components')) {
-                      visible = true;
+                    axisScale.domain([rangeMin, rangeMax]);
+                    axisScale.range([0, scalewidth]);
+
+                    var xAxis = d3.svg.axis()
+                        .scale(axisScale);
+
+                    if (logscale) {
+                        var numberFormat = d3.format(',f');
+                        xAxis.tickFormat(function logFormat(d) {
+                            var x = Math.log10(d) + 1e-6;
+                            return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
+                        });
+
+                    } else {
+                        var step = Number(((rangeMax - rangeMin) / 5).toPrecision(3));
+                        var ticks = d3.range(rangeMin, rangeMax + step, step);
+                        xAxis.tickValues(ticks);
+                        xAxis.tickFormat(d3.format('g'));
                     }
 
-                    if(visible){
-                        var rangeMin = product.get('parameters')[sel].range[0];
-                        var rangeMax = product.get('parameters')[sel].range[1];
-                        var uom = product.get('parameters')[sel].uom;
-                        var style = product.get('parameters')[sel].colorscale;
-                        var logscale = defaultFor(product.get('parameters')[sel].logarithmic, false);
-                        var axisScale;
+                    var g = svgContainer.append('g')
+                        .attr('class', 'x axis')
+                        .attr('transform', 'translate(' + [margin, 20] + ')')
+                        .call(xAxis);
 
-
-                        this.plot.setColorScale(style);
-                        var colorscaleimage = this.plot.getColorScaleImage().toDataURL();
-
-                        $('#svgcolorscalecontainer').remove();
-                        var svgContainer = d3.select('body').append('svg')
-                            .attr('width', 300)
-                            .attr('height', 60)
-                            .attr('id', 'svgcolorscalecontainer');
-
-                        if (logscale) {
-                            axisScale = d3.scale.log();
+                    // Add layer info
+                    var info;
+                    if (product.get('model')) {
+                        if (product.get('components').length === 1) {
+                            info = product.getPrettyModelExpression(true);
                         } else {
-                            axisScale = d3.scale.linear();
+                            info = product.get('download').id;
                         }
-
-                        axisScale.domain([rangeMin, rangeMax]);
-                        axisScale.range([0, scalewidth]);
-
-                        var xAxis = d3.svg.axis()
-                            .scale(axisScale);
-
-                        if (logscale) {
-                            var numberFormat = d3.format(',f');
-                            xAxis.tickFormat(function logFormat(d) {
-                                var x = Math.log10(d) + 1e-6;
-                                return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
-                            });
-
-                        } else {
-                            var step = Number(((rangeMax - rangeMin) / 5).toPrecision(3));
-                            var ticks = d3.range(rangeMin, rangeMax + step, step);
-                            xAxis.tickValues(ticks);
-                            xAxis.tickFormat(d3.format('g'));
-                        }
-
-                        var g = svgContainer.append('g')
-                            .attr('class', 'x axis')
-                            .attr('transform', 'translate(' + [margin, 20] + ')')
-                            .call(xAxis);
-
-                        // Add layer info
-                        var info;
-                        if (product.get('model')) {
-                            if (product.get('components').length === 1) {
-                                info = product.getPrettyModelExpression(true);
-                            } else {
-                                info = product.get('download').id;
+                        _.each(
+                            {'\u2212': /&minus;/, '\u2026': /&hellip;/},
+                            function (regex, newString) {
+                                info = info.replace(regex, newString);
                             }
-                            _.each(
-                                {'\u2212': /&minus;/, '\u2026': /&hellip;/},
-                                function (regex, newString) {
-                                    info = info.replace(regex, newString);
-                                }
-                            );
-                        } else {
-                            info = product.get('name');
-                        }
-
-                        info += ' - ' + sel;
-                        if (uom) {
-                            info += ' [' + uom + ']';
-                        }
-
-                        g.append('text')
-                            .style('text-anchor', 'middle')
-                            .attr('transform', 'translate(' + [scalewidth / 2, 30] + ')')
-                            .attr('font-weight', 'bold')
-                            .text(info);
-
-                        svgContainer.selectAll('text')
-                            .attr('stroke', 'none')
-                            .attr('fill', 'black')
-                            .attr('font-weight', 'bold');
-
-                        svgContainer.selectAll('.tick').select('line')
-                            .attr('stroke', 'black');
-
-                        svgContainer.selectAll('.axis .domain')
-                            .attr('stroke-width', '2')
-                            .attr('stroke', '#000')
-                            .attr('shape-rendering', 'crispEdges')
-                            .attr('fill', 'none');
-
-                        svgContainer.selectAll('.axis path')
-                            .attr('stroke-width', '2')
-                            .attr('shape-rendering', 'crispEdges')
-                            .attr('stroke', '#000');
-
-                        var svgHtml = d3.select('#svgcolorscalecontainer')
-                            .attr('version', 1.1)
-                            .attr('xmlns', 'http://www.w3.org/2000/svg')
-                            .node().innerHTML;
-
-                        var renderHeight = 55;
-                        var renderWidth = width;
-
-                        var index = Object.keys(this.colorscales).length;
-
-                        var prim = this.map.scene.primitives.add(
-                            this.createViewportQuad(
-                                this.renderSVG(svgHtml, renderWidth, renderHeight),
-                                0, index * 55 + 5, renderWidth, renderHeight
-                            )
                         );
-                        var csPrim = this.map.scene.primitives.add(
-                            this.createViewportQuad(
-                                colorscaleimage, 20, index * 55 + 42, scalewidth, 10
-                            )
-                        );
-
-                        this.createModelColorscaleTooltipDiv(product, index);
-                        this.colorscales[pId] = {
-                            index: index,
-                            prim: prim,
-                            csPrim: csPrim
-                        };
-
-                        svgContainer.remove();
+                    } else {
+                        info = product.get('name');
                     }
+
+                    info += ' - ' + sel;
+                    if (uom) {
+                        info += ' [' + uom + ']';
+                    }
+
+                    g.append('text')
+                        .style('text-anchor', 'middle')
+                        .attr('transform', 'translate(' + [scalewidth / 2, 30] + ')')
+                        .attr('font-weight', 'bold')
+                        .text(info);
+
+                    svgContainer.selectAll('text')
+                        .attr('stroke', 'none')
+                        .attr('fill', 'black')
+                        .attr('font-weight', 'bold');
+
+                    svgContainer.selectAll('.tick').select('line')
+                        .attr('stroke', 'black');
+
+                    svgContainer.selectAll('.axis .domain')
+                        .attr('stroke-width', '2')
+                        .attr('stroke', '#000')
+                        .attr('shape-rendering', 'crispEdges')
+                        .attr('fill', 'none');
+
+                    svgContainer.selectAll('.axis path')
+                        .attr('stroke-width', '2')
+                        .attr('shape-rendering', 'crispEdges')
+                        .attr('stroke', '#000');
+
+                    var svgHtml = d3.select('#svgcolorscalecontainer')
+                        .attr('version', 1.1)
+                        .attr('xmlns', 'http://www.w3.org/2000/svg')
+                        .node().innerHTML;
+
+                    var renderHeight = 55;
+                    var renderWidth = width;
+
+                    var index = Object.keys(this.colorscales).length;
+
+                    var prim = this.map.scene.primitives.add(
+                        this.createViewportQuad(
+                            this.renderSVG(svgHtml, renderWidth, renderHeight),
+                            0, index * 55 + 5, renderWidth, renderHeight
+                        )
+                    );
+                    var csPrim = this.map.scene.primitives.add(
+                        this.createViewportQuad(
+                            colorscaleimage, 20, index * 55 + 42, scalewidth, 10
+                        )
+                    );
+
+                    this.createModelColorscaleTooltipDiv(product, index);
+                    this.colorscales[combinedId] = {
+                        index: index,
+                        prim: prim,
+                        csPrim: csPrim
+                    };
+
+                    svgContainer.remove();
                 }
             }
         },
@@ -1926,7 +2185,7 @@ define([
                 var fl_data = this.FLData[FLProduct][fieldline.id];
                 // prepare template data
                 var apex;
-                if(fl_data.hasOwnProperty('apex_point') && fl_data.apex_point !== null) {
+                if (fl_data.hasOwnProperty('apex_point') && fl_data.apex_point !== null) {
                     apex = {
                         lat: fl_data['apex_point'][0].toFixed(3),
                         lon: fl_data['apex_point'][1].toFixed(3),
@@ -1939,7 +2198,7 @@ define([
                     lon: fl_data['ground_points'][0][1].toFixed(3),
                 }];
 
-                if(fl_data.ground_points.length>1){
+                if (fl_data.ground_points.length > 1) {
                     ground_points.push({
                         lat: fl_data['ground_points'][1][0].toFixed(3),
                         lon: fl_data['ground_points'][1][1].toFixed(3)
@@ -1957,7 +2216,7 @@ define([
                 $('.close-fieldline-label').on('click', this.hideFieldLinesLabel.bind(this));
                 // highlight points
                 this.FLbillboards.removeAll();
-                if(apex){
+                if (apex) {
                     this.highlightFieldLinesPoints(
                         [].concat(
                             [fl_data['apex_point']],
@@ -1974,17 +2233,17 @@ define([
 
         hideFieldLinesLabel: function () {
             $('#fieldlines_label').addClass('hidden');
-            if(this.FLbillboards){
+            if (this.FLbillboards) {
                 this.FLbillboards.removeAll();
             }
         },
 
         onHighlightPoint: function (coords, fieldlines_highlight) {
             var wrongInput = !coords || (coords.length === 3 && _.some(coords, function (el) {
-              return isNaN(el);
+                return isNaN(el);
             }));
             if (wrongInput) {
-              return null;
+                return null;
             }
             // either highlight single point or point on a fieldline
             if (!fieldlines_highlight) {
@@ -2140,7 +2399,7 @@ define([
                         right: [c.right.x, c.right.y, c.right.z]
                     }));
 
-                    if(this.map.scene.mode === 2){
+                    if (this.map.scene.mode === 2) {
                         localStorage.setItem('frustum', JSON.stringify({
                             bottom: c.frustum.bottom,
                             left: c.frustum.left,
@@ -2341,10 +2600,10 @@ define([
         },
 
         resetInitialView: function () {
-          this.map.scene.camera.flyTo({
-              destination: Cesium.Cartesian3.fromDegrees(20, 30, 10000000),
-              duration: 0.2,
-          });
+            this.map.scene.camera.flyTo({
+                destination: Cesium.Cartesian3.fromDegrees(20, 30, 10000000),
+                duration: 0.2,
+            });
         },
 
         toggleDebug: function () {

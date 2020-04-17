@@ -296,7 +296,10 @@
             "Grad_Ne_at_PCP_edge", "ROD", "RODI10s", "RODI20s", "delta_Ne10s", "delta_Ne20s", "delta_Ne40s",
             "Num_GPS_satellites", "mVTEC", "mROT", "mROTI10s", "mROTI20s", "IBI_flag",
             "Ionosphere_region_flag", "IPIR_index", "Ne_quality_flag", "TEC_STD",
-            "B_NEC_res_Model", "F_res_Model",
+            "IMF_V", "IMF_BY_GSM", "IMF_BZ_GSM", "F10_INDEX",
+            "B_NEC_Model", "B_NEC_res_Model", "F_Model", "F_res_Model",
+            "J", "J_QD",
+            "J_C", "J_CF", "J_DF", "J_CF_SemiQD", "J_DF_SemiQD"
           ];
 
           var collectionList = _.chain(collections)
@@ -408,6 +411,17 @@
                 'U': 'Upload',
               };
 
+              // Calculate new J value for AEJ LPS data
+              if (dat.hasOwnProperty('J_CF') && dat.hasOwnProperty('J_DF') && !dat.hasOwnProperty('J')) {
+                dat['J'] = [];
+                for (var i = 0; i < dat.Timestamp.length; i++) {
+                  dat.J.push([
+                    dat.J_CF[i][0] + dat.J_DF[i][0],
+                    dat.J_CF[i][1] + dat.J_DF[i][1]
+                  ]);
+                }
+              }
+
               if (dat.hasOwnProperty('Spacecraft')) {
                 dat['id'] = [];
                 for (var i = 0; i < dat.Timestamp.length; i++) {
@@ -476,8 +490,8 @@
                   }
                 }
                 // Add new parameter to data info if available
-                if(dat.hasOwnProperty('__info__') && dat.__info__.hasOwnProperty('variables')){
-                  for(var satKey in dat.__info__.variables){
+                if (dat.hasOwnProperty('__info__') && dat.__info__.hasOwnProperty('variables')) {
+                  for (var satKey in dat.__info__.variables) {
                     dat.__info__.variables[satKey].push('Latitude_periodic');
                   }
                 }
@@ -508,8 +522,8 @@
                   }
                 }
                 // Add new parameter to data info if available
-                if(dat.hasOwnProperty('__info__') && dat.__info__.hasOwnProperty('variables')){
-                  for(var satKey in dat.__info__.variables){
+                if (dat.hasOwnProperty('__info__') && dat.__info__.hasOwnProperty('variables')) {
+                  for (var satKey in dat.__info__.variables) {
                     dat.__info__.variables[satKey].push('QDLatitude_periodic');
                   }
                 }
@@ -518,14 +532,13 @@
               _.each(dat, function (data, key) {
                 var components = VECTOR_BREAKDOWN[key];
                 if (!components) {return;}
-                dat[components[0]] = [];
-                dat[components[1]] = [];
-                dat[components[2]] = [];
-                _.each(data, function (item) {
-                  dat[components[0]].push(item[0]);
-                  dat[components[1]].push(item[1]);
-                  dat[components[2]].push(item[2]);
-                });
+                for (var i = 0; i < components.length; i++) {
+                  dat[components[i]] = [];
+                  _.each(data, function (item) {
+                    dat[components[i]].push(item[i]);
+                  });
+                }
+
                 delete dat[key];
               });
 
