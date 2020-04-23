@@ -5,7 +5,7 @@
   <span class="input-group-addon">
     <div class="progress" style="margin-bottom:0px!important; width:250px;">
       <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:{{percentage}}%"></div>
-      <span>{{message}}</span>
+      <span>{{#if status}}{{message}}{{else}}Status not available{{/if}}</span>
     </div>
   </span>
   <span class="input-group-addon">
@@ -24,6 +24,9 @@
 <div id="collapse-{{id}}" class="panel-collapse collapse">
   <div class="panel-body">
     <ul>
+    {{#if fetch_failed}}
+    <li>Failed to retrieve download details.{{#if status_not_found}} The download job does not seem to exist.{{/if}}<hr></li>
+    {{/if}}
     {{#if error}}
     <li><b>Error:</b> {{error}}<hr></li>
     {{/if}}

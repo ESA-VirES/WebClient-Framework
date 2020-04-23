@@ -32,6 +32,8 @@
       refreshTime: 2000, // refresh time in ms
       defaults: {
         id: null,
+        fetch_failed: false,
+        status_not_found: false,
         creation_time: null,
         status_url: null,
         status: null,
@@ -47,14 +49,27 @@
       },
 
       fetch: function (options) {
-        options = _.extend(options || {}, {dataType: 'xml'});
-        return this.constructor.__super__.fetch.call(this, options);
+        var extra_options = {
+          dataType: 'xml',
+          error: _.bind(function (model, response, options) {
+            this.set({
+              status: null,
+              fetch_failed: true,
+              status_not_found: (response.status == 404)
+            });
+          }, this)
+        };
+        return this.constructor.__super__.fetch.call(
+          this, _.extend({}, options, extra_options)
+        );
       },
 
       parse: function (response) {
         var statusInfo = this.parseStatus(response);
 
         var attributes = _.extend(_.clone(this.attributes), {
+          fetch_failed: false,
+          status_not_found: false,
           status_url: this.parseStatusUrl(response) || this.get('status_url'),
           status: statusInfo.status,
           percentage: statusInfo.progress,
