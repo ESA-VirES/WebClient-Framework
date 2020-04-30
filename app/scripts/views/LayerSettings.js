@@ -18,22 +18,33 @@
 
     function (Backbone, Communicator, globals, Choices, plotty, LayerSettingsTmpl, evalModelTmplComposed_POST) {
 
-        var ModelComponentParameters = function (model, parameters) {
-            var source = parameters || {};
+        var ModelComponentParameters = function (model, source) {
             var sources = [];
             if (typeof model.get("filename") !== 'undefined') {
                 sources = [model.get("filename")];
             } else if (typeof model.get("sources") !== 'undefined') {
                 sources = model.get("sources");
             }
+            var config = globals.models.config[model.id] || {};
+            var isSelected = Boolean(source);
+            var defaults = null, parameters = null;
+            source = source || {};
+            if (!config.blockDegreeSelection) {
+                defaults = model.get("parameters") || {};
+                parameters = _.clone(source.parameters || {});
+            }
+            var excludes = {};
+            _.each(config.excludes || [], function (id) {excludes[id] = true;});
             _.extend(this, {
                 id: model.id,
-                name: globals.models.config[model.id].name || model.id,
-                selected: Boolean(parameters),
+                allowDegreeSelection: !config.blockDegreeSelection,
+                name: config.name || model.id,
+                selected: isSelected,
                 sign: source.sign || "+",
-                parameters: source.parameters ? _.clone(source.parameters) : {},
-                defaults: model.get("parameters") || {},
+                parameters: parameters,
+                defaults: defaults,
                 sources: sources,
+                excludes: excludes,
             });
             this.sanitizeParameters();
         };
@@ -43,6 +54,7 @@
             signToHtml: {'+': '+', '-': '&minus;'},
 
             sanitizeParameters: function () {
+                if (!this.allowDegreeSelection) return;
                 if (this.isDefault(this.parameters.min_degree)) {
                     delete this.parameters.min_degree;
                 }
@@ -927,7 +939,7 @@
                                     '<button type="button" class="composed_model_delete_button choices__button" data-button>Remove item</button>',
                                     '<div class="degree_range_selection_input">'
                                 ];
-                                if ((data.defaults.max_degree !== 0) && (data.defaults.min_degre !== 0)) {
+                                if (data.allowDegreeSelection) {
                                     html = html.concat([
                                         '<input type="text" placeholder="', data.defaults.min_degree, '" value="', data.getMinDegree(), '" onclick="', onClickHandler, '" onkeydown="', onKeyDownHandler, '" onblur="', updateMinDegree, '" class="composed_model_operation_coefficient_min" title="Minimum model degree.">',
                                         '<input type="text" placeholder="', data.defaults.max_degree, '" value="', data.getMaxDegree(), '" onclick="', onClickHandler, '" onkeydown="', onKeyDownHandler, '" onblur="', updateMaxDegree, '" class="composed_model_operation_coefficient_max" title="Maximum model degree.">'
@@ -945,8 +957,16 @@
                     }
                 });
                 choices.passedElement.addEventListener('addItem', _.bind(function (event) {
-                    $('#composed_model_compute').data(event.detail.value).selected = true;
+                    var items = $('#composed_model_compute').data();
+                    var thisItem = $('#composed_model_compute').data(event.detail.value);
+                    thisItem.selected = true;
                     $("#changesbutton").addClass("unAppliedChanges");
+                    // remove colliding models
+                    _.each(items, function (item) {
+                        if (thisItem.excludes[item.id] && item.selected) {
+                            choices.removeItemsByValue(item.id);
+                        }
+                    });
                 }, this));
                 choices.passedElement.addEventListener('removeItem', _.bind(function (event) {
                     $('#composed_model_compute').data(event.detail.value).selected = false;
