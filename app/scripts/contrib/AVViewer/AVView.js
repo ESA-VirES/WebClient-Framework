@@ -30,16 +30,24 @@ define(['backbone.marionette',
             "periodic": {"period": 360, "offset": -180}
         },
         "Dst": {
-            "uom": null,
-            "name": "Disturbance storm time Index"
+            "uom": "nT",
+            "name": "Disturbance storm time index"
+        },
+        "dDst": {
+            "uom": "nT/h",
+            "name": "Temporal change rate of the Dst index"
+        },
+        "dDst_abs": {
+            "uom": "nT/h",
+            "name": "Absolute value of the temporal change rate of the Dst index"
         },
         "Kp": {
             "uom": null,
-            "name": "Global geomagnetic storm Index"
+            "name": "Global geomagnetic storm index"
         },
         "F107": {
             "uom": "1e-22 J/s/m^2/Hz",
-            "name": "Observed 10.7cm Solar Radio Flux"
+            "name": "Observed 10.7cm solar radio flux"
         },
         "IMF_BY_GSM": {
             "uom": "nT",
