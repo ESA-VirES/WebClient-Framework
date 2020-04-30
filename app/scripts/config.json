@@ -19,6 +19,10 @@
     "magneticModels": {
         "infoUrl": "http://localhost:9000/vires00/ows",
         "models": [
+            {
+                "id": "AMPS",
+                "blockDegreeSelection": true
+            },
             {"id": "MCO_SHA_2C"},
             {"id": "MCO_SHA_2D"},
             {"id": "MLI_SHA_2C"},
