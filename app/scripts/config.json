@@ -23,25 +23,35 @@
                 "id": "AMPS",
                 "blockDegreeSelection": true
             },
-            {"id": "MCO_SHA_2C"},
-            {"id": "MCO_SHA_2D"},
-            {"id": "MLI_SHA_2C"},
-            {"id": "MLI_SHA_2D"},
+            {
+                "id": "MCO_SHA_2C",
+                "excludes": ["SwarmCI"]
+            },
+            {
+                "id": "MCO_SHA_2D"
+            },
+            {
+                "id": "MLI_SHA_2C",
+                "excludes": ["SwarmCI"]
+            },
+            {
+                "id": "MLI_SHA_2D"
+            },
             {
                 "id": "MIO_SHA_2C",
                 "name": "MIO_SHA_2C (complete)",
                 "blockDegreeSelection": true,
-                "excludes": ["MIO_SHA_2C-Primary", "MIO_SHA_2C-Secondary"]
+                "excludes": ["SwarmCI", "MIO_SHA_2C-Primary", "MIO_SHA_2C-Secondary"]
             },
             {
                 "id": "MIO_SHA_2C-Primary",
                 "name": "MIO_SHA_2C Primary",
-                "excludes": ["MIO_SHA_2C"]
+                "excludes": ["SwarmCI", "MIO_SHA_2C"]
             },
             {
                 "id": "MIO_SHA_2C-Secondary",
                 "name": "MIO_SHA_2C Secondary",
-                "excludes": ["MIO_SHA_2C"]
+                "excludes": ["SwarmCI", "MIO_SHA_2C"]
             },
             {
                 "id": "MIO_SHA_2D",
@@ -63,17 +73,17 @@
                 "id": "MMA_SHA_2C",
                 "name": "MMA_SHA_2C (complete)",
                 "blockDegreeSelection": true,
-                "excludes": ["MMA_SHA_2C-Primary", "MMA_SHA_2C-Secondary"]
+                "excludes": ["SwarmCI", "MMA_SHA_2C-Primary", "MMA_SHA_2C-Secondary"]
             },
             {
                 "id": "MMA_SHA_2C-Primary",
                 "name": "MMA_SHA_2C Primary",
-                "excludes": ["MMA_SHA_2C"]
+                "excludes": ["SwarmCI", "MMA_SHA_2C"]
             },
             {
                 "id": "MMA_SHA_2C-Secondary",
                 "name": "MMA_SHA_2C Secondary",
-                "excludes": ["MMA_SHA_2C"]
+                "excludes": ["SwarmCI", "MMA_SHA_2C"]
             },
             {
                 "id": "MMA_SHA_2F",
@@ -92,11 +102,30 @@
                 "excludes": ["MMA_SHA_2F"]
             },
             {
+                "id": "SwarmCI",
+                "name": "Swarm CI",
+                "blockDegreeSelection": true,
+                "excludes": [
+                    "MCO_SHA_2C",
+                    "MLI_SHA_2C",
+                    "MMA_SHA_2C",
+                    "MMA_SHA_2C-Primary",
+                    "MMA_SHA_2C-Secondary",
+                    "MIO_SHA_2C",
+                    "MIO_SHA_2C-Primary",
+                    "MIO_SHA_2C-Secondary"
+                ]
+            },
+            {
                 "id": "IGRF",
                 "name": "IGRF-13"
             },
-            {"id": "LCS-1"},
-            {"id": "MF7"},
+            {
+                "id": "LCS-1"
+            },
+            {
+                "id": "MF7"
+            },
             {
                 "id": "CHAOS",
                 "name": "CHAOS-7 (complete)",
