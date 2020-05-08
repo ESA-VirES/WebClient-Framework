@@ -35,10 +35,6 @@ define(['backbone.marionette',
         },
         "dDst": {
             "uom": "nT/h",
-            "name": "Temporal change rate of the Dst index"
-        },
-        "dDst_abs": {
-            "uom": "nT/h",
             "name": "Absolute value of the temporal change rate of the Dst index"
         },
         "Kp": {

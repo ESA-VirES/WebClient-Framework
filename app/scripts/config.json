@@ -4735,14 +4735,14 @@
             "timeSlider": true,
             "timeSliderProtocol": "INDEX",
             "views": [{
-                "id": "ddst_abs",
+                "id": "ddst",
                 "protocol": "INDEX",
                 "urls": [
                     "http://localhost:9000/vires00/ows"
                 ]
             }],
             "download": {
-                "id": "ddst_abs",
+                "id": "ddst",
                 "protocol": "INDEX",
                 "url": "http://localhost:9000/vires00/ows"
             },
