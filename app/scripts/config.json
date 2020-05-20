@@ -4730,6 +4730,25 @@
             "download_parameters": {},
             "index": true
         },{
+            "name": "|dDst| Index",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "INDEX",
+            "views": [{
+                "id": "ddst",
+                "protocol": "INDEX",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ]
+            }],
+            "download": {
+                "id": "ddst",
+                "protocol": "INDEX",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "download_parameters": {},
+            "index": true
+        },{
             "name": "Kp Index",
             "visible": false,
             "timeSlider": true,
