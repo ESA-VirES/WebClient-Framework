@@ -35,10 +35,6 @@ define(['backbone.marionette',
         },
         "dDst": {
             "uom": "nT/h",
-            "name": "Temporal change rate of the Dst index"
-        },
-        "dDst_abs": {
-            "uom": "nT/h",
             "name": "Absolute value of the temporal change rate of the Dst index"
         },
         "Kp": {
@@ -51,19 +47,15 @@ define(['backbone.marionette',
         },
         "IMF_BY_GSM": {
             "uom": "nT",
-            "name": "By GSM - merged 1 hour OMNI data"
+            "name": "By GSM - OMNI data"
         },
         "IMF_BZ_GSM": {
             "uom": "nT",
-            "name": "Bz GSM - merged 1 hour OMNI data"
+            "name": "Bz GSM - OMNI data"
         },
         "IMF_V": {
             "uom": "km/s",
-            "name": "Plasma flow speed- merged 1 hour OMNI data"
-        },
-        "F10_INDEX": {
-            "uom": "1e-22 J/s/m^2/Hz",
-            "name": "F10.7 - Daily 10.7 cm solar radio flux from NGDC (1963/001-2017/341)"
+            "name": "Plasma flow speed- OMNI data"
         },
         "OrbitNumber": {
             "uom": null,

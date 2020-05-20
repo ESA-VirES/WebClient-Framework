@@ -287,7 +287,7 @@
 
           var variables = [
             "F", "F_error", "B_NEC_resAC", "B_VFM", "B_error", "B_NEC", "Ne", "Te", "Vs",
-            "U_orbit", "Bubble_Probability", "Kp", "Dst", "dDst", "dDst_abs", "F107", "QDLat", "QDLon", "MLT",
+            "U_orbit", "Bubble_Probability", "Kp", "Dst", "dDst", "F107", "QDLat", "QDLon", "MLT",
             "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle", "GPS_Position", "LEO_Position",
             "IRC", "IRC_Error", "FAC", "FAC_Error",
             "EEF", "RelErr", "OrbitNumber", "OrbitDirection", "QDOrbitDirection",
@@ -296,7 +296,7 @@
             "Grad_Ne_at_PCP_edge", "ROD", "RODI10s", "RODI20s", "delta_Ne10s", "delta_Ne20s", "delta_Ne40s",
             "Num_GPS_satellites", "mVTEC", "mROT", "mROTI10s", "mROTI20s", "IBI_flag",
             "Ionosphere_region_flag", "IPIR_index", "Ne_quality_flag", "TEC_STD",
-            "IMF_V", "IMF_BY_GSM", "IMF_BZ_GSM", "F10_INDEX",
+            "IMF_V", "IMF_BY_GSM", "IMF_BZ_GSM",
             "B_NEC_Model", "B_NEC_res_Model", "F_Model", "F_res_Model",
             "J", "J_QD",
             "J_C", "J_CF", "J_DF", "J_CF_SemiQD", "J_DF_SemiQD"
