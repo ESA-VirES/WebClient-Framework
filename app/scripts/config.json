@@ -19,63 +19,147 @@
     "magneticModels": {
         "infoUrl": "http://localhost:9000/vires00/ows",
         "models": [
-            {"id": "MCO_SHA_2C"},
-            {"id": "MCO_SHA_2D"},
-            {"id": "MLI_SHA_2C"},
-            {"id": "MLI_SHA_2D"},
+            {
+                "id": "AMPS",
+                "blockDegreeSelection": true
+            },
+            {
+                "id": "MCO_SHA_2C",
+                "excludes": ["SwarmCI"]
+            },
+            {
+                "id": "MCO_SHA_2D"
+            },
+            {
+                "id": "MLI_SHA_2C",
+                "excludes": ["SwarmCI"]
+            },
+            {
+                "id": "MLI_SHA_2D"
+            },
+            {
+                "id": "MLI_SHA_2E"
+            },
+            {
+                "id": "MIO_SHA_2C",
+                "name": "MIO_SHA_2C (complete)",
+                "blockDegreeSelection": true,
+                "excludes": ["SwarmCI", "MIO_SHA_2C-Primary", "MIO_SHA_2C-Secondary"]
+            },
             {
                 "id": "MIO_SHA_2C-Primary",
-                "name": "MIO_SHA_2C Primary"
+                "name": "MIO_SHA_2C Primary",
+                "excludes": ["SwarmCI", "MIO_SHA_2C"]
             },
             {
                 "id": "MIO_SHA_2C-Secondary",
-                "name": "MIO_SHA_2C Secondary"
+                "name": "MIO_SHA_2C Secondary",
+                "excludes": ["SwarmCI", "MIO_SHA_2C"]
+            },
+            {
+                "id": "MIO_SHA_2D",
+                "name": "MIO_SHA_2D (complete)",
+                "blockDegreeSelection": true,
+                "excludes": ["MIO_SHA_2D-Primary", "MIO_SHA_2D-Secondary"]
             },
             {
                 "id": "MIO_SHA_2D-Primary",
-                "name": "MIO_SHA_2D Primary"
+                "name": "MIO_SHA_2D Primary",
+                "excludes": ["MIO_SHA_2D"]
             },
             {
                 "id": "MIO_SHA_2D-Secondary",
-                "name": "MIO_SHA_2D Secondary"
+                "name": "MIO_SHA_2D Secondary",
+                "excludes": ["MIO_SHA_2D"]
+            },
+            {
+                "id": "MMA_SHA_2C",
+                "name": "MMA_SHA_2C (complete)",
+                "blockDegreeSelection": true,
+                "excludes": ["SwarmCI", "MMA_SHA_2C-Primary", "MMA_SHA_2C-Secondary"]
             },
             {
                 "id": "MMA_SHA_2C-Primary",
-                "name": "MMA_SHA_2C Primary"
+                "name": "MMA_SHA_2C Primary",
+                "excludes": ["SwarmCI", "MMA_SHA_2C"]
             },
             {
                 "id": "MMA_SHA_2C-Secondary",
-                "name": "MMA_SHA_2C Secondary"
+                "name": "MMA_SHA_2C Secondary",
+                "excludes": ["SwarmCI", "MMA_SHA_2C"]
+            },
+            {
+                "id": "MMA_SHA_2F",
+                "name": "MMA_SHA_2F (complete)",
+                "blockDegreeSelection": true,
+                "excludes": ["MMA_SHA_2F-Primary", "MMA_SHA_2F-Secondary"]
             },
             {
                 "id": "MMA_SHA_2F-Primary",
-                "name": "MMA_SHA_2F Primary"
+                "name": "MMA_SHA_2F Primary",
+                "excludes": ["MMA_SHA_2F"]
             },
             {
                 "id": "MMA_SHA_2F-Secondary",
-                "name": "MMA_SHA_2F Secondary"
+                "name": "MMA_SHA_2F Secondary",
+                "excludes": ["MMA_SHA_2F"]
+            },
+            {
+                "id": "SwarmCI",
+                "name": "Swarm CI",
+                "blockDegreeSelection": true,
+                "excludes": [
+                    "MCO_SHA_2C",
+                    "MLI_SHA_2C",
+                    "MMA_SHA_2C",
+                    "MMA_SHA_2C-Primary",
+                    "MMA_SHA_2C-Secondary",
+                    "MIO_SHA_2C",
+                    "MIO_SHA_2C-Primary",
+                    "MIO_SHA_2C-Secondary"
+                ]
             },
             {
                 "id": "IGRF",
                 "name": "IGRF-13"
             },
-            {"id": "LCS-1"},
-            {"id": "MF7"},
+            {
+                "id": "LCS-1"
+            },
+            {
+                "id": "MF7"
+            },
+            {
+                "id": "CHAOS",
+                "name": "CHAOS-7 (complete)",
+                "blockDegreeSelection": true,
+                "excludes": ["CHAOS-Core", "CHAOS-Static", "CHAOS-MMA", "CHAOS-MMA-Primary", "CHAOS-MMA-Secondary"]
+            },
             {
                 "id": "CHAOS-Core",
-                "name": "CHAOS-7 Core"
+                "name": "CHAOS-7 Core",
+                "excludes": ["CHAOS"]
             },
             {
                 "id": "CHAOS-Static",
-                "name": "CHAOS-7 Crust"
+                "name": "CHAOS-7 Crust",
+                "excludes": ["CHAOS"]
+            },
+            {
+                "id": "CHAOS-MMA",
+                "name": "CHAOS-MMA (complete)",
+                "blockDegreeSelection": true,
+                "excludes": ["CHAOS", "CHAOS-MMA-Primary", "CHAOS-MMA-Secondary"]
             },
             {
                 "id": "CHAOS-MMA-Primary",
-                "name": "CHAOS-MMA Primary"
+                "name": "CHAOS-MMA Primary",
+                "excludes": ["CHAOS", "CHAOS-MMA"]
             },
             {
                 "id": "CHAOS-MMA-Secondary",
-                "name": "CHAOS-MMA Secondary"
+                "name": "CHAOS-MMA Secondary",
+                "excludes": ["CHAOS", "CHAOS-MMA"]
             },
             {
                 "id": "Custom_Model",
@@ -4643,6 +4727,25 @@
             }],
             "download": {
                 "id": "dst",
+                "protocol": "INDEX",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "download_parameters": {},
+            "index": true
+        },{
+            "name": "|dDst| Index",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "INDEX",
+            "views": [{
+                "id": "ddst",
+                "protocol": "INDEX",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ]
+            }],
+            "download": {
+                "id": "ddst",
                 "protocol": "INDEX",
                 "url": "http://localhost:9000/vires00/ows"
             },
