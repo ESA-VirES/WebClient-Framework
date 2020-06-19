@@ -121,7 +121,7 @@
                         index > 0 || item.sign !== '+' ? sign[item.sign] + ' ' : '',
                         conf.name || item.id,
                     ].join('');
-                    if (showDegreeRange) {
+                    if (showDegreeRange && !conf.blockDegreeSelection) {
                         modelString += [
                             '[',
                             _default(item.parameters.min_degree, model.parameters ? model.parameters.min_degree : ''),
@@ -138,12 +138,19 @@
                 var expression = _.map(
                     this.get('components'),
                     function (item) {
+                        var conf = globals.models.config[item.id];
                         var defaults = globals.models.get(item.id).get('parameters');
                         var parameters = _.extend(_.clone(defaults), item.parameters);
-                        return item.sign + '"' + item.id + '"(' + _.map(
-                            parameters,
-                            function (value, key) {return key + '=' + value;}
-                        ).join(',') + ')';
+                        var id = item.id;
+                        if (id.indexOf("-") !== -1) {id = '"' + id + '"';}
+                        var expression = item.sign + id;
+                        if (!conf.blockDegreeSelection) {
+                            expression += '(' + _.map(
+                                parameters,
+                                function (value, key) {return key + '=' + value;}
+                            ).join(',') + ')';
+                        }
+                        return expression;
                     }
                 ).join('');
 
