@@ -1244,20 +1244,20 @@ define([
                                 // Calculate maximum length of vectors
                                 var components = VECTOR_BREAKDOWN[parameters[i]];
                                 if (components) {
-                                        var lengths = [], maxLength = 0;
-                                        var data = _.map(
-                                            components,
-                                            function (parameter) {return results[parameter];}
-                                        );
-                                        for (var j = 0; j < data[0].length; j++) {
+                                    var lengths = [], maxLength = 0;
+                                    var data = _.map(
+                                        components,
+                                        function (parameter) {return results[parameter];}
+                                    );
+                                    for (var j = 0; j < data[0].length; j++) {
                                         var sum = 0;
-                                            for (var k = 0; k < data.length; k++)
-                                            {
-                                                var value = data[k][j];
-                                                sum += value * value;
+                                        for (var k = 0; k < data.length; k++)
+                                        {
+                                            var value = data[k][j];
+                                            sum += value * value;
                                         }
                                         lengths.push(Math.sqrt(sum));
-                                            maxLength = sum > maxLength ? sum : maxLength;
+                                        maxLength = sum > maxLength ? sum : maxLength;
                                     }
                                     vectorLenghtsObject[parameters[i]] = {
                                         maxLength: maxLength,
@@ -1326,7 +1326,7 @@ define([
                                         }
                                     }
                                     heightOffset = i * 210000;
-                                    if (set.band === 'J_QD' || set.band === 'J_C') {
+                                    if (set.band === 'J_QD' || set.band === 'J_R') {
                                         heightOffset = 10000;
                                         pixelSize = 3;
                                     }
@@ -1415,7 +1415,7 @@ define([
 
                                         var sb = VECTOR_BREAKDOWN[set.band];
                                         heightOffset = i * 210000;
-                                        if (set.band === 'J' || set.band === 'J_C') {
+                                        if (set.band === 'J_NE' || set.band === 'J_R') {
                                             heightOffset = 0;
                                         }
 
