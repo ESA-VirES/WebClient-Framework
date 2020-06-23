@@ -73,6 +73,8 @@ define([
             this.endTime = null;
             this.plot = null;
             this.xhr = null;
+            this.xhr2 = null;
+            this.svgPrefix = 'data:image/svg+xml,<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px" height="40px" xml:space="preserve">';
             this.connectDataEvents();
         },
 
@@ -318,6 +320,9 @@ define([
                 new Cesium.BillboardCollection()
             );
             this.PBxBillboards = this.map.scene.primitives.add(
+                new Cesium.BillboardCollection()
+            );
+            this.groundBillboards = this.map.scene.primitives.add(
                 new Cesium.BillboardCollection()
             );
             this.drawhelper = new DrawHelper(this.map.cesiumWidget);
@@ -1019,6 +1024,7 @@ define([
             var retrieve_data = [];
 
             this.PBxBillboards.removeAll();
+            this.groundBillboards.removeAll();
 
             var relatedlayer = [
                 'SW_OPER_AEJALPS_2F', 'SW_OPER_AEJBLPS_2F', 'SW_OPER_AEJCLPS_2F',
@@ -1066,6 +1072,7 @@ define([
                 if (this.bboxsel !== null) {
                     var bbox = this.bboxsel;
                     options["bbox"] = bbox.join(",");
+                    groundpeakOptions["bbox"] = bbox.join(",");
                 }
 
                 if (this.xhr !== null) {
@@ -1109,26 +1116,17 @@ define([
                     },
 
                     success: function (dat) {
-
-                        var rectSVG = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>'+
-                        '<svg height="14px" width="14px">'+
-                            '<rect y="2" x="2" height="10" width="10" style="fill:none;stroke-width:1;stroke:#000000;" />'+
-                        '</svg>';
-
-                        var svgDataDeclare = "data:image/svg+xml,";
-                        var svgCircle = '<circle cx="10" cy="10" r="5" stroke="black" stroke-width="3" fill="transparent"/> ';
                         var svgRect = '<rect y="2" x="2" height="16" width="16" stroke="black" stroke-width="3" fill="transparent"/> ';
                         var svgTriangle = '<path d="M 2,16 10,2 18,16 Z" stroke="black" stroke-width="3" fill="transparent"/> ';
-                        var svgPrefix = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px" height="40px" xml:space="preserve">';
                         var svgSuffix = "</svg>";
 
                         var maxRad = this.map.scene.globe.ellipsoid.maximumRadius;
                         for (var i = 0; i < dat.Latitude.length; i++) {
                             var imageString;
                             if ((dat.PointType[i] & 4) == 0) {
-                                imageString = svgDataDeclare + svgPrefix + svgRect + svgSuffix;
+                                imageString = this.svgPrefix + svgRect + svgSuffix;
                             } else if ((dat.PointType[i] & 4) == 4) {
-                                imageString = svgDataDeclare + svgPrefix + svgTriangle + svgSuffix;
+                                imageString = this.svgPrefix + svgTriangle + svgSuffix;
                             }
                             var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
                             var canvasPoint = {
@@ -1149,6 +1147,79 @@ define([
 
                     }
                 });
+
+                if (this.xhr2 !== null) {
+                    // A request has been sent that is not yet been returned so we need to cancel it
+                    Communicator.mediator.trigger("progress:change", false);
+                    this.xhr2.abort();
+                    this.xhr2 = null;
+                }
+
+                // See if collections have LPS visible 
+                var lpsColl = retrieve_data.filter(function(coll){ return coll.layer.indexOf('LPS_2F') !== -1});
+                if (lpsColl.length > 0){
+                    var lpsCollections = DataUtil.parseCollections(retrieve_data);
+                    var groundpeakOptions = {
+                        "collections_ids": DataUtil.formatCollections(lpsCollections),
+                        "begin_time": getISODateTimeString(this.beginTime),
+                        "end_time": getISODateTimeString(this.endTime),
+                        mimeType: 'application/msgpack'
+                    }
+                    groundpeakOptions.collections_ids = groundpeakOptions.collections_ids.replace('LPS_2F', 'PBS_2F:GroundMagneticDisturbance');
+                    this.xhr2 = httpRequest.asyncHttpRequest({
+                        context: this,
+                        type: 'POST',
+                        url: retrieve_data[0].url,
+                        data: wps_fetchDataTmpl(groundpeakOptions),
+                        responseType: 'arraybuffer',
+
+                        parse: function (data, xhr2) {
+                            var decodedObj = msgpack.decode(new Uint8Array(data));
+                            return decodedObj;
+                        },
+
+                        opened: function () {
+                            Communicator.mediator.trigger("progress:change", true);
+                        },
+
+                        completed: function () {
+                            this.xhr2 = null;
+                            Communicator.mediator.trigger("progress:change", false);
+                        },
+
+                        error: function (xhr2) {
+                            globals.swarm.set({data: {}});
+                            if (xhr2.responseText === "") {return;}
+                            var error_text = xhr2.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
+                            if (error_text && error_text.length > 1) {
+                                error_text = error_text[1];
+                            } else {
+                                error_text = 'Please contact feedback@vires.services if issue persists.';
+                            }
+                            showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+                        },
+
+                        success: function (dat) {
+                            var svgCircle = '<circle cx="11" cy="11" r="9" stroke="black" stroke-width="3" fill="transparent"/> ';
+                            var svgSuffix = "</svg>";
+                            for (var i = 0; i < dat.Latitude.length; i++) {
+                                var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
+                                var canvasPoint = {
+                                    image: this.svgPrefix + svgCircle + svgSuffix,
+                                    position: Cesium.Cartesian3.fromDegrees(
+                                        dat.Longitude[i], dat.Latitude[i], 0
+                                    ),
+                                    pixelOffset : new Cesium.Cartesian2(8,8),
+                                    eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
+                                    radius: 0,
+                                    scale: 0.4,
+                                    scaleByDistance: scaltype
+                                };
+                                this.groundBillboards.add(canvasPoint);
+                            }
+                        }
+                    });
+                }
             }
         },
 
