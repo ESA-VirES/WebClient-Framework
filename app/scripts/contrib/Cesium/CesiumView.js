@@ -1008,6 +1008,11 @@ define([
             }
         },
 
+        exportSVG: function (svg) {
+          // https://developer.mozilla.org/en/DOM/window.btoa;
+          return "data:image/svg+xml;base64," + btoa(svg); 
+        },
+
 
         fetchAndDisplayPBxData: function () {
 
@@ -1105,13 +1110,25 @@ define([
 
                     success: function (dat) {
 
+                        var rectSVG = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>'+
+                        '<svg height="14px" width="14px">'+
+                            '<rect y="2" x="2" height="10" width="10" style="fill:none;stroke-width:1;stroke:#000000;" />'+
+                        '</svg>';
+
+                        var svgDataDeclare = "data:image/svg+xml,";
+                        var svgCircle = '<circle cx="10" cy="10" r="5" stroke="black" stroke-width="3" fill="transparent"/> ';
+                        var svgRect = '<rect y="2" x="2" height="16" width="16" stroke="black" stroke-width="3" fill="transparent"/> ';
+                        var svgTriangle = '<path d="M 2,16 10,2 18,16 Z" stroke="black" stroke-width="3" fill="transparent"/> ';
+                        var svgPrefix = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px" height="40px" xml:space="preserve">';
+                        var svgSuffix = "</svg>";
+
                         var maxRad = this.map.scene.globe.ellipsoid.maximumRadius;
                         for (var i = 0; i < dat.Latitude.length; i++) {
                             var imageString;
                             if ((dat.PointType[i] & 4) == 0) {
-                                imageString = '../../../images/rectangle.png';
+                                imageString = svgDataDeclare + svgPrefix + svgRect + svgSuffix;
                             } else if ((dat.PointType[i] & 4) == 4) {
-                                imageString = '../../../images/triangle.png';
+                                imageString = svgDataDeclare + svgPrefix + svgTriangle + svgSuffix;
                             }
                             var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
                             var canvasPoint = {
@@ -1121,9 +1138,10 @@ define([
                                     dat.Longitude[i], dat.Latitude[i],
                                     6835000 - maxRad
                                 ),
+                                pixelOffset : new Cesium.Cartesian2(8,8),
                                 eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
                                 radius: 0,
-                                scale: 0.35,
+                                scale: 0.4,
                                 scaleByDistance: scaltype
                             };
                             this.PBxBillboards.add(canvasPoint);
