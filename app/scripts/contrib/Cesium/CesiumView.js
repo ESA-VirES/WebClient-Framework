@@ -1122,27 +1122,29 @@ define([
 
                         var maxRad = this.map.scene.globe.ellipsoid.maximumRadius;
                         for (var i = 0; i < dat.Latitude.length; i++) {
-                            var imageString;
-                            if ((dat.PointType[i] & 4) == 0) {
-                                imageString = this.svgPrefix + svgRect + svgSuffix;
-                            } else if ((dat.PointType[i] & 4) == 4) {
-                                imageString = this.svgPrefix + svgTriangle + svgSuffix;
+                            if (!Number.isNaN(dat.Latitude[i]) && !Number.isNaN(dat.Longitude[i])) {
+                                var imageString;
+                                if ((dat.PointType[i] & 4) == 0) {
+                                    imageString = this.svgPrefix + svgRect + svgSuffix;
+                                } else if ((dat.PointType[i] & 4) == 4) {
+                                    imageString = this.svgPrefix + svgTriangle + svgSuffix;
+                                }
+                                var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
+                                var canvasPoint = {
+                                    /*imageId: '',*/
+                                    image: imageString,
+                                    position: Cesium.Cartesian3.fromDegrees(
+                                        dat.Longitude[i], dat.Latitude[i],
+                                        6835000 - maxRad
+                                    ),
+                                    pixelOffset : new Cesium.Cartesian2(8,8),
+                                    eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
+                                    radius: 0,
+                                    scale: 0.4,
+                                    scaleByDistance: scaltype
+                                };
+                                this.PBxBillboards.add(canvasPoint);
                             }
-                            var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
-                            var canvasPoint = {
-                                /*imageId: '',*/
-                                image: imageString,
-                                position: Cesium.Cartesian3.fromDegrees(
-                                    dat.Longitude[i], dat.Latitude[i],
-                                    6835000 - maxRad
-                                ),
-                                pixelOffset : new Cesium.Cartesian2(8,8),
-                                eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
-                                radius: 0,
-                                scale: 0.4,
-                                scaleByDistance: scaltype
-                            };
-                            this.PBxBillboards.add(canvasPoint);
                         }
 
                     }
@@ -1203,19 +1205,21 @@ define([
                             var svgCircle = '<circle cx="11" cy="11" r="9" stroke="black" stroke-width="3" fill="transparent"/> ';
                             var svgSuffix = "</svg>";
                             for (var i = 0; i < dat.Latitude.length; i++) {
-                                var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
-                                var canvasPoint = {
-                                    image: this.svgPrefix + svgCircle + svgSuffix,
-                                    position: Cesium.Cartesian3.fromDegrees(
-                                        dat.Longitude[i], dat.Latitude[i], 0
-                                    ),
-                                    pixelOffset : new Cesium.Cartesian2(8,8),
-                                    eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
-                                    radius: 0,
-                                    scale: 0.4,
-                                    scaleByDistance: scaltype
-                                };
-                                this.groundBillboards.add(canvasPoint);
+                                if (!Number.isNaN(dat.Latitude[i]) && !Number.isNaN(dat.Longitude[i])) {
+                                    var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
+                                    var canvasPoint = {
+                                        image: this.svgPrefix + svgCircle + svgSuffix,
+                                        position: Cesium.Cartesian3.fromDegrees(
+                                            dat.Longitude[i], dat.Latitude[i], 0
+                                        ),
+                                        pixelOffset : new Cesium.Cartesian2(8,8),
+                                        eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
+                                        radius: 0,
+                                        scale: 0.4,
+                                        scaleByDistance: scaltype
+                                    };
+                                    this.groundBillboards.add(canvasPoint);
+                                }
                             }
                         }
                     });
