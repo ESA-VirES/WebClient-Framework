@@ -1274,8 +1274,11 @@ define([
                                             var value = data[k][j];
                                             sum += value * value;
                                         }
-                                        lengths.push(Math.sqrt(sum));
-                                        maxLength = sum > maxLength ? sum : maxLength;
+                                        var length = Math.sqrt(sum);
+                                        lengths.push(length);
+                                        if(maxLength < length){
+                                            maxLength = length;
+                                        }
                                     }
                                     vectorLenghtsObject[parameters[i]] = {
                                         maxLength: maxLength,
