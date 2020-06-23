@@ -764,7 +764,7 @@ var REPLACED_SCALAR_VARIABLES = {
 
                 // Add generic product (which is container for A,B and C sats)
                 filtered_collection.add({
-                    name: "AEJ LPS",
+                    name: "Auroral Electrojet - SECS (AEJ LPS/PBS)",
                     visible: containerSelection['AEJ_LPS'],
                     color: "#145600",
                     protocol: null,
@@ -772,7 +772,7 @@ var REPLACED_SCALAR_VARIABLES = {
                     id: "AEJ_LPS"
                 }, {at: 0});
                 filtered_collection.add({
-                    name: "AEJ LPL",
+                    name: "Auroral Electrojet - LC (AEJ LPL/PBL)",
                     visible: containerSelection['AEJ_LPL'],
                     color: "#024573",
                     protocol: null,
