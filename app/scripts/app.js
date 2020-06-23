@@ -8,8 +8,7 @@ var SCALAR_PARAM = [
     "delta_Ne20s", "delta_Ne40s", "Num_GPS_satellites", "mVTEC", "mROT", "mROTI10s",
     "mROTI20s", "IBI_flag", "Ionosphere_region_flag", "IPIR_index", "Ne_quality_flag",
     "TEC_STD",
-    "J_QD",
-    "J_C", "J_CF_SemiQD", "J_DF_SemiQD"
+    "J_QD", "J_R", "J_CF_SemiQD", "J_DF_SemiQD"
 ];
 
 var VECTOR_PARAM = [
@@ -17,8 +16,7 @@ var VECTOR_PARAM = [
     "B_NEC", "B_NEC_resAC", "GPS_Position", "LEO_Position",
     "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle",
     'dB_other', 'dB_AOCS', 'dB_Sun',
-    'J',
-    'J_CF', 'J_DF'
+    'J_NE', 'J_CF_NE', 'J_DF_NE'
 ];
 
 var VECTOR_BREAKDOWN = {
@@ -26,7 +24,6 @@ var VECTOR_BREAKDOWN = {
     'B_NEC_resAC': ['B_N_resAC', 'B_E_resAC', 'B_C_resAC'],
     'Model': ['B_N_res_Model', 'B_E_res_Model', 'B_C_res_Model'], // needed by CesiumView
     'B_NEC_res_Model': ['B_N_res_Model', 'B_E_res_Model', 'B_C_res_Model'],
-    'B_NEC_Model': ['B_N_Model', 'B_E_Model', 'B_C_Model'],
     'B_error': ['B_error_X', 'B_error_Y', 'B_error_Z'],
     'B_VFM': ['B_VFM_X', 'B_VFM_Y', 'B_VFM_Z'],
     'GPS_Position': ['GPS_Position_X', 'GPS_Position_Y', 'GPS_Position_Z'],
@@ -34,9 +31,9 @@ var VECTOR_BREAKDOWN = {
     'dB_other': ['dB_other_X', 'dB_other_Y', 'dB_other_Z'],
     'dB_AOCS': ['dB_AOCS_X', 'dB_AOCS_Y', 'dB_AOCS_Z'],
     'dB_Sun': ['dB_Sun_X', 'dB_Sun_Y', 'dB_Sun_Z'],
-    'J': ['J_N', 'J_E'],
-    'J_CF': ['J_CF_X', 'J_CF_Y'],
-    'J_DF': ['J_DF_X', 'J_DF_Y'],
+    'J_NE': ['J_N', 'J_E'],
+    'J_CF_NE': ['J_CF_N', 'J_CF_E'],
+    'J_DF_NE': ['J_DF_N', 'J_DF_E'],
 };
 
 // Ordered from highest resolution to lowest with the exception of FAC that
@@ -48,8 +45,8 @@ var MASTER_PRIORITY = [
     'SW_OPER_TECATMS_2F', 'SW_OPER_TECBTMS_2F', 'SW_OPER_TECCTMS_2F', 'SW_OPER_TECUTMS_2F',
     'SW_OPER_IBIATMS_2F', 'SW_OPER_IBIBTMS_2F', 'SW_OPER_IBICTMS_2F', 'SW_OPER_IBIUTMS_2F',
     'SW_OPER_EEFATMS_2F', 'SW_OPER_EEFBTMS_2F', 'SW_OPER_EEFCTMS_2F', 'SW_OPER_EEFUTMS_2F',
-    'SW_OPER_AEJALPL_2F', 'SW_OPER_AEJBLPL_2F', 'SW_OPER_AEJCLPL_2F',
-    'SW_OPER_AEJALPS_2F', 'SW_OPER_AEJBLPS_2F', 'SW_OPER_AEJCLPS_2F',
+    'SW_OPER_AEJALPS_2F', 'SW_OPER_AEJBLPS_2F', 'SW_OPER_AEJCLPS_2F', 'SW_OPER_AEJULPS_2F',
+    'SW_OPER_AEJALPL_2F', 'SW_OPER_AEJBLPL_2F', 'SW_OPER_AEJCLPL_2F', 'SW_OPER_AEJULPL_2F',
 ];
 
 // variable translations
@@ -767,7 +764,7 @@ var REPLACED_SCALAR_VARIABLES = {
 
                 // Add generic product (which is container for A,B and C sats)
                 filtered_collection.add({
-                    name: "AEJ LPS",
+                    name: "Auroral Electrojet - SECS (AEJ LPS/PBS)",
                     visible: containerSelection['AEJ_LPS'],
                     color: "#145600",
                     protocol: null,
@@ -775,7 +772,7 @@ var REPLACED_SCALAR_VARIABLES = {
                     id: "AEJ_LPS"
                 }, {at: 0});
                 filtered_collection.add({
-                    name: "AEJ LPL",
+                    name: "Auroral Electrojet - LC (AEJ LPL/PBL)",
                     visible: containerSelection['AEJ_LPL'],
                     color: "#024573",
                     protocol: null,

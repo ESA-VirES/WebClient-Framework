@@ -927,8 +927,7 @@ define(['backbone.marionette',
                             'Absolute_VTEC', 'Elevation_Angle',
                             'IRC', 'FAC',
                             'EEF',
-                            'J_QD', 'J_N', 'J_E',
-                            'J_CF_SemiQD', 'J_DF_SemiQD'
+                            'J_QD', 'J_DF_SemiQD',
                         ];
 
                         filterstouse = filterstouse.concat(['MLT']);
@@ -988,7 +987,7 @@ define(['backbone.marionette',
                         // does we add key parameter to selection in plot
                         var parasToCheck = [
                             'Ne', 'F', 'Bubble_Probability', 'Absolute_STEC',
-                            'FAC', 'EEF', 'J_QD', 'J_CF_SemiQD', 'J_DF_SemiQD'
+                            'FAC', 'EEF', 'J_QD', 'J_DF_SemiQD'
                         ];
 
                         // Go trough all plots and see if they need to be removed

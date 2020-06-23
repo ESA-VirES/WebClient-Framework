@@ -298,8 +298,7 @@
             "Ionosphere_region_flag", "IPIR_index", "Ne_quality_flag", "TEC_STD",
             "IMF_V", "IMF_BY_GSM", "IMF_BZ_GSM",
             "B_NEC_Model", "B_NEC_res_Model", "F_Model", "F_res_Model",
-            "J", "J_QD",
-            "J_C", "J_CF", "J_DF", "J_CF_SemiQD", "J_DF_SemiQD"
+            "J_NE", "J_QD", "J_CF_NE", "J_CF_SemiQD", "J_DF_NE", "J_DF_SemiQD", "J_R",
           ];
 
           var collectionList = _.chain(collections)
@@ -412,12 +411,12 @@
               };
 
               // Calculate new J value for AEJ LPS data
-              if (dat.hasOwnProperty('J_CF') && dat.hasOwnProperty('J_DF') && !dat.hasOwnProperty('J')) {
-                dat['J'] = [];
+              if (dat.hasOwnProperty('J_CF_NE') && dat.hasOwnProperty('J_DF_NE') && !dat.hasOwnProperty('J_NE')) {
+                dat['J_NE'] = [];
                 for (var i = 0; i < dat.Timestamp.length; i++) {
-                  dat.J.push([
-                    dat.J_CF[i][0] + dat.J_DF[i][0],
-                    dat.J_CF[i][1] + dat.J_DF[i][1]
+                  dat.J_NE.push([
+                    dat.J_CF_NE[i][0] + dat.J_DF_NE[i][0],
+                    dat.J_CF_NE[i][1] + dat.J_DF_NE[i][1]
                   ]);
                 }
               }
