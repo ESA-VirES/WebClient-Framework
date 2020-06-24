@@ -1036,8 +1036,8 @@ define([
         },
 
         exportSVG: function (svg) {
-          // https://developer.mozilla.org/en/DOM/window.btoa;
-          return "data:image/svg+xml;base64," + btoa(svg); 
+            // https://developer.mozilla.org/en/DOM/window.btoa;
+            return "data:image/svg+xml;base64," + btoa(svg);
         },
 
 
@@ -1159,7 +1159,7 @@ define([
                                         dat.Longitude[i], dat.Latitude[i],
                                         6835000 - maxRad
                                     ),
-                                    pixelOffset : new Cesium.Cartesian2(8,8),
+                                    pixelOffset: new Cesium.Cartesian2(8, 8),
                                     eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
                                     radius: 0,
                                     scale: 0.4,
@@ -1179,16 +1179,16 @@ define([
                     this.xhr2 = null;
                 }
 
-                // See if collections have LPS visible 
-                var lpsColl = retrieve_data.filter(function(coll){ return coll.layer.indexOf('LPS_2F') !== -1});
-                if (lpsColl.length > 0){
+                // See if collections have LPS visible
+                var lpsColl = retrieve_data.filter(function (coll) {return coll.layer.indexOf('LPS_2F') !== -1;});
+                if (lpsColl.length > 0) {
                     var lpsCollections = DataUtil.parseCollections(retrieve_data);
                     var groundpeakOptions = {
                         "collections_ids": DataUtil.formatCollections(lpsCollections),
                         "begin_time": getISODateTimeString(this.beginTime),
                         "end_time": getISODateTimeString(this.endTime),
                         mimeType: 'application/msgpack'
-                    }
+                    };
                     groundpeakOptions.collections_ids = groundpeakOptions.collections_ids.replace('LPS_2F', 'PBS_2F:GroundMagneticDisturbance');
                     this.xhr2 = httpRequest.asyncHttpRequest({
                         context: this,
@@ -1234,7 +1234,7 @@ define([
                                         position: Cesium.Cartesian3.fromDegrees(
                                             dat.Longitude[i], dat.Latitude[i], 0
                                         ),
-                                        pixelOffset : new Cesium.Cartesian2(8,8),
+                                        pixelOffset: new Cesium.Cartesian2(8, 8),
                                         eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
                                         radius: 0,
                                         scale: 0.4,
@@ -1373,7 +1373,7 @@ define([
                                         }
                                         var length = Math.sqrt(sum);
                                         lengths.push(length);
-                                        if(maxLength < length){
+                                        if (maxLength < length) {
                                             maxLength = length;
                                         }
                                     }
