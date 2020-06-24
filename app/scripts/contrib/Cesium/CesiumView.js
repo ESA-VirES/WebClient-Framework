@@ -25,6 +25,28 @@ define([
 ) {
     'use strict';
 
+    var PT_POINT_TYPE_MASK = 0x2;
+    var PT_BOUNDARY = 0x2;
+    var PT_PEAK = 0x0;
+    var DEG2RAD = Math.PI / 180.0;
+
+    var rotateVectorNER2XYZ = function (latitude, longitude, vN, vE, vR) {
+        // rotate vector from a local horizontal North, East, Radius frame
+        // defined by the latitude and longitude to the global geocentric
+        // Cartesian frame
+        var sin_lat = Math.sin(DEG2RAD * latitude);
+        var cos_lat = Math.cos(DEG2RAD * latitude);
+        var sin_lon = Math.sin(DEG2RAD * longitude);
+        var cos_lon = Math.cos(DEG2RAD * longitude);
+
+        var vXY = cos_lat * vR - sin_lat * vN;
+        return {
+            x: cos_lon * vXY - sin_lon * vE,
+            y: sin_lon * vXY + cos_lon * vE,
+            z: cos_lat * vN + sin_lat * vR,
+        };
+    };
+
     // Special 'ellipsoid' for conversion from geocentric spherical coordinates.
     // This datum is a sphere with radius of 1mm.
     var GEOCENTRIC_SPHERICAL = {
@@ -1014,8 +1036,8 @@ define([
         },
 
         exportSVG: function (svg) {
-          // https://developer.mozilla.org/en/DOM/window.btoa;
-          return "data:image/svg+xml;base64," + btoa(svg); 
+            // https://developer.mozilla.org/en/DOM/window.btoa;
+            return "data:image/svg+xml;base64," + btoa(svg);
         },
 
 
@@ -1124,9 +1146,9 @@ define([
                         for (var i = 0; i < dat.Latitude.length; i++) {
                             if (!Number.isNaN(dat.Latitude[i]) && !Number.isNaN(dat.Longitude[i])) {
                                 var imageString;
-                                if ((dat.PointType[i] & 4) == 0) {
+                                if ((dat.PointType[i] & PT_POINT_TYPE_MASK) == PT_BOUNDARY) {
                                     imageString = this.svgPrefix + svgRect + svgSuffix;
-                                } else if ((dat.PointType[i] & 4) == 4) {
+                                } else if ((dat.PointType[i] & PT_POINT_TYPE_MASK) == PT_PEAK) {
                                     imageString = this.svgPrefix + svgTriangle + svgSuffix;
                                 }
                                 var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
@@ -1137,7 +1159,7 @@ define([
                                         dat.Longitude[i], dat.Latitude[i],
                                         6835000 - maxRad
                                     ),
-                                    pixelOffset : new Cesium.Cartesian2(8,8),
+                                    pixelOffset: new Cesium.Cartesian2(8, 8),
                                     eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
                                     radius: 0,
                                     scale: 0.4,
@@ -1157,16 +1179,16 @@ define([
                     this.xhr2 = null;
                 }
 
-                // See if collections have LPS visible 
-                var lpsColl = retrieve_data.filter(function(coll){ return coll.layer.indexOf('LPS_2F') !== -1});
-                if (lpsColl.length > 0){
+                // See if collections have LPS visible
+                var lpsColl = retrieve_data.filter(function (coll) {return coll.layer.indexOf('LPS_2F') !== -1;});
+                if (lpsColl.length > 0) {
                     var lpsCollections = DataUtil.parseCollections(retrieve_data);
                     var groundpeakOptions = {
                         "collections_ids": DataUtil.formatCollections(lpsCollections),
                         "begin_time": getISODateTimeString(this.beginTime),
                         "end_time": getISODateTimeString(this.endTime),
                         mimeType: 'application/msgpack'
-                    }
+                    };
                     groundpeakOptions.collections_ids = groundpeakOptions.collections_ids.replace('LPS_2F', 'PBS_2F:GroundMagneticDisturbance');
                     this.xhr2 = httpRequest.asyncHttpRequest({
                         context: this,
@@ -1212,7 +1234,7 @@ define([
                                         position: Cesium.Cartesian3.fromDegrees(
                                             dat.Longitude[i], dat.Latitude[i], 0
                                         ),
-                                        pixelOffset : new Cesium.Cartesian2(8,8),
+                                        pixelOffset: new Cesium.Cartesian2(8, 8),
                                         eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
                                         radius: 0,
                                         scale: 0.4,
@@ -1351,7 +1373,7 @@ define([
                                         }
                                         var length = Math.sqrt(sum);
                                         lengths.push(length);
-                                        if(maxLength < length){
+                                        if (maxLength < length) {
                                             maxLength = length;
                                         }
                                     }
@@ -1543,18 +1565,22 @@ define([
                                             color = this.plot.getColor(vLen);
                                             var maxLen = 600000;
 
-                                            var vN = (row[sb[0]] / maxLength) * maxLen;
-                                            var vE = (row[sb[1]] / maxLength) * maxLen;
-                                            var vC = (altComp / maxLength) * maxLen;
+                                            // convert vector in the local horizontal NEC frame
+                                            // to the global geocentric XYZ Cartesian frame
+                                            var vXYZ = rotateVectorNER2XYZ(
+                                                row.Latitude, row.Longitude,
+                                                (row[sb[0]] / maxLength) * maxLen,
+                                                (row[sb[1]] / maxLength) * maxLen,
+                                                -(altComp / maxLength) * maxLen
+                                            );
 
-                                            // calculate initial cartesian position from coordinates
                                             var startCartPos = Cesium.Cartesian3.fromDegrees(
                                                 row.Longitude, row.Latitude, (radius - maxRad + heightOffset)
                                             );
                                             var endCartPos = Cesium.Cartesian3.fromArray([
-                                                (startCartPos.x + vE),
-                                                (startCartPos.y + vN),
-                                                (startCartPos.z + vC)
+                                                startCartPos.x + vXYZ.x,
+                                                startCartPos.y + vXYZ.y,
+                                                startCartPos.z + vXYZ.z
                                             ]);
                                             this.featuresCollection[row.id + set.band].geometryInstances.push(
                                                 new Cesium.GeometryInstance({
