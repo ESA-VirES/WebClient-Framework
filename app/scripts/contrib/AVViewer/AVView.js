@@ -301,6 +301,7 @@ define(['backbone.marionette',
 
             var xax = 'Latitude';
             var xlabel = null;
+            var additionalXTicks = null;
             var yax = ['F'];
             var yAxisLabel = [];
             var y2ax = [];
@@ -333,6 +334,12 @@ define(['backbone.marionette',
 
             if (localStorage.getItem('xAxisLabel') !== null) {
                 xlabel = JSON.parse(localStorage.getItem('xAxisLabel'));
+            }
+
+            if (localStorage.getItem('additionalXTicks') !== null) {
+                additionalXTicks = JSON.parse(
+                    localStorage.getItem('additionalXTicks')
+                );
             }
 
             // Check if previous config used multiaxis
@@ -430,6 +437,10 @@ define(['backbone.marionette',
             if (xlabel) {
                 this.renderSettings.xAxisLabel = xlabel;
             }
+            if (additionalXTicks) {
+                this.renderSettings.additionalXTicks = additionalXTicks;
+            }
+            
 
             var cols = [
                 'coolwarm', 'rainbow', 'jet', 'diverging_1', 'diverging_2',
@@ -467,6 +478,9 @@ define(['backbone.marionette',
                 this.filterManager.filters = globals.swarm.get('filters');
             }
 
+            this.graph.on('colorScaleChange', function(parameter) {
+                globals.swarm.set('uom_set', this.dataSettings);
+            });
 
             this.graph.on('axisChange', function () {
 
@@ -478,6 +492,14 @@ define(['backbone.marionette',
                     'xAxisLabel',
                     JSON.stringify(this.xAxisLabel)
                 );
+
+                if (this.renderSettings.hasOwnProperty('additionalXTicks')) {
+                    // Save additional x ticks to localstorage
+                    localStorage.setItem(
+                        'additionalXTicks',
+                        JSON.stringify(this.renderSettings.additionalXTicks)
+                    );
+                }
 
                 var currL = this.renderSettings.yAxis.length;
                 var confArr = [];
