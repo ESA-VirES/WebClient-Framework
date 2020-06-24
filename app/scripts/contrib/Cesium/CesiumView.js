@@ -25,6 +25,9 @@ define([
 ) {
     'use strict';
 
+    var PT_POINT_TYPE_MASK = 0x2;
+    var PT_BOUNDARY = 0x2;
+    var PT_PEAK = 0x0;
     var DEG2RAD = Math.PI / 180.0;
 
     var rotateVectorNER2XYZ = function (latitude, longitude, vN, vE, vR) {
@@ -1143,9 +1146,9 @@ define([
                         for (var i = 0; i < dat.Latitude.length; i++) {
                             if (!Number.isNaN(dat.Latitude[i]) && !Number.isNaN(dat.Longitude[i])) {
                                 var imageString;
-                                if ((dat.PointType[i] & 4) == 0) {
+                                if ((dat.PointType[i] & PT_POINT_TYPE_MASK) == PT_BOUNDARY) {
                                     imageString = this.svgPrefix + svgRect + svgSuffix;
-                                } else if ((dat.PointType[i] & 4) == 4) {
+                                } else if ((dat.PointType[i] & PT_POINT_TYPE_MASK) == PT_PEAK) {
                                     imageString = this.svgPrefix + svgTriangle + svgSuffix;
                                 }
                                 var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
