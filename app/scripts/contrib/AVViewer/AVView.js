@@ -478,6 +478,9 @@ define(['backbone.marionette',
                 this.filterManager.filters = globals.swarm.get('filters');
             }
 
+            this.graph.on('colorScaleChange', function(parameter) {
+                globals.swarm.set('uom_set', this.dataSettings);
+            });
 
             this.graph.on('axisChange', function () {
 

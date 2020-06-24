@@ -236,6 +236,7 @@ var saveProductStatus = function (product) {
 var savePrameterStatus = function (globals) {
   var parConf = {};
   var uomSet = globals.swarm.get('uom_set');
+  console.log(uomSet);
 
   for (var pk in uomSet) {
     var parC = {};
@@ -260,6 +261,8 @@ var savePrameterStatus = function (globals) {
         if (uomSet[pk][innerpk].hasOwnProperty('displayName')) {
           parC[innerpk]['displayName'] = uomSet[pk][innerpk].displayName;
         }
+      } else if (innerpk === 'colorscale') {
+        parC.colorscale = uomSet[pk].colorscale;
       }
     }
     if (!_.isEmpty(parC)) {
