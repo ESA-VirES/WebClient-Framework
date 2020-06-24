@@ -5556,7 +5556,7 @@
     }],
 
     "navBarConfig": {
-        "title": "VirES for Swarm",
+        "title": "VirES for DISC",
         "url": "/",
         "items": [{
             "name": "Layers",
