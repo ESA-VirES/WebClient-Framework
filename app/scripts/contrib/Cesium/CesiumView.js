@@ -25,6 +25,25 @@ define([
 ) {
     'use strict';
 
+    var DEG2RAD = Math.PI / 180.0;
+
+    var rotateVectorNER2XYZ = function (latitude, longitude, vN, vE, vR) {
+        // rotate vector from a local horizontal North, East, Radius frame
+        // defined by the latitude and longitude to the global geocentric
+        // Cartesian frame
+        var sin_lat = Math.sin(DEG2RAD * latitude);
+        var cos_lat = Math.cos(DEG2RAD * latitude);
+        var sin_lon = Math.sin(DEG2RAD * longitude);
+        var cos_lon = Math.cos(DEG2RAD * longitude);
+
+        var vXY = cos_lat * vR - sin_lat * vN;
+        return {
+            x: cos_lon * vXY - sin_lon * vE,
+            y: sin_lon * vXY + cos_lon * vE,
+            z: cos_lat * vN + sin_lat * vR,
+        };
+    };
+
     // Special 'ellipsoid' for conversion from geocentric spherical coordinates.
     // This datum is a sphere with radius of 1mm.
     var GEOCENTRIC_SPHERICAL = {
@@ -1543,18 +1562,22 @@ define([
                                             color = this.plot.getColor(vLen);
                                             var maxLen = 600000;
 
-                                            var vN = (row[sb[0]] / maxLength) * maxLen;
-                                            var vE = (row[sb[1]] / maxLength) * maxLen;
-                                            var vC = (altComp / maxLength) * maxLen;
+                                            // convert vector in the local horizontal NEC frame
+                                            // to the global geocentric XYZ Cartesian frame
+                                            var vXYZ = rotateVectorNER2XYZ(
+                                                row.Latitude, row.Longitude,
+                                                (row[sb[0]] / maxLength) * maxLen,
+                                                (row[sb[1]] / maxLength) * maxLen,
+                                                -(altComp / maxLength) * maxLen
+                                            );
 
-                                            // calculate initial cartesian position from coordinates
                                             var startCartPos = Cesium.Cartesian3.fromDegrees(
                                                 row.Longitude, row.Latitude, (radius - maxRad + heightOffset)
                                             );
                                             var endCartPos = Cesium.Cartesian3.fromArray([
-                                                (startCartPos.x + vE),
-                                                (startCartPos.y + vN),
-                                                (startCartPos.z + vC)
+                                                startCartPos.x + vXYZ.x,
+                                                startCartPos.y + vXYZ.y,
+                                                startCartPos.z + vXYZ.z
                                             ]);
                                             this.featuresCollection[row.id + set.band].geometryInstances.push(
                                                 new Cesium.GeometryInstance({
