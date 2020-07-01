@@ -96,7 +96,8 @@ define([
             this.plot = null;
             this.xhr = null;
             this.xhr2 = null;
-            this.AEBS_Label = null;
+            this.AEBSLabel = null;
+            this.AOBPolylines = null;
             this.svgPrefix = 'data:image/svg+xml,<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px" height="40px" xml:space="preserve">';
             this.connectDataEvents();
         },
@@ -586,11 +587,11 @@ define([
                         && p.get('visible')
                     );
                 })
-                if (this.AEBS_Label !== null) {
-                    this.map.scene.primitives.remove(this.AEBS_Label);
+                if (this.AEBSLabel !== null) {
+                    this.map.scene.primitives.remove(this.AEBSLabel);
                 }
                 if(amountActive.length > 0) {
-                    this.AEBS_Label = this.map.scene.primitives.add(
+                    this.AEBSLabel = this.map.scene.primitives.add(
                         this.createViewportQuad(AEBSLabelImg, 300, -10, 174, 77)
                     );
                 }

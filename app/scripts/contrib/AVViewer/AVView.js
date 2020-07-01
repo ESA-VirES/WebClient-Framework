@@ -991,6 +991,7 @@ define(['backbone.marionette',
                             'IRC', 'FAC',
                             'EEF',
                             'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
+                            'Pair_Indicator', 'Boundary_Flag'
                         ];
 
                         filterstouse = filterstouse.concat(['MLT']);
@@ -1051,6 +1052,7 @@ define(['backbone.marionette',
                         var parasToCheck = [
                             'Ne', 'F', 'Bubble_Probability', 'Absolute_STEC',
                             'FAC', 'EEF', 'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
+                            'Pair_Indicator',
                         ];
 
                         // Go trough all plots and see if they need to be removed
