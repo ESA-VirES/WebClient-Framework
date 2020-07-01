@@ -308,6 +308,10 @@ define(['backbone.marionette',
             var y2AxisLabel = [];
             var colax = [];
             var colax2 = [];
+            var yAxisLocked = null;
+            var y2AxisLocked = null;
+            var yAxisExtent = null;
+            var y2AxisExtent = null;
 
             if (localStorage.getItem('plotConfiguration') !== null) {
 
@@ -339,6 +343,27 @@ define(['backbone.marionette',
             if (localStorage.getItem('additionalXTicks') !== null) {
                 additionalXTicks = JSON.parse(
                     localStorage.getItem('additionalXTicks')
+                );
+            }
+
+            if (localStorage.getItem('yAxisLocked') !== null) {
+                yAxisLocked = JSON.parse(
+                    localStorage.getItem('yAxisLocked')
+                );
+            }
+            if (localStorage.getItem('y2AxisLocked') !== null) {
+                y2AxisLocked = JSON.parse(
+                    localStorage.getItem('y2AxisLocked')
+                );
+            }
+            if (localStorage.getItem('yAxisExtent') !== null) {
+                yAxisExtent = JSON.parse(
+                    localStorage.getItem('yAxisExtent')
+                );
+            }
+            if (localStorage.getItem('y2AxisExtent') !== null) {
+                y2AxisExtent = JSON.parse(
+                    localStorage.getItem('y2AxisExtent')
                 );
             }
 
@@ -440,7 +465,19 @@ define(['backbone.marionette',
             if (additionalXTicks) {
                 this.renderSettings.additionalXTicks = additionalXTicks;
             }
-            
+            if (yAxisLocked) {
+                this.renderSettings.yAxisLocked = yAxisLocked;
+            }
+            if (y2AxisLocked) {
+                this.renderSettings.y2AxisLocked = y2AxisLocked;
+            }
+            if (yAxisExtent) {
+                this.renderSettings.yAxisExtent = yAxisExtent;
+            }
+            if (y2AxisExtent) {
+                this.renderSettings.y2AxisExtent = y2AxisExtent;
+            }
+
 
             var cols = [
                 'coolwarm', 'rainbow', 'jet', 'diverging_1', 'diverging_2',
@@ -468,7 +505,8 @@ define(['backbone.marionette',
                 enableSubYAxis: false,
                 colorscaleOptionLabel: 'Add third variable',
                 ignoreParameters: ['__info__'],
-                colorscales: cols
+                colorscales: cols,
+                allowLockingAxisScale: true,
             });
 
             if (localStorage.getItem('filterSelection') !== null) {
@@ -519,6 +557,21 @@ define(['backbone.marionette',
                 );
 
                 savePrameterStatus(globals);
+            });
+
+            this.graph.on('axisExtentChanged', function () {
+                localStorage.setItem(
+                    'yAxisExtent', JSON.stringify(this.renderSettings.yAxisExtent)
+                );
+                localStorage.setItem(
+                    'y2AxisExtent', JSON.stringify(this.renderSettings.y2AxisExtent)
+                );
+                localStorage.setItem(
+                    'yAxisLocked', JSON.stringify(this.renderSettings.yAxisLocked)
+                );
+                localStorage.setItem(
+                    'y2AxisLocked', JSON.stringify(this.renderSettings.y2AxisLocked)
+                );
             });
 
             this.graph.on('pointSelect', function (values) {
@@ -937,7 +990,7 @@ define(['backbone.marionette',
                             'Absolute_VTEC', 'Elevation_Angle',
                             'IRC', 'FAC',
                             'EEF',
-                            'J_QD', 'J_DF_SemiQD',
+                            'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
                         ];
 
                         filterstouse = filterstouse.concat(['MLT']);
@@ -997,7 +1050,7 @@ define(['backbone.marionette',
                         // does we add key parameter to selection in plot
                         var parasToCheck = [
                             'Ne', 'F', 'Bubble_Probability', 'Absolute_STEC',
-                            'FAC', 'EEF', 'J_QD', 'J_DF_SemiQD'
+                            'FAC', 'EEF', 'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
                         ];
 
                         // Go trough all plots and see if they need to be removed
@@ -1006,6 +1059,10 @@ define(['backbone.marionette',
                         var renSetY2 = this.renderSettings.y2Axis;
                         var colAx = this.renderSettings.colorAxis;
                         var colAx2 = this.renderSettings.colorAxis2;
+                        var yAxisExtent = this.renderSettings.yAxisExtent;
+                        var y2AxisExtent = this.renderSettings.y2AxisExtent;
+                        var yAxisLocked = this.renderSettings.yAxisLocked;
+                        var y2AxisLocked = this.renderSettings.y2AxisLocked;
 
                         for (var pY = renSetY.length - 1; pY >= 0; pY--) {
 
@@ -1016,6 +1073,8 @@ define(['backbone.marionette',
                                     renSetY[pY].splice(yy, 1);
                                     // remove corresponding cs
                                     colAx[pY].splice(yy, 1);
+                                    yAxisExtent.splice(yy, 1);
+                                    yAxisLocked.splice(yy, 1);
                                 }
                             }
 
@@ -1026,6 +1085,8 @@ define(['backbone.marionette',
                                     renSetY2[pY].splice(yy2, 1);
                                     // remove corresponding cs
                                     colAx2[pY].splice(yy2, 1);
+                                    y2AxisExtent.splice(yy2, 1);
+                                    y2AxisLocked.splice(yy2, 1);
                                 }
                             }
 
@@ -1036,6 +1097,10 @@ define(['backbone.marionette',
                                 renSetY2.splice(pY, 1);
                                 colAx.splice(pY, 1);
                                 colAx2.splice(pY, 1);
+                                yAxisExtent.splice(pY, 1);
+                                yAxisLocked.splice(pY, 1);
+                                y2AxisExtent.splice(pY, 1);
+                                y2AxisLocked.splice(pY, 1);
                             }
                         }
 
@@ -1052,6 +1117,10 @@ define(['backbone.marionette',
                                     colAx.push([null]);
                                     renSetY2.push([]);
                                     colAx2.push([]);
+                                    yAxisExtent.push(null);
+                                    yAxisLocked.push(false);
+                                    y2AxisExtent.push(null);
+                                    y2AxisLocked.push(false);
                                 }
                             }
                         }
@@ -1065,6 +1134,10 @@ define(['backbone.marionette',
                                     colAx.push([null]);
                                     renSetY2.push([]);
                                     colAx2.push([]);
+                                    yAxisExtent.push(null);
+                                    yAxisLocked.push(false);
+                                    y2AxisExtent.push(null);
+                                    y2AxisLocked.push(false);
                                 }
                             }
                         }
@@ -1076,6 +1149,10 @@ define(['backbone.marionette',
                             colAx.push([]);
                             renSetY2.push([]);
                             colAx2.push([]);
+                            yAxisExtent.push(null);
+                            yAxisLocked.push(false);
+                            y2AxisExtent.push(null);
+                            y2AxisLocked.push(false);
                         }
 
                         // Check if x axis selection is still available
@@ -1096,6 +1173,7 @@ define(['backbone.marionette',
                             ), 30);
                         }
 
+
                         localStorage.setItem(
                             'yAxisSelection',
                             JSON.stringify(this.graph.renderSettings.yAxis)
@@ -1108,21 +1186,42 @@ define(['backbone.marionette',
                             'xAxisSelection',
                             JSON.stringify(this.graph.renderSettings.xAxis)
                         );
-
                         localStorage.setItem(
                             'colorAxisSelection',
                             JSON.stringify(this.graph.renderSettings.colorAxis)
                         );
-
                         localStorage.setItem(
                             'colorAxis2Selection',
                             JSON.stringify(this.graph.renderSettings.colorAxis2)
+                        );
+                        localStorage.setItem(
+                            'yAxisExtent',
+                            JSON.stringify(this.graph.renderSettings.yAxisExtent)
+                        );
+                        localStorage.setItem(
+                            'y2AxisExtent',
+                            JSON.stringify(this.graph.renderSettings.y2AxisExtent)
+                        );
+                        localStorage.setItem(
+                            'yAxisLocked',
+                            JSON.stringify(this.graph.renderSettings.yAxisLocked)
+                        );
+                        localStorage.setItem(
+                            'y2AxisLocked',
+                            JSON.stringify(this.graph.renderSettings.y2AxisLocked)
                         );
 
                         this.graph.renderSettings.yAxis = renSetY ;
                         this.graph.renderSettings.y2Axis = renSetY2;
                         this.graph.renderSettings.colorAxis = colAx;
                         this.graph.renderSettings.colorAxis2 = colAx2;
+
+                        /*this.graph.setRenderSettings({
+                            yAxis: renSetY,
+                            y2Axis: renSetY2,
+                            colorAxis: colAx,
+                            colorAxis2: colAx2,
+                        });*/
 
                         // Save all changes done to plotConfiguration
                         var grapRS = this.graph.renderSettings;
@@ -1142,6 +1241,7 @@ define(['backbone.marionette',
                         localStorage.setItem(
                             'plotConfiguration', JSON.stringify(confArr)
                         );
+                        this.prevParams = idKeys;
 
                         // End of IF to see if data parameters have changed
                     } else if (this.prevParams === null) {
@@ -1164,8 +1264,6 @@ define(['backbone.marionette',
                         }
                     }
 
-                    this.prevParams = idKeys;
-
                     this.$('#filterSelectDrop').remove();
                     this.$('#filterDivContainer').append('<div id="filterSelectDrop"></div>');
 
@@ -1178,7 +1276,6 @@ define(['backbone.marionette',
                     this.filterManager.loadData(data);
                     this.renderFilterList();
                 } else {
-                    this.prevParams = idKeys;
                     $('#nodataavailable').text('No data available for current selection');
                     $('#nodataavailable').show();
                     $('.d3canvas').hide();

@@ -29,7 +29,7 @@
     "canvas-toBlob.js": "eligrey/canvas-toBlob.js",
     "Blob.js": "eligrey/Blob.js",
     "filepond": "pqina/filepond#^2.0.1",
-    "graphly": "eox-a/graphly#4c4ae1f6867bb82999d3d81ca63876fdd43519db",
+    "graphly": "eox-a/graphly#385e0d69a49bbd17154f6515c23da8710314615c",
     "msgpack-lite": "^0.1.26"
   },
   "devDependencies": {},
