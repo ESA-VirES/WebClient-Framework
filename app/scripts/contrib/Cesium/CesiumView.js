@@ -1,6 +1,6 @@
 /*global $ _ define d3 Cesium msgpack plotty DrawHelper saveAs showMessage */
 /*global defaultFor getISODateTimeString meanDate */
-/*global SCALAR_PARAM VECTOR_PARAM VECTOR_BREAKDOWN */
+/*global SCALAR_PARAM VECTOR_PARAM VECTOR_BREAKDOWN AEBSLabelImg */
 
 define([
     'backbone.marionette',
@@ -96,6 +96,7 @@ define([
             this.plot = null;
             this.xhr = null;
             this.xhr2 = null;
+            this.AEBS_Label = null;
             this.svgPrefix = 'data:image/svg+xml,<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px" height="40px" xml:space="preserve">';
             this.connectDataEvents();
         },
@@ -576,6 +577,23 @@ define([
 
         connectDataEvents: function () {
             globals.swarm.on('change:data', function (model, data) {
+                // See if LPL or LPS products are active, if they are show also
+                // special labels
+                var amountActive = globals.products.filter(function(p) {
+                    return (typeof p.get('download').id !== 'undefined'
+                        && (p.get('download').id.indexOf('LPL_2F') !== -1
+                        || p.get('download').id.indexOf('LPS_2F') !== -1)
+                        && p.get('visible')
+                    );
+                })
+                if (this.AEBS_Label !== null) {
+                    this.map.scene.primitives.remove(this.AEBS_Label);
+                }
+                if(amountActive.length > 0) {
+                    this.AEBS_Label = this.map.scene.primitives.add(
+                        this.createViewportQuad(AEBSLabelImg, 300, -10, 174, 77)
+                    );
+                }
 
                 globals.products.each(this.synchronizeColorLegend, this);
 
