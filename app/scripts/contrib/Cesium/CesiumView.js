@@ -97,7 +97,7 @@ define([
             this.xhr = null;
             this.xhr2 = null;
             this.AEBSLabel = null;
-            this.AOBPolylines = null;
+            this.AOBPolylines = {};
             this.svgPrefix = 'data:image/svg+xml,<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px" height="40px" xml:space="preserve">';
             this.connectDataEvents();
         },
@@ -594,6 +594,11 @@ define([
                     this.AEBSLabel = this.map.scene.primitives.add(
                         this.createViewportQuad(AEBSLabelImg, 300, -10, 174, 77)
                     );
+                }
+                // Clenaup of AOB primitives if necessary
+                for (var prim in this.AOBPolylines) {
+                    this.map.scene.primitives.remove(this.AOBPolylines[prim]);
+                    delete(this.AOBPolylines[prim]);
                 }
 
                 globals.products.each(this.synchronizeColorLegend, this);
@@ -1268,6 +1273,66 @@ define([
             }
         },
 
+        createAOBConnectionLines: function(product, results) {
+            var maxRad = this.map.scene.globe.ellipsoid.maximumRadius;
+            var heightOffset = i * 210000;
+            var polylinesPrimitive = new Cesium.Primitive({
+                geometryInstances: [],
+                appearance: new Cesium.PolylineColorAppearance({
+                    translucent: true
+                }),
+                releaseGeometryInstances: false
+            });
+            this.AOBPolylines[product.get('download').id] = polylinesPrimitive;
+            if(results.hasOwnProperty('Pair_Indicator')){
+                var linecnt = 0;
+                for (var i = 1; i < results.Pair_Indicator.length-1; i++) {
+                    if(results.Pair_Indicator[i] === -1){
+                        // We need to find correct neighbor
+                        var offset = null;
+                        if(results.Pair_Indicator[i+1] === 1) {
+                            offset = 1;
+                        } else if (results.Pair_Indicator[i-1] === 1){
+                            offset = -1;
+                        }
+                        if(offset !== null) {
+                            var color = Cesium.ColorGeometryInstanceAttribute.fromColor(
+                                new Cesium.Color.fromBytes(20, 20, 220, 255)
+                            );
+                            polylinesPrimitive.geometryInstances.push(
+                                new Cesium.GeometryInstance({
+                                    geometry: new Cesium.PolylineGeometry({
+                                        positions: [
+                                            Cesium.Cartesian3.fromDegrees(
+                                                results.Longitude[i],
+                                                results.Latitude[i],
+                                                results.Radius[i] - maxRad
+                                            ),
+                                            Cesium.Cartesian3.fromDegrees(
+                                                results.Longitude[i+offset],
+                                                results.Latitude[i+offset],
+                                                results.Radius[i+offset] - maxRad
+                                            )
+                                        ],
+                                        followSurface: true,
+                                        width: 1.7,
+                                        vertexFormat: Cesium.PolylineColorAppearance.VERTEX_FORMAT
+                                    }),
+                                    id: 'vec_line_' + linecnt,
+                                    attributes: {
+                                        color: color
+                                    }
+                                })
+                            );
+
+                            linecnt++;
+                        }
+                    }
+                }
+            }
+            this.map.scene.primitives.add(polylinesPrimitive);
+        },
+
         createDataFeatures: function (results) {
             var refKey = 'Timestamp';
             if (!results.hasOwnProperty(refKey)) {
@@ -1287,6 +1352,7 @@ define([
                         delete this.featuresCollection[this.activeCollections[i]];
                     }
                 }
+
                 this.activeCollections = [];
                 var settings = {};
 
@@ -1299,6 +1365,11 @@ define([
                     var sat = globals.swarm.collection2satellite[collection];
 
                     if (!sat) {return;}
+
+                    // Create connection lines if it is a AOB product
+                    if (collection.indexOf('AOB') !== -1){
+                        this.createAOBConnectionLines(product, results);
+                    }
 
                     _.each(product.get('parameters'), function (param, name) {
                         if (!param.selected) {return;}
@@ -1334,7 +1405,7 @@ define([
                             });
                         }
                     });
-                });
+                }, this);
 
                 if (!_.isEmpty(settings)) {
 

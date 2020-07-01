@@ -4718,14 +4718,14 @@
             "parameters": {
                 "Boundary_Flag": {
                     "range": [0, 4],
-                    "colorscale": "diverging_1",
+                    "colorscale": "portland",
                     "uom": null,
                     "name": "Boundary flag"
                 },
                 "Pair_Indicator": {
                     "selected": true,
                     "range": [-1, 1],
-                    "colorscale": "diverging_1",
+                    "colorscale": "portland",
                     "uom": null,
                     "name": "Pair indicator"
                 }
@@ -4787,14 +4787,14 @@
             "parameters": {
                 "Boundary_Flag": {
                     "range": [0, 4],
-                    "colorscale": "diverging_1",
+                    "colorscale": "portland",
                     "uom": null,
                     "name": "Boundary flag"
                 },
                 "Pair_Indicator": {
                     "selected": true,
                     "range": [-1, 1],
-                    "colorscale": "diverging_1",
+                    "colorscale": "portland",
                     "uom": null,
                     "name": "Pair indicator"
                 }
@@ -4855,14 +4855,14 @@
             "parameters": {
                 "Boundary_Flag": {
                     "range": [0, 4],
-                    "colorscale": "diverging_1",
+                    "colorscale": "portland",
                     "uom": null,
                     "name": "Boundary flag"
                 },
                 "Pair_Indicator": {
                     "selected": true,
                     "range": [-1, 1],
-                    "colorscale": "diverging_1",
+                    "colorscale": "portland",
                     "uom": null,
                     "name": "Pair indicator"
                 }
