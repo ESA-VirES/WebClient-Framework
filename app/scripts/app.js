@@ -404,7 +404,8 @@ var REPLACED_SCALAR_VARIABLES = {
                         ordinal: ordinal,
                         timeSlider: product.timeSlider,
                         // Default to WMS if no protocol is defined
-                        timeSliderProtocol: (product.timeSliderProtocol) ? product.timeSliderProtocol : "WMS",
+                        timeSliderProtocol: product.timeSliderProtocol || "WMS",
+                        timeSliderWpsProcessName: product.timeSliderWpsProcessName || null,
                         color: p_color,
                         //time: products.time, // Is set in TimeSliderView on time change.
                         opacity: defaultFor(product.opacity, 1),
