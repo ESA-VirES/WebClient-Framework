@@ -283,6 +283,15 @@ button[active=active] {
   white-space: nowrap;
 }
 
+#containerproductslist {
+  max-height: 272px;
+  overflow-y: auto;
+  margin: 0;
+}
+#containerproductslist .sortable-layer{
+  margin: 0 0 3px 0;
+}
+
 
 /*
  * Tool control

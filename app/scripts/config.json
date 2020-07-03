@@ -2738,7 +2738,8 @@
             "name": "SW OPER IBIA TMS 2F",
             "visible": false,
             "timeSlider": true,
-            "timeSliderProtocol": "WPS-INDEX",
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_bubble_index",
             "color": "#2ca02c",
             "views": [{
                 "id": "SW_OPER_IBIATMS_2F",
@@ -2867,7 +2868,8 @@
             "visible": false,
             "timeSlider": true,
             "color": "#2ca02c",
-            "timeSliderProtocol": "WPS-INDEX",
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_bubble_index",
             "views": [{
                 "id": "SW_OPER_IBIBTMS_2F",
                 "protocol": "CZML",
@@ -2995,7 +2997,8 @@
             "visible": false,
             "timeSlider": true,
             "color": "#2ca02c",
-            "timeSliderProtocol": "WPS-INDEX",
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_bubble_index",
             "views": [{
                 "id": "SW_OPER_IBICTMS_2F",
                 "protocol": "CZML",
@@ -4163,6 +4166,7 @@
             "name": "SW_OPER_AEJALPL_2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_continuous_segments",
             "color": "#024573",
             "views": [{
                 "id": "SW_OPER_AEJALPL_2F",
@@ -4231,6 +4235,7 @@
             "name": "SW_OPER_AEJBLPL_2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_continuous_segments",
             "color": "#024573",
             "views": [{
                 "id": "SW_OPER_AEJBLPL_2F",
@@ -4299,6 +4304,7 @@
             "name": "SW_OPER_AEJCLPL_2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_continuous_segments",
             "color": "#024573",
             "views": [{
                 "id": "SW_OPER_AEJCLPL_2F",
@@ -4367,6 +4373,7 @@
             "name": "SW_OPER_AEJALPS_2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_continuous_segments",
             "color": "#145600",
             "views": [{
                 "id": "SW_OPER_AEJALPS_2F",
@@ -4476,6 +4483,7 @@
             "name": "SW_OPER_AEJBLPS_2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_continuous_segments",
             "color": "#145600",
             "views": [{
                 "id": "SW_OPER_AEJBLPS_2F",
@@ -4585,6 +4593,7 @@
             "name": "SW_OPER_AEJCLPS_2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_continuous_segments",
             "color": "#145600",
             "views": [{
                 "id": "SW_OPER_AEJCLPS_2F",
@@ -4686,6 +4695,211 @@
                 "J_DF_SemiQD": {
                     "uom": "A/km",
                     "name": "Divergence-free horizontal sheet current density (SemiQD frame, east component)"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "SW_OPER_AOBAFAC_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#024573",
+            "views": [{
+                "id": "SW_OPER_AOBAFAC_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AOBAFAC_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_AOBAFAC_2F"
+                }
+            ],
+            "parameters": {
+                "Boundary_Flag": {
+                    "range": [0, 4],
+                    "colorscale": "portland",
+                    "uom": null,
+                    "name": "Boundary flag"
+                },
+                "Pair_Indicator": {
+                    "selected": true,
+                    "range": [-1, 1],
+                    "colorscale": "portland",
+                    "uom": null,
+                    "name": "Pair indicator"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "Boundary_Flag": {
+                    "uom": null,
+                    "name": "Boundary flag"
+                },
+                "Pair_Indicator": {
+                    "uom": null,
+                    "name": "Pair indicator"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },
+        {
+            "name": "SW_OPER_AOBBFAC_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#024573",
+            "views": [{
+                "id": "SW_OPER_AOBBFAC_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AOBBFAC_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_AOBBFAC_2F"
+                }
+            ],
+            "parameters": {
+                "Boundary_Flag": {
+                    "range": [0, 4],
+                    "colorscale": "portland",
+                    "uom": null,
+                    "name": "Boundary flag"
+                },
+                "Pair_Indicator": {
+                    "selected": true,
+                    "range": [-1, 1],
+                    "colorscale": "portland",
+                    "uom": null,
+                    "name": "Pair indicator"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "Boundary_Flag": {
+                    "uom": null,
+                    "name": "Boundary flag"
+                },
+                "Pair_Indicator": {
+                    "uom": null,
+                    "name": "Pair indicator"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "SW_OPER_AOBCFAC_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#024573",
+            "views": [{
+                "id": "SW_OPER_AOBCFAC_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AOBCFAC_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_AOBCFAC_2F"
+                }
+            ],
+            "parameters": {
+                "Boundary_Flag": {
+                    "range": [0, 4],
+                    "colorscale": "portland",
+                    "uom": null,
+                    "name": "Boundary flag"
+                },
+                "Pair_Indicator": {
+                    "selected": true,
+                    "range": [-1, 1],
+                    "colorscale": "portland",
+                    "uom": null,
+                    "name": "Pair indicator"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "Boundary_Flag": {
+                    "uom": null,
+                    "name": "Boundary flag"
+                },
+                "Pair_Indicator": {
+                    "uom": null,
+                    "name": "Pair indicator"
                 }
             },
             "outlines": false,
@@ -5243,6 +5457,74 @@
             "outlines": false,
             "satellite": "Upload"
           },{
+            "name": "SW_OPER_AOBUFAC_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#024573",
+            "views": [{
+                "id": "SW_OPER_AOBUFAC_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AOBUFAC_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "parameters": {
+                "Boundary_Flag": {
+                    "range": [0, 4],
+                    "colorscale": "diverging_1",
+                    "uom": null,
+                    "name": "Boundary flag"
+                },
+                "Pair_Indicator": {
+                    "selected": true,
+                    "range": [-1, 1],
+                    "colorscale": "diverging_1",
+                    "uom": null,
+                    "name": "Pair indicator"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "Boundary_Flag": {
+                    "uom": null,
+                    "name": "Boundary flag"
+                },
+                "Pair_Indicator": {
+                    "uom": null,
+                    "name": "Pair indicator"
+                }
+            },
+            "outlines": false,
+            "satellite": "Upload"
+        },{
             "name": "Magnetic Model",
             "visible": false,
             "timeSlider": true,

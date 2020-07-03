@@ -8,7 +8,7 @@ var SCALAR_PARAM = [
     "delta_Ne20s", "delta_Ne40s", "Num_GPS_satellites", "mVTEC", "mROT", "mROTI10s",
     "mROTI20s", "IBI_flag", "Ionosphere_region_flag", "IPIR_index", "Ne_quality_flag",
     "TEC_STD",
-    "J_QD", "J_R", "J_CF_SemiQD", "J_DF_SemiQD"
+    "J_QD", "J_R", "J_CF_SemiQD", "J_DF_SemiQD", "Boundary_Flag", "Pair_Indicator",
 ];
 
 var VECTOR_PARAM = [
@@ -47,6 +47,7 @@ var MASTER_PRIORITY = [
     'SW_OPER_EEFATMS_2F', 'SW_OPER_EEFBTMS_2F', 'SW_OPER_EEFCTMS_2F', 'SW_OPER_EEFUTMS_2F',
     'SW_OPER_AEJALPS_2F', 'SW_OPER_AEJBLPS_2F', 'SW_OPER_AEJCLPS_2F', 'SW_OPER_AEJULPS_2F',
     'SW_OPER_AEJALPL_2F', 'SW_OPER_AEJBLPL_2F', 'SW_OPER_AEJCLPL_2F', 'SW_OPER_AEJULPL_2F',
+    'SW_OPER_AOBAFAC_2F', 'SW_OPER_AOBBFAC_2F', 'SW_OPER_AOBCFAC_2F', 'SW_OPER_AOBUFAC_2F',
 ];
 
 // variable translations
@@ -403,7 +404,8 @@ var REPLACED_SCALAR_VARIABLES = {
                         ordinal: ordinal,
                         timeSlider: product.timeSlider,
                         // Default to WMS if no protocol is defined
-                        timeSliderProtocol: (product.timeSliderProtocol) ? product.timeSliderProtocol : "WMS",
+                        timeSliderProtocol: product.timeSliderProtocol || "WMS",
+                        timeSliderWpsProcessName: product.timeSliderWpsProcessName || null,
                         color: p_color,
                         //time: products.time, // Is set in TimeSliderView on time change.
                         opacity: defaultFor(product.opacity, 1),
@@ -591,7 +593,7 @@ var REPLACED_SCALAR_VARIABLES = {
                 var filtered = globals.products.filter(function (product) {
                     var id = product.get("download").id;
                     return !(id && id.match(
-                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ)[ABCU_]/
+                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ|AOB)[ABCU_]/
                     ));
                 });
 
@@ -651,6 +653,12 @@ var REPLACED_SCALAR_VARIABLES = {
                         "Bravo": "SW_OPER_AEJBLPS_2F",
                         "Charlie": "SW_OPER_AEJCLPS_2F",
                         "Upload": "SW_OPER_AEJULPS_2F",
+                    },
+                    "AOB_FAC": {
+                        "Alpha": "SW_OPER_AOBAFAC_2F",
+                        "Bravo": "SW_OPER_AOBBFAC_2F",
+                        "Charlie": "SW_OPER_AOBCFAC_2F",
+                        "Upload": "SW_OPER_AOBUFAC_2F",
                     }
                 };
 
@@ -709,7 +717,8 @@ var REPLACED_SCALAR_VARIABLES = {
                     'EEF': false,
                     'IPD': false,
                     'AEJ_LPL': false,
-                    'AEJ_LPS': false
+                    'AEJ_LPS': false,
+                    'AOB_FAC': false,
                 };
 
                 var clickEvent = "require(['communicator'], function(Communicator){Communicator.mediator.trigger('application:reset');});";
@@ -763,6 +772,14 @@ var REPLACED_SCALAR_VARIABLES = {
                 }
 
                 // Add generic product (which is container for A,B and C sats)
+                filtered_collection.add({
+                    name: "Auroral Oval Boundary (AOB FAC)",
+                    visible: containerSelection['AOB_FAC'],
+                    color: "#6e37b5",
+                    protocol: null,
+                    containerproduct: true,
+                    id: "AOB_FAC"
+                }, {at: 0});
                 filtered_collection.add({
                     name: "Auroral Electrojet - SECS (AEJ LPS/PBS)",
                     visible: containerSelection['AEJ_LPS'],

@@ -299,6 +299,7 @@
             "IMF_V", "IMF_BY_GSM", "IMF_BZ_GSM",
             "B_NEC_Model", "B_NEC_res_Model", "F_Model", "F_res_Model",
             "J_NE", "J_QD", "J_CF_NE", "J_CF_SemiQD", "J_DF_NE", "J_DF_SemiQD", "J_R",
+            "Boundary_Flag", "Pair_Indicator",
           ];
 
           var collectionList = _.chain(collections)
