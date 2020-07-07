@@ -13,6 +13,11 @@ define(['backbone.marionette',
 ], function (Marionette, Communicator, App, AVModel, globals) {
     'use strict';
 
+    // parameters not visible in the AV panel
+    var EXCLUDED_PARAMETERS = [
+        '__info__', 'J_N', 'J_E', 'J_DF_E', 'J_DF_N', 'J_CF_E', 'J_CF_N'
+    ];
+
     // TODO: find a better place to put the extra parameters' configuration
     var EXTRA_PARAMETERS = {
         "MLT": {
@@ -288,7 +293,7 @@ define(['backbone.marionette',
                     parameterMatrix: {}
                 },
                 showCloseButtons: true,
-                ignoreParameters: '__info__'
+                ignoreParameters: EXCLUDED_PARAMETERS,
             });
 
 
@@ -504,7 +509,7 @@ define(['backbone.marionette',
                 enableSubXAxis: 'Timestamp',
                 enableSubYAxis: false,
                 colorscaleOptionLabel: 'Add third variable',
-                ignoreParameters: ['__info__'],
+                ignoreParameters: EXCLUDED_PARAMETERS,
                 colorscales: cols,
                 allowLockingAxisScale: true,
             });
@@ -516,7 +521,7 @@ define(['backbone.marionette',
                 this.filterManager.filters = globals.swarm.get('filters');
             }
 
-            this.graph.on('colorScaleChange', function(parameter) {
+            this.graph.on('colorScaleChange', function (parameter) {
                 globals.swarm.set('uom_set', this.dataSettings);
             });
 
@@ -846,6 +851,9 @@ define(['backbone.marionette',
             if (aUOM.hasOwnProperty('LEO_Position')) {delete aUOM.LEO_Position;}
             if (aUOM.hasOwnProperty('Spacecraft')) {delete aUOM.Spacecraft;}
             if (aUOM.hasOwnProperty('id')) {delete aUOM.id;}
+            _.each(EXCLUDED_PARAMETERS, function (parameter) {
+                if (aUOM.hasOwnProperty(parameter)) {delete aUOM[parameter];}
+            })
 
             $('#filterSelectDrop').prepend(
                 '<div class="w2ui-field"> <button id="analyticsAddFilter" type="button" class="btn btn-success darkbutton dropdown-toggle">Add filter <span class="caret"></span></button> <input type="list" id="inputAnalyticsAddfilter"></div>'
