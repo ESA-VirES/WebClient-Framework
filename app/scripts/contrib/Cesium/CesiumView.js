@@ -580,22 +580,22 @@ define([
             globals.swarm.on('change:data', function (model, data) {
                 // See if LPL or LPS products are active, if they are show also
                 // special labels
-                var amountActive = globals.products.filter(function(p) {
+                var amountActive = globals.products.filter(function (p) {
                     return (typeof p.get('download').id !== 'undefined'
                         && (p.get('download').id.indexOf('LPL_2F') !== -1
                         || p.get('download').id.indexOf('LPS_2F') !== -1)
                         && p.get('visible')
                     );
-                })
+                });
                 if (this.AEBSLabel !== null) {
                     this.map.scene.primitives.remove(this.AEBSLabel);
                 }
-                if(amountActive.length > 0) {
+                if (amountActive.length > 0) {
                     this.AEBSLabel = this.map.scene.primitives.add(
                         this.createViewportQuad(AEBSLabelImg, 300, -10, 174, 77)
                     );
                 }
-                // Clenaup of AOB primitives if necessary
+                // Clean-up of AOB primitives if necessary
                 for (var prim in this.AOBPolylines) {
                     this.map.scene.primitives.remove(this.AOBPolylines[prim]);
                     delete(this.AOBPolylines[prim]);
@@ -1273,9 +1273,8 @@ define([
             }
         },
 
-        createAOBConnectionLines: function(product, results) {
+        createAOBConnectionLines: function (product, results) {
             var maxRad = this.map.scene.globe.ellipsoid.maximumRadius;
-            var heightOffset = i * 210000;
             var polylinesPrimitive = new Cesium.Primitive({
                 geometryInstances: [],
                 appearance: new Cesium.PolylineColorAppearance({
@@ -1284,18 +1283,18 @@ define([
                 releaseGeometryInstances: false
             });
             this.AOBPolylines[product.get('download').id] = polylinesPrimitive;
-            if(results.hasOwnProperty('Pair_Indicator')){
+            if (results.hasOwnProperty('Pair_Indicator')) {
                 var linecnt = 0;
-                for (var i = 1; i < results.Pair_Indicator.length-1; i++) {
-                    if(results.Pair_Indicator[i] === -1){
-                        // We need to find correct neighbor
+                for (var i = 1; i < results.Pair_Indicator.length - 1; i++) {
+                    if (results.Pair_Indicator[i] === -1) {
+                        // We need to find correct neighbour
                         var offset = null;
-                        if(results.Pair_Indicator[i+1] === 1) {
+                        if (results.Pair_Indicator[i + 1] === 1) {
                             offset = 1;
-                        } else if (results.Pair_Indicator[i-1] === 1){
+                        } else if (results.Pair_Indicator[i - 1] === 1) {
                             offset = -1;
                         }
-                        if(offset !== null) {
+                        if (offset !== null) {
                             var color = Cesium.ColorGeometryInstanceAttribute.fromColor(
                                 new Cesium.Color.fromBytes(20, 20, 220, 255)
                             );
@@ -1309,9 +1308,9 @@ define([
                                                 results.Radius[i] - maxRad
                                             ),
                                             Cesium.Cartesian3.fromDegrees(
-                                                results.Longitude[i+offset],
-                                                results.Latitude[i+offset],
-                                                results.Radius[i+offset] - maxRad
+                                                results.Longitude[i + offset],
+                                                results.Latitude[i + offset],
+                                                results.Radius[i + offset] - maxRad
                                             )
                                         ],
                                         followSurface: true,
@@ -1367,7 +1366,7 @@ define([
                     if (!sat) {return;}
 
                     // Create connection lines if it is a AOB product
-                    if (collection.indexOf('AOB') !== -1){
+                    if (collection.indexOf('AOB') !== -1) {
                         this.createAOBConnectionLines(product, results);
                     }
 
