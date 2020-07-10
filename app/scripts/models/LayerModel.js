@@ -13,6 +13,11 @@
     function (Backbone, globals) { // initializer
 
         var LayerModel = Backbone.Model.extend({
+            idAttribute: 'name',
+
+            /* FIXME: This is not the way the model default are defined.
+             * Setting of the model defaults as the model object attributes has
+             * no effect.
             name: '',
             timeSlider: false,
             timeSliderProtocol: '',
@@ -52,6 +57,7 @@
             height: 0,
             model: false,
             components: [],
+            */
 
             getModelValidity: function () {
                 var validities = _.filter(

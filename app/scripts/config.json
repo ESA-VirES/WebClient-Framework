@@ -4189,18 +4189,13 @@
                 }
             ],
             "parameters": {
-                "J_NE": {
-                    "range": [-400, 400],
-                    "colorscale": "diverging_1",
-                    "uom": "A/km",
-                    "name": "Horizontal sheet current density vector"
-                },
                 "J_QD": {
                     "selected": true,
                     "range": [-400, 400],
                     "colorscale": "diverging_1",
                     "uom": "A/km",
-                    "name": "Horizontal sheet current density (QD frame, east component)"
+                    "name": "Horizontal sheet current density (QD eastward)",
+                    "relatedVector": "J_NE"
                 }
             },
             "download_parameters": {
@@ -4258,18 +4253,13 @@
                 }
             ],
             "parameters": {
-                "J_NE": {
-                    "range": [-400, 400],
-                    "colorscale": "diverging_1",
-                    "uom": "A/km",
-                    "name": "Horizontal sheet current density vector"
-                },
                 "J_QD": {
                     "selected": true,
                     "range": [-400, 400],
                     "colorscale": "diverging_1",
                     "uom": "A/km",
-                    "name": "Horizontal sheet current density (QD frame, east component)"
+                    "name": "Horizontal sheet current density (QD eastward)",
+                    "relatedVector": "J_NE"
                 }
             },
             "download_parameters": {
@@ -4327,18 +4317,13 @@
                 }
             ],
             "parameters": {
-                "J_NE": {
-                    "range": [-400, 400],
-                    "colorscale": "diverging_1",
-                    "uom": "A/km",
-                    "name": "Horizontal sheet current density vector"
-                },
                 "J_QD": {
                     "selected": true,
                     "range": [-400, 400],
                     "colorscale": "diverging_1",
                     "uom": "A/km",
-                    "name": "Horizontal sheet current density (QD frame, east component)"
+                    "name": "Horizontal sheet current density (QD eastward)",
+                    "relatedVector": "J_NE"
                 }
             },
             "download_parameters": {
@@ -4396,48 +4381,38 @@
                 }
             ],
             "parameters": {
-                "J_R": {
+                "J_DF_SemiQD": {
                     "selected": true,
-                    "range": [-1, 1],
-                    "colorscale": "plasma",
-                    "uom": "A/km^2",
-                    "name": "Radial ionospheric current density (SemiQD frame at 110km)"
-                },
-                "J_CF_NE": {
                     "range": [-400, 400],
                     "colorscale": "diverging_1",
                     "uom": "A/km",
-                    "name": "Curl-free horizontal sheet current density vector"
-                },
-                "J_DF_NE": {
-                    "range": [-400, 400],
-                    "colorscale": "diverging_1",
-                    "uom": "A/km",
-                    "name": "Divergence-free horizontal sheet current density vector"
+                    "name": "Divergence-free horizontal sheet current density at 110km (semi-QD eastward)",
+                    "relatedVector": "J_DF_NE",
+                    "referencedParameters": ["J_DF_SemiQD", "J_R"]
                 },
                 "J_CF_SemiQD": {
-                    "range": [-100, 100],
+                    "range": [-400, 400],
                     "colorscale": "diverging_1",
                     "uom": "A/km",
-                    "name": "Curl-free horizontal sheet current density (SemiQD frame, north component)"
+                    "name": "Curl-free horizontal sheet current density at 110km (semi-QD, northward)",
+                    "relatedVector": "J_CF_NE",
+                    "referencedParameters": ["J_CF_SemiQD", "J_R"]
                 },
-                "J_DF_SemiQD": {
-                    "range": [-100, 100],
-                    "colorscale": "diverging_1",
-                    "uom": "A/km",
-                    "name": "Divergence-free horizontal sheet current density (SemiQD frame, east component)"
-                },
-                "J_NE": {
+                "J_T_NE": {
                     "range": [0, 500],
-                    "colorscale": "jet",
+                    "colorscale": "viridis",
                     "uom": "A/km",
-                    "name": "Total horizontal sheet current density vector (J = J_DF + J_CF)"
+                    "name": "Total horizontal sheet current density at 110km (J_T = J_DF + J_CF)",
+                    "referencedParameters": ["J_T_NE", "J_R"]
                 },
-                "J_combined": {
-                    "name": "Total horizontal sheet and radial current densities.",
-                    "description": "Please use the corresponding J_C and J parameters for display and range settings",
-                    "referencedParameters": ["J_NE", "J_R"]
-                }
+                "J_R": {
+                    "fixedAltitude": true,
+                    "range": [-1, 1],
+                    "colorscale": "rdbu",
+                    "pixelSize": 4,
+                    "uom": "A/km^2",
+                    "name": "Radial ionospheric current density at 110km"
+                 }
             },
             "download_parameters": {
                 "Timestamp": {
@@ -4506,48 +4481,38 @@
                 }
             ],
             "parameters": {
-                "J_R": {
+                "J_DF_SemiQD": {
                     "selected": true,
-                    "range": [-1, 1],
-                    "colorscale": "plasma",
-                    "uom": "A/km^2",
-                    "name": "Radial ionospheric current density (SemiQD frame at 110km)"
-                },
-                "J_CF_NE": {
                     "range": [-400, 400],
                     "colorscale": "diverging_1",
                     "uom": "A/km",
-                    "name": "Curl-free horizontal sheet current density vector"
-                },
-                "J_DF_NE": {
-                    "range": [-400, 400],
-                    "colorscale": "diverging_1",
-                    "uom": "A/km",
-                    "name": "Divergence-free horizontal sheet current density vector"
+                    "name": "Divergence-free horizontal sheet current density at 110km (semi-QD eastward)",
+                    "relatedVector": "J_DF_NE",
+                    "referencedParameters": ["J_DF_SemiQD", "J_R"]
                 },
                 "J_CF_SemiQD": {
-                    "range": [-100, 100],
+                    "range": [-400, 400],
                     "colorscale": "diverging_1",
                     "uom": "A/km",
-                    "name": "Curl-free horizontal sheet current density (SemiQD frame, north component)"
+                    "name": "Curl-free horizontal sheet current density at 110km (semi-QD, northward)",
+                    "relatedVector": "J_CF_NE",
+                    "referencedParameters": ["J_CF_SemiQD", "J_R"]
                 },
-                "J_DF_SemiQD": {
-                    "range": [-100, 100],
-                    "colorscale": "diverging_1",
-                    "uom": "A/km",
-                    "name": "Divergence-free horizontal sheet current density (SemiQD frame, east component)"
-                },
-                "J_NE": {
+                "J_T_NE": {
                     "range": [0, 500],
-                    "colorscale": "jet",
+                    "colorscale": "viridis",
                     "uom": "A/km",
-                    "name": "Total horizontal sheet current density vector (J = J_DF + J_CF)"
+                    "name": "Total horizontal sheet current density at 110km (J_T = J_DF + J_CF)",
+                    "referencedParameters": ["J_T_NE", "J_R"]
                 },
-                "J_combined": {
-                    "name": "Sheet currents (J_R, J)",
-                    "description": "Please use the corresponding J_C and J parameters for display and range settings",
-                    "referencedParameters": ["J_NE", "J_R"]
-                }
+                "J_R": {
+                    "fixedAltitude": true,
+                    "range": [-1, 1],
+                    "colorscale": "rdbu",
+                    "pixelSize": 4,
+                    "uom": "A/km^2",
+                    "name": "Radial ionospheric current density at 110km"
+                 }
             },
             "download_parameters": {
                 "Timestamp": {
@@ -4616,48 +4581,38 @@
                 }
             ],
             "parameters": {
-                "J_R": {
+                "J_DF_SemiQD": {
                     "selected": true,
-                    "range": [-1, 1],
-                    "colorscale": "plasma",
-                    "uom": "A/km^2",
-                    "name": "Radial ionospheric current density (SemiQD frame at 110km)"
-                },
-                "J_CF_NE": {
                     "range": [-400, 400],
                     "colorscale": "diverging_1",
                     "uom": "A/km",
-                    "name": "Curl-free horizontal sheet current density vector"
-                },
-                "J_DF_NE": {
-                    "range": [-400, 400],
-                    "colorscale": "diverging_1",
-                    "uom": "A/km",
-                    "name": "Divergence-free horizontal sheet current density vector"
+                    "name": "Divergence-free horizontal sheet current density at 110km (semi-QD eastward)",
+                    "relatedVector": "J_DF_NE",
+                    "referencedParameters": ["J_DF_SemiQD", "J_R"]
                 },
                 "J_CF_SemiQD": {
-                    "range": [-100, 100],
+                    "range": [-400, 400],
                     "colorscale": "diverging_1",
                     "uom": "A/km",
-                    "name": "Curl-free horizontal sheet current density (SemiQD frame, north component)"
+                    "name": "Curl-free horizontal sheet current density at 110km (semi-QD, northward)",
+                    "relatedVector": "J_CF_NE",
+                    "referencedParameters": ["J_CF_SemiQD", "J_R"]
                 },
-                "J_DF_SemiQD": {
-                    "range": [-100, 100],
-                    "colorscale": "diverging_1",
-                    "uom": "A/km",
-                    "name": "Divergence-free horizontal sheet current density (SemiQD frame, east component)"
-                },
-                "J_NE": {
+                "J_T_NE": {
                     "range": [0, 500],
-                    "colorscale": "jet",
+                    "colorscale": "viridis",
                     "uom": "A/km",
-                    "name": "Total horizontal sheet current density vector (J = J_DF + J_CF)"
+                    "name": "Total horizontal sheet current density at 110km (J_T = J_DF + J_CF)",
+                    "referencedParameters": ["J_T_NE", "J_R"]
                 },
-                "J_combined": {
-                    "name": "Sheet currents (J_R, J)",
-                    "description": "Please use the corresponding J_C and J parameters for display and range settings",
-                    "referencedParameters": ["J_NE", "J_R"]
-                }
+                "J_R": {
+                    "fixedAltitude": true,
+                    "range": [-1, 1],
+                    "colorscale": "rdbu",
+                    "pixelSize": 4,
+                    "uom": "A/km^2",
+                    "name": "Radial ionospheric current density at 110km"
+                 }
             },
             "download_parameters": {
                 "Timestamp": {
@@ -4695,211 +4650,6 @@
                 "J_DF_SemiQD": {
                     "uom": "A/km",
                     "name": "Divergence-free horizontal sheet current density (SemiQD frame, east component)"
-                }
-            },
-            "outlines": false,
-            "satellite": "Swarm"
-        },{
-            "name": "SW_OPER_AOBAFAC_2F",
-            "timeSlider": true,
-            "timeSliderProtocol": "WPS",
-            "color": "#024573",
-            "views": [{
-                "id": "SW_OPER_AOBAFAC_2F",
-                "protocol": "CZML",
-                "urls": [
-                    "http://localhost:9000/vires00/ows"
-                ],
-                "style": "default",
-                "format": "image/png"
-            }],
-            "download": {
-                "id": "SW_OPER_AOBAFAC_2F",
-                "protocol": "EOWCS",
-                "url": "http://localhost:9000/vires00/ows"
-            },
-            "processes" : [
-                {
-                    "id": "retrieve_data",
-                    "layer_id": "SW_OPER_AOBAFAC_2F"
-                }
-            ],
-            "parameters": {
-                "Boundary_Flag": {
-                    "range": [0, 4],
-                    "colorscale": "portland",
-                    "uom": null,
-                    "name": "Boundary flag"
-                },
-                "Pair_Indicator": {
-                    "selected": true,
-                    "range": [-1, 1],
-                    "colorscale": "portland",
-                    "uom": null,
-                    "name": "Pair indicator"
-                }
-            },
-            "download_parameters": {
-                "Timestamp": {
-                    "uom": null,
-                    "name": "Time of observation"
-                },
-                "Latitude": {
-                    "uom": "deg",
-                    "name": "Position in ITRF - latitude"
-                },
-                "Longitude": {
-                    "uom": "deg",
-                    "name": "Position in ITRF - longitude"
-                },
-                "Radius": {
-                    "uom": "m",
-                    "name": "Position in ITRF - Radius"
-                },
-                "Boundary_Flag": {
-                    "uom": null,
-                    "name": "Boundary flag"
-                },
-                "Pair_Indicator": {
-                    "uom": null,
-                    "name": "Pair indicator"
-                }
-            },
-            "outlines": false,
-            "satellite": "Swarm"
-        },
-        {
-            "name": "SW_OPER_AOBBFAC_2F",
-            "timeSlider": true,
-            "timeSliderProtocol": "WPS",
-            "color": "#024573",
-            "views": [{
-                "id": "SW_OPER_AOBBFAC_2F",
-                "protocol": "CZML",
-                "urls": [
-                    "http://localhost:9000/vires00/ows"
-                ],
-                "style": "default",
-                "format": "image/png"
-            }],
-            "download": {
-                "id": "SW_OPER_AOBBFAC_2F",
-                "protocol": "EOWCS",
-                "url": "http://localhost:9000/vires00/ows"
-            },
-            "processes" : [
-                {
-                    "id": "retrieve_data",
-                    "layer_id": "SW_OPER_AOBBFAC_2F"
-                }
-            ],
-            "parameters": {
-                "Boundary_Flag": {
-                    "range": [0, 4],
-                    "colorscale": "portland",
-                    "uom": null,
-                    "name": "Boundary flag"
-                },
-                "Pair_Indicator": {
-                    "selected": true,
-                    "range": [-1, 1],
-                    "colorscale": "portland",
-                    "uom": null,
-                    "name": "Pair indicator"
-                }
-            },
-            "download_parameters": {
-                "Timestamp": {
-                    "uom": null,
-                    "name": "Time of observation"
-                },
-                "Latitude": {
-                    "uom": "deg",
-                    "name": "Position in ITRF - latitude"
-                },
-                "Longitude": {
-                    "uom": "deg",
-                    "name": "Position in ITRF - longitude"
-                },
-                "Radius": {
-                    "uom": "m",
-                    "name": "Position in ITRF - Radius"
-                },
-                "Boundary_Flag": {
-                    "uom": null,
-                    "name": "Boundary flag"
-                },
-                "Pair_Indicator": {
-                    "uom": null,
-                    "name": "Pair indicator"
-                }
-            },
-            "outlines": false,
-            "satellite": "Swarm"
-        },{
-            "name": "SW_OPER_AOBCFAC_2F",
-            "timeSlider": true,
-            "timeSliderProtocol": "WPS",
-            "color": "#024573",
-            "views": [{
-                "id": "SW_OPER_AOBCFAC_2F",
-                "protocol": "CZML",
-                "urls": [
-                    "http://localhost:9000/vires00/ows"
-                ],
-                "style": "default",
-                "format": "image/png"
-            }],
-            "download": {
-                "id": "SW_OPER_AOBCFAC_2F",
-                "protocol": "EOWCS",
-                "url": "http://localhost:9000/vires00/ows"
-            },
-            "processes" : [
-                {
-                    "id": "retrieve_data",
-                    "layer_id": "SW_OPER_AOBCFAC_2F"
-                }
-            ],
-            "parameters": {
-                "Boundary_Flag": {
-                    "range": [0, 4],
-                    "colorscale": "portland",
-                    "uom": null,
-                    "name": "Boundary flag"
-                },
-                "Pair_Indicator": {
-                    "selected": true,
-                    "range": [-1, 1],
-                    "colorscale": "portland",
-                    "uom": null,
-                    "name": "Pair indicator"
-                }
-            },
-            "download_parameters": {
-                "Timestamp": {
-                    "uom": null,
-                    "name": "Time of observation"
-                },
-                "Latitude": {
-                    "uom": "deg",
-                    "name": "Position in ITRF - latitude"
-                },
-                "Longitude": {
-                    "uom": "deg",
-                    "name": "Position in ITRF - longitude"
-                },
-                "Radius": {
-                    "uom": "m",
-                    "name": "Position in ITRF - Radius"
-                },
-                "Boundary_Flag": {
-                    "uom": null,
-                    "name": "Boundary flag"
-                },
-                "Pair_Indicator": {
-                    "uom": null,
-                    "name": "Pair indicator"
                 }
             },
             "outlines": false,
@@ -5371,18 +5121,13 @@
                 }
             ],
             "parameters": {
-                "J_NE": {
-                    "range": [-400, 400],
-                    "colorscale": "diverging_1",
-                    "uom": "A/km",
-                    "name": "Horizontal sheet current density vector"
-                },
                 "J_QD": {
                     "selected": true,
                     "range": [-400, 400],
                     "colorscale": "diverging_1",
                     "uom": "A/km",
-                    "name": "Horizontal sheet current density (QD frame, east component)"
+                    "name": "Horizontal sheet current density (QD eastward)",
+                    "relatedVector": "J_NE"
                 }
             },
             "outlines": false,
@@ -5411,116 +5156,38 @@
                 }
             ],
             "parameters": {
-                "J_R": {
+                "J_DF_SemiQD": {
                     "selected": true,
-                    "range": [-1, 1],
-                    "colorscale": "plasma",
-                    "uom": "A/km^2",
-                    "name": "Radial ionospheric current density (SemiQD frame at 110km)"
-                },
-                "J_CF_NE": {
                     "range": [-400, 400],
                     "colorscale": "diverging_1",
                     "uom": "A/km",
-                    "name": "Curl-free horizontal sheet current density vector"
-                },
-                "J_DF_NE": {
-                    "range": [-400, 400],
-                    "colorscale": "diverging_1",
-                    "uom": "A/km",
-                    "name": "Divergence-free horizontal sheet current density vector"
+                    "name": "Divergence-free horizontal sheet current density at 110km (semi-QD eastward)",
+                    "relatedVector": "J_DF_NE",
+                    "referencedParameters": ["J_DF_SemiQD", "J_R"]
                 },
                 "J_CF_SemiQD": {
-                    "range": [-100, 100],
+                    "range": [-400, 400],
                     "colorscale": "diverging_1",
                     "uom": "A/km",
-                    "name": "Curl-free horizontal sheet current density (SemiQD frame, north component)"
+                    "name": "Curl-free horizontal sheet current density at 110km (semi-QD, northward)",
+                    "relatedVector": "J_CF_NE",
+                    "referencedParameters": ["J_CF_SemiQD", "J_R"]
                 },
-                "J_DF_SemiQD": {
-                    "range": [-100, 100],
-                    "colorscale": "diverging_1",
-                    "uom": "A/km",
-                    "name": "Divergence-free horizontal sheet current density (SemiQD frame, east component)"
-                },
-                "J_NE": {
+                "J_T_NE": {
                     "range": [0, 500],
-                    "colorscale": "jet",
+                    "colorscale": "viridis",
                     "uom": "A/km",
-                    "name": "Total horizontal sheet current density vector (J = J_DF + J_CF)"
+                    "name": "Total horizontal sheet current density at 110km (J_T = J_DF + J_CF)",
+                    "referencedParameters": ["J_T_NE", "J_R"]
                 },
-                "J_combined": {
-                    "name": "Sheet currents (J_R, J)",
-                    "description": "Please use the corresponding J_C and J parameters for display and range settings",
-                    "referencedParameters": ["J_NE", "J_R"]
-                }
-            },
-            "outlines": false,
-            "satellite": "Upload"
-          },{
-            "name": "SW_OPER_AOBUFAC_2F",
-            "timeSlider": true,
-            "timeSliderProtocol": "USER_DATA",
-            "color": "#024573",
-            "views": [{
-                "id": "SW_OPER_AOBUFAC_2F",
-                "protocol": "CZML",
-                "urls": [
-                    "http://localhost:9000/vires00/ows"
-                ],
-                "style": "default",
-                "format": "image/png"
-            }],
-            "download": {
-                "id": "SW_OPER_AOBUFAC_2F",
-                "protocol": "EOWCS",
-                "url": "http://localhost:9000/vires00/ows"
-            },
-            "processes" : [
-                {
-                    "id": "retrieve_data",
-                    "layer_id": "USER_DATA"
-                }
-            ],
-            "parameters": {
-                "Boundary_Flag": {
-                    "range": [0, 4],
-                    "colorscale": "diverging_1",
-                    "uom": null,
-                    "name": "Boundary flag"
-                },
-                "Pair_Indicator": {
-                    "selected": true,
+                "J_R": {
+                    "fixedAltitude": true,
                     "range": [-1, 1],
-                    "colorscale": "diverging_1",
-                    "uom": null,
-                    "name": "Pair indicator"
-                }
-            },
-            "download_parameters": {
-                "Timestamp": {
-                    "uom": null,
-                    "name": "Time of observation"
-                },
-                "Latitude": {
-                    "uom": "deg",
-                    "name": "Position in ITRF - latitude"
-                },
-                "Longitude": {
-                    "uom": "deg",
-                    "name": "Position in ITRF - longitude"
-                },
-                "Radius": {
-                    "uom": "m",
-                    "name": "Position in ITRF - Radius"
-                },
-                "Boundary_Flag": {
-                    "uom": null,
-                    "name": "Boundary flag"
-                },
-                "Pair_Indicator": {
-                    "uom": null,
-                    "name": "Pair indicator"
-                }
+                    "colorscale": "rdbu",
+                    "pixelSize": 4,
+                    "uom": "A/km^2",
+                    "name": "Radial ionospheric current density at 110km"
+                 }
             },
             "outlines": false,
             "satellite": "Upload"

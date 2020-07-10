@@ -36,11 +36,11 @@
           }
           options.completed.call(options.context, this);
         } else if (this.readyState === HEADERS_RECEIVED) {
-              if(this.status == 200) {
-                  this.responseType = 'arraybuffer';
-              } else {
-                  this.responseType = 'text';
-              }
+          if (this.status == 200) {
+            this.responseType = 'arraybuffer';
+          } else {
+            this.responseType = 'text';
+          }
         } else if (this.readyState === OPENED) {
           options.opened.call(options.context, this);
         }

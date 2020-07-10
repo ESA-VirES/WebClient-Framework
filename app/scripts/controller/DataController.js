@@ -1,5 +1,6 @@
-/*global $ _ msgpack */
-/*global showMessage getISODateTimeString VECTOR_BREAKDOWN */
+/*global $ _ */
+/*global showMessage getISODateTimeString RELATED_COLLECTIONS RELATED_VARIABLES */
+/*global has get pop setDefault Timer */
 
 (function () {
   'use strict';
@@ -10,19 +11,13 @@
     'backbone',
     'communicator',
     'globals',
-    'msgpack',
-    'hbs!tmpl/wps_getdata',
-    'hbs!tmpl/wps_fetchData',
+    'viresDataRequest',
     'app',
-    'httpRequest',
     'dataUtil',
     'underscore'
   ],
 
-  function (
-    Backbone, Communicator, globals, msgpack, wps_getdataTmpl, wps_fetchDataTmpl, App,
-    httpRequest, DataUtil
-  ) {
+  function (Backbone, Communicator, globals, vires, App, DataUtil) {
 
     var DataController = Backbone.Marionette.Controller.extend({
 
@@ -39,9 +34,17 @@
         this.listenTo(Communicator.mediator, 'time:change', this.onTimeChange);
         this.listenTo(Communicator.mediator, 'manual:init', this.onManualInit);
         this.listenTo(Communicator.mediator, "model:change", this.onModelChange);
-
         this.listenTo(Communicator.mediator, "analytics:set:filter", this.onAnalyticsFilterChanged);
-        this.xhr = null;
+
+        this.request = new vires.ViresDataRequest({
+          context: this,
+          opened: this.onRequestStart,
+          completed: this.onRequestEnd,
+          aborted: this.onRequestEnd,
+          success: this.onDataReceived,
+          error: this.onRequestError,
+        });
+
       },
 
       getAvailableModelProducts: function () {
@@ -215,7 +218,8 @@
         } else if (globals.swarm.satellites['Upload'] && globals.userData.hasValidUploads()) {
           this.sendRequest();
         } else {
-          globals.swarm.set({data: []});
+          globals.swarm.set({data: vires.EMPTY_DATA});
+          globals.swarm.get('relatedData').clear();
           //Communicator.mediator.trigger("map:clear:image");
           //$(".colorlegend").empty();
         }
@@ -296,7 +300,6 @@
             "Grad_Ne_at_PCP_edge", "ROD", "RODI10s", "RODI20s", "delta_Ne10s", "delta_Ne20s", "delta_Ne40s",
             "Num_GPS_satellites", "mVTEC", "mROT", "mROTI10s", "mROTI20s", "IBI_flag",
             "Ionosphere_region_flag", "IPIR_index", "Ne_quality_flag", "TEC_STD",
-            "IMF_V", "IMF_BY_GSM", "IMF_BZ_GSM", "F10_INDEX",
             "B_NEC_Model", "B_NEC_res_Model", "F_Model", "F_res_Model",
             "J_NE", "J_QD", "J_CF_NE", "J_CF_SemiQD", "J_DF_NE", "J_DF_SemiQD", "J_R",
             "Boundary_Flag", "Pair_Indicator",
@@ -334,7 +337,6 @@
           variables = _.union(variables, _.keys(userDataVariables));
 
           options.variables = variables.join(",");
-          options.mimeType = 'application/msgpack';
 
           if (this.selection_list.length > 0) {
             var bbox = this.selection_list[0];
@@ -356,234 +358,95 @@
             function (item) {return item.getCustomShcIfSelected();}
           )[0] || null;
 
-          if (this.xhr !== null) {
-            // A request has been sent that is not yet been returned so we need to cancel it
-            Communicator.mediator.trigger("progress:change", false);
-            this.xhr.abort();
-            this.xhr = null;
-          }
+          this.request.url = retrieve_data[0].url;
+          this.request.fetch(options);
 
-          this.xhr = httpRequest.asyncHttpRequest({
-            context: this,
-            type: 'POST',
-            url: retrieve_data[0].url,
-            data: wps_fetchDataTmpl(options),
-            responseType: 'arraybuffer',
-
-            parse: function (data, xhr) {
-              var decodedObj = msgpack.decode(new Uint8Array(data));
-              return decodedObj;
-            },
-
-            opened: function () {
-              Communicator.mediator.trigger("progress:change", true);
-            },
-
-            completed: function () {
-              this.xhr = null;
-              Communicator.mediator.trigger("progress:change", false);
-            },
-
-            error: function (xhr) {
-              globals.swarm.set({data: {}});
-              if (xhr.responseText === "") {return;}
-              var error_text = xhr.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
-              if (error_text && error_text.length > 1) {
-                error_text = error_text[1];
-              } else {
-                error_text = 'Please contact feedback@vires.services if issue persists.';
-              }
-              showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
-            },
-
-            success: function (dat) {
-
-              if (Object.keys(dat).length === 1 && dat.hasOwnProperty('__info__')) {
-                globals.swarm.set({data: []});
-                return;
-              }
-
-              var ids = {
-                'A': 'Alpha',
-                'B': 'Bravo',
-                'C': 'Charlie',
-                '-': 'NSC',
-                'U': 'Upload',
-              };
-
-              // Calculate new J value for AEJ LPS data
-              if (dat.hasOwnProperty('J_CF_NE') && dat.hasOwnProperty('J_DF_NE') && !dat.hasOwnProperty('J_NE')) {
-                dat['J_NE'] = [];
-                for (var i = 0; i < dat.Timestamp.length; i++) {
-                  dat.J_NE.push([
-                    dat.J_CF_NE[i][0] + dat.J_DF_NE[i][0],
-                    dat.J_CF_NE[i][1] + dat.J_DF_NE[i][1]
-                  ]);
-                }
-              }
-
-              if (dat.hasOwnProperty('Spacecraft')) {
-                dat['id'] = [];
-                for (var i = 0; i < dat.Timestamp.length; i++) {
-                  dat.id.push(ids[dat.Spacecraft[i]]);
-                }
-              }
-
-              if (dat.hasOwnProperty('Timestamp')) {
-                for (var i = 0; i < dat.Timestamp.length; i++) {
-                  dat.Timestamp[i] = new Date(dat.Timestamp[i] * 1000);
-                }
-              }
-              if (dat.hasOwnProperty('timestamp')) {
-                for (var i = 0; i < dat.Timestamp.length; i++) {
-                  dat.Timestamp[i] = new Date(dat.timestamp[i] * 1000);
-                }
-              }
-              if (dat.hasOwnProperty('latitude')) {
-                dat['Latitude'] = dat['latitude'];
-                delete dat.latitude;
-              }
-              if (dat.hasOwnProperty('longitude')) {
-                dat['Longitude'] = dat['longitude'];
-                delete dat.longitude;
-              }
-              if (!dat.hasOwnProperty('Radius')) {
-                dat['Radius'] = [];
-                var refKey = 'Timestamp';
-                if (!dat.hasOwnProperty(refKey)) {
-                  refKey = 'timestamp';
-                }
-                for (var i = 0; i < dat[refKey].length; i++) {
-                  dat['Radius'].push(6832000);
-                }
-              } else {
-                // Check to see if NaN data is inside of the array
-                for (var i = 0; i < dat['Radius'].length; i++) {
-                  if (Number.isNaN(dat['Radius'][i])) {
-                    dat['Radius'][i] = 6378137;
-                  }
-                }
-              }
-
-              if (dat.hasOwnProperty('Latitude') && dat.hasOwnProperty('OrbitDirection')) {
-                dat['Latitude_periodic'] = [];
-                for (var i = 0; i < dat.Latitude.length; i++) {
-                  if (dat.OrbitDirection[i] === 1) {
-                    // range 90 -270
-                    dat.Latitude_periodic.push(dat.Latitude[i] + 180);
-                  } else if (dat.OrbitDirection[i] === -1) {
-                    if (dat.Latitude[i] < 0) {
-                      // range 0 - 90
-                      dat.Latitude_periodic.push((dat.Latitude[i] * -1));
-                    } else {
-                      // range 270 - 360
-                      dat.Latitude_periodic.push(360 - dat.Latitude[i]);
-                    }
-
-                  } else if (dat.OrbitDirection[i] === 0) {
-                    //TODO what to do here? Should in principle not happen
-                    // for now we just use original value
-                    dat.Latitude_periodic.push(dat.Latitude[i]);
-                  } else if (Number.isNaN(dat.OrbitDirection[i])) {
-                    // If no orbit info for now we just use original value
-                    dat.Latitude_periodic.push(dat.Latitude[i]);
-                  }
-                }
-                // Add new parameter to data info if available
-                if (dat.hasOwnProperty('__info__') && dat.__info__.hasOwnProperty('variables')) {
-                  for (var satKey in dat.__info__.variables) {
-                    dat.__info__.variables[satKey].push('Latitude_periodic');
-                  }
-                }
-              }
-
-              if (dat.hasOwnProperty('QDLat') && dat.hasOwnProperty('QDOrbitDirection')) {
-                dat['QDLatitude_periodic'] = [];
-                for (var i = 0; i < dat.QDLat.length; i++) {
-                  if (dat.QDOrbitDirection[i] === 1) {
-                    // range 90 -270
-                    dat.QDLatitude_periodic.push(dat.QDLat[i] + 180);
-                  } else if (dat.QDOrbitDirection[i] === -1) {
-                    if (dat.QDLat[i] < 0) {
-                      // range 0 - 90
-                      dat.QDLatitude_periodic.push((dat.QDLat[i] * -1));
-                    } else {
-                      // range 270 - 360
-                      dat.QDLatitude_periodic.push(360 - dat.QDLat[i]);
-                    }
-
-                  } else if (dat.QDOrbitDirection[i] === 0) {
-                    //TODO what to do here? Should in principle not happen
-                    //for now we just use original value
-                    dat.QDLatitude_periodic.push(dat.QDLat[i]);
-                  } else if (Number.isNaN(dat.QDOrbitDirection[i])) {
-                    // If no orbit info for now we just use original value
-                    dat.QDLatitude_periodic.push(dat.QDLat[i]);
-                  }
-                }
-                // Add new parameter to data info if available
-                if (dat.hasOwnProperty('__info__') && dat.__info__.hasOwnProperty('variables')) {
-                  for (var satKey in dat.__info__.variables) {
-                    dat.__info__.variables[satKey].push('QDLatitude_periodic');
-                  }
-                }
-              }
-
-              _.each(dat, function (data, key) {
-                var components = VECTOR_BREAKDOWN[key];
-                if (!components) {return;}
-                for (var i = 0; i < components.length; i++) {
-                  dat[components[i]] = [];
-                  _.each(data, function (item) {
-                    dat[components[i]].push(item[i]);
-                  });
-                }
-
-                delete dat[key];
+          // collect related data collections
+          var relatedCollections = {};
+          _.each(collections, function (collectionIds, label) {
+            _.each(collectionIds, function (collectionId) {
+              var related = get(RELATED_COLLECTIONS, collectionId) || [];
+              _.each(related, function (related) {
+                setDefault(relatedCollections, related.type, {});
+                relatedCollections[related.type][label] = related.collections;
               });
-
-              // Break down custom user vector variables.
-              _.each(
-                globals.userData.getVectorBreakdown(),
-                function (components, variable) {
-                  if (!dat.hasOwnProperty(variable)) return;
-                  _.each(components, function (component) {
-                    dat[component] = [];
-                  });
-                  _.each(dat[variable], function (vector) {
-                    _.each(components, function (component, index) {
-                      dat[component].push(vector[index]);
-                    });
-                  });
-                  delete dat[variable];
-                }
-              );
-
-              // This should only happen here if there has been
-              // some issue with the saved filter configuration
-              // Check if current brushes are valid for current data
-              var idKeys = Object.keys(dat);
-              var filters = globals.swarm.get('filters');
-              var filtersSelec = JSON.parse(localStorage.getItem('filterSelection'));
-              var filtersmodified = false;
-              if (filters) {
-                for (var f in filters) {
-                  if (idKeys.indexOf(f) === -1) {
-                    delete filters[f];
-                    delete filtersSelec[f];
-                    filtersmodified = true;
-                  }
-                }
-                if (filtersmodified) {
-                  globals.swarm.set('filters', filters);
-                  localStorage.setItem('filterSelection', JSON.stringify(filtersSelec));
-                }
-              }
-
-              globals.swarm.set({data: dat});
-            },
+            });
           });
+
+          var relatedDataModel = globals.swarm.get('relatedData');
+
+          relatedDataModel.clear();
+
+          _.each(relatedCollections, function (collections, productType) {
+            var request = new vires.ViresDataRequest({
+              context: this,
+              success: function (data) {
+                relatedDataModel.set(productType, data);
+              },
+              error: function (xhr, message) {
+                if (xhr.responseText === "") {return;}
+                this.showErrorMessage(message);
+              },
+            });
+
+            request.url = retrieve_data[0].url;
+            request.fetch({
+              collections_ids: DataUtil.formatCollections(collections),
+              variables: (get(RELATED_VARIABLES, productType) || []).join(','),
+              begin_time: options.begin_time,
+              end_time: options.end_time,
+              mimeType: options.mimeType,
+              bbox: options.bbox,
+            });
+
+          }, this);
         }
+      },
+
+      onRequestStart: function () {
+        Communicator.mediator.trigger("progress:change", true);
+      },
+
+      onRequestEnd: function () {
+        Communicator.mediator.trigger("progress:change", false);
+      },
+
+      onDataReceived: function (data) {
+        // This should only happen here if there has been
+        // some issue with the saved filter configuration
+        // Check if current brushes are valid for current data
+        var availableVariables = _.keys(data.data);
+        var filters = globals.swarm.get('filters');
+        var filtersSelec = JSON.parse(localStorage.getItem('filterSelection'));
+        var filtersModified = false;
+        if (filters) {
+          for (var filterName in filters) {
+            if (!availableVariables.includes(filterName)) {
+              delete filters[filterName];
+              delete filtersSelec[filterName];
+              filtersModified = true;
+            }
+          }
+          if (filtersModified) {
+            globals.swarm.set('filters', filters);
+            localStorage.setItem('filterSelection', JSON.stringify(filtersSelec));
+          }
+        }
+
+        globals.swarm.set({data: data});
+      },
+
+      onRequestError: function (xhr, message) {
+        globals.swarm.set({data: vires.EMPTY_DATA});
+        if (xhr.responseText === "") {return;}
+        this.showErrorMessage(message);
+      },
+
+      showErrorMessage: function (message) {
+        if (!message) {
+          message = 'Please contact feedback@vires.services if issue persists.';
+        }
+        showMessage('danger', ('Problem retrieving data: ' + message), 35);
       },
 
     });
