@@ -284,7 +284,7 @@ define([
             this._addVisible(name, pop(this.newCollections, name));
         },
 
-        showAll() {
+        showAll: function () {
             // show all feature collections on the map
             _.each(_.keys(this.newCollections), this.show, this);
         },
@@ -377,7 +377,7 @@ define([
             );
         },
 
-        _removeTooltip(item) {
+        _removeTooltip: function (item) {
             var tooltip = item.tooltip;
             if (tooltip && tooltip.id) {
                 tooltip.element.find('#' + tooltip.id).remove();
