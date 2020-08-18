@@ -140,7 +140,6 @@
                     controls: true
                 };
 
-              
                 this.slider = new TimeSlider(this.el, initopt);
                 // Add selection helpers
                 //this.slider.setBrushTooltip(true);
@@ -233,10 +232,10 @@
                 });
                 $('#timeslider .control').addClass('darkbutton');
                 $(this.el).mouseenter(function () {
-                  $('.control').show();
+                    $('.control').show();
                 });
                 $(this.el).mouseleave(function () {
-                  $('.control').hide();
+                    $('.control').hide();
                 });
             }, // END of onShow
 
@@ -385,7 +384,6 @@
                                         id: product.get('download').id,
                                         url: product.get('download').url
                                     };
-                                    console.log(product.attributes, attrs)
 
                                     this.slider.addDataset({
                                         id: product.get('download').id,

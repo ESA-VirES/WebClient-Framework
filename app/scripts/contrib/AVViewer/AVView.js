@@ -1,10 +1,10 @@
 /* global $ _ define w2popup w2utils showMessage graphly plotty FilterManager */
 /* global savePrameterStatus VECTOR_BREAKDOWN */
+/* global get */
 
 define(['backbone.marionette',
     'communicator',
     'app',
-    //'plotty',
     'models/AVModel',
     'globals',
     'd3',
@@ -15,7 +15,7 @@ define(['backbone.marionette',
 
     // parameters not visible in the AV panel
     var EXCLUDED_PARAMETERS = [
-        '__info__', 'J_N', 'J_E', 'J_DF_E', 'J_DF_N', 'J_CF_E', 'J_CF_N'
+        'J_N', 'J_E', 'J_T_N', 'J_T_E', 'J_DF_E', 'J_DF_N', 'J_CF_E', 'J_CF_N'
     ];
 
     // TODO: find a better place to put the extra parameters' configuration
@@ -230,11 +230,12 @@ define(['backbone.marionette',
             this.$el.append('<div type="button" class="btn btn-success darkbutton" id="productInfo" title="Show product information"><i class="fa fa-info" aria-hidden="true"></i></div>');
 
             $('#productInfo').click(function () {
-                var data = globals.swarm.get('data');
-                if ($('#productSourcesInfoContainer').length) {
-                    $('#productSourcesInfoContainer').remove();
+                if (this.productSourcesContainerExists()) {
+                    this.removeProductSourcesContainer();
                 } else {
-                    this.createProductSourcesContainer(data);
+                    this.createProductSourcesContainer(
+                        globals.swarm.get('data')
+                    );
                 }
             }.bind(this));
 
@@ -273,8 +274,6 @@ define(['backbone.marionette',
             this.$('#filterDivContainer').append('<div id="filterSelectDrop"></div>');
 
             this.reloadUOM();
-
-            //var swarmdata = globals.swarm.get('data'); // not used
 
             var filterList = localStorage.getItem('selectedFilterList');
             if (filterList !== null) {
@@ -629,9 +628,9 @@ define(['backbone.marionette',
             });
 
             var data = globals.swarm.get('data');
-            if (Object.keys(data).length > 0) {
-                this.graph.loadData(data);
-                this.filterManager.loadData(data);
+            if (!data.isEmpty()) {
+                this.graph.loadData(data.data);
+                this.filterManager.loadData(data.data);
                 $('#nodataavailable').hide();
                 $('.d3canvas').show();
                 this.renderFilterList();
@@ -647,18 +646,26 @@ define(['backbone.marionette',
         },
 
         createProductSourcesContainer: function (data) {
-            if (data.hasOwnProperty('__info__')) {
-                var infoDat = data.__info__.sources;
+            if (!data.isEmpty()) {
+                var sources = data.info.sources;
                 this.$el.append('<div id="productSourcesInfoContainer" class="sourcesInfoContainer"></div>');
                 $('#productSourcesInfoContainer').append('<button type="button" class="close" title="Close panel" data-dismiss="alert" aria-hidden="true">&times;</button>');
                 $('#productSourcesInfoContainer').append('<h4>Data sources:</h4>');
                 $('#productSourcesInfoContainer').append('<ul id="productInfoList"></ul>');
-                for (var i = 0; i < infoDat.length; i++) {
+                for (var i = 0; i < sources.length; i++) {
                     $('#productInfoList').append(
-                        '<li>' + infoDat[i] + '</li>'
+                        '<li>' + sources[i] + '</li>'
                     );
                 }
             }
+        },
+
+        removeProductSourcesContainer: function () {
+            $('#productSourcesInfoContainer').remove();
+        },
+
+        productSourcesContainerExists: function () {
+            return $('#productSourcesInfoContainer').length > 0;
         },
 
         createSubscript: function createSubscript(string) {
@@ -865,7 +872,7 @@ define(['backbone.marionette',
             if (aUOM.hasOwnProperty('id')) {delete aUOM.id;}
             _.each(EXCLUDED_PARAMETERS, function (parameter) {
                 if (aUOM.hasOwnProperty(parameter)) {delete aUOM[parameter];}
-            })
+            });
 
             $('#filterSelectDrop').prepend(
                 '<div class="w2ui-field"> <button id="analyticsAddFilter" type="button" class="btn btn-success darkbutton dropdown-toggle">Add filter <span class="caret"></span></button> <input type="list" id="inputAnalyticsAddfilter"></div>'
@@ -924,251 +931,218 @@ define(['backbone.marionette',
 
         reloadData: function (model, data) {
 
-            // Check if data source info is open, if yes rerender it
-            if ($('#productSourcesInfoContainer').length) {
-                $('#productSourcesInfoContainer').remove();
-                var productData = globals.swarm.get('data');
-                this.createProductSourcesContainer(productData);
+            // re-render opened sources info
+            if (this.productSourcesContainerExists()) {
+                this.removeProductSourcesContainer();
+                this.createProductSourcesContainer(data);
             }
 
             function itemExists(itemArray, item) {
                 for (var i = 0; i < itemArray.length; ++i) {
-                    for (var j = 0; j < itemArray[i].length; ++j) {
-                        if (itemArray[i][j] == item) {
-                            return true;
-                        }
+                    if (itemArray[i].includes(item)) {
+                        return true;
                     }
                 }
                 return false;
             }
 
-            // If element already has plot rendering
-            if ($(this.el).html()) {
-                var idKeys = Object.keys(data);
-                this.currentKeys = idKeys;
-                if (idKeys.length > 0 && data[idKeys[0]].length > 0) {
-                    $('#nodataavailable').hide();
-                    $('.d3canvas').show();
+            // stop if element already has no plot rendering
+            if (!$(this.el).html()) {return;}
 
-                    var identifiers = [];
-                    for (var key in globals.swarm.satellites) {
-                        if (globals.swarm.satellites[key]) {
-                            identifiers.push(key);
+            if (data.isEmpty()) {
+                $('#nodataavailable').text('No data available for current selection');
+                $('#nodataavailable').show();
+                $('.d3canvas').hide();
+                return;
+            }
+
+            var idKeys = Object.keys(data.data);
+            this.currentKeys = idKeys;
+
+            $('#nodataavailable').hide();
+            $('.d3canvas').show();
+
+            var identifiers = [];
+            for (var key in globals.swarm.satellites) {
+                if (globals.swarm.satellites[key]) {
+                    identifiers.push(key);
+                }
+            }
+
+            this.graph.renderSettings.dataIdentifier = {
+                parameter: 'id',
+                identifiers: identifiers
+            };
+
+            var availableParameters = {};
+            _.each(data.info.variables, function (variables, label) {
+                availableParameters[label] = _.flatten(
+                    _.map(variables, function (variable) {
+                        return get(data.vectors, variable) || [variable];
+                    })
+                );
+            });
+            this.renderSettings.availableParameters = availableParameters;
+
+            // Calculate very rough estimate of rendered points
+            var renderedPoints = (
+                data.size * this.renderSettings.yAxis.length
+            );
+            if (renderedPoints < 10000) {
+                this.graph.debounceActive = false;
+            } else {
+                this.graph.debounceActive = true;
+            }
+
+            var needsResize = false;
+
+            if (this.prevParams === null) {
+                // First time loading data we set previous to current data
+                if (localStorage.getItem('plotConfiguration') !== null) {
+                    // this is first load and no config is available
+                    // so we need to load default values
+                    this.prevParams = idKeys;
+                }
+            }
+
+            // If data parameters have changed
+            // if this is first data load prev params is empty so ideally
+            // config from last time should be loaded
+            if (!_.isEqual(this.prevParams, idKeys)) {
+                // Define which parameters should be selected defaultwise as filtering
+                var filterstouse = [
+                    'Ne', 'Te', 'Bubble_Probability',
+                    'Relative_STEC_RMS', 'Relative_STEC', 'Absolute_STEC',
+                    'Absolute_VTEC', 'Elevation_Angle',
+                    'IRC', 'FAC',
+                    'EEF',
+                    'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
+                    'Pair_Indicator', 'Boundary_Flag'
+                ];
+
+                filterstouse = filterstouse.concat(['MLT']);
+                var residuals = _.filter(idKeys, function (item) {
+                    return item.indexOf('_res_') !== -1;
+                });
+                // If new datasets contains residuals add those instead of normal components
+                if (residuals.length > 0) {
+                    filterstouse = filterstouse.concat(residuals);
+                } else {
+                    if (filterstouse.indexOf('F') === -1) {
+                        filterstouse.push('F');
+                    }
+                    if (filterstouse.indexOf('F_error') === -1) {
+                        filterstouse.push('F_error');
+                    }
+                }
+
+                // Check if configured filters apply to new data
+                for (var fKey in this.graph.filterManager.brushes) {
+                    if (idKeys.indexOf(fKey) === -1) {
+                        delete this.graph.filterManager.brushes[fKey];
+                    }
+                }
+
+                for (var filKey in this.graph.filterManager.filters) {
+                    if (idKeys.indexOf(filKey) === -1) {
+                        delete this.graph.filterManager.filters[fKey];
+                    }
+                }
+
+                for (var filgraphKey in this.graph.filters) {
+                    if (idKeys.indexOf(filgraphKey) === -1) {
+                        delete this.graph.filters[fKey];
+                    }
+                }
+
+                for (var i = filterstouse.length - 1; i >= 0; i--) {
+                    if (this.selectedFilterList.indexOf(filterstouse[i]) === -1) {
+                        this.selectedFilterList.push(filterstouse[i]);
+                    }
+                }
+                var setts = this.graph.filterManager.filterSettings;
+                setts.visibleFilters = this.selectedFilterList;
+
+
+                this.graph.filterManager.updateFilterSettings(setts);
+                localStorage.setItem(
+                    'selectedFilterList',
+                    JSON.stringify(this.selectedFilterList)
+                );
+                this.renderFilterList();
+                //localStorage.setItem('selectedFilterList', JSON.stringify(filterstouse));
+
+                // Check if we want to change the y-selection
+                // If previous does not contain key data and new one
+                // does we add key parameter to selection in plot
+                var parasToCheck = [
+                    'Ne', 'F', 'Bubble_Probability', 'Absolute_STEC',
+                    'FAC', 'EEF', 'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
+                    'Pair_Indicator',
+                ];
+
+                // Go trough all plots and see if they need to be removed
+                // now that data has changed
+                var renSetY = this.renderSettings.yAxis;
+                var renSetY2 = this.renderSettings.y2Axis;
+                var colAx = this.renderSettings.colorAxis;
+                var colAx2 = this.renderSettings.colorAxis2;
+                var yAxisExtent = this.renderSettings.yAxisExtent;
+                var y2AxisExtent = this.renderSettings.y2AxisExtent;
+                var yAxisLocked = this.renderSettings.yAxisLocked;
+                var y2AxisLocked = this.renderSettings.y2AxisLocked;
+
+                for (var pY = renSetY.length - 1; pY >= 0; pY--) {
+
+                    // Go through all elements of plot, first left y axis
+                    // and remove them if no longer available
+                    for (var yy = renSetY[pY].length - 1; yy >= 0; yy--) {
+                        if (idKeys.indexOf(renSetY[pY][yy]) === -1) {
+                            renSetY[pY].splice(yy, 1);
+                            // remove corresponding cs
+                            colAx[pY].splice(yy, 1);
+                            yAxisExtent.splice(yy, 1);
+                            yAxisLocked.splice(yy, 1);
                         }
                     }
 
-                    this.graph.renderSettings.dataIdentifier = {
-                        parameter: 'id',
-                        identifiers: identifiers
-                    };
-
-                    var userVectorBreakDown = globals.userData.getVectorBreakdown();
-                    var availableParameters = {};
-                    _.each(data.__info__.variables, function (variables, label) {
-                        availableParameters[label] = _.flatten(
-                            _.map(variables, function (variable) {
-                                return (
-                                    VECTOR_BREAKDOWN[variable] ||
-                                    userVectorBreakDown[variable] ||
-                                    [variable]
-                                );
-                            })
-                        );
-                    });
-                    this.renderSettings.availableParameters = availableParameters;
-
-                    // Calculate very rough estimate of rendered points
-                    var dataLength = data[idKeys[0]].length;
-                    var renderedPoints = (
-                        dataLength * this.renderSettings.yAxis.length
-                    );
-                    if (renderedPoints < 10000) {
-                        this.graph.debounceActive = false;
-                    } else {
-                        this.graph.debounceActive = true;
-                    }
-
-                    var needsResize = false;
-
-                    if (this.prevParams === null) {
-                        // First time loading data we set previous to current data
-                        if (localStorage.getItem('plotConfiguration') !== null) {
-                            // this is first load and no config is available
-                            // so we need to load default values
-                            this.prevParams = idKeys;
+                    // Go through all elements of plot, now right y axis
+                    // and remove them if no longer available
+                    for (var yy2 = renSetY2[pY].length - 1; yy2 >= 0; yy2--) {
+                        if (idKeys.indexOf(renSetY2[pY][yy2]) === -1) {
+                            renSetY2[pY].splice(yy2, 1);
+                            // remove corresponding cs
+                            colAx2[pY].splice(yy2, 1);
+                            y2AxisExtent.splice(yy2, 1);
+                            y2AxisLocked.splice(yy2, 1);
                         }
                     }
 
-                    // If data parameters have changed
-                    // if this is first data load prev params is empty so ideally
-                    // config from last time should be loaded
-                    if (!_.isEqual(this.prevParams, idKeys)) {
-                        // Define which parameters should be selected defaultwise as filtering
-                        var filterstouse = [
-                            'Ne', 'Te', 'Bubble_Probability',
-                            'Relative_STEC_RMS', 'Relative_STEC', 'Absolute_STEC',
-                            'Absolute_VTEC', 'Elevation_Angle',
-                            'IRC', 'FAC',
-                            'EEF',
-                            'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
-                            'Pair_Indicator', 'Boundary_Flag'
-                        ];
-
-                        filterstouse = filterstouse.concat(['MLT']);
-                        var residuals = _.filter(idKeys, function (item) {
-                            return item.indexOf('_res_') !== -1;
-                        });
-                        // If new datasets contains residuals add those instead of normal components
-                        if (residuals.length > 0) {
-                            filterstouse = filterstouse.concat(residuals);
-                        } else {
-                            if (filterstouse.indexOf('F') === -1) {
-                                filterstouse.push('F');
-                            }
-                            if (filterstouse.indexOf('F_error') === -1) {
-                                filterstouse.push('F_error');
-                            }
-                        }
-
-                        // Check if configured filters apply to new data
-                        for (var fKey in this.graph.filterManager.brushes) {
-                            if (idKeys.indexOf(fKey) === -1) {
-                                delete this.graph.filterManager.brushes[fKey];
-                            }
-                        }
-
-                        for (var filKey in this.graph.filterManager.filters) {
-                            if (idKeys.indexOf(filKey) === -1) {
-                                delete this.graph.filterManager.filters[fKey];
-                            }
-                        }
-
-                        for (var filgraphKey in this.graph.filters) {
-                            if (idKeys.indexOf(filgraphKey) === -1) {
-                                delete this.graph.filters[fKey];
-                            }
-                        }
-
-                        for (var i = filterstouse.length - 1; i >= 0; i--) {
-                            if (this.selectedFilterList.indexOf(filterstouse[i]) === -1) {
-                                this.selectedFilterList.push(filterstouse[i]);
-                            }
-                        }
-                        var setts = this.graph.filterManager.filterSettings;
-                        setts.visibleFilters = this.selectedFilterList;
+                    // Chech if both left and right are empty we remove
+                    // the complete plot
+                    if (renSetY[pY].length === 0 && renSetY2[pY].length === 0) {
+                        renSetY.splice(pY, 1);
+                        renSetY2.splice(pY, 1);
+                        colAx.splice(pY, 1);
+                        colAx2.splice(pY, 1);
+                        yAxisExtent.splice(pY, 1);
+                        yAxisLocked.splice(pY, 1);
+                        y2AxisExtent.splice(pY, 1);
+                        y2AxisLocked.splice(pY, 1);
+                    }
+                }
 
 
-                        this.graph.filterManager.updateFilterSettings(setts);
-                        localStorage.setItem(
-                            'selectedFilterList',
-                            JSON.stringify(this.selectedFilterList)
-                        );
-                        this.renderFilterList();
-                        //localStorage.setItem('selectedFilterList', JSON.stringify(filterstouse));
+                // Check if we want to add any new parameters as new
+                // plot that have been added in the change
+                for (var pc = 0; pc < parasToCheck.length; pc++) {
+                    if (idKeys.indexOf(parasToCheck[pc]) !== -1) {
+                        // Check if parameter is not already selected
+                        if (!itemExists(renSetY, parasToCheck[pc]) &&
+                            !itemExists(renSetY2, parasToCheck[pc])) {
 
-                        // Check if we want to change the y-selection
-                        // If previous does not contain key data and new one
-                        // does we add key parameter to selection in plot
-                        var parasToCheck = [
-                            'Ne', 'F', 'Bubble_Probability', 'Absolute_STEC',
-                            'FAC', 'EEF', 'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
-                            'Pair_Indicator',
-                        ];
-
-                        // Go trough all plots and see if they need to be removed
-                        // now that data has changed
-                        var renSetY = this.renderSettings.yAxis;
-                        var renSetY2 = this.renderSettings.y2Axis;
-                        var colAx = this.renderSettings.colorAxis;
-                        var colAx2 = this.renderSettings.colorAxis2;
-                        var yAxisExtent = this.renderSettings.yAxisExtent;
-                        var y2AxisExtent = this.renderSettings.y2AxisExtent;
-                        var yAxisLocked = this.renderSettings.yAxisLocked;
-                        var y2AxisLocked = this.renderSettings.y2AxisLocked;
-
-                        for (var pY = renSetY.length - 1; pY >= 0; pY--) {
-
-                            // Go through all elements of plot, first left y axis
-                            // and remove them if no longer available
-                            for (var yy = renSetY[pY].length - 1; yy >= 0; yy--) {
-                                if (idKeys.indexOf(renSetY[pY][yy]) === -1) {
-                                    renSetY[pY].splice(yy, 1);
-                                    // remove corresponding cs
-                                    colAx[pY].splice(yy, 1);
-                                    yAxisExtent.splice(yy, 1);
-                                    yAxisLocked.splice(yy, 1);
-                                }
-                            }
-
-                            // Go through all elements of plot, now right y axis
-                            // and remove them if no longer available
-                            for (var yy2 = renSetY2[pY].length - 1; yy2 >= 0; yy2--) {
-                                if (idKeys.indexOf(renSetY2[pY][yy2]) === -1) {
-                                    renSetY2[pY].splice(yy2, 1);
-                                    // remove corresponding cs
-                                    colAx2[pY].splice(yy2, 1);
-                                    y2AxisExtent.splice(yy2, 1);
-                                    y2AxisLocked.splice(yy2, 1);
-                                }
-                            }
-
-                            // Chech if both left and right are empty we remove
-                            // the complete plot
-                            if (renSetY[pY].length === 0 && renSetY2[pY].length === 0) {
-                                renSetY.splice(pY, 1);
-                                renSetY2.splice(pY, 1);
-                                colAx.splice(pY, 1);
-                                colAx2.splice(pY, 1);
-                                yAxisExtent.splice(pY, 1);
-                                yAxisLocked.splice(pY, 1);
-                                y2AxisExtent.splice(pY, 1);
-                                y2AxisLocked.splice(pY, 1);
-                            }
-                        }
-
-
-                        // Check if we want to add any new parameters as new
-                        // plot that have been added in the change
-                        for (var pc = 0; pc < parasToCheck.length; pc++) {
-                            if (idKeys.indexOf(parasToCheck[pc]) !== -1) {
-                                // Check if parameter is not already selected
-                                if (!itemExists(renSetY, parasToCheck[pc]) &&
-                                    !itemExists(renSetY2, parasToCheck[pc])) {
-
-                                    renSetY.push([parasToCheck[pc]]);
-                                    colAx.push([null]);
-                                    renSetY2.push([]);
-                                    colAx2.push([]);
-                                    yAxisExtent.push(null);
-                                    yAxisLocked.push(false);
-                                    y2AxisExtent.push(null);
-                                    y2AxisLocked.push(false);
-                                }
-                            }
-                        }
-
-                        // Check if residuals have been added and add them as plot
-                        for (var ik = 0; ik < idKeys.length; ik++) {
-                            if (idKeys[ik].indexOf('F_res') !== -1) {
-                                if (!itemExists(renSetY, idKeys[ik]) &&
-                                    !itemExists(renSetY2, idKeys[ik])) {
-                                    renSetY.push([idKeys[ik]]);
-                                    colAx.push([null]);
-                                    renSetY2.push([]);
-                                    colAx2.push([]);
-                                    yAxisExtent.push(null);
-                                    yAxisLocked.push(false);
-                                    y2AxisExtent.push(null);
-                                    y2AxisLocked.push(false);
-                                }
-                            }
-                        }
-
-                        // If after adding possible other default parameters
-                        // there are no plots added we add en empty plot
-                        if (renSetY.length === 0) {
-                            renSetY.push([]);
-                            colAx.push([]);
+                            renSetY.push([parasToCheck[pc]]);
+                            colAx.push([null]);
                             renSetY2.push([]);
                             colAx2.push([]);
                             yAxisExtent.push(null);
@@ -1176,133 +1150,150 @@ define(['backbone.marionette',
                             y2AxisExtent.push(null);
                             y2AxisLocked.push(false);
                         }
-
-                        // Check if x axis selection is still available
-                        if (idKeys.indexOf(this.graph.renderSettings.xAxis) === -1) {
-                            var oldXVariable = this.graph.renderSettings.xAxis;
-                            // If not available try Timestamp.
-                            if (idKeys.indexOf('Timestamp') !== -1) {
-                                this.graph.renderSettings.xAxis = 'Timestamp';
-                            } else if (idKeys.length > 0) {
-                                // If Timestamp not available default to the first key.
-                                this.graph.renderSettings.xAxis = idKeys[0];
-                            }
-                            showMessage('warning', (
-                                "The variable <b>" + oldXVariable + "</b> " +
-                                "is no longer provided by the selected layers. " +
-                                "The plot x-axis has been changed to the default <b>"
-                                + this.graph.renderSettings.xAxis + "<b>."
-                            ), 30);
-                        }
-
-
-                        localStorage.setItem(
-                            'yAxisSelection',
-                            JSON.stringify(this.graph.renderSettings.yAxis)
-                        );
-                        localStorage.setItem(
-                            'y2AxisSelection',
-                            JSON.stringify(this.graph.renderSettings.y2Axis)
-                        );
-                        localStorage.setItem(
-                            'xAxisSelection',
-                            JSON.stringify(this.graph.renderSettings.xAxis)
-                        );
-                        localStorage.setItem(
-                            'colorAxisSelection',
-                            JSON.stringify(this.graph.renderSettings.colorAxis)
-                        );
-                        localStorage.setItem(
-                            'colorAxis2Selection',
-                            JSON.stringify(this.graph.renderSettings.colorAxis2)
-                        );
-                        localStorage.setItem(
-                            'yAxisExtent',
-                            JSON.stringify(this.graph.renderSettings.yAxisExtent)
-                        );
-                        localStorage.setItem(
-                            'y2AxisExtent',
-                            JSON.stringify(this.graph.renderSettings.y2AxisExtent)
-                        );
-                        localStorage.setItem(
-                            'yAxisLocked',
-                            JSON.stringify(this.graph.renderSettings.yAxisLocked)
-                        );
-                        localStorage.setItem(
-                            'y2AxisLocked',
-                            JSON.stringify(this.graph.renderSettings.y2AxisLocked)
-                        );
-
-                        this.graph.renderSettings.yAxis = renSetY ;
-                        this.graph.renderSettings.y2Axis = renSetY2;
-                        this.graph.renderSettings.colorAxis = colAx;
-                        this.graph.renderSettings.colorAxis2 = colAx2;
-
-                        /*this.graph.setRenderSettings({
-                            yAxis: renSetY,
-                            y2Axis: renSetY2,
-                            colorAxis: colAx,
-                            colorAxis2: colAx2,
-                        });*/
-
-                        // Save all changes done to plotConfiguration
-                        var grapRS = this.graph.renderSettings;
-                        var currL = grapRS.yAxis.length;
-                        var confArr = [];
-                        for (var i = 0; i < currL; i++) {
-                            confArr.push({
-                                yAxis: grapRS.yAxis[i],
-                                yAxisLabel: this.graph.yAxisLabel[i],
-                                y2Axis: grapRS.y2Axis[i],
-                                y2AxisLabel: this.graph.y2AxisLabel[i],
-                                colorAxis: grapRS.colorAxis[i],
-                                colorAxis2: grapRS.colorAxis2[i]
-                            });
-                        }
-
-                        localStorage.setItem(
-                            'plotConfiguration', JSON.stringify(confArr)
-                        );
-                        this.prevParams = idKeys;
-
-                        // End of IF to see if data parameters have changed
-                    } else if (this.prevParams === null) {
-                        // TODO: We should not need to do anything here but we
-                        // could introduce some sanity checks if strange data
-                        // is loaded for some reason
-
-                    } else {
-                        // TODO: We should not need to do anything here but we
-                        // could introduce some sanity checks if strange data
-                        // is loaded for some reason
                     }
+                }
 
-                    // This should only happen here if there has been
-                    // some issue with the saved filter configuration
-                    // Check if current brushes are valid for current data
-                    for (var fKey in this.graph.filterManager.brushes) {
-                        if (idKeys.indexOf(fKey) === -1) {
-                            delete this.graph.filterManager.brushes[fKey];
+                // Check if residuals have been added and add them as plot
+                for (var ik = 0; ik < idKeys.length; ik++) {
+                    if (idKeys[ik].indexOf('F_res') !== -1) {
+                        if (!itemExists(renSetY, idKeys[ik]) &&
+                            !itemExists(renSetY2, idKeys[ik])) {
+                            renSetY.push([idKeys[ik]]);
+                            colAx.push([null]);
+                            renSetY2.push([]);
+                            colAx2.push([]);
+                            yAxisExtent.push(null);
+                            yAxisLocked.push(false);
+                            y2AxisExtent.push(null);
+                            y2AxisLocked.push(false);
                         }
                     }
+                }
 
-                    this.$('#filterSelectDrop').remove();
-                    this.$('#filterDivContainer').append('<div id="filterSelectDrop"></div>');
+                // If after adding possible other default parameters
+                // there are no plots added we add en empty plot
+                if (renSetY.length === 0) {
+                    renSetY.push([]);
+                    colAx.push([]);
+                    renSetY2.push([]);
+                    colAx2.push([]);
+                    yAxisExtent.push(null);
+                    yAxisLocked.push(false);
+                    y2AxisExtent.push(null);
+                    y2AxisLocked.push(false);
+                }
 
-
-
-                    this.graph.loadData(data);
-                    if (needsResize) {
-                        this.graph.resize();
+                // Check if x axis selection is still available
+                if (idKeys.indexOf(this.graph.renderSettings.xAxis) === -1) {
+                    var oldXVariable = this.graph.renderSettings.xAxis;
+                    // If not available try Timestamp.
+                    if (idKeys.indexOf('Timestamp') !== -1) {
+                        this.graph.renderSettings.xAxis = 'Timestamp';
+                    } else if (idKeys.length > 0) {
+                        // If Timestamp not available default to the first key.
+                        this.graph.renderSettings.xAxis = idKeys[0];
                     }
-                    this.filterManager.loadData(data);
-                    this.renderFilterList();
-                } else {
-                    $('#nodataavailable').text('No data available for current selection');
-                    $('#nodataavailable').show();
-                    $('.d3canvas').hide();
+                    showMessage('warning', (
+                        "The variable <b>" + oldXVariable + "</b> " +
+                        "is no longer provided by the selected layers. " +
+                        "The plot x-axis has been changed to the default <b>"
+                        + this.graph.renderSettings.xAxis + "<b>."
+                    ), 30);
+                }
+
+
+                localStorage.setItem(
+                    'yAxisSelection',
+                    JSON.stringify(this.graph.renderSettings.yAxis)
+                );
+                localStorage.setItem(
+                    'y2AxisSelection',
+                    JSON.stringify(this.graph.renderSettings.y2Axis)
+                );
+                localStorage.setItem(
+                    'xAxisSelection',
+                    JSON.stringify(this.graph.renderSettings.xAxis)
+                );
+                localStorage.setItem(
+                    'colorAxisSelection',
+                    JSON.stringify(this.graph.renderSettings.colorAxis)
+                );
+                localStorage.setItem(
+                    'colorAxis2Selection',
+                    JSON.stringify(this.graph.renderSettings.colorAxis2)
+                );
+                localStorage.setItem(
+                    'yAxisExtent',
+                    JSON.stringify(this.graph.renderSettings.yAxisExtent)
+                );
+                localStorage.setItem(
+                    'y2AxisExtent',
+                    JSON.stringify(this.graph.renderSettings.y2AxisExtent)
+                );
+                localStorage.setItem(
+                    'yAxisLocked',
+                    JSON.stringify(this.graph.renderSettings.yAxisLocked)
+                );
+                localStorage.setItem(
+                    'y2AxisLocked',
+                    JSON.stringify(this.graph.renderSettings.y2AxisLocked)
+                );
+
+                this.graph.renderSettings.yAxis = renSetY ;
+                this.graph.renderSettings.y2Axis = renSetY2;
+                this.graph.renderSettings.colorAxis = colAx;
+                this.graph.renderSettings.colorAxis2 = colAx2;
+
+                // Save all changes done to plotConfiguration
+                var grapRS = this.graph.renderSettings;
+                var currL = grapRS.yAxis.length;
+                var confArr = [];
+                for (var i = 0; i < currL; i++) {
+                    confArr.push({
+                        yAxis: grapRS.yAxis[i],
+                        yAxisLabel: this.graph.yAxisLabel[i],
+                        y2Axis: grapRS.y2Axis[i],
+                        y2AxisLabel: this.graph.y2AxisLabel[i],
+                        colorAxis: grapRS.colorAxis[i],
+                        colorAxis2: grapRS.colorAxis2[i]
+                    });
+                }
+
+                localStorage.setItem(
+                    'plotConfiguration', JSON.stringify(confArr)
+                );
+                this.prevParams = idKeys;
+
+                // End of IF to see if data parameters have changed
+            } else if (this.prevParams === null) {
+                // TODO: We should not need to do anything here but we
+                // could introduce some sanity checks if strange data
+                // is loaded for some reason
+
+            } else {
+                // TODO: We should not need to do anything here but we
+                // could introduce some sanity checks if strange data
+                // is loaded for some reason
+            }
+
+            // This should only happen here if there has been
+            // some issue with the saved filter configuration
+            // Check if current brushes are valid for current data
+            for (var fKey in this.graph.filterManager.brushes) {
+                if (idKeys.indexOf(fKey) === -1) {
+                    delete this.graph.filterManager.brushes[fKey];
                 }
             }
+
+            this.$('#filterSelectDrop').remove();
+            this.$('#filterDivContainer').append('<div id="filterSelectDrop"></div>');
+
+            this.graph.loadData(data.data);
+            if (needsResize) {
+                this.graph.resize();
+            }
+            this.filterManager.loadData(data.data);
+            this.renderFilterList();
         },
 
         onChangeAxisParameters: function (selection) {

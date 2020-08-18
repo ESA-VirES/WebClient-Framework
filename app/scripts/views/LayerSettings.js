@@ -1,4 +1,5 @@
 /*global _ $ * d3 plotty showMessage getISODateTimeString */
+/*global get */
 
 (function () {
     'use strict';
@@ -215,7 +216,7 @@
                     this.$("#colorscale").hide();
                     $("#opacitysilder").parent().hide();
 
-                    if (!selectedOption.hasOwnProperty('referencedParameters')) {
+                    if (get(selectedOption, 'allowLayerSettings', true)) {
                         this.$("#range_min").show();
                         this.$("#range_max").show();
                         this.$("#colorscale").show();
@@ -440,7 +441,7 @@
                 this.$("#colorscale").hide();
                 $("#opacitysilder").parent().hide();
 
-                if (!selectedOption.hasOwnProperty('referencedParameters')) {
+                if (get(selectedOption, 'allowLayerSettings', true)) {
 
                     this.$("#range_min").show();
                     this.$("#range_max").show();
@@ -733,7 +734,7 @@
                 */
                 $("#setting_colorscale").empty();
 
-                if (this.current_model.get("parameters")[this.selected].hasOwnProperty('referencedParameters')) {
+                if (!get(this.current_model.get("parameters")[this.selected], 'allowLayerSettings', true)) {
                     return;
                 }
 

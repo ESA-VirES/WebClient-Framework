@@ -1,4 +1,15 @@
 /* global $ _ jQuery d3 require showMessage defaultFor */
+/* global get */
+
+var SPACECRAFT_TO_ID = {
+    'A': 'Alpha',
+    'B': 'Bravo',
+    'C': 'Charlie',
+    '-': 'NSC',
+    'U': 'Upload',
+};
+
+var TIMESTAMP = 'Timestamp';
 
 var SCALAR_PARAM = [
     "F", "Ne", "Te", "Vs", "U_orbit", "Bubble_Index", "Bubble_Probability",
@@ -16,7 +27,7 @@ var VECTOR_PARAM = [
     "B_NEC", "B_NEC_resAC", "GPS_Position", "LEO_Position",
     "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle",
     'dB_other', 'dB_AOCS', 'dB_Sun',
-    'J_NE', 'J_CF_NE', 'J_DF_NE'
+    'J_NE', 'J_T_NE', 'J_CF_NE', 'J_DF_NE',
 ];
 
 var VECTOR_BREAKDOWN = {
@@ -32,6 +43,7 @@ var VECTOR_BREAKDOWN = {
     'dB_AOCS': ['dB_AOCS_X', 'dB_AOCS_Y', 'dB_AOCS_Z'],
     'dB_Sun': ['dB_Sun_X', 'dB_Sun_Y', 'dB_Sun_Z'],
     'J_NE': ['J_N', 'J_E'],
+    'J_T_NE': ['J_T_N', 'J_T_E'],
     'J_CF_NE': ['J_CF_N', 'J_CF_E'],
     'J_DF_NE': ['J_DF_N', 'J_DF_E'],
 };
@@ -47,7 +59,6 @@ var MASTER_PRIORITY = [
     'SW_OPER_EEFATMS_2F', 'SW_OPER_EEFBTMS_2F', 'SW_OPER_EEFCTMS_2F', 'SW_OPER_EEFUTMS_2F',
     'SW_OPER_AEJALPS_2F', 'SW_OPER_AEJBLPS_2F', 'SW_OPER_AEJCLPS_2F', 'SW_OPER_AEJULPS_2F',
     'SW_OPER_AEJALPL_2F', 'SW_OPER_AEJBLPL_2F', 'SW_OPER_AEJCLPL_2F', 'SW_OPER_AEJULPL_2F',
-    'SW_OPER_AOBAFAC_2F', 'SW_OPER_AOBBFAC_2F', 'SW_OPER_AOBCFAC_2F', 'SW_OPER_AOBUFAC_2F',
 ];
 
 // variable translations
@@ -57,6 +68,56 @@ var REPLACED_SCALAR_VARIABLES = {
     'B_resAC_C': 'B_C_resAC'
 };
 
+// related data collections
+var RELATED_COLLECTIONS = {
+    'SW_OPER_AEJALPS_2F': [
+        {collections: ['SW_OPER_AEJAPBS_2F'], type: 'AEJ_PBS'},
+        {
+            collections: ['SW_OPER_AEJAPBS_2F:GroundMagneticDisturbance'],
+            type: 'AEJ_PBS:GroundMagneticDisturbance'
+        }
+    ],
+    'SW_OPER_AEJBLPS_2F': [
+        {collections: ['SW_OPER_AEJBPBS_2F'], type: 'AEJ_PBS'},
+        {
+            collections: ['SW_OPER_AEJBPBS_2F:GroundMagneticDisturbance'],
+            type: 'AEJ_PBS:GroundMagneticDisturbance'
+        }
+    ],
+    'SW_OPER_AEJCLPS_2F': [
+        {collections: ['SW_OPER_AEJCPBS_2F'], type: 'AEJ_PBS'},
+        {
+            collections: ['SW_OPER_AEJCPBS_2F:GroundMagneticDisturbance'],
+            type: 'AEJ_PBS:GroundMagneticDisturbance'
+        }
+    ],
+    'SW_OPER_AEJALPL_2F': [
+        {collections: ['SW_OPER_AEJAPBL_2F'], type: 'AEJ_PBL'}
+    ],
+    'SW_OPER_AEJBLPL_2F': [
+        {collections: ['SW_OPER_AEJBPBL_2F'], type: 'AEJ_PBL'}
+    ],
+    'SW_OPER_AEJCLPL_2F': [
+        {collections: ['SW_OPER_AEJCPBL_2F'], type: 'AEJ_PBL'}
+    ],
+    'SW_OPER_FACATMS_2F': [
+        {collections: ['SW_OPER_AOBAFAC_2F', 'SW_OPER_FACATMS_2F'], type: 'AOB_FAC'}
+    ],
+    'SW_OPER_FACBTMS_2F': [
+        {collections: ['SW_OPER_AOBBFAC_2F', 'SW_OPER_FACBTMS_2F'], type: 'AOB_FAC'}
+    ],
+    'SW_OPER_FACCTMS_2F': [
+        {collections: ['SW_OPER_AOBCFAC_2F', 'SW_OPER_FACCTMS_2F'], type: 'AOB_FAC'}
+    ],
+};
+
+var _COMMON_RELATED_VARIABLES = ["QDLat", "QDLon", "MLT", "Kp", "Dst", "dDst", "F107"];
+var RELATED_VARIABLES = {
+    'AEJ_PBS': ['PointType'].concat(_COMMON_RELATED_VARIABLES),
+    'AEJ_PBS:GroundMagneticDisturbance': [].concat(_COMMON_RELATED_VARIABLES),
+    'AEJ_PBL': ['PointType'].concat(_COMMON_RELATED_VARIABLES),
+    'AOB_FAC': ['Radius'].concat(_COMMON_RELATED_VARIABLES),
+};
 
 (function () {
     'use strict';
@@ -593,7 +654,7 @@ var REPLACED_SCALAR_VARIABLES = {
                 var filtered = globals.products.filter(function (product) {
                     var id = product.get("download").id;
                     return !(id && id.match(
-                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ|AOB)[ABCU_]/
+                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ)[ABCU_]/
                     ));
                 });
 
@@ -653,12 +714,6 @@ var REPLACED_SCALAR_VARIABLES = {
                         "Bravo": "SW_OPER_AEJBLPS_2F",
                         "Charlie": "SW_OPER_AEJCLPS_2F",
                         "Upload": "SW_OPER_AEJULPS_2F",
-                    },
-                    "AOB_FAC": {
-                        "Alpha": "SW_OPER_AOBAFAC_2F",
-                        "Bravo": "SW_OPER_AOBBFAC_2F",
-                        "Charlie": "SW_OPER_AOBCFAC_2F",
-                        "Upload": "SW_OPER_AOBUFAC_2F",
                     }
                 };
 
@@ -670,41 +725,32 @@ var REPLACED_SCALAR_VARIABLES = {
                     "Upload": false
                 };
 
-                var prodToSat = {};
-                var proObj = globals.swarm.products;
-                for (var coll in proObj) {
-                    for (var sat in proObj[coll]) {
-                        prodToSat[proObj[coll][sat]] = {
-                            sat: sat,
-                            coll: coll
-                        };
-                    }
-                }
+                // reversed collection to satellite mapping
+                var collection2satellite = {};
+                var collection2type = {};
+                _.each(globals.swarm.products, function (product, productType) {
+                    _.each(product, function (collection, satellite) {
+                        collection2satellite[collection] = satellite;
+                        collection2type[collection] = productType;
+                    });
+                });
+                globals.swarm.collection2satellite = collection2satellite;
 
                 // Derive which satellites should be active from active products
                 globals.products.forEach(function (product) {
-                    if (product.get('visible')) {
-                        if (prodToSat.hasOwnProperty(product.get('download').id)) {
-                            var sat = prodToSat[product.get('download').id].sat;
-                            globals.swarm.satellites[sat] = true;
-                        }
+                    var satellite = get(collection2satellite, product.get('download').id);
+                    if (satellite && product.get('visible')) {
+                        globals.swarm.satellites[satellite] = true;
                     }
                 });
 
 
                 globals.swarm.activeProducts = [];
 
-                // reversed collection to satellite mapping
-                globals.swarm.collection2satellite = {};
-                _.each(globals.swarm.products, function (product) {
-                    _.each(product, function (collection, satellite) {
-                        globals.swarm.collection2satellite[collection] = satellite;
-                    });
-                });
                 // because user data collection needs to have identifier USER_DATA
                 var userDataId = globals.userData.views[0].id;
                 if (userDataId) {
-                    globals.swarm.collection2satellite[userDataId] = 'Upload';
+                    collection2satellite[userDataId] = 'Upload';
                 }
                 var filtered_collection = new Backbone.Collection(filtered);
 
@@ -718,20 +764,17 @@ var REPLACED_SCALAR_VARIABLES = {
                     'IPD': false,
                     'AEJ_LPL': false,
                     'AEJ_LPS': false,
-                    'AOB_FAC': false,
                 };
 
                 var clickEvent = "require(['communicator'], function(Communicator){Communicator.mediator.trigger('application:reset');});";
 
                 // Derive what container need to be active from products
                 globals.products.forEach(function (product) {
-                    if (product.get('visible') &&
-                       prodToSat.hasOwnProperty(product.get('download').id)) {
-                        var coll = prodToSat[product.get('download').id].coll;
-                        containerSelection[coll] = true;
+                    var productType = get(collection2type, product.get('download').id);
+                    if (productType && product.get('visible')) {
+                        containerSelection[productType] = true;
                     }
                 });
-
 
                 if (savedChangesApplied) {
                     showMessage('success',
@@ -773,14 +816,6 @@ var REPLACED_SCALAR_VARIABLES = {
 
                 // Add generic product (which is container for A,B and C sats)
                 filtered_collection.add({
-                    name: "Auroral Oval Boundary (AOB FAC)",
-                    visible: containerSelection['AOB_FAC'],
-                    color: "#6e37b5",
-                    protocol: null,
-                    containerproduct: true,
-                    id: "AOB_FAC"
-                }, {at: 0});
-                filtered_collection.add({
                     name: "Auroral Electrojet - SECS (AEJ LPS/PBS)",
                     visible: containerSelection['AEJ_LPS'],
                     color: "#145600",
@@ -813,7 +848,7 @@ var REPLACED_SCALAR_VARIABLES = {
                     id: "EEF"
                 }, {at: 0});
                 filtered_collection.add({
-                    name: "Electric current data (FAC)",
+                    name: "Electric current data (FAC/FAC AOB)",
                     visible: containerSelection['FAC'],
                     color: "#66aa00",
                     protocol: null,

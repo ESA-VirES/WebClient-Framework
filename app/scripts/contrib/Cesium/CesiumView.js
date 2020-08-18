@@ -1,6 +1,7 @@
 /*global $ _ define d3 Cesium msgpack plotty DrawHelper saveAs showMessage */
 /*global defaultFor getISODateTimeString meanDate */
-/*global SCALAR_PARAM VECTOR_PARAM VECTOR_BREAKDOWN AEBSLabelImg */
+/*global TIMESTAMP SCALAR_PARAM VECTOR_PARAM */
+/*global has get pop setDefault isNumber Timer */
 
 define([
     'backbone.marionette',
@@ -15,22 +16,206 @@ define([
     'hbs!tmpl/wps_get_field_lines',
     'hbs!tmpl/FieldlinesLabel',
     'hbs!tmpl/wps_fetchData',
+    'colormap',
     'cesium/Cesium',
     'drawhelper',
     'FileSaver',
-    'plotty'
 ], function (
     Marionette, Communicator, App, MapModel, globals, msgpack, httpRequest,
-    DataUtil, tmplEvalModel, tmplGetFieldLines, tmplFieldLinesLabel, wps_fetchDataTmpl
+    DataUtil, tmplEvalModel, tmplGetFieldLines, tmplFieldLinesLabel, wps_fetchDataTmpl,
+    colormap
 ) {
     'use strict';
+
+    var _SVG_HEAD = 'data:image/svg+xml,<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px" height="40px" xml:space="preserve">';
+    var _SVG_TAIL = '</svg>';
+
+    var SVG_SQUARE = _SVG_HEAD + '<rect y="10" x="10" height="20" width="20" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL;
+    var SVG_DIMOND = _SVG_HEAD + '<path d="M 5.86,20, 20,5.86 34.14,20 20,34.14 Z" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL;
+    var SVG_LARGE_DIMOND = _SVG_HEAD + '<path d="M 3,20, 20,3 37,20 20,37 Z" stroke="black" stroke-width="4" fill="transparent"/>' + _SVG_TAIL;
+    var SVG_TRIANGLE = _SVG_HEAD + '<path d="M 7.75,27.07 32.25,27.07 20,5.86 Z" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL;
+    var SVG_CIRCLE = _SVG_HEAD + '<circle cx="20" cy="20" r="10" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL;
+
+    // preload symbols
+    function createImage(src, width, height) {
+        var image = new Image(width, height);
+        image.src = src;
+        return image;
+    }
+
+    var SYMBOLS = {
+        SQUARE: createImage(SVG_SQUARE),
+        DIMOND: createImage(SVG_DIMOND),
+        LARGE_DIMOND: createImage(SVG_LARGE_DIMOND),
+        TRIANGLE: createImage(SVG_TRIANGLE),
+        CIRCLE: createImage(SVG_CIRCLE),
+    };
+
+    var DEG2RAD = Math.PI / 180.0;
+
+    var DEFAULT_POINT_PIXEL_SIZE = 8;
+
+    var NEAR_FAR_SCALAR = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
+
+    var HEIGHT_OFFSET = 210000; //m
+
+    var EARTH_RADIUS = 6371000; // m
+    var SWARM_ALTITUDE = 450000; // m
+    var IONOSPHERIC_ALTITUDE = 110000; // m
+    var DEFAULT_NOMINAL_RADIUS = EARTH_RADIUS + SWARM_ALTITUDE;
+    var NOMINAL_RADIUS = {
+        'J_T_NE': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
+        'J_DF_NE': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
+        'J_CF_NE': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
+        'J_DF_SemiQD': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
+        'J_CF_SemiQD': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
+        'J_R': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
+    };
+
+    var TEC_VECTOR_SAMPLING = 40000; // ms
+    var TEC_VECTOR_LENGTH = 500000; // m - length of the normalized TEC vectors
+    var MAX_VECTOR_LENGTH = 600000; // m - length of the longest regular vector
+    var JNE_VECTOR_SAMPLING = 5000; // ms
+    var NEC_VECTOR_SAMPLING = 5000; // ms
+
+    var BUBLE_PROBABILITY_THRESHOLD = 0.1;
 
     var PT_POINT_TYPE_MASK = 0x2;
     var PT_BOUNDARY = 0x2;
     var PT_PEAK = 0x0;
-    var DEG2RAD = Math.PI / 180.0;
 
-    var rotateVectorNER2XYZ = function (latitude, longitude, vN, vE, vR) {
+    // record filter class
+    var RecordFilter = function (variables) {
+        // get subset of applicable global filters
+        this.filters = _.map(
+            _.pick(globals.swarm.get('filters') || {}, variables),
+            function (filter, variable) {
+                return function (record) {
+                    return filter(record[variable]);
+                };
+            }
+        );
+
+        // add extra filter removing invalid coordinates
+        this.addFilter(function (record) {
+            return (
+                isNumber(record.Latitude) &&
+                isNumber(record.Longitude) &&
+                (record.Radius === undefined || isNumber(record.Radius))
+            );
+        });
+    };
+
+    RecordFilter.prototype = {
+        addFilter: function (filter) {
+            // Add new filter function.
+            this.filters.push(filter);
+        },
+        match: function (record) {
+            // Return true if the record has been matched by the filter.
+            for (var i = 0; i < this.filters.length; i++) {
+                if (!this.filters[i](record)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    };
+
+    // time sub-sampler
+    var Subsampler = function (timeInterval) {
+        this.timeInterval = timeInterval;
+        this.lastTime = null;
+    };
+    Subsampler.prototype = {
+        testSample: function (time) {
+            var dTime = time - this.lastTime;
+            var passes = (
+                this.lastTime === null ||
+                dTime <= 0 || dTime >= this.timeInterval
+            );
+            if (passes) {this.lastTime = time;}
+            return passes;
+        }
+    };
+
+    // vector norm calculation
+
+    var vnorm2 = function (x, y) {return Math.sqrt(x * x + y * y);};
+    var vnorm3 = function (x, y, z) {return Math.sqrt(x * x + y * y + z * z);};
+
+    var VectorNorms = function () {
+        this.maxNorm = 0;
+        this.norms = [];
+    };
+    VectorNorms.prototype = {
+        push: function (norm) {
+            this.norms.push(norm);
+            if (norm > this.maxNorm) {
+                this.maxNorm = norm;
+            }
+        }
+    };
+
+    // vector norms cache preventing repeated calculation
+    var CachedVectorNorms = function () {
+        this._cache = {};
+    };
+
+    CachedVectorNorms.prototype = {
+
+        getVectorNorms: function (parameter, data) {
+            var vnorms = get(this._cache, parameter);
+            if (!vnorms) {
+                vnorms = this._calculateVectorNorms(data);
+                this._cache[parameter] = vnorms;
+            }
+            return vnorms;
+        },
+
+        _calculateVectorNorms: function (data) {
+            switch (data.length) {
+                case 2:
+                    return this._calculateV2Norms(data[0], data[1]);
+                case 3:
+                    return this._calculateV3Norms(data[0], data[1], data[2]);
+                default:
+                    throw "Unsupported vector lenght " + data.lenght + "!";
+            }
+        },
+
+        _calculateV2Norms: function (x, y) {
+            var norms = new VectorNorms();
+            for (var i = 0, size = x.length; i < size; i++) {
+                norms.push(vnorm2(x[i], y[i]));
+            }
+            return norms;
+        },
+
+        _calculateV3Norms: function (x, y, z) {
+            var norms = new VectorNorms();
+            for (var i = 0, size = x.length; i < size; i++) {
+                norms.push(vnorm3(x[i], y[i], z[i]));
+            }
+            return norms;
+        }
+    };
+
+    var convertSpherical2Cartesian = function (latitude, longitude, radius) {
+        // convert geocentric spherical coordinates to Cartesian
+        var r_sin_lat = Math.sin(DEG2RAD * latitude) * radius;
+        var r_cos_lat = Math.cos(DEG2RAD * latitude) * radius;
+        var sin_lon = Math.sin(DEG2RAD * longitude);
+        var cos_lon = Math.cos(DEG2RAD * longitude);
+
+        return {
+            x: r_cos_lat * cos_lon,
+            y: r_cos_lat * sin_lon,
+            z: r_sin_lat
+        };
+    };
+
+    var rotateHorizontal2Cartesian = function (latitude, longitude, vN, vE, vR) {
         // rotate vector from a local horizontal North, East, Radius frame
         // defined by the latitude and longitude to the global geocentric
         // Cartesian frame
@@ -47,11 +232,301 @@ define([
         };
     };
 
-    // Special 'ellipsoid' for conversion from geocentric spherical coordinates.
-    // This datum is a sphere with radius of 1mm.
-    var GEOCENTRIC_SPHERICAL = {
-        radiiSquared: new Cesium.Cartesian3(1e-6, 1e-6, 1e-6)
+
+    // Feature collection manager encapsulates details of the handling
+    // of the active feature collections.
+    var FeatureCollectionManager = function (primitives) {
+        this.primitives = primitives;
+        this.visibleCollections = {};
+        this.newCollections = {};
     };
+
+    FeatureCollectionManager.prototype = {
+
+        _removeVisible: function (name) {
+            var collection = pop(this.visibleCollections, name);
+            if (collection) {
+                this.primitives.remove(collection);
+            }
+        },
+
+        _addVisible: function (name, collection) {
+            if (collection) {
+                this.primitives.add(collection);
+                this.visibleCollections[name] = collection;
+            }
+        },
+
+        list: function () {
+            // list collection names
+            return _.keys(_.extend({}, this.visibleCollections, this.newCollections));
+        },
+
+        contains: function (name) {
+            // return true if named feature collection exists or false otherwise
+            return has(this.visibleCollections, name) || has(this.newCollections, name);
+        },
+
+        get: function (name) {
+            // return an existing named feature collection or undefined
+            return get(this.visibleCollections, name) || get(this.newCollections, name);
+        },
+
+        add: function (name, collection) {
+            // add a new not-yet-visible named feature collection
+            this._removeVisible(name);
+            this.newCollections[name] = collection;
+        },
+
+        show: function (name) {
+            // show a new not-yet-visible named collection on the map
+            this._removeVisible(name);
+            this._addVisible(name, pop(this.newCollections, name));
+        },
+
+        showAll: function () {
+            // show all feature collections on the map
+            _.each(_.keys(this.newCollections), this.show, this);
+        },
+
+        remove: function (name) {
+            // remove an existing named feature collection
+            this._removeVisible(name);
+            pop(this.newCollections, name);
+        },
+
+        removeAll: function () {
+            // remove all feature collections
+            this.newCollections = {};
+            _.each(_.keys(this.visibleCollections), this._removeVisible, this);
+        }
+    };
+
+    // Cesium overlay control class
+    var CesiumOverlayControl = function (primitives, options) {
+        options = options || {};
+        this.primitives = primitives;
+        this.setOffset(
+            get(options, 'xOffset', 0),
+            get(options, 'yOffset', 0)
+        );
+    };
+
+    CesiumOverlayControl.prototype = {
+
+        setOffset: function (xOffset, yOffset) {
+            // set global offset
+            this.xOffset = xOffset;
+            this.yOffset = yOffset;
+        },
+
+        removeItem: function (item) {
+            this.primitives.remove(item.primitive);
+            this._removeTooltip(item);
+        },
+
+        addItem: function (item) {
+            item.primitive = this.primitives.add(
+                this._createViewportQuad(
+                    item.dataUrl,
+                    this.xOffset + item.xOffset,
+                    this.yOffset + item.yOffset,
+                    item.width,
+                    item.height
+                )
+            );
+            this._createTooltip(item);
+        },
+
+        isItemDisplayed: function (item) {
+            return this.primitives.contains(item.primitive);
+        },
+
+        _createViewportQuad: function (img, x, y, width, height) {
+            var newmat = new Cesium.Material.fromType('Image', {
+                image: img,
+                color: new Cesium.Color(1, 1, 1, 1),
+            });
+            return new Cesium.ViewportQuad(
+                new Cesium.BoundingRectangle(x, y, width, height), newmat
+            );
+        },
+
+        _createTooltip: function (item) {
+            var tooltip = item.tooltip;
+            if (!tooltip) {return;}
+            tooltip.id = this._getTooltipId(item.id);
+            tooltip.element.find('#' + tooltip.id).remove();
+            var bottom = (
+                this.yOffset + item.yOffset +
+                parseInt($('.cesium-viewer').css('padding-bottom'), 10)
+            );
+            var left = (
+                this.xOffset + item.xOffset +
+                parseInt($('.cesium-viewer').css('padding-left'), 10)
+            );
+            tooltip.element.append(
+                '<div class="' + tooltip['class'] + '" id="' + tooltip.id +
+                '" style="' + (
+                    'position:absolute;' +
+                    'bottom:' + bottom + 'px;' +
+                    'left:' + left + 'px;' +
+                    'width:' + item.width + 'px;' +
+                    'height:' + item.height + 'px;'
+                ) + '" title="' + tooltip.text + '"></div>'
+            );
+        },
+
+        _removeTooltip: function (item) {
+            var tooltip = item.tooltip;
+            if (tooltip && tooltip.id) {
+                tooltip.element.find('#' + tooltip.id).remove();
+            }
+        },
+
+        _getTooltipId: function (id) {
+            return "tooltip_" + encodeURIComponent(id).replace(/%/g, '-');
+        },
+    };
+
+
+    // Color-scale manager encapsulates details of the composition
+    // of the color-scale legend.
+    var ColorScaleManager = function (primitives, renderer, options) {
+        this.renderer = renderer;
+        this.parameters = {};
+        this.colorscales = {};
+        this.overlay = new CesiumOverlayControl(primitives, options);
+    };
+
+    ColorScaleManager.prototype = {
+
+        refresh: function () {
+            // group products variables
+            var orderedIds = _.flatten(_.map(
+                this.parameters,
+                function (parameters, productId) {
+                    return _.map(parameters, function (parameter) {
+                        return productId + '|' + parameter;
+                    });
+                }
+            ));
+
+            // re-render items
+            var yOffset = 0;
+            _.each(orderedIds, function (id) {
+                var colorscale = this.colorscales[id];
+                var isDisplayed = this.overlay.isItemDisplayed(colorscale);
+                if (isDisplayed && colorscale.yOffset !== yOffset) {
+                    this.overlay.removeItem(colorscale);
+                    isDisplayed = false;
+                }
+                if (!isDisplayed) {
+                    colorscale.yOffset = yOffset;
+                    this.overlay.addItem(colorscale);
+                }
+                yOffset += colorscale.height;
+            }, this);
+        },
+
+        update: function (product, parameters) {
+            var currentParameters = get(this.parameters, product.id) || [];
+
+            _.each(currentParameters, function (parameter) {
+                this.remove(product.id + '|' + parameter);
+            }, this);
+
+            _.each(parameters, function (parameter) {
+                this.create(product.id + '|' + parameter, product, parameter);
+            }, this);
+
+            if (parameters.length > 0) {
+                this.parameters[product.id] = parameters;
+            } else {
+                delete this.parameters[product.id];
+            }
+        },
+
+        remove: function (id) {
+            this.overlay.removeItem(pop(this.colorscales, id));
+        },
+
+        create: function (id, product, parameter) {
+            var colorscale = _.extend({
+                id: id,
+                xOffset: 0,
+                yOffset: 0,
+            }, this.renderer(product, parameter));
+            this.colorscales[colorscale.id] = colorscale;
+        },
+    };
+
+
+    // Legend manager encapsulates details of the composition of the data legend.
+    var DataLegendManager = function (primitives, renderer, options) {
+        this.renderer = renderer;
+        this.products = {};
+        this.items = {};
+        this.overlay = new CesiumOverlayControl(primitives, options);
+    };
+
+    DataLegendManager.prototype = {
+
+        refresh: function () {
+            // group products variables
+            var ids = _.keys(this.items);
+
+            // re-render items
+            var yOffset = 0;
+            _.each(ids, function (id) {
+                var item = this.items[id];
+                var isDisplayed = this.overlay.isItemDisplayed(item);
+                if (isDisplayed && item.yOffset !== yOffset) {
+                    this.overlay.removeItem(item);
+                    isDisplayed = false;
+                }
+                if (!isDisplayed) {
+                    item.yOffset = yOffset;
+                    this.overlay.addItem(item);
+                }
+                yOffset += item.height;
+            }, this);
+        },
+
+        addProductTypeItem: function (productType, id, options) {
+            this.create(id, options);
+            setDefault(this.products, productType, []);
+            this.products[productType].push(id);
+        },
+
+        removeProductTypeItems: function (productType) {
+            pop(this.products, productType);
+            _.each(_.difference(
+                _.keys(this.items),
+                _.uniq(_.flatten(_.values(this.products)))
+            ), this.remove, this);
+        },
+
+        remove: function (id) {
+            this.overlay.removeItem(pop(this.items, id));
+        },
+
+        create: function (id, options) {
+            if (!has(this.items, id)) {
+                var item = _.extend({
+                    id: id,
+                    xOffset: 0,
+                    yOffset: 0,
+                }, this.renderer(id, options));
+                this.items[id] = item;
+            }
+        },
+
+        removeAll: function () {
+            _.each(_.key(this.items), this.remove, this);
+        },
+    };
+
 
     var CesiumView = Marionette.View.extend({
         model: new MapModel.MapModel(),
@@ -71,34 +546,29 @@ define([
             this.isClosed = true;
             this.tileManager = options.tileManager;
             this.selectionType = null;
-            this.overlayIndex = 99;
-            this.diffimageIndex = this.overlayIndex - 10;
-            this.diffOverlay = null;
-            this.overlayLayers = [];
-            this.overlayOffset = 100;
+            //this.overlayIndex = 99;
+            ///this.diffimageIndex = this.overlayIndex - 10;
+            //this.diffOverlay = null;
+            //this.overlayLayers = [];
+            //this.overlayOffset = 100;
             this.cameraIsMoving = false;
             this.cameraLastPosition = null;
             this.billboards = null;
             this.FLbillboards = null;
             this.activeFL = [];
-            this.featuresCollection = {};
             this.FLCollection = {};
             this.FLData = {};
             this.FLStoredData = {};
             this.bboxsel = null;
             this.extentPrimitive = null;
             this.activeModels = [];
-            this.activeCollections = [];
-            this.dataFilters = {};
-            this.colorscales = {};
             this.beginTime = null;
             this.endTime = null;
-            this.plot = null;
-            this.xhr = null;
-            this.xhr2 = null;
-            this.AEBSLabel = null;
-            this.AOBPolylines = {};
-            this.svgPrefix = 'data:image/svg+xml,<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px" height="40px" xml:space="preserve">';
+            this.featureCollections = null;
+            this.relatedFeatureCollections = null;
+            this.colorScales = null;
+            this.dataLegends = null;
+
             this.connectDataEvents();
         },
 
@@ -224,6 +694,22 @@ define([
                 }
                 this.map = new Cesium.Viewer(this.el, options);
                 var initialCesiumLayer = this.map.imageryLayers.get(0);
+
+                this.featureCollections = new FeatureCollectionManager(
+                    this.map.scene.primitives
+                );
+                this.relatedFeatureCollections = new FeatureCollectionManager(
+                    this.map.scene.primitives
+                );
+                this.colorScales = new ColorScaleManager(
+                    this.map.scene.primitives,
+                    _.bind(this.renderColorScale, this)
+                );
+                this.dataLegends = new DataLegendManager(
+                    this.map.scene.primitives,
+                    _.bind(this.renderDataLegend, this),
+                    {xOffset: 300}
+                );
             }
 
             if (localStorage.getItem('cameraPosition') !== null) {
@@ -343,12 +829,6 @@ define([
             this.FLbillboards = this.map.scene.primitives.add(
                 new Cesium.BillboardCollection()
             );
-            this.PBxBillboards = this.map.scene.primitives.add(
-                new Cesium.BillboardCollection()
-            );
-            this.groundBillboards = this.map.scene.primitives.add(
-                new Cesium.BillboardCollection()
-            );
             this.drawhelper = new DrawHelper(this.map.cesiumWidget);
             // It seems that if handlers are active directly there are some
             // object deleted issues when the draw helper tries to pick elements
@@ -356,13 +836,14 @@ define([
             // solve the issue.
             this.drawhelper._handlersMuted = true;
 
-            this.cameraLastPosition = {};
-            this.cameraLastPosition.x = this.map.scene.camera.position.x;
-            this.cameraLastPosition.y = this.map.scene.camera.position.y;
-            this.cameraLastPosition.z = this.map.scene.camera.position.z;
+            this.cameraLastPosition = {
+                x: this.map.scene.camera.position.x,
+                y: this.map.scene.camera.position.y,
+                z: this.map.scene.camera.position.z
+            };
 
             // Extend far clipping for fieldlines
-            this.map.scene.camera.frustum.far = this.map.scene.camera.frustum.far * 15;
+            this.map.scene.camera.frustum.far *= 15;
 
             this.map.clock.onTick.addEventListener(this.handleTick.bind(this));
 
@@ -473,8 +954,6 @@ define([
                     container: $('.cesium-viewer-toolbar')[0]
                 });
             }
-            this.plot = new plotty.plot({});
-            this.plot.setClamp(true, true);
             this.isClosed = false;
 
             $('#cesium_save').on('click', this.onSaveImage.bind(this));
@@ -497,16 +976,13 @@ define([
             globals.products.each(synchronizeLayer, this);
             globals.overlays.each(synchronizeLayer, this);
 
-            // Recheck color legends
-            globals.products.each(this.synchronizeColorLegend, this);
+            this.updateLegend();
 
-            this.connectDataEvents();
+            //this.connectDataEvents(); // Registers the same event handlers multiple times!
 
             // Redraw to make sure we are at current selection
-            this.createDataFeatures(
-                globals.swarm.get('data'),
-                'pointcollection', 'band'
-            );
+            this.createDataFeatures(globals.swarm.get('data'));
+            this.updateRelatedDataFeatures();
 
             $('#bb_selection').unbind('click');
             $('#bb_selection').click(function () {
@@ -559,72 +1035,25 @@ define([
             $("#bboxSouthForm").val(bboxFixed.s.toFixed(4));
         },
 
-        synchronizeColorLegend: function (p) {
-            // See if active parameter has referencedParameter to show multiple
-            // colorscales per product
-            if (p.get('parameters')) {
-                var parameters = p.get('parameters');
-                var band = this.getSelectedVariable(parameters);
-                if (parameters[band].hasOwnProperty('referencedParameters')) {
-                    var refPars = parameters[band].referencedParameters;
-                    for (var i = 0; i < refPars.length; i++) {
-                        this.checkColorscale(p.get('download').id, refPars[i], i);
-                    }
-                } else {
-                    this.checkColorscale(p.get('download').id, band, -1);
-                }
-            }
-        },
-
         connectDataEvents: function () {
             globals.swarm.on('change:data', function (model, data) {
-                // See if LPL or LPS products are active, if they are show also
-                // special labels
-                var amountActive = globals.products.filter(function (p) {
-                    return (typeof p.get('download').id !== 'undefined'
-                        && (p.get('download').id.indexOf('LPL_2F') !== -1
-                        || p.get('download').id.indexOf('LPS_2F') !== -1)
-                        && p.get('visible')
-                    );
-                });
-                if (this.AEBSLabel !== null) {
-                    this.map.scene.primitives.remove(this.AEBSLabel);
-                }
-                if (amountActive.length > 0) {
-                    this.AEBSLabel = this.map.scene.primitives.add(
-                        this.createViewportQuad(AEBSLabelImg, 300, -10, 174, 77)
-                    );
-                }
-                // Clean-up of AOB primitives if necessary
-                for (var prim in this.AOBPolylines) {
-                    this.map.scene.primitives.remove(this.AOBPolylines[prim]);
-                    delete(this.AOBPolylines[prim]);
-                }
+                this.updateLegend();
+                this.createDataFeatures(data);
+            }, this);
 
-                globals.products.each(this.synchronizeColorLegend, this);
-
-                var refKey = 'Timestamp';
-                if (!data.hasOwnProperty(refKey)) {
-                    refKey = 'timestamp';
-                }
-                this.fetchAndDisplayPBxData();
-                if (data.hasOwnProperty(refKey) && data[refKey].length > 0) {
-                    this.createDataFeatures(data, 'pointcollection', 'band');
-                } else {
-                    for (var i = 0; i < this.activeCollections.length; i++) {
-                        if (this.featuresCollection.hasOwnProperty(this.activeCollections[i])) {
-                            this.map.scene.primitives.remove(
-                                this.featuresCollection[this.activeCollections[i]]
-                            );
-                            delete this.featuresCollection[this.activeCollections[i]];
-                        }
+            globals.swarm.get('relatedData').on('change', function (model) {
+                _.each(model.changed, function (data, productType) {
+                    if (!data) {
+                        this.removeRelatedDataFeatures(productType);
+                    } else {
+                        this.createRelatedDataFeatures(productType, data);
                     }
-                    this.activeCollections = [];
-                }
+                }, this);
             }, this);
 
             globals.swarm.on('change:filters', function (model, filters) {
-                this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
+                this.createDataFeatures(globals.swarm.get('data'));
+                this.updateRelatedDataFeatures();
             }, this);
         },
 
@@ -646,7 +1075,6 @@ define([
         //setting possible description attributes
 
         createLayer: function (layerdesc) {
-
             var view = this.getView(layerdesc);
 
             // Manage custom attribution element (add attribution for active layers)
@@ -797,15 +1225,7 @@ define([
         },
 
         onModelsUpdate: function () {
-            _.each(
-                globals.products.filter(function (product) {
-                    return product.get('model') && product.get('visible');
-                }),
-                function (product) {
-                    var variable = this.getSelectedVariable(product.get('parameters'));
-                    this.checkColorscale(product.get('download').id, variable, -1);
-                }, this
-            );
+            this.updateLegend();
         },
 
         onUpdateOpacity: function (options) {
@@ -821,8 +1241,8 @@ define([
                     var key = this.getSelectedVariable(product.get('parameters'));
                     var sat = globals.swarm.collection2satellite[collectionId];
 
-                    if (sat && key && _.has(this.featuresCollection, (sat + key))) {
-                        var fc = this.featuresCollection[(sat + key)];
+                    if (sat && key && this.featureCollections.includes(sat + key)) {
+                        var fc = this.featureCollections.get(sat + key);
                         if (fc.hasOwnProperty('geometryInstances')) {
                             for (var i = fc._instanceIds.length - 1; i >= 0; i--) {
                                 var attributes = fc.getGeometryInstanceAttributes(fc._instanceIds[i]);
@@ -971,8 +1391,8 @@ define([
                     }
                 }, this); // END of global products loop
             }
-            // Recheck color legends
-            globals.products.each(this.synchronizeColorLegend, this);
+
+            this.updateLegend();
         }, // END of changeLayer
 
         isCustomModelSelected: function (product) {
@@ -1059,652 +1479,496 @@ define([
             }
         },
 
-        exportSVG: function (svg) {
-            // https://developer.mozilla.org/en/DOM/window.btoa;
-            return "data:image/svg+xml;base64," + btoa(svg);
+        updateRelatedDataFeatures: function () {
+            var relatedData = globals.swarm.get('relatedData').attributes;
+            _.each(
+                _.difference(this.relatedFeatureCollections.list(), _.keys(relatedData)),
+                this.removeRelatedDataFeatures, this
+            );
+            _.each(relatedData, function (data, productType) {
+                this.createRelatedDataFeatures(productType, data);
+            }, this);
         },
 
+        removeRelatedDataFeatures: function (productType) {
+            this.relatedFeatureCollections.remove(productType);
+            this.dataLegends.removeProductTypeItems(productType);
+        },
 
-        fetchAndDisplayPBxData: function () {
+        createRelatedDataFeatures: function (productType, data) {
 
-            var retrieve_data = [];
+            var getPointPrimitive = function (symbol, position) {
+                return {
+                    image: SYMBOLS[symbol],
+                    position: position,
+                    pixelOffset: new Cesium.Cartesian2(0, 0),
+                    eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
+                    radius: 0,
+                    scale: 0.4,
+                    scaleByDistance: NEAR_FAR_SCALAR,
+                };
+            };
 
-            this.PBxBillboards.removeAll();
-            this.groundBillboards.removeAll();
+            var getGeodeticPointRenderer = function (symbol, altitude) {
+                return function (record) {
+                    var position = Cesium.Cartesian3.fromDegrees(
+                        record.Longitude, record.Latitude, altitude
+                    );
+                    featureCollection.add(getPointPrimitive(symbol, position));
+                };
+            };
 
-            var relatedlayer = [
-                'SW_OPER_AEJALPS_2F', 'SW_OPER_AEJBLPS_2F', 'SW_OPER_AEJCLPS_2F',
-                'SW_OPER_AEJALPL_2F', 'SW_OPER_AEJBLPL_2F', 'SW_OPER_AEJCLPL_2F'
-            ];
+            var getGeocetricPointRenderer = function (symbol, radius) {
+                return function (record) {
+                    var position = Cesium.Cartesian3.clone(
+                        convertSpherical2Cartesian(
+                            record.Latitude, record.Longitude, get(record, 'Radius', radius)
+                        )
+                    );
+                    featureCollection.add(getPointPrimitive(symbol, position));
+                };
+            };
 
-            globals.products.each(function (product) {
-                if (relatedlayer.indexOf(product.get("views")[0].id) != -1) {
-                    if (!product.get('visible')) {return;}
-                    var processes = product.get("processes");
-                    _.each(processes, function (process) {
-                        if (process) {
-                            switch (process.id) {
-                                case "retrieve_data":
-                                    retrieve_data.push({
-                                        layer: process.layer_id,
-                                        url: product.get("views")[0].urls[0]
-                                    });
-                                    break;
-                            }
-                        }
-                    }, this);
+            var getPeakAndBoundaryReneder = function (peakSymbol, boundarySymbol, radius) {
+                var renderBoundary = getGeocetricPointRenderer(boundarySymbol, radius);
+                var renderPeak = getGeocetricPointRenderer(peakSymbol, radius);
+                return function (record) {
+                    switch (record.PointType & PT_POINT_TYPE_MASK) {
+                        case PT_PEAK:
+                            renderPeak(record);
+                            break;
+                        case PT_BOUNDARY:
+                            renderBoundary(record);
+                            break;
+                    }
+                };
+            };
+
+
+            // -----------------------------------------------------------------
+
+            var timer = new Timer();
+
+            this.relatedFeatureCollections.remove(productType);
+
+            if (!data || data.isEmpty()) {
+                this.dataLegends.removeProductTypeItems(productType);
+                return;
+            }
+
+            var renderer;
+            switch (productType) {
+                case 'AEJ_PBS':
+                case 'AEJ_PBL':
+                    var altitude = {
+                        'AEJ_PBL': SWARM_ALTITUDE,
+                        'AEJ_PBS': IONOSPHERIC_ALTITUDE,
+                    };
+                    renderer = getPeakAndBoundaryReneder(
+                        'TRIANGLE', 'SQUARE', EARTH_RADIUS + altitude[productType]
+                    );
+                    this.dataLegends.addProductTypeItem(productType, 'EJB', {
+                        symbol: 'SQUARE',
+                        title: "Electrojet boundary",
+                    });
+                    this.dataLegends.addProductTypeItem(productType, 'EJP', {
+                        symbol: 'TRIANGLE',
+                        title: "Peak electrojet current",
+                    });
+                    break;
+                case 'AEJ_PBS:GroundMagneticDisturbance':
+                    renderer = getGeodeticPointRenderer('CIRCLE', 0);
+                    this.dataLegends.addProductTypeItem(productType, 'MDP', {
+                        symbol: 'CIRCLE',
+                        title: "Peak magnetic disturbance",
+                    });
+                    break;
+                case 'AOB_FAC':
+                    renderer = getGeocetricPointRenderer('LARGE_DIMOND', EARTH_RADIUS + SWARM_ALTITUDE);
+                    this.dataLegends.addProductTypeItem(productType, 'AOB', {
+                        symbol: 'DIMOND',
+                        title: "Aurora oval boundary",
+                    });
+                    break;
+                default:
+                    this.dataLegends.removeProductTypeItems(productType);
+                    return;
+            }
+
+            var featureCollection = new Cesium.BillboardCollection();
+            this.relatedFeatureCollections.add(productType, featureCollection);
+            data.forEachRecord(renderer, new RecordFilter(_.keys(data.data)));
+            this.relatedFeatureCollections.show(productType);
+            this.dataLegends.refresh();
+
+            timer.logEllapsedTime("createRelatedDataFeatures(" + productType + ")");
+        },
+
+        createDataFeatures: function (data) {
+
+            var _createPointCollection = _.bind(function (collectionName) {
+                var featureCollection = new Cesium.PointPrimitiveCollection();
+                if (!this.map.scene.context._gl.getExtension('EXT_frag_depth')) {
+                    featureCollection._rs =
+                        Cesium.RenderState.fromCache({
+                            depthTest: {
+                                enabled: true,
+                                func: Cesium.DepthFunction.LESS
+                            },
+                            depthMask: false,
+                            blending: Cesium.BlendingState.ALPHA_BLEND
+                        });
                 }
+                this.featureCollections.add(collectionName, featureCollection);
+                return featureCollection;
             }, this);
 
-            if (retrieve_data.length > 0) {
+            var _createPolylineCollection = _.bind(function (collectionName) {
+                var featureCollection = new Cesium.Primitive({
+                    geometryInstances: [],
+                    appearance: new Cesium.PolylineColorAppearance({
+                        translucent: true
+                    }),
+                    releaseGeometryInstances: false
+                });
+                this.featureCollections.add(collectionName, featureCollection);
+                return featureCollection;
+            }, this);
 
-                var collections = DataUtil.parseCollections(retrieve_data);
+            // factory function returning a parameter-specific feature-creating function
+            var getPointFeatureCreator = function (parameter) {
 
-                var options = {
-                    "collections_ids": DataUtil.formatCollections(collections),
-                    "begin_time": getISODateTimeString(this.beginTime),
-                    "end_time": getISODateTimeString(this.endTime)
+                var _createPoint = function (record, settings, index) {
+                    var value = record[parameter];
+                    if (isNaN(value)) {return;}
+
+                    var radius = record.Radius;
+                    if (settings.fixedAltitude || radius == null) {
+                        radius = get(NOMINAL_RADIUS, parameter, DEFAULT_NOMINAL_RADIUS);
+                    }
+                    var position = convertSpherical2Cartesian(
+                        record.Latitude,
+                        record.Longitude,
+                        radius + index * get(settings, 'heightOffset', 0)
+                    );
+                    var color = settings.colormap.getColor(value);
+                    var feature = {
+                        position: new Cesium.Cartesian3.clone(position),
+                        color: new Cesium.Color.fromBytes(
+                            color[0], color[1], color[2], settings.alpha
+                        ),
+                        pixelSize: get(settings, 'pixelSize', DEFAULT_POINT_PIXEL_SIZE),
+                        scaleByDistance: NEAR_FAR_SCALAR,
+                    };
+                    if (settings.outlines) {
+                        feature.outlineWidth = 0.5;
+                        feature.outlineColor = Cesium.Color.fromCssColorString(
+                            settings.outline_color
+                        );
+                    }
+                    settings.featureCollection.add(feature);
                 };
 
-                options.collections_ids = options.collections_ids.replace('LPS_2F', 'PBS_2F');
-                options.collections_ids = options.collections_ids.replace('LPL_2F', 'PBL_2F');
-
-                var variables = ['PointType'];
-
-
-                options.variables = variables.join(",");
-                options.mimeType = 'application/msgpack';
-
-                if (this.bboxsel !== null) {
-                    var bbox = this.bboxsel;
-                    options["bbox"] = bbox.join(",");
-                    groundpeakOptions["bbox"] = bbox.join(",");
-                }
-
-                if (this.xhr !== null) {
-                    // A request has been sent that is not yet been returned so we need to cancel it
-                    Communicator.mediator.trigger("progress:change", false);
-                    this.xhr.abort();
-                    this.xhr = null;
-                }
-
-                this.xhr = httpRequest.asyncHttpRequest({
-                    context: this,
-                    type: 'POST',
-                    url: retrieve_data[0].url,
-                    data: wps_fetchDataTmpl(options),
-                    responseType: 'arraybuffer',
-
-                    parse: function (data, xhr) {
-                        var decodedObj = msgpack.decode(new Uint8Array(data));
-                        return decodedObj;
-                    },
-
-                    opened: function () {
-                        Communicator.mediator.trigger("progress:change", true);
-                    },
-
-                    completed: function () {
-                        this.xhr = null;
-                        Communicator.mediator.trigger("progress:change", false);
-                    },
-
-                    error: function (xhr) {
-                        globals.swarm.set({data: {}});
-                        if (xhr.responseText === "") {return;}
-                        var error_text = xhr.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
-                        if (error_text && error_text.length > 1) {
-                            error_text = error_text[1];
-                        } else {
-                            error_text = 'Please contact feedback@vires.services if issue persists.';
-                        }
-                        showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
-                    },
-
-                    success: function (dat) {
-                        var svgRect = '<rect y="2" x="2" height="16" width="16" stroke="black" stroke-width="3" fill="transparent"/> ';
-                        var svgTriangle = '<path d="M 2,16 10,2 18,16 Z" stroke="black" stroke-width="3" fill="transparent"/> ';
-                        var svgSuffix = "</svg>";
-
-                        var maxRad = this.map.scene.globe.ellipsoid.maximumRadius;
-                        for (var i = 0; i < dat.Latitude.length; i++) {
-                            if (!Number.isNaN(dat.Latitude[i]) && !Number.isNaN(dat.Longitude[i])) {
-                                var imageString;
-                                if ((dat.PointType[i] & PT_POINT_TYPE_MASK) == PT_BOUNDARY) {
-                                    imageString = this.svgPrefix + svgRect + svgSuffix;
-                                } else if ((dat.PointType[i] & PT_POINT_TYPE_MASK) == PT_PEAK) {
-                                    imageString = this.svgPrefix + svgTriangle + svgSuffix;
-                                }
-                                var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
-                                var canvasPoint = {
-                                    /*imageId: '',*/
-                                    image: imageString,
-                                    position: Cesium.Cartesian3.fromDegrees(
-                                        dat.Longitude[i], dat.Latitude[i],
-                                        6835000 - maxRad
-                                    ),
-                                    pixelOffset: new Cesium.Cartesian2(8, 8),
-                                    eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
-                                    radius: 0,
-                                    scale: 0.4,
-                                    scaleByDistance: scaltype
-                                };
-                                this.PBxBillboards.add(canvasPoint);
+                switch (parameter) {
+                    case 'Bubble_Probability':
+                        return function (row, settings, index) {
+                            if (row[parameter] > BUBLE_PROBABILITY_THRESHOLD) {
+                                _createPoint(row, settings, index);
                             }
-                        }
-
-                    }
-                });
-
-                if (this.xhr2 !== null) {
-                    // A request has been sent that is not yet been returned so we need to cancel it
-                    Communicator.mediator.trigger("progress:change", false);
-                    this.xhr2.abort();
-                    this.xhr2 = null;
+                        };
+                    default:
+                        return _createPoint;
                 }
+            };
 
-                // See if collections have LPS visible
-                var lpsColl = retrieve_data.filter(function (coll) {return coll.layer.indexOf('LPS_2F') !== -1;});
-                if (lpsColl.length > 0) {
-                    var lpsCollections = DataUtil.parseCollections(retrieve_data);
-                    var groundpeakOptions = {
-                        "collections_ids": DataUtil.formatCollections(lpsCollections),
-                        "begin_time": getISODateTimeString(this.beginTime),
-                        "end_time": getISODateTimeString(this.endTime),
-                        mimeType: 'application/msgpack'
-                    };
-                    groundpeakOptions.collections_ids = groundpeakOptions.collections_ids.replace('LPS_2F', 'PBS_2F:GroundMagneticDisturbance');
-                    this.xhr2 = httpRequest.asyncHttpRequest({
-                        context: this,
-                        type: 'POST',
-                        url: retrieve_data[0].url,
-                        data: wps_fetchDataTmpl(groundpeakOptions),
-                        responseType: 'arraybuffer',
+            // factory function returning a parameter-specific feature-creating function
+            var getVectorFeatureCreator = function (parameter) {
 
-                        parse: function (data, xhr2) {
-                            var decodedObj = msgpack.decode(new Uint8Array(data));
-                            return decodedObj;
-                        },
+                var lineCounter = 0;
 
-                        opened: function () {
-                            Communicator.mediator.trigger("progress:change", true);
-                        },
-
-                        completed: function () {
-                            this.xhr2 = null;
-                            Communicator.mediator.trigger("progress:change", false);
-                        },
-
-                        error: function (xhr2) {
-                            globals.swarm.set({data: {}});
-                            if (xhr2.responseText === "") {return;}
-                            var error_text = xhr2.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
-                            if (error_text && error_text.length > 1) {
-                                error_text = error_text[1];
-                            } else {
-                                error_text = 'Please contact feedback@vires.services if issue persists.';
+                var __createVector = function (x, y, z, dx, dy, dz, color, settings) {
+                    settings.featureCollection.geometryInstances.push(
+                        new Cesium.GeometryInstance({
+                            geometry: new Cesium.PolylineGeometry({
+                                positions: [
+                                    new Cesium.Cartesian3(x, y, z),
+                                    new Cesium.Cartesian3(x + dx, y + dy, z + dz),
+                                ],
+                                followSurface: false,
+                                width: 1.7,
+                                vertexFormat: Cesium.PolylineColorAppearance.VERTEX_FORMAT
+                            }),
+                            id: 'vec_line_' + lineCounter++,
+                            attributes: {
+                                color: Cesium.ColorGeometryInstanceAttribute.fromColor(
+                                    new Cesium.Color.fromBytes(
+                                        color[0], color[1], color[2], settings.alpha
+                                    )
+                                )
                             }
-                            showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
-                        },
+                        })
+                    );
+                };
 
-                        success: function (dat) {
-                            var svgCircle = '<circle cx="11" cy="11" r="9" stroke="black" stroke-width="3" fill="transparent"/> ';
-                            var svgSuffix = "</svg>";
-                            for (var i = 0; i < dat.Latitude.length; i++) {
-                                if (!Number.isNaN(dat.Latitude[i]) && !Number.isNaN(dat.Longitude[i])) {
-                                    var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
-                                    var canvasPoint = {
-                                        image: this.svgPrefix + svgCircle + svgSuffix,
-                                        position: Cesium.Cartesian3.fromDegrees(
-                                            dat.Longitude[i], dat.Latitude[i], 0
-                                        ),
-                                        pixelOffset: new Cesium.Cartesian2(8, 8),
-                                        eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
-                                        radius: 0,
-                                        scale: 0.4,
-                                        scaleByDistance: scaltype
-                                    };
-                                    this.groundBillboards.add(canvasPoint);
-                                }
+                // TEC GPS-pointing vectors
+                var _createVectorTEC = function (record, settings, index) {
+                    var value = record[parameter];
+                    if (isNaN(value)) {return;}
+
+                    var x = record.LEO_Position_X;
+                    var y = record.LEO_Position_Y;
+                    var z = record.LEO_Position_Z;
+
+                    var dx = record.GPS_Position_X - x;
+                    var dy = record.GPS_Position_Y - y;
+                    var dz = record.GPS_Position_Z - z;
+
+                    var scale = TEC_VECTOR_LENGTH / vnorm3(dx, dy, dz);
+
+                    __createVector(
+                        x, y, z, scale * dx, scale * dy, scale * dz,
+                        settings.colormap.getColor(value), settings
+                    );
+                };
+
+                // vectors in NEC frame
+                var _createVectorNEC = function (record, settings, index) {
+                    var value = settings.norms[record.__index__];
+                    if (isNaN(value)) {return;}
+
+                    var scale = MAX_VECTOR_LENGTH / settings.maxNorm;
+
+                    var position = convertSpherical2Cartesian(
+                        record.Latitude,
+                        record.Longitude,
+                        record.Radius + index * get(settings, 'heightOffset', 0)
+                    );
+
+                    var components = settings.components;
+                    var vector = rotateHorizontal2Cartesian(
+                        record.Latitude,
+                        record.Longitude,
+                        +scale * record[components[0]],
+                        +scale * record[components[1]],
+                        -scale * record[components[2]]
+                    );
+
+                    __createVector(
+                        position.x, position.y, position.z,
+                        vector.x, vector.y, vector.z,
+                        settings.colormap.getColor(value), settings
+                    );
+                };
+
+                // sheet currents in horizontal NE frame
+                var _createVectorJNE = function (record, settings, index) {
+                    var value = get(record, parameter) || settings.norms[record.__index__];
+                    if (isNaN(value)) {return;}
+
+                    var scale = MAX_VECTOR_LENGTH / settings.maxNorm;
+
+                    var position = convertSpherical2Cartesian(
+                        record.Latitude,
+                        record.Longitude,
+                        get(NOMINAL_RADIUS, parameter, DEFAULT_NOMINAL_RADIUS) + index * get(settings, 'heightOffset', 0)
+                    );
+
+                    var components = settings.components;
+                    var vector = rotateHorizontal2Cartesian(
+                        record.Latitude,
+                        record.Longitude,
+                        scale * record[components[0]],
+                        scale * record[components[1]],
+                        0.0
+                    );
+
+                    __createVector(
+                        position.x, position.y, position.z,
+                        vector.x, vector.y, vector.z,
+                        settings.colormap.getColor(value), settings
+                    );
+                };
+
+                switch (parameter) {
+                    case 'Absolute_STEC':
+                    case 'Absolute_VTEC':
+                    case 'Elevation_Angle':
+                    case 'Relative_STEC':
+                    case 'Relative_STEC_RMS':
+                        var sampler = new Subsampler(TEC_VECTOR_SAMPLING);
+                        return function (row, settings, index) {
+                            if (sampler.testSample(row[TIMESTAMP].getTime())) {
+                                _createVectorTEC(row, settings, index);
                             }
-                        }
-                    });
+                        };
+
+                    case 'J_QD':
+                    case 'J_DF_SemiQD':
+                    case 'J_CF_SemiQD':
+                    case 'J_NE':
+                    case 'J_T_NE':
+                    case 'J_DF_NE':
+                    case 'J_CF_NE':
+                        var sampler = new Subsampler(JNE_VECTOR_SAMPLING);
+                        return function (row, settings, index) {
+                            if (sampler.testSample(row[TIMESTAMP].getTime())) {
+                                _createVectorJNE(row, settings, index);
+                            }
+                        };
+                    default:
+                        var sampler = new Subsampler(NEC_VECTOR_SAMPLING);
+                        return function (row, settings, index) {
+                            if (sampler.testSample(row[TIMESTAMP].getTime())) {
+                                _createVectorNEC(row, settings, index);
+                            }
+                        };
                 }
-            }
-        },
+            };
 
-        createAOBConnectionLines: function (product, results) {
-            var maxRad = this.map.scene.globe.ellipsoid.maximumRadius;
-            var polylinesPrimitive = new Cesium.Primitive({
-                geometryInstances: [],
-                appearance: new Cesium.PolylineColorAppearance({
-                    translucent: true
-                }),
-                releaseGeometryInstances: false
-            });
-            this.AOBPolylines[product.get('download').id] = polylinesPrimitive;
-            if (results.hasOwnProperty('Pair_Indicator')) {
-                var linecnt = 0;
-                for (var i = 1; i < results.Pair_Indicator.length - 1; i++) {
-                    if (results.Pair_Indicator[i] === -1) {
-                        // We need to find correct neighbour
-                        var offset = null;
-                        if (results.Pair_Indicator[i + 1] === 1) {
-                            offset = 1;
-                        } else if (results.Pair_Indicator[i - 1] === 1) {
-                            offset = -1;
-                        }
-                        if (offset !== null) {
-                            var color = Cesium.ColorGeometryInstanceAttribute.fromColor(
-                                new Cesium.Color.fromBytes(20, 20, 220, 255)
-                            );
-                            polylinesPrimitive.geometryInstances.push(
-                                new Cesium.GeometryInstance({
-                                    geometry: new Cesium.PolylineGeometry({
-                                        positions: [
-                                            Cesium.Cartesian3.fromDegrees(
-                                                results.Longitude[i],
-                                                results.Latitude[i],
-                                                results.Radius[i] - maxRad
-                                            ),
-                                            Cesium.Cartesian3.fromDegrees(
-                                                results.Longitude[i + offset],
-                                                results.Latitude[i + offset],
-                                                results.Radius[i + offset] - maxRad
-                                            )
-                                        ],
-                                        followSurface: true,
-                                        width: 1.7,
-                                        vertexFormat: Cesium.PolylineColorAppearance.VERTEX_FORMAT
-                                    }),
-                                    id: 'vec_line_' + linecnt,
-                                    attributes: {
-                                        color: color
-                                    }
-                                })
-                            );
+            var getSettings = function () {
+                // collect visible parameters and their settings
 
-                            linecnt++;
-                        }
-                    }
-                }
-            }
-            this.map.scene.primitives.add(polylinesPrimitive);
-        },
-
-        createDataFeatures: function (results) {
-            var refKey = 'Timestamp';
-            if (!results.hasOwnProperty(refKey)) {
-                refKey = 'timestamp';
-            }
-            if (results.hasOwnProperty(refKey) && results[refKey].length > 0) {
-                // The feature collections are removed directly when a change happens
-                // because of the asynchronous behaviour it can happen that a collection
-                // is added between removing it and adding another one so here we make sure
-                // it is empty before overwriting it, which would lead to a not referenced
-                // collection which is no longer deleted.
-                // I remove it before the response because a direct feedback to the user is important
-                // There is probably a cleaner way to do this
-                for (var i = 0; i < this.activeCollections.length; i++) {
-                    if (this.featuresCollection.hasOwnProperty(this.activeCollections[i])) {
-                        this.map.scene.primitives.remove(this.featuresCollection[this.activeCollections[i]]);
-                        delete this.featuresCollection[this.activeCollections[i]];
-                    }
-                }
-
-                this.activeCollections = [];
                 var settings = {};
-
-                var vectorLenghtsObject = {};
 
                 globals.products.each(function (product) {
                     if (!product.get('visible')) {return;}
-
                     var collection = product.get('views')[0].id;
-                    var sat = globals.swarm.collection2satellite[collection];
+                    var spacecraft = get(globals.swarm.collection2satellite, collection);
+                    if (!spacecraft) {return;}
 
-                    if (!sat) {return;}
+                    setDefault(settings, spacecraft, {});
 
-                    // Create connection lines if it is a AOB product
-                    if (collection.indexOf('AOB') !== -1) {
-                        this.createAOBConnectionLines(product, results);
-                    }
-
-                    _.each(product.get('parameters'), function (param, name) {
-                        if (!param.selected) {return;}
-                        if (!settings.hasOwnProperty(sat)) {
-                            settings[sat] = {};
-                        }
-                        if (!settings[sat].hasOwnProperty(k)) {
-                            settings[sat][name] = _.clone(param);
-                        }
-                        if (param.hasOwnProperty('referencedParameters')) {
-                            var refPars = param.referencedParameters;
-                            for (var i = 0; i < refPars.length; i++) {
-
-                                if (product.get('parameters').hasOwnProperty(refPars[i])) {
-                                    settings[sat][refPars[i]] = _.clone(
-                                        product.get('parameters')[refPars[i]]
-                                    );
-                                    _.extend(settings[sat][refPars[i]], {
-                                        band: refPars[i],
-                                        //alpha: Math.floor(product.get('opacity') * 255),
-                                        outlines: product.get('outlines'),
-                                        outline_color: product.get('color')
-                                    });
-                                }
-                            }
-                            delete settings[sat][name];
-                        } else {
-                            _.extend(settings[sat][name], {
-                                band: name,
-                                alpha: Math.floor(product.get('opacity') * 255),
+                    var _addParameterToSettings = function (name, options) {
+                        options = settings[spacecraft][name] = _.extend(
+                            {},
+                            product.get('parameters')[name],
+                            {
+                                name: name,
+                                collection: collection,
                                 outlines: product.get('outlines'),
-                                outline_color: product.get('color')
+                                outline_color: product.get('color'),
+                            },
+                            options || {}
+                        );
+                        options.colormap = new colormap.ColorMap(
+                            options.colorscale, options.range
+                        );
+                        return options;
+                    };
+
+                    _.each(product.get('parameters'), function (parameterSettings, parameterName) {
+                        if (!parameterSettings.selected) {return;}
+                        if (has(parameterSettings, 'referencedParameters')) {
+                            _.each(parameterSettings.referencedParameters, _addParameterToSettings);
+                        } else {
+                            _addParameterToSettings(parameterName, {
+                                alpha: Math.floor(product.get('opacity') * 255),
+                                heightOffset: HEIGHT_OFFSET,
                             });
                         }
                     });
                 }, this);
 
-                if (!_.isEmpty(settings)) {
-
-                    _.uniq(results.id)
-                        .map(function (obj) {
-                            var parameters = _.filter(
-                                SCALAR_PARAM,
-                                function (par) {
-                                    return settings[obj].hasOwnProperty(par);
-                                });
-
-                            for (var i = 0; i < parameters.length; i++) {
-                                this.activeCollections.push(obj + parameters[i]);
-                                this.featuresCollection[obj + parameters[i]] =
-                                    new Cesium.PointPrimitiveCollection();
-                                if (!this.map.scene.context._gl.getExtension('EXT_frag_depth')) {
-                                    this.featuresCollection[obj + parameters[i]]._rs =
-                                        Cesium.RenderState.fromCache({
-                                            depthTest: {
-                                                enabled: true,
-                                                func: Cesium.DepthFunction.LESS
-                                            },
-                                            depthMask: false,
-                                            blending: Cesium.BlendingState.ALPHA_BLEND
-                                        });
-                                }
-                            }
-                            parameters = _.filter(VECTOR_PARAM, function (par) {
-                                return settings[obj].hasOwnProperty(par);
-                            });
-                            for (var i = 0; i < parameters.length; i++) {
-                                this.activeCollections.push(obj + parameters[i]);
-                                this.featuresCollection[obj + parameters[i]] = new Cesium.Primitive({
-                                    geometryInstances: [],
-                                    appearance: new Cesium.PolylineColorAppearance({
-                                        translucent: true
-                                    }),
-                                    releaseGeometryInstances: false
-                                });
-
-                                // Calculate maximum length of vectors
-                                var components = VECTOR_BREAKDOWN[parameters[i]];
-                                if (components) {
-                                    var lengths = [], maxLength = 0;
-                                    var data = _.map(
-                                        components,
-                                        function (parameter) {return results[parameter];}
-                                    );
-                                    for (var j = 0; j < data[0].length; j++) {
-                                        var sum = 0;
-                                        for (var k = 0; k < data.length; k++)
-                                        {
-                                            var value = data[k][j];
-                                            sum += value * value;
-                                        }
-                                        var length = Math.sqrt(sum);
-                                        lengths.push(length);
-                                        if (maxLength < length) {
-                                            maxLength = length;
-                                        }
-                                    }
-                                    vectorLenghtsObject[parameters[i]] = {
-                                        maxLength: maxLength,
-                                        lengths: lengths
-                                    };
-                                }
-                            }
-                        }, this);
-
-                    var maxRad = this.map.scene.globe.ellipsoid.maximumRadius;
-                    var scaltype = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
-                    //var timeBucket = {'Alpha': {}, 'Bravo': {}, 'Charlie': {}};
-                    var linecnt = 0;
-
-                    var lastTS = null;
-                    for (var r = 0; r < results[refKey].length; r++) {
-                        var row = {};
-                        for (var k in results) {
-                            row[k] = results[k][r];
-                        }
-                        var show = true;
-                        var filters = globals.swarm.get('filters');
-                        var heightOffset, color;
-
-                        if (filters) {
-                            for (var f in filters) {
-                                show = filters[f](row[f]);
-                                //show = !(row[k]<filters[k][0] || row[k]>filters[k][1]);
-                                if (!show) {break;}
-                            }
-                        }
-                        if (show) {
-                            // Find parameter in settings which is also in row
-                            // these are the ones that are active
-                            var actvParam = _.keys(settings[row.id]);
-                            var tovisualize = _.filter(actvParam, function (ap) {
-                                // Check if component is vector component
-                                if (VECTOR_BREAKDOWN.hasOwnProperty(ap)) {
-                                    var b = VECTOR_BREAKDOWN[ap];
-                                    var allAvailable = true;
-                                    for (var i = 0; i < b.length; i++) {
-                                        if (!row.hasOwnProperty(b[i])) {
-                                            allAvailable = false;
-                                        }
-                                    }
-                                    return allAvailable;
-                                } else {
-                                    return row.hasOwnProperty(ap);
-                                }
-                            });
-
-                            for (var i = tovisualize.length - 1; i >= 0; i--) {
-                                var set = settings[row.id][tovisualize[i]];
-                                var alpha = set.alpha;
-                                this.plot.setColorScale(set.colorscale);
-                                this.plot.setDomain(set.range);
-
-                                var pixelSize = 8;
-
-                                if (_.find(SCALAR_PARAM, function (par) {
-                                    return set.band === par;
-                                })) {
-                                    if (tovisualize[i] === 'Bubble_Probability') {
-                                        if (row[set.band] <= 0.1) {
-                                            continue;
-                                        }
-                                    }
-                                    heightOffset = i * 210000;
-                                    if (set.band === 'J_QD' || set.band === 'J_R') {
-                                        heightOffset = 10000;
-                                        pixelSize = 3;
-                                    }
-
-                                    if (!isNaN(row[set.band])) {
-                                        color = this.plot.getColor(row[set.band]);
-                                        var options = {
-                                            position: new Cesium.Cartesian3.fromDegrees(
-                                                row.Longitude, row.Latitude,
-                                                row.Radius - maxRad + heightOffset
-                                            ),
-                                            color: new Cesium.Color.fromBytes(
-                                                color[0], color[1], color[2], alpha
-                                            ),
-                                            pixelSize: pixelSize,
-                                            scaleByDistance: scaltype
-                                        };
-                                        if (set.outlines) {
-                                            options.outlineWidth = 0.5;
-                                            options.outlineColor =
-                                                Cesium.Color.fromCssColorString(set.outline_color);
-                                        }
-                                        this.featuresCollection[row.id + set.band].add(options);
-                                    }
-
-                                } else if (
-                                    _.find(VECTOR_PARAM, function (par) {
-                                        return set.band === par;
-                                    })) {
-
-                                    if (tovisualize[i] === 'Absolute_STEC' ||
-                                       tovisualize[i] === 'Absolute_VTEC' ||
-                                       tovisualize[i] === 'Elevation_Angle' ||
-                                       tovisualize[i] === 'Relative_STEC' ||
-                                       tovisualize[i] === 'Relative_STEC_RMS') {
-                                        if (lastTS === null) {
-                                            lastTS = row.Timestamp;
-                                        }
-                                        var diff = row.Timestamp.getTime() - lastTS.getTime();
-                                        if (diff <= 40000 && diff > 0) {
-                                            //lastTS = row.Timestamp;
-                                            continue;
-                                        }
-
-                                        lastTS = row.Timestamp;
-
-
-                                        color = this.plot.getColor(row[set.band]);
-                                        //var addLen = 10;
-                                        var dir = [
-                                            row.GPS_Position_X - row.LEO_Position_X,
-                                            row.GPS_Position_Y - row.LEO_Position_Y,
-                                            row.GPS_Position_Z - row.LEO_Position_Z
-                                        ];
-                                        var len = Math.sqrt((dir[0] * dir[0]) + (dir[1] * dir[1]) + (dir[2] * dir[2]));
-                                        var uvec = dir.map(function (x) {return x / len;});
-                                        var secPos = [
-                                            row.LEO_Position_X + uvec[0] * 500000,
-                                            row.LEO_Position_Y + uvec[1] * 500000,
-                                            row.LEO_Position_Z + uvec[2] * 500000
-                                        ];
-
-                                        this.featuresCollection[row.id + set.band].geometryInstances.push(
-                                            new Cesium.GeometryInstance({
-                                                geometry: new Cesium.PolylineGeometry({
-                                                    positions: [
-                                                        new Cesium.Cartesian3(row.LEO_Position_X, row.LEO_Position_Y, row.LEO_Position_Z),
-                                                        new Cesium.Cartesian3(secPos[0], secPos[1], secPos[2])
-                                                    ],
-                                                    followSurface: false,
-                                                    width: 1.7,
-                                                    vertexFormat: Cesium.PolylineColorAppearance.VERTEX_FORMAT
-                                                }),
-                                                id: 'vec_line_' + linecnt,
-                                                attributes: {
-                                                    color: Cesium.ColorGeometryInstanceAttribute.fromColor(
-                                                        new Cesium.Color.fromBytes(color[0], color[1], color[2], alpha)
-                                                    )
-                                                }
-                                            })
-                                        );
-
-                                        linecnt++;
-
-                                    } else {
-
-                                        var sb = VECTOR_BREAKDOWN[set.band];
-                                        heightOffset = i * 210000;
-                                        if (set.band === 'J_NE' || set.band === 'J_R') {
-                                            heightOffset = 0;
-                                        }
-
-                                        // Check if breakdown parameters are available
-                                        var allAvailable = true;
-                                        for (var j = 0; j < sb.length; j++) {
-                                            if (!row.hasOwnProperty(sb[j])) {
-                                                allAvailable = false;
-                                            }
-                                        }
-                                        if (allAvailable) {
-                                            var altComp, radius;
-                                            if (sb.length === 2) {
-                                                altComp = 0;
-                                            } else {
-                                                altComp = row[sb[2]];
-                                            }
-                                            if (row.hasOwnProperty('Radius')) {
-                                                radius = row.Radius;
-                                            } else {
-                                                radius = 6800000;
-                                            }
-
-
-                                            var maxLength = vectorLenghtsObject[set.band].maxLength;
-                                            var vectorLenghts = vectorLenghtsObject[set.band].lengths;
-
-                                            var vLen = vectorLenghts[r];
-                                            color = this.plot.getColor(vLen);
-                                            var maxLen = 600000;
-
-                                            // convert vector in the local horizontal NEC frame
-                                            // to the global geocentric XYZ Cartesian frame
-                                            var vXYZ = rotateVectorNER2XYZ(
-                                                row.Latitude, row.Longitude,
-                                                (row[sb[0]] / maxLength) * maxLen,
-                                                (row[sb[1]] / maxLength) * maxLen,
-                                                -(altComp / maxLength) * maxLen
-                                            );
-
-                                            var startCartPos = Cesium.Cartesian3.fromDegrees(
-                                                row.Longitude, row.Latitude, (radius - maxRad + heightOffset)
-                                            );
-                                            var endCartPos = Cesium.Cartesian3.fromArray([
-                                                startCartPos.x + vXYZ.x,
-                                                startCartPos.y + vXYZ.y,
-                                                startCartPos.z + vXYZ.z
-                                            ]);
-                                            this.featuresCollection[row.id + set.band].geometryInstances.push(
-                                                new Cesium.GeometryInstance({
-                                                    geometry: new Cesium.PolylineGeometry({
-                                                        positions: [startCartPos, endCartPos],
-                                                        followSurface: false,
-                                                        width: 1.7
-                                                    }),
-                                                    id: 'vec_line_' + linecnt,
-                                                    attributes: {
-                                                        color: Cesium.ColorGeometryInstanceAttribute.fromColor(
-                                                            new Cesium.Color.fromBytes(color[0], color[1], color[2], alpha)
-                                                        )
-                                                    }
-                                                })
-                                            );
-                                            linecnt++;
-                                        }
-
-                                    }
-
-                                } // END of if vector parameter
-                            }
-                        }
-                    }
-
-                    for (var j = 0; j < this.activeCollections.length; j++) {
-                        this.map.scene.primitives.add(this.featuresCollection[this.activeCollections[j]]);
-                    }
+                if (_.isEmpty(settings)) {
+                    return settings;
                 }
-            }
+
+                // initialize Cesium feature collection and collect additional attributes
+                var _vectorNormsCache = new CachedVectorNorms();
+
+                _.uniq(data.data.id).forEach(function (id) {
+                    var _parameterIsMissing = function (key) {
+                        return !_.has(data.data, key);
+                    };
+
+                    var _settingsHaveParameter = function (key) {
+                        return _.has(settings[id], key);
+                    };
+
+                    var _addPointCollection = function (parameter) {
+                        if (_parameterIsMissing(parameter)) {return;}
+                        var _settings = settings[id][parameter];
+                        _.extend(_settings, {
+                            isScalar: true,
+                            featureCollection: _createPointCollection(id + parameter),
+                            featureCreator: getPointFeatureCreator(parameter),
+                        });
+                    };
+
+                    var _addVectorCollection = function (parameter, components) {
+                        if (!components) {
+                            if (_parameterIsMissing(parameter)) {return;}
+                        } else {
+                            if (_.any(components, _parameterIsMissing)) {return;}
+                        }
+                        var _settings = settings[id][parameter];
+                        _.extend(_settings, {
+                            isVector: true,
+                            featureCollection: _createPolylineCollection(id + parameter),
+                            featureCreator: getVectorFeatureCreator(parameter),
+                        });
+                        if (components) {
+                            _settings.components = components;
+                            _.extend(_settings, _vectorNormsCache.getVectorNorms(
+                                parameter, _.values(_.pick(data.data, components))
+                            ));
+                        }
+                    };
+
+                    _.filter(SCALAR_PARAM, _settingsHaveParameter).map(function (parameter) {
+                        var relatedVector = get(settings[id][parameter], 'relatedVector');
+                        if (relatedVector && !_parameterIsMissing(parameter)) {
+                            _addVectorCollection(parameter, get(data.vectors, relatedVector));
+                        } else {
+                            _addPointCollection(parameter);
+                        }
+                    });
+
+                    _.filter(VECTOR_PARAM, _settingsHaveParameter).map(function (parameter) {
+                        _addVectorCollection(parameter, get(data.vectors, parameter));
+                    });
+                });
+
+                return settings;
+            };
+
+            // -----------------------------------------------------------------
+
+            var timer = new Timer();
+
+            // The feature collections are removed directly when a change happens
+            // because of the asynchronous behaviour it can happen that a collection
+            // is added between removing it and adding another one so here we make sure
+            // it is empty before overwriting it, which would lead to a not referenced
+            // collection which is no longer deleted.
+            // I remove it before the response because a direct feedback to the user is important
+            // There is probably a cleaner way to do this
+            this.featureCollections.removeAll();
+
+            if (data.isEmpty()) {return;}
+
+            var settings = getSettings();
+            if (_.isEmpty(settings)) {return;}
+
+            data.forEachRecord(
+                function (record) {
+                    var index = 0;
+                    _.each(settings[record.id], function (parameterSettings) {
+                        parameterSettings.featureCreator(
+                            record, parameterSettings, index++
+                        );
+                    });
+                },
+                new RecordFilter(_.keys(data.data))
+            );
+
+            this.featureCollections.showAll();
+
+            timer.logEllapsedTime("createDataFeatures()");
         },
 
         onLayerOutlinesChanged: function (collection) {
-            this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
+            this.createDataFeatures(globals.swarm.get('data'));
         },
 
         onLayerParametersChanged: function (layer, onlyStyleChange) {
@@ -1718,7 +1982,7 @@ define([
             if (product === undefined) {
                 return;
             } else if (product.get('views')[0].protocol === 'CZML') {
-                this.createDataFeatures(globals.swarm.get('data'), 'pointcollection', 'band');
+                this.createDataFeatures(globals.swarm.get('data'));
             } else if (product.get('views')[0].protocol === 'WMS') {
 
                 if (variable === 'Fieldlines') {
@@ -1736,8 +2000,8 @@ define([
                 }
                 this.updateFieldLines(onlyStyleChange);
             }
-            // Recheck color legends
-            globals.products.each(this.synchronizeColorLegend, this);
+
+            this.updateLegend();
         },
 
         hideWMSLayer: function (product) {
@@ -1839,17 +2103,6 @@ define([
             }
         },
 
-        renderSVG: function (svg, width, height) {
-            $('#imagerenderercanvas').attr('width', width);
-            $('#imagerenderercanvas').attr('height', height);
-            var c = document.querySelector('#imagerenderercanvas');
-            var ctx = c.getContext('2d');
-            // Clear the canvas
-            ctx.clearRect(0, 0, width, height);
-            ctx.drawSvg(svg, 0, 0, height, width);
-            return c.toDataURL('image/jpg');
-        },
-
         createViewportQuad: function (img, x, y, width, height) {
             var newmat = new Cesium.Material.fromType('Image', {
                 image: img,
@@ -1860,274 +2113,246 @@ define([
             );
         },
 
-        checkColorscale: function (pId, parameter, parIdx) {
-            var visible = true;
-            var product = false;
-            var indexDel;
+        updateLegend: function () {
+            var timer = new Timer();
+            globals.products.each(function (product) {
+                this.colorScales.update(product, this.getLegendVariables(product));
+            }, this);
+            this.colorScales.refresh();
+            timer.logEllapsedTime("updateLegend()");
+        },
+
+        updateProductLegend: function (product) {
+            var timer = new Timer();
+            this.colorScales.update(product, this.getLegendVariables(product));
+            this.colorScales.refresh();
+            timer.logEllapsedTime("updateProducLegend()");
+        },
+
+        getLegendVariables: function (product) {
+            var parameters = product.get('parameters');
+            var selected = [];
+            if (parameters) {
+                var selectedParameterName = this.getSelectedVariable(parameters);
+                if (selectedParameterName) {
+                    var selectedParameter = parameters[selectedParameterName];
+                    if (this.isColorScaleVisible(product)) {
+                        if (has(selectedParameter, 'referencedParameters')) {
+                            selected = selectedParameter.referencedParameters;
+                        } else {
+                            selected = [selectedParameterName];
+                        }
+                    }
+                }
+            }
+            return _.filter(selected, function (parameter) {
+                return this.parameterExists(product, parameter);
+            }, this);
+        },
+
+        parameterExists: function (product, parameter) {
+            // return true if data contain given parameter
+
+            // Magnetic model product is not under any swarm satellite
+            // and thus it does not appear in the data.
+            if (product.get('model')) {return true;}
+
+            var data = globals.swarm.get('data');
+            if (data.isEmpty()) return false;
+
+            var source = get(globals.swarm.collection2satellite, product.get('download').id);
+            return (get(data.info.variables, source) || []).includes(parameter);
+        },
+
+        isColorScaleVisible: function (product) {
+            // return true is the product is visible
+            product = product.attributes;
+            if (!product.visible) {return false;}
+            if (!product.showColorscale) {return false;}
+            if (product.timeSliderProtocol === 'INDEX') {return false;}
+
+            if (product.model) {
+                //if (product.views[0].protocol === 'WPS' && product.shc === null) {return false;}
+                if ((product.components || []).length > 1) {return true;}
+            }
+
+            return true;
+        },
+
+        renderDataLegend: function (name, options) {
+            var width = 250;
+            var height = 20;
+
+            var id = 'svg-data-legend-container-' + name;
+
+            $('#' + id).remove();
+            var svgContainer = d3.select('body').append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .attr('id', id);
+
+            svgContainer.append('text')
+                .attr('x', 22)
+                .attr('y', 14)
+                .attr('font-weight', 'bold')
+                .text(options.title);
+
+            var svgHtml = d3.select('#' + id)
+                .attr('version', 1.1)
+                .attr('xmlns', 'http://www.w3.org/2000/svg')
+                .node().outerHTML;
+
+            svgContainer.remove();
+
+            var canvas = document.createElement('canvas');
+            canvas.height = height;
+            canvas.width = width;
+
+            var context = canvas.getContext('2d');
+            context.clearRect(0, 0, width, height);
+            context.drawSvg(svgHtml, 0, 0, width, height);
+
+            var symbol = SYMBOLS[options.symbol];
+            context.scale(0.5, 0.5);
+            context.drawImage(symbol, 0, 0, symbol.width, symbol.height);
+
+            return {
+                dataUrl: canvas.toDataURL('image/png'),
+                height: height,
+                width: width,
+            };
+        },
+
+        renderColorScale: function (product, parameterName) {
             var margin = 20;
             var width = 300;
-            var scalewidth = width - margin * 2;
+            var height = 55;
+            var scaleWidth = width - margin * 2;
+            var scaleYOffset = 8;
+            var scaleHeight = 10;
 
-            var combinedId = pId;
-            if (parIdx !== -1) {
-                /*If original collection identifier available remove it*/
-                if (_.has(this.colorscales, combinedId)) {
-                    // remove object from cesium scene
-                    this.map.scene.primitives.remove(this.colorscales[combinedId].prim);
-                    this.map.scene.primitives.remove(this.colorscales[combinedId].csPrim);
-                    indexDel = this.colorscales[combinedId].index;
-                    delete this.colorscales[combinedId];
-                    this.removeColorscaleTooltipDiv(combinedId);
-                }
-                combinedId += parIdx;
+            // Render new colorscale images.
+            var options = product.get('parameters')[parameterName];
+            var rangeMin = options.range[0];
+            var rangeMax = options.range[1];
+            var uom = options.uom;
+            var style = options.colorscale;
+            var logscale = get(options, 'logarithmic', false);
+
+            $('#svgcolorscalecontainer').remove();
+            var svgContainer = d3.select('body').append('svg')
+                .attr('width', 300)
+                .attr('height', 60)
+                .attr('id', 'svgcolorscalecontainer');
+
+            var axisScale = logscale ? d3.scale.log() : d3.scale.linear();
+            axisScale.domain([rangeMin, rangeMax]);
+            axisScale.range([0, scaleWidth]);
+
+            var xAxis = d3.svg.axis()
+                .scale(axisScale);
+
+            if (logscale) {
+                var numberFormat = d3.format(',f');
+                xAxis.tickFormat(function logFormat(d) {
+                    var x = Math.log10(d) + 1e-6;
+                    return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
+                });
+
             } else {
-                // Check if some version with indexes are still there
-                // maximum of 10 referenced parameters expected
-                for (var i = 0; i < 10; i++) {
-                    var tmpid = pId + i;
-                    if (_.has(this.colorscales, tmpid)) {
-                    // remove object from cesium scene
-                        this.map.scene.primitives.remove(this.colorscales[tmpid].prim);
-                        this.map.scene.primitives.remove(this.colorscales[tmpid].csPrim);
-                        indexDel = this.colorscales[tmpid].index;
-                        delete this.colorscales[tmpid];
-                        this.removeColorscaleTooltipDiv(tmpid);
-                    }
-                }
+                var step = Number(((rangeMax - rangeMin) / 5).toPrecision(3));
+                var ticks = d3.range(rangeMin, rangeMax + step, step);
+                xAxis.tickValues(ticks);
+                xAxis.tickFormat(d3.format('g'));
             }
 
-            globals.products.each(function (p) {
-                if (p.get('download').id === pId) {
-                    product = p;
+            var g = svgContainer.append('g')
+                .attr('class', 'x axis')
+                .attr('transform', 'translate(' + [margin, 20] + ')')
+                .call(xAxis);
+
+            // Add layer info
+            var info;
+            if (product.get('model')) {
+                if (product.get('components').length === 1) {
+                    info = product.getPrettyModelExpression(true);
+                } else {
+                    info = product.get('download').id;
                 }
-            }, this);
-
-
-            if (_.has(this.colorscales, combinedId)) {
-                // remove object from cesium scene
-                this.map.scene.primitives.remove(this.colorscales[combinedId].prim);
-                this.map.scene.primitives.remove(this.colorscales[combinedId].csPrim);
-                indexDel = this.colorscales[combinedId].index;
-                delete this.colorscales[combinedId];
-                this.removeColorscaleTooltipDiv(combinedId);
-
-                // Modify all indices and related height of all colorscales
-                // which are over deleted position
-
-                _.each(this.colorscales, function (value, key, obj) {
-                    var i = obj[key].index - 1;
-                    if (i >= indexDel) {
-                        var scaleImg = obj[key].prim.material.uniforms.image;
-                        var csImg = obj[key].csPrim.material.uniforms.image;
-                        this.map.scene.primitives.remove(obj[key].prim);
-                        this.map.scene.primitives.remove(obj[key].csPrim);
-                        obj[key].prim = this.map.scene.primitives.add(
-                            this.createViewportQuad(scaleImg, 0, i * 55 + 5, width, 55)
-                        );
-                        obj[key].csPrim = this.map.scene.primitives.add(
-                            this.createViewportQuad(csImg, 20, i * 55 + 42, scalewidth, 10)
-                        );
-                        obj[key].index = i;
-                        // needed to refresh colorscale tooltip divs when products are added or removed
-                        if (parIdx !== -1) {
-                            key = key.slice(0, -1);
-                        }
-                        var productFromColorscale = _.find(globals.products.models, function (prod) {
-                            return prod.get('download').id === key;
-                        });
-                        this.createModelColorscaleTooltipDiv(productFromColorscale, i);
+                _.each(
+                    {'\u2212': /&minus;/, '\u2026': /&hellip;/},
+                    function (regex, newString) {
+                        info = info.replace(regex, newString);
                     }
-                }, this);
+                );
+            } else {
+                info = product.get('name');
             }
 
-            if (product && product.get('views')[0].protocol === 'WPS' &&
-                product.get('shc') === null) {
-                visible = false;
+            info += ' - ' + parameterName;
+            if (uom) {
+                info += ' [' + uom + ']';
             }
 
-            if (product.get('timeSliderProtocol') === 'INDEX') {
-                visible = false;
+            g.append('text')
+                .style('text-anchor', 'middle')
+                .attr('transform', 'translate(' + [scaleWidth / 2, 30] + ')')
+                .attr('font-weight', 'bold')
+                .text(info);
+
+            svgContainer.selectAll('text')
+                .attr('stroke', 'none')
+                .attr('fill', 'black')
+                .attr('font-weight', 'bold');
+
+            svgContainer.selectAll('.tick').select('line')
+                .attr('stroke', 'black');
+
+            svgContainer.selectAll('.axis .domain')
+                .attr('stroke-width', '2')
+                .attr('stroke', '#000')
+                .attr('shape-rendering', 'crispEdges')
+                .attr('fill', 'none');
+
+            svgContainer.selectAll('.axis path')
+                .attr('stroke-width', '2')
+                .attr('shape-rendering', 'crispEdges')
+                .attr('stroke', '#000');
+
+            var svgHtml = d3.select('#svgcolorscalecontainer')
+                .attr('version', 1.1)
+                .attr('xmlns', 'http://www.w3.org/2000/svg')
+                .node().innerHTML;
+
+            var canvas = document.createElement('canvas');
+            canvas.height = height;
+            canvas.width = width;
+            var context = canvas.getContext('2d');
+            context.clearRect(0, 0, width, height);
+            context.drawSvg(svgHtml, 0, 0, height, width);
+            svgContainer.remove();
+
+            var csCanvas = (new colormap.ColorMap(style)).getCanvas();
+            context.translate(margin, scaleYOffset);
+            context.scale(scaleWidth / csCanvas.width, scaleHeight / csCanvas.height);
+            context.drawImage(csCanvas, 0, 0);
+
+            var colorscale = {
+                dataUrl: canvas.toDataURL('image/png'),
+                height: height,
+                width: width,
+            };
+
+            // model tooltip
+            if (product.get('model') && product.get('components').length > 1) {
+                colorscale.tooltip = {
+                    'element': this.$el,
+                    'class': 'colorscaleLabel',
+                    'text': product.getPrettyModelExpression(true),
+                };
             }
 
-            if (product && product.get('showColorscale') &&
-                product.get('visible')) {
-
-                var sel = parameter;
-
-                // disabling colorscale when data do not contain selected parameter
-                var prodToSat = {};
-                var proObj = globals.swarm.products;
-                for (var coll in proObj) {
-                    for (var sat in proObj[coll]) {
-                        prodToSat[proObj[coll][sat]] = sat;
-                    }
-                }
-                var data = globals.swarm.get('data');
-                var sat = prodToSat[pId];
-
-                var variableExceptions = ['J'];
-
-                if (data.hasOwnProperty('__info__') && data['__info__'].hasOwnProperty('variables')) {
-                    if (data.__info__.variables.hasOwnProperty(sat)) {
-                        if (data.__info__.variables[sat].indexOf(sel) === -1 &&
-                            variableExceptions.indexOf(sel) === -1) {
-                            visible = false;
-                        }
-                    } else {
-                        visible = false;
-                    }
-                }
-
-                // Magnetic Model product is not under any swarm satellite and does not appear in 'data'
-                // for above check, therefore it is always marked as invisible, this fixes it
-                if (product.get('components')) {
-                    visible = true;
-                }
-
-                if (visible) {
-                    var rangeMin = product.get('parameters')[sel].range[0];
-                    var rangeMax = product.get('parameters')[sel].range[1];
-                    var uom = product.get('parameters')[sel].uom;
-                    var style = product.get('parameters')[sel].colorscale;
-                    var logscale = defaultFor(product.get('parameters')[sel].logarithmic, false);
-                    var axisScale;
-
-
-                    this.plot.setColorScale(style);
-                    var colorscaleimage = this.plot.getColorScaleImage().toDataURL();
-
-                    $('#svgcolorscalecontainer').remove();
-                    var svgContainer = d3.select('body').append('svg')
-                        .attr('width', 300)
-                        .attr('height', 60)
-                        .attr('id', 'svgcolorscalecontainer');
-
-                    if (logscale) {
-                        axisScale = d3.scale.log();
-                    } else {
-                        axisScale = d3.scale.linear();
-                    }
-
-                    axisScale.domain([rangeMin, rangeMax]);
-                    axisScale.range([0, scalewidth]);
-
-                    var xAxis = d3.svg.axis()
-                        .scale(axisScale);
-
-                    if (logscale) {
-                        var numberFormat = d3.format(',f');
-                        xAxis.tickFormat(function logFormat(d) {
-                            var x = Math.log10(d) + 1e-6;
-                            return Math.abs(x - Math.floor(x)) < 0.3 ? numberFormat(d) : '';
-                        });
-
-                    } else {
-                        var step = Number(((rangeMax - rangeMin) / 5).toPrecision(3));
-                        var ticks = d3.range(rangeMin, rangeMax + step, step);
-                        xAxis.tickValues(ticks);
-                        xAxis.tickFormat(d3.format('g'));
-                    }
-
-                    var g = svgContainer.append('g')
-                        .attr('class', 'x axis')
-                        .attr('transform', 'translate(' + [margin, 20] + ')')
-                        .call(xAxis);
-
-                    // Add layer info
-                    var info;
-                    if (product.get('model')) {
-                        if (product.get('components').length === 1) {
-                            info = product.getPrettyModelExpression(true);
-                        } else {
-                            info = product.get('download').id;
-                        }
-                        _.each(
-                            {'\u2212': /&minus;/, '\u2026': /&hellip;/},
-                            function (regex, newString) {
-                                info = info.replace(regex, newString);
-                            }
-                        );
-                    } else {
-                        info = product.get('name');
-                    }
-
-                    info += ' - ' + sel;
-                    if (uom) {
-                        info += ' [' + uom + ']';
-                    }
-
-                    g.append('text')
-                        .style('text-anchor', 'middle')
-                        .attr('transform', 'translate(' + [scalewidth / 2, 30] + ')')
-                        .attr('font-weight', 'bold')
-                        .text(info);
-
-                    svgContainer.selectAll('text')
-                        .attr('stroke', 'none')
-                        .attr('fill', 'black')
-                        .attr('font-weight', 'bold');
-
-                    svgContainer.selectAll('.tick').select('line')
-                        .attr('stroke', 'black');
-
-                    svgContainer.selectAll('.axis .domain')
-                        .attr('stroke-width', '2')
-                        .attr('stroke', '#000')
-                        .attr('shape-rendering', 'crispEdges')
-                        .attr('fill', 'none');
-
-                    svgContainer.selectAll('.axis path')
-                        .attr('stroke-width', '2')
-                        .attr('shape-rendering', 'crispEdges')
-                        .attr('stroke', '#000');
-
-                    var svgHtml = d3.select('#svgcolorscalecontainer')
-                        .attr('version', 1.1)
-                        .attr('xmlns', 'http://www.w3.org/2000/svg')
-                        .node().innerHTML;
-
-                    var renderHeight = 55;
-                    var renderWidth = width;
-
-                    var index = Object.keys(this.colorscales).length;
-
-                    var prim = this.map.scene.primitives.add(
-                        this.createViewportQuad(
-                            this.renderSVG(svgHtml, renderWidth, renderHeight),
-                            0, index * 55 + 5, renderWidth, renderHeight
-                        )
-                    );
-                    var csPrim = this.map.scene.primitives.add(
-                        this.createViewportQuad(
-                            colorscaleimage, 20, index * 55 + 42, scalewidth, 10
-                        )
-                    );
-
-                    this.createModelColorscaleTooltipDiv(product, index);
-                    this.colorscales[combinedId] = {
-                        index: index,
-                        prim: prim,
-                        csPrim: csPrim
-                    };
-
-                    svgContainer.remove();
-                }
-            }
-        },
-
-        createModelColorscaleTooltipDiv: function (product, index) {
-            var prodId = product.get('download').id;
-            var elId = 'colorscale_label_' + prodId;
-            this.removeColorscaleTooltipDiv(prodId);
-            if (product.get('model') && product.get('components').length > 1 && product.get('showColorscale') && product.get('visible')) {
-                var bottom = (57 * index) + parseInt($('.cesium-viewer').css('padding-bottom'), 10);
-                this.$el.append('<div class="colorscaleLabel" id="' + elId + '" style="bottom:' + bottom + 'px;" title="' + product.getPrettyModelExpression(true) + '"></div>');
-            }
-        },
-
-        removeColorscaleTooltipDiv: function (pId) {
-            var id = 'colorscale_label_' + pId;
-            $('#' + id).remove();
+            return colorscale;
         },
 
         onSelectionActivated: function (arg) {
@@ -2326,34 +2551,25 @@ define([
         },
 
         createFLPrimitives: function (data, name, style, range_min, range_max, log_scale) {
+            var norm = log_scale ? colormap.LogNorm : colormap.LinearNorm;
+            var colorMap = new colormap.ColorMap(style, norm(range_min, range_max));
+
             this.removeFLPrimitives(name);
             var instances = _.chain(data.fieldlines)
                 .map(function (fieldlines, modelId) {
                     return _.map(fieldlines, function (fieldline, index) {
-                        // Note that all coordinates are in Geocentric Spherical CS,
+                        // Note that all coordinates are in geocentric spherical CS,
                         // i.e., [latitude, longitude, radius]
                         // The angles are in degrees and lengths in meters.
                         var positions = _.map(fieldline.coordinates, function (coords) {
-                            return Cesium.Cartesian3.fromDegrees(
-                                coords[1], coords[0], coords[2], GEOCENTRIC_SPHERICAL
+                            return Cesium.Cartesian3.clone(
+                                convertSpherical2Cartesian(coords[0], coords[1], coords[2])
                             );
                         });
-                        // compute colors from values using plotty plot
-                        this.plot.setColorScale(style);
-                        if (log_scale) {
-                            this.plot.setDomain([Math.log10(range_min), Math.log10(range_max)]);
-                            var colors = _.map(fieldline.values, function (value) {
-                                var color = this.plot.getColor(Math.log10(value));
-                                return Cesium.Color.fromBytes(color[0], color[1], color[2], 255);
-                            }.bind(this));
-                        } else {
-                            this.plot.setDomain([range_min, range_max]);
-                            var colors = _.map(fieldline.values, function (value) {
-                                var color = this.plot.getColor(value);
-                                return Cesium.Color.fromBytes(color[0], color[1], color[2], 255);
-                            }.bind(this));
-                        }
-
+                        var colors = _.map(fieldline.values, function (value) {
+                            var color = colorMap.getColor(value);
+                            return Cesium.Color.fromBytes(color[0], color[1], color[2], 255);
+                        });
                         // save data to get fieldline info later
                         if (typeof this.FLData[name] === 'undefined') {
                             this.FLData[name] = {};
