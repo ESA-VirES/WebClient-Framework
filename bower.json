@@ -30,7 +30,8 @@
     "Blob.js": "eligrey/Blob.js",
     "filepond": "pqina/filepond#^2.0.1",
     "graphly": "eox-a/graphly#4c4ae1f6867bb82999d3d81ca63876fdd43519db",
-    "msgpack-lite": "^0.1.26"
+    "msgpack-lite": "^0.1.26",
+    "choices.js": "~3.0.4"
   },
   "devDependencies": {},
   "resolutions": {
