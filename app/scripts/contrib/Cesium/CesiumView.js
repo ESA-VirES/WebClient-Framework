@@ -473,6 +473,7 @@ define([
 
     // Legend manager encapsulates details of the composition of the data legend.
     var DataLegendManager = function (primitives, renderer, options) {
+        this.isVisible = pop(options, 'isVisible', true);
         this.renderer = renderer;
         this.products = {};
         this.items = {};
@@ -481,14 +482,35 @@ define([
 
     DataLegendManager.prototype = {
 
-        refresh: function () {
-            // group products variables
-            var ids = _.keys(this.items);
+        toggleLegendVisibility() {
+            this.setVisibility(!this.isVisible);
+        },
 
+        showLegend: function () {
+            this.setVisibility(true);
+        },
+
+        hideLegend: function () {
+            this.setVisibility(false);
+        },
+
+        setLegendVisibility: function (isVisible) {
+            this.isVisible = isVisible;
+            this.refresh();
+        },
+
+        refresh: function () {
+            if (this.isVisible) {
+                this._render();
+            } else {
+                this._clear();
+            }
+        },
+
+        _render: function () {
             // re-render items
             var yOffset = 0;
-            _.each(ids, function (id) {
-                var item = this.items[id];
+            _.each(this.items, function (item) {
                 var isDisplayed = this.overlay.isItemDisplayed(item);
                 if (isDisplayed && item.yOffset !== yOffset) {
                     this.overlay.removeItem(item);
@@ -499,6 +521,15 @@ define([
                     this.overlay.addItem(item);
                 }
                 yOffset += item.height;
+            }, this);
+        },
+
+        _clear: function () {
+            _.each(this.items, function (item) {
+                var isDisplayed = this.overlay.isItemDisplayed(item);
+                if (isDisplayed) {
+                    this.overlay.removeItem(item);
+                }
             }, this);
         },
 
