@@ -27,29 +27,38 @@ define([
 ) {
     'use strict';
 
+    var SYMBOLS = new (function () {
+        _.extend(this, {
+            counter: 0,
+            symbols: {},
+            loaded: function () {
+                return this.counter < 1;
+            },
+            get: function (name) {
+                return get(this.symbols, name);
+            },
+            set: function (name, source) {
+                var timer = new Timer();
+                var image = new Image();
+                image.onload = _.bind(function () {
+                    this.counter -= 1;
+                    timer.logEllapsedTime(name + " symbol load time:");
+                }, this);
+                this.counter += 1;
+                image.src = source;
+                this.symbols[name] = image;
+            },
+        });
+    })();
+
     var _SVG_HEAD = 'data:image/svg+xml,<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px" height="40px" xml:space="preserve">';
     var _SVG_TAIL = '</svg>';
 
-    var SVG_SQUARE = _SVG_HEAD + '<rect y="10" x="10" height="20" width="20" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL;
-    var SVG_DIMOND = _SVG_HEAD + '<path d="M 5.86,20, 20,5.86 34.14,20 20,34.14 Z" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL;
-    var SVG_LARGE_DIMOND = _SVG_HEAD + '<path d="M 3,20, 20,3 37,20 20,37 Z" stroke="black" stroke-width="4" fill="transparent"/>' + _SVG_TAIL;
-    var SVG_TRIANGLE = _SVG_HEAD + '<path d="M 7.75,27.07 32.25,27.07 20,5.86 Z" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL;
-    var SVG_CIRCLE = _SVG_HEAD + '<circle cx="20" cy="20" r="10" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL;
-
-    // preload symbols
-    function createImage(src, width, height) {
-        var image = new Image(width, height);
-        image.src = src;
-        return image;
-    }
-
-    var SYMBOLS = {
-        SQUARE: createImage(SVG_SQUARE),
-        DIMOND: createImage(SVG_DIMOND),
-        LARGE_DIMOND: createImage(SVG_LARGE_DIMOND),
-        TRIANGLE: createImage(SVG_TRIANGLE),
-        CIRCLE: createImage(SVG_CIRCLE),
-    };
+    SYMBOLS.set('SQUARE', _SVG_HEAD + '<rect y="10" x="10" height="20" width="20" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL);
+    SYMBOLS.set('DIMOND', _SVG_HEAD + '<path d="M 5.86,20, 20,5.86 34.14,20 20,34.14 Z" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL);
+    SYMBOLS.set('LARGE_DIMOND', _SVG_HEAD + '<path d="M 3,20, 20,3 37,20 20,37 Z" stroke="black" stroke-width="4" fill="transparent"/>' + _SVG_TAIL);
+    SYMBOLS.set('TRIANGLE', _SVG_HEAD + '<path d="M 7.75,27.07 32.25,27.07 20,5.86 Z" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL);
+    SYMBOLS.set('CIRCLE', _SVG_HEAD + '<circle cx="20" cy="20" r="10" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL);
 
     var DEG2RAD = Math.PI / 180.0;
 
@@ -1495,11 +1504,38 @@ define([
             this.dataLegends.removeProductTypeItems(productType);
         },
 
-        createRelatedDataFeatures: function (productType, data) {
+        createRelatedDataFeatures: function (productType, data, timestamp) {
+
+            setDefault(this, '_relatedDataFeaturesTimestamps', {});
+
+            if (timestamp == null) {
+                // first run - set the timestamp
+                timestamp = Date.now();
+                this._relatedDataFeaturesTimestamps[productType] = timestamp;
+            } else if (timestamp < get(this._relatedDataFeaturesTimestamps, productType)) {
+                // newer data exist - rendering is dropped
+                return;
+            }
+
+            if (SYMBOLS.loaded()) {
+                // proceed with the rendering
+                this._createRelatedDataFeatures(productType, data);
+                return;
+            }
+
+            console.log('symbols not loeaded yet - ' + productType + ' rendering delayed');
+
+            // delay rendering if the symbols have not been loaded yet
+            setTimeout(_.bind(function () {
+                this.createRelatedDataFeatures(productType, data, timestamp);
+            }, this), 100);
+        },
+
+        _createRelatedDataFeatures: function (productType, data) {
 
             var getPointPrimitive = function (symbol, position) {
                 return {
-                    image: SYMBOLS[symbol],
+                    image: SYMBOLS.get(symbol),
                     position: position,
                     pixelOffset: new Cesium.Cartesian2(0, 0),
                     eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
@@ -2212,7 +2248,7 @@ define([
             context.clearRect(0, 0, width, height);
             context.drawSvg(svgHtml, 0, 0, width, height);
 
-            var symbol = SYMBOLS[options.symbol];
+            var symbol = SYMBOLS.get(options.symbol);
             context.scale(0.5, 0.5);
             context.drawImage(symbol, 0, 0, symbol.width, symbol.height);
 
