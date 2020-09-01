@@ -712,12 +712,13 @@ define([
                 );
                 this.colorScales = new ColorScaleManager(
                     this.map.scene.primitives,
-                    _.bind(this.renderColorScale, this)
+                    _.bind(this.renderColorScale, this),
+                    {yOffset: 5}
                 );
                 this.dataLegends = new DataLegendManager(
                     this.map.scene.primitives,
                     _.bind(this.renderDataLegend, this),
-                    {xOffset: 300}
+                    {xOffset: 300, yOffset: 5}
                 );
             }
 
