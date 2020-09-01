@@ -1270,52 +1270,68 @@ define([
         },
 
         onUpdateOpacity: function (options) {
-            var modelId = options.model.get('download').id;
-            var collectionId = options.model.get('views')[0].id;
-            _.each(
-                globals.products.filter(function (product) {
-                    return product.get('download').id === modelId;
-                }),
-                function (product) {
 
-                    // Find active parameter and satellite
-                    var key = this.getSelectedVariable(product.get('parameters'));
-                    var sat = globals.swarm.collection2satellite[collectionId];
+            var setLayerAlpha = function (layer, alpha) {
+                if (layer.show) {
+                    layer.alpha = alpha;
+                }
+            };
 
-                    if (sat && key && this.featureCollections.includes(sat + key)) {
-                        var fc = this.featureCollections.get(sat + key);
-                        if (fc.hasOwnProperty('geometryInstances')) {
-                            for (var i = fc._instanceIds.length - 1; i >= 0; i--) {
-                                var attributes = fc.getGeometryInstanceAttributes(fc._instanceIds[i]);
-                                var nc = attributes.color;
-                                nc[3] = Math.floor(options.value * 255);
-                                attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(
-                                    Cesium.Color.fromBytes(nc[0], nc[1], nc[2], nc[3])
-                                );
-                            }
-                        } else {
-                            for (var i = fc.length - 1; i >= 0; i--) {
-                                var c, b = fc.get(i);
-                                if (b.color) {
-                                    c = b.color.clone();
-                                    c.alpha = options.value;
-                                    b.color = c;
-                                } else if (b.appearance) {
-                                    c = b.appearance.material.uniforms.color.clone();
-                                    c.alpha = options.value;
-                                    b.appearance.material.uniforms.color = c;
-                                }
-                            }
-                        }
-                    } else {
-                        if (this.isCustomModelSelected(product)) {
-                            product._cesiumLayerCustom.alpha = options.value;
-                        } else {
-                            product._cesiumLayer.alpha = options.value;
-                        }
+            var setFeatureCollectionAlpha = function (collection, alpha) {
+
+                var _setAlpha = function (obj, alpha) {
+                    var color = obj.color.clone();
+                    color.alpha = alpha;
+                    obj.color = color;
+                };
+
+                var _setGAttrAlpha = function (attributes, alpha) {
+                    var color = attributes.color;
+                    attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(
+                        Cesium.Color.fromBytes(
+                            color[0], color[1], color[2], Math.floor(alpha * 255)
+                        )
+                    );
+                };
+
+                if (has(collection, 'geometryInstances')) {
+                    for (var i = collection._instanceIds.length - 1; i >= 0; i--) {
+                        _setGAttrAlpha(collection.getGeometryInstanceAttributes(collection._instanceIds[i]), alpha);
                     }
-                }, this
-            );
+                } else if (collection.length > 0 && collection.get(0).color) {
+                    for (var i = collection.length - 1; i >= 0; i--) {
+                        _setAlpha(collection.get(i), alpha);
+                    }
+                } else if (collection.length > 0 && collection.get(0).appearance) {
+                    for (var i = collection.length - 1; i >= 0; i--) {
+                        _setAlpha(collection.get(i).appearance.material.uniforms, alpha);
+                    }
+                }
+            };
+
+            var alpha = options.value;
+            var product = options.model;
+            var identifier = product.get('download').id;
+            var satellite = globals.swarm.collection2satellite[identifier];
+
+            if (satellite) {
+                var parameters = product.get('parameters');
+                var variable = this.getSelectedVariable(parameters);
+                _.each(
+                    get(parameters[variable], 'referencedParameters', [variable]),
+                    function (variable) {
+                        var featureId = satellite + variable;
+                        var featureCollection = this.featureCollections.get(featureId);
+                        if (featureCollection) {
+                            setFeatureCollectionAlpha(featureCollection, alpha);
+                        }
+                    },
+                    this
+                );
+            } else if (product.get('model')) {
+                setLayerAlpha(product._cesiumLayer, alpha);
+                setLayerAlpha(product._cesiumLayerCustom, alpha);
+            }
         },
 
         addCustomAttribution: function (view) {
@@ -1915,6 +1931,7 @@ define([
                                 collection: collection,
                                 outlines: product.get('outlines'),
                                 outline_color: product.get('color'),
+                                alpha: Math.floor(product.get('opacity') * 255),
                             },
                             options || {}
                         );
@@ -1930,7 +1947,6 @@ define([
                             _.each(parameterSettings.referencedParameters, _addParameterToSettings);
                         } else {
                             _addParameterToSettings(parameterName, {
-                                alpha: Math.floor(product.get('opacity') * 255),
                                 heightOffset: HEIGHT_OFFSET,
                             });
                         }
