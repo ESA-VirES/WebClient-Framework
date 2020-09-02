@@ -296,7 +296,7 @@
             }]
         }],
         "products": [{
-            "name": "MAGA LR 1B",
+            "name": "MAG A LR 1B",
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
@@ -484,7 +484,7 @@
             "satellite": "Swarm"
 
         },{
-            "name": "MAGB LR 1B",
+            "name": "MAG B LR 1B",
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
@@ -660,7 +660,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "MAGC LR 1B",
+            "name": "MAG C LR 1B",
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
@@ -836,7 +836,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "EFIA LP 1B",
+            "name": "EFI A LP 1B",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
@@ -1006,7 +1006,7 @@
             "satellite": "Swarm"
 
         },{
-            "name": "EFIB LP 1B",
+            "name": "EFI B LP 1B",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
@@ -1176,7 +1176,7 @@
             "satellite": "Swarm"
 
         },{
-            "name": "EFIC LP 1B",
+            "name": "EFI C LP 1B",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
@@ -1346,7 +1346,7 @@
             "satellite": "Swarm"
 
         },{
-            "name": "TEC A TMS",
+            "name": "TEC A TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#990099",
@@ -1538,7 +1538,7 @@
             "satellite": "Swarm"
 
         },{
-            "name": "TEC B TMS",
+            "name": "TEC B TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#990099",
@@ -1730,7 +1730,7 @@
             "satellite": "Swarm"
 
         },{
-            "name": "TEC C TMS",
+            "name": "TEC C TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#990099",
@@ -1922,7 +1922,7 @@
             "satellite": "Swarm"
 
         },{
-            "name": "FAC A TMS",
+            "name": "FAC A TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#66aa00",
@@ -2063,7 +2063,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "FAC B TMS",
+            "name": "FAC B TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#66aa00",
@@ -2204,7 +2204,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "FAC C TMS",
+            "name": "FAC C TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#66aa00",
@@ -2345,7 +2345,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "FAC TMS",
+            "name": "FAC TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#66aa00",
@@ -2486,7 +2486,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "EEF A TMS",
+            "name": "EEF A TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#b82e2e",
@@ -2569,7 +2569,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "EEF B TMS",
+            "name": "EEF B TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#b82e2e",
@@ -2652,7 +2652,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "EEF C TMS",
+            "name": "EEF C TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#b82e2e",
@@ -2735,7 +2735,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "SW OPER IBIA TMS 2F",
+            "name": "IBI A TMS 2F",
             "visible": false,
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
@@ -2864,7 +2864,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "SW OPER IBIB TMS 2F",
+            "name": "IBI B TMS 2F",
             "visible": false,
             "timeSlider": true,
             "color": "#2ca02c",
@@ -2993,7 +2993,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "SW OPER IBIC TMS 2F",
+            "name": "IBI C TMS 2F",
             "visible": false,
             "timeSlider": true,
             "color": "#2ca02c",
@@ -3122,7 +3122,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "IPDAIRR 2F",
+            "name": "IPD A IRR 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
@@ -3469,7 +3469,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "IPDBIRR 2F",
+            "name": "IPD B IRR 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
@@ -3816,7 +3816,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "IPDCIRR 2F",
+            "name": "IPD C IRR 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
@@ -4163,7 +4163,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "SW_OPER_AEJALPL_2F",
+            "name": "AEJ A LPL 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "timeSliderWpsProcessName": "retrieve_continuous_segments",
@@ -4227,7 +4227,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "SW_OPER_AEJBLPL_2F",
+            "name": "AEJ B LPL 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "timeSliderWpsProcessName": "retrieve_continuous_segments",
@@ -4291,7 +4291,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "SW_OPER_AEJCLPL_2F",
+            "name": "AEJ C LPL 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "timeSliderWpsProcessName": "retrieve_continuous_segments",
@@ -4355,7 +4355,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "SW_OPER_AEJALPS_2F",
+            "name": "AEJ A LPS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "timeSliderWpsProcessName": "retrieve_continuous_segments",
@@ -4455,7 +4455,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "SW_OPER_AEJBLPS_2F",
+            "name": "AEJ B LPS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "timeSliderWpsProcessName": "retrieve_continuous_segments",
@@ -4555,7 +4555,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "SW_OPER_AEJCLPS_2F",
+            "name": "AEJ C LPS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "timeSliderWpsProcessName": "retrieve_continuous_segments",
@@ -4655,7 +4655,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "MAGU LR 1B",
+            "name": "MAG U LR 1B",
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "USER_DATA",
@@ -4701,7 +4701,7 @@
             "outlines": false,
             "satellite": "Upload"
           },{
-              "name": "EFIU LP 1B",
+              "name": "EFI U LP 1B",
               "timeSlider": true,
               "timeSliderProtocol": "USER_DATA",
               "color": "#ff7f0e",
@@ -4753,7 +4753,7 @@
               "outlines": false,
               "satellite": "Upload"
           },{
-              "name": "TEC U TMS",
+              "name": "TEC U TMS 2F",
               "timeSlider": true,
               "timeSliderProtocol": "USER_DATA",
               "color": "#990099",
@@ -4811,7 +4811,7 @@
               "outlines": false,
               "satellite": "Upload"
           },{
-              "name": "FAC U TMS",
+              "name": "FAC U TMS 2F",
               "timeSlider": true,
               "timeSliderProtocol": "USER_DATA",
               "color": "#66aa00",
@@ -4851,7 +4851,7 @@
               "outlines": false,
               "satellite": "Upload"
           },{
-              "name": "EEF U TMS",
+              "name": "EEF U TMS 2F",
               "timeSlider": true,
               "timeSliderProtocol": "USER_DATA",
               "color": "#b82e2e",
@@ -4885,7 +4885,7 @@
               "outlines": false,
               "satellite": "Upload"
         },{
-            "name": "SW OPER IBIU TMS 2F",
+            "name": "IBI U TMS 2F",
             "visible": false,
             "timeSlider": true,
             "color": "#2ca02c",
@@ -4920,7 +4920,7 @@
             "outlines": false,
             "satellite": "Upload"
         },{
-            "name": "IPDUIRR 2F",
+            "name": "IPD U IRR 2F",
             "timeSlider": true,
             "timeSliderProtocol": "USER_DATA",
             "color": "#ff7f0e",
@@ -5098,7 +5098,7 @@
             "outlines": false,
             "satellite": "Upload"
         },{
-            "name": "SW_OPER_AEJULPL_2F",
+            "name": "AEJ U LPL 2F",
             "timeSlider": true,
             "timeSliderProtocol": "USER_DATA",
             "color": "#024573",
@@ -5133,7 +5133,7 @@
             "outlines": false,
             "satellite": "Upload"
         },{
-            "name": "SW_OPER_AEJULPS_2F",
+            "name": "AEJ U LPS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "USER_DATA",
             "color": "#145600",

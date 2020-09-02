@@ -27,29 +27,38 @@ define([
 ) {
     'use strict';
 
+    var SYMBOLS = new (function () {
+        _.extend(this, {
+            counter: 0,
+            symbols: {},
+            loaded: function () {
+                return this.counter < 1;
+            },
+            get: function (name) {
+                return get(this.symbols, name);
+            },
+            set: function (name, source) {
+                var timer = new Timer();
+                var image = new Image();
+                image.onload = _.bind(function () {
+                    this.counter -= 1;
+                    timer.logEllapsedTime(name + " symbol load time:");
+                }, this);
+                this.counter += 1;
+                image.src = source;
+                this.symbols[name] = image;
+            },
+        });
+    })();
+
     var _SVG_HEAD = 'data:image/svg+xml,<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px" height="40px" xml:space="preserve">';
     var _SVG_TAIL = '</svg>';
 
-    var SVG_SQUARE = _SVG_HEAD + '<rect y="10" x="10" height="20" width="20" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL;
-    var SVG_DIMOND = _SVG_HEAD + '<path d="M 5.86,20, 20,5.86 34.14,20 20,34.14 Z" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL;
-    var SVG_LARGE_DIMOND = _SVG_HEAD + '<path d="M 3,20, 20,3 37,20 20,37 Z" stroke="black" stroke-width="4" fill="transparent"/>' + _SVG_TAIL;
-    var SVG_TRIANGLE = _SVG_HEAD + '<path d="M 7.75,27.07 32.25,27.07 20,5.86 Z" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL;
-    var SVG_CIRCLE = _SVG_HEAD + '<circle cx="20" cy="20" r="10" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL;
-
-    // preload symbols
-    function createImage(src, width, height) {
-        var image = new Image(width, height);
-        image.src = src;
-        return image;
-    }
-
-    var SYMBOLS = {
-        SQUARE: createImage(SVG_SQUARE),
-        DIMOND: createImage(SVG_DIMOND),
-        LARGE_DIMOND: createImage(SVG_LARGE_DIMOND),
-        TRIANGLE: createImage(SVG_TRIANGLE),
-        CIRCLE: createImage(SVG_CIRCLE),
-    };
+    SYMBOLS.set('SQUARE', _SVG_HEAD + '<rect y="10" x="10" height="20" width="20" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL);
+    SYMBOLS.set('DIMOND', _SVG_HEAD + '<path d="M 5.86,20, 20,5.86 34.14,20 20,34.14 Z" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL);
+    SYMBOLS.set('LARGE_DIMOND', _SVG_HEAD + '<path d="M 3,20, 20,3 37,20 20,37 Z" stroke="black" stroke-width="4" fill="transparent"/>' + _SVG_TAIL);
+    SYMBOLS.set('TRIANGLE', _SVG_HEAD + '<path d="M 7.75,27.07 32.25,27.07 20,5.86 Z" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL);
+    SYMBOLS.set('CIRCLE', _SVG_HEAD + '<circle cx="20" cy="20" r="10" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL);
 
     var DEG2RAD = Math.PI / 180.0;
 
@@ -71,6 +80,19 @@ define([
         'J_CF_SemiQD': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
         'J_R': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
     };
+
+    var DEFAULT_NOMINAL_PRODUCT_LEVEL = 4;
+    var NOMINAL_PRODUCT_LEVEL = {
+        "SW_OPER_AEJALPS_2F": 1,
+        "SW_OPER_AEJBLPS_2F": 1,
+        "SW_OPER_AEJCLPS_2F": 1,
+        "SW_OPER_AEJULPS_2F": 1,
+    };
+    var FIXED_HEIGHT_PRODUCT = [
+        "SW_OPER_AEJALPS_2F", "SW_OPER_AEJBLPS_2F", "SW_OPER_AEJCLPS_2F", "SW_OPER_AEJULPS_2F",
+        "SW_OPER_AEJALPL_2F", "SW_OPER_AEJBLPL_2F", "SW_OPER_AEJCLPL_2F", "SW_OPER_AEJULPL_2F",
+    ];
+
 
     var TEC_VECTOR_SAMPLING = 40000; // ms
     var TEC_VECTOR_LENGTH = 500000; // m - length of the normalized TEC vectors
@@ -464,6 +486,7 @@ define([
 
     // Legend manager encapsulates details of the composition of the data legend.
     var DataLegendManager = function (primitives, renderer, options) {
+        this.isVisible = pop(options, 'isVisible', true);
         this.renderer = renderer;
         this.products = {};
         this.items = {};
@@ -472,14 +495,35 @@ define([
 
     DataLegendManager.prototype = {
 
-        refresh: function () {
-            // group products variables
-            var ids = _.keys(this.items);
+        toggleLegendVisibility: function () {
+            this.setVisibility(!this.isVisible);
+        },
 
+        showLegend: function () {
+            this.setVisibility(true);
+        },
+
+        hideLegend: function () {
+            this.setVisibility(false);
+        },
+
+        setLegendVisibility: function (isVisible) {
+            this.isVisible = isVisible;
+            this.refresh();
+        },
+
+        refresh: function () {
+            if (this.isVisible) {
+                this._render();
+            } else {
+                this._clear();
+            }
+        },
+
+        _render: function () {
             // re-render items
             var yOffset = 0;
-            _.each(ids, function (id) {
-                var item = this.items[id];
+            _.each(this.items, function (item) {
                 var isDisplayed = this.overlay.isItemDisplayed(item);
                 if (isDisplayed && item.yOffset !== yOffset) {
                     this.overlay.removeItem(item);
@@ -490,6 +534,15 @@ define([
                     this.overlay.addItem(item);
                 }
                 yOffset += item.height;
+            }, this);
+        },
+
+        _clear: function () {
+            _.each(this.items, function (item) {
+                var isDisplayed = this.overlay.isItemDisplayed(item);
+                if (isDisplayed) {
+                    this.overlay.removeItem(item);
+                }
             }, this);
         },
 
@@ -703,12 +756,13 @@ define([
                 );
                 this.colorScales = new ColorScaleManager(
                     this.map.scene.primitives,
-                    _.bind(this.renderColorScale, this)
+                    _.bind(this.renderColorScale, this),
+                    {yOffset: 5}
                 );
                 this.dataLegends = new DataLegendManager(
                     this.map.scene.primitives,
                     _.bind(this.renderDataLegend, this),
-                    {xOffset: 300}
+                    {xOffset: 300, yOffset: 5}
                 );
             }
 
@@ -1042,6 +1096,7 @@ define([
             }, this);
 
             globals.swarm.get('relatedData').on('change', function (model) {
+                this.updateHeightIndices();
                 _.each(model.changed, function (data, productType) {
                     if (!data) {
                         this.removeRelatedDataFeatures(productType);
@@ -1229,52 +1284,68 @@ define([
         },
 
         onUpdateOpacity: function (options) {
-            var modelId = options.model.get('download').id;
-            var collectionId = options.model.get('views')[0].id;
-            _.each(
-                globals.products.filter(function (product) {
-                    return product.get('download').id === modelId;
-                }),
-                function (product) {
 
-                    // Find active parameter and satellite
-                    var key = this.getSelectedVariable(product.get('parameters'));
-                    var sat = globals.swarm.collection2satellite[collectionId];
+            var setLayerAlpha = function (layer, alpha) {
+                if (layer.show) {
+                    layer.alpha = alpha;
+                }
+            };
 
-                    if (sat && key && this.featureCollections.includes(sat + key)) {
-                        var fc = this.featureCollections.get(sat + key);
-                        if (fc.hasOwnProperty('geometryInstances')) {
-                            for (var i = fc._instanceIds.length - 1; i >= 0; i--) {
-                                var attributes = fc.getGeometryInstanceAttributes(fc._instanceIds[i]);
-                                var nc = attributes.color;
-                                nc[3] = Math.floor(options.value * 255);
-                                attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(
-                                    Cesium.Color.fromBytes(nc[0], nc[1], nc[2], nc[3])
-                                );
-                            }
-                        } else {
-                            for (var i = fc.length - 1; i >= 0; i--) {
-                                var c, b = fc.get(i);
-                                if (b.color) {
-                                    c = b.color.clone();
-                                    c.alpha = options.value;
-                                    b.color = c;
-                                } else if (b.appearance) {
-                                    c = b.appearance.material.uniforms.color.clone();
-                                    c.alpha = options.value;
-                                    b.appearance.material.uniforms.color = c;
-                                }
-                            }
-                        }
-                    } else {
-                        if (this.isCustomModelSelected(product)) {
-                            product._cesiumLayerCustom.alpha = options.value;
-                        } else {
-                            product._cesiumLayer.alpha = options.value;
-                        }
+            var setFeatureCollectionAlpha = function (collection, alpha) {
+
+                var _setAlpha = function (obj, alpha) {
+                    var color = obj.color.clone();
+                    color.alpha = alpha;
+                    obj.color = color;
+                };
+
+                var _setGAttrAlpha = function (attributes, alpha) {
+                    var color = attributes.color;
+                    attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(
+                        Cesium.Color.fromBytes(
+                            color[0], color[1], color[2], Math.floor(alpha * 255)
+                        )
+                    );
+                };
+
+                if (has(collection, 'geometryInstances')) {
+                    for (var i = collection._instanceIds.length - 1; i >= 0; i--) {
+                        _setGAttrAlpha(collection.getGeometryInstanceAttributes(collection._instanceIds[i]), alpha);
                     }
-                }, this
-            );
+                } else if (collection.length > 0 && collection.get(0).color) {
+                    for (var i = collection.length - 1; i >= 0; i--) {
+                        _setAlpha(collection.get(i), alpha);
+                    }
+                } else if (collection.length > 0 && collection.get(0).appearance) {
+                    for (var i = collection.length - 1; i >= 0; i--) {
+                        _setAlpha(collection.get(i).appearance.material.uniforms, alpha);
+                    }
+                }
+            };
+
+            var alpha = options.value;
+            var product = options.model;
+            var identifier = product.get('download').id;
+            var satellite = globals.swarm.collection2satellite[identifier];
+
+            if (satellite) {
+                var parameters = product.get('parameters');
+                var variable = this.getSelectedVariable(parameters);
+                _.each(
+                    get(parameters[variable], 'referencedParameters', [variable]),
+                    function (variable) {
+                        var featureId = satellite + variable;
+                        var featureCollection = this.featureCollections.get(featureId);
+                        if (featureCollection) {
+                            setFeatureCollectionAlpha(featureCollection, alpha);
+                        }
+                    },
+                    this
+                );
+            } else if (product.get('model')) {
+                setLayerAlpha(product._cesiumLayer, alpha);
+                setLayerAlpha(product._cesiumLayerCustom, alpha);
+            }
         },
 
         addCustomAttribution: function (view) {
@@ -1495,11 +1566,80 @@ define([
             this.dataLegends.removeProductTypeItems(productType);
         },
 
-        createRelatedDataFeatures: function (productType, data) {
+        updateHeightIndices: function () {
+
+            // Products of the same level are considered to overlap
+            // and therefore the need different heigh index to when displayed
+            // simultaneously.
+            // Fixed height products are always displayed on their true
+            // location (index = 0).
+
+            var products = globals.products.filter(function (product) {
+                var collection = product.get('views')[0].id;
+                var spacecraft = get(globals.swarm.collection2satellite, collection);
+                return (product.get('visible') && spacecraft);
+            });
+
+            // initialize index counters
+            var index = {};
+            _.each(products, function (product) {
+                var collection = product.get('views')[0].id;
+                var spacecraft = get(globals.swarm.collection2satellite, collection);
+                var level = get(NOMINAL_PRODUCT_LEVEL, collection, DEFAULT_NOMINAL_PRODUCT_LEVEL);
+                var fixedHeight = FIXED_HEIGHT_PRODUCT.includes(collection);
+
+                setDefault(index, spacecraft, {});
+                setDefault(index[spacecraft], level, 0);
+
+                if (fixedHeight) {
+                    // set index offset to reserve space for fixed height product
+                    index[spacecraft][level] = 1;
+                }
+            });
+
+            // assign height indices
+            _.each(products, function (product) {
+                var collection = product.get('views')[0].id;
+                var spacecraft = get(globals.swarm.collection2satellite, collection);
+                var level = get(NOMINAL_PRODUCT_LEVEL, collection, DEFAULT_NOMINAL_PRODUCT_LEVEL);
+                var fixedHeight = FIXED_HEIGHT_PRODUCT.includes(collection);
+
+                product.set('index', fixedHeight ? 0 : index[spacecraft][level]++);
+            });
+        },
+
+        createRelatedDataFeatures: function (productType, data, timestamp) {
+
+            setDefault(this, '_relatedDataFeaturesTimestamps', {});
+
+            if (timestamp == null) {
+                // first run - set the timestamp
+                timestamp = Date.now();
+                this._relatedDataFeaturesTimestamps[productType] = timestamp;
+            } else if (timestamp < get(this._relatedDataFeaturesTimestamps, productType)) {
+                // newer data exist - rendering is dropped
+                return;
+            }
+
+            if (SYMBOLS.loaded()) {
+                // proceed with the rendering
+                this._createRelatedDataFeatures(productType, data);
+                return;
+            }
+
+            console.log('symbols not loeaded yet - ' + productType + ' rendering delayed');
+
+            // delay rendering if the symbols have not been loaded yet
+            setTimeout(_.bind(function () {
+                this.createRelatedDataFeatures(productType, data, timestamp);
+            }, this), 100);
+        },
+
+        _createRelatedDataFeatures: function (productType, data) {
 
             var getPointPrimitive = function (symbol, position) {
                 return {
-                    image: SYMBOLS[symbol],
+                    image: SYMBOLS.get(symbol),
                     position: position,
                     pixelOffset: new Cesium.Cartesian2(0, 0),
                     eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
@@ -1518,20 +1658,22 @@ define([
                 };
             };
 
-            var getGeocetricPointRenderer = function (symbol, radius) {
+            var getGeocetricPointRenderer = function (symbol, radius, indices) {
                 return function (record) {
                     var position = Cesium.Cartesian3.clone(
                         convertSpherical2Cartesian(
-                            record.Latitude, record.Longitude, get(record, 'Radius', radius)
+                            record.Latitude, record.Longitude,
+                            get(record, 'Radius', radius) +
+                            get(indices, record.id, 0) * HEIGHT_OFFSET
                         )
                     );
                     featureCollection.add(getPointPrimitive(symbol, position));
                 };
             };
 
-            var getPeakAndBoundaryReneder = function (peakSymbol, boundarySymbol, radius) {
-                var renderBoundary = getGeocetricPointRenderer(boundarySymbol, radius);
-                var renderPeak = getGeocetricPointRenderer(peakSymbol, radius);
+            var getPeakAndBoundaryReneder = function (peakSymbol, boundarySymbol, radius, indices) {
+                var renderBoundary = getGeocetricPointRenderer(boundarySymbol, radius, indices);
+                var renderPeak = getGeocetricPointRenderer(peakSymbol, radius, indices);
                 return function (record) {
                     switch (record.PointType & PT_POINT_TYPE_MASK) {
                         case PT_PEAK:
@@ -1544,6 +1686,16 @@ define([
                 };
             };
 
+            var retrieveHeightIndices = function (parentCollections) {
+                var indices = {};
+                _.each(parentCollections, function (collectionId, sattelite) {
+                    var product = globals.products.get(
+                        globals.swarm.collection2product[collectionId]
+                    );
+                    indices[sattelite] = product.get('index') || 0;
+                });
+                return indices;
+            };
 
             // -----------------------------------------------------------------
 
@@ -1556,6 +1708,8 @@ define([
                 return;
             }
 
+            var indices = retrieveHeightIndices(data.parentCollections);
+
             var renderer;
             switch (productType) {
                 case 'AEJ_PBS':
@@ -1565,7 +1719,8 @@ define([
                         'AEJ_PBS': IONOSPHERIC_ALTITUDE,
                     };
                     renderer = getPeakAndBoundaryReneder(
-                        'TRIANGLE', 'SQUARE', EARTH_RADIUS + altitude[productType]
+                        'TRIANGLE', 'SQUARE',
+                        EARTH_RADIUS + altitude[productType], indices
                     );
                     this.dataLegends.addProductTypeItem(productType, 'EJB', {
                         symbol: 'SQUARE',
@@ -1584,7 +1739,9 @@ define([
                     });
                     break;
                 case 'AOB_FAC':
-                    renderer = getGeocetricPointRenderer('LARGE_DIMOND', EARTH_RADIUS + SWARM_ALTITUDE);
+                    renderer = getGeocetricPointRenderer(
+                        'LARGE_DIMOND', EARTH_RADIUS + SWARM_ALTITUDE, indices
+                    );
                     this.dataLegends.addProductTypeItem(productType, 'AOB', {
                         symbol: 'DIMOND',
                         title: "Aurora oval boundary",
@@ -1638,7 +1795,7 @@ define([
             // factory function returning a parameter-specific feature-creating function
             var getPointFeatureCreator = function (parameter) {
 
-                var _createPoint = function (record, settings, index) {
+                var _createPoint = function (record, settings) {
                     var value = record[parameter];
                     if (isNaN(value)) {return;}
 
@@ -1649,7 +1806,7 @@ define([
                     var position = convertSpherical2Cartesian(
                         record.Latitude,
                         record.Longitude,
-                        radius + index * get(settings, 'heightOffset', 0)
+                        radius + get(settings, 'index', 0) * HEIGHT_OFFSET
                     );
                     var color = settings.colormap.getColor(value);
                     var feature = {
@@ -1711,7 +1868,7 @@ define([
                 };
 
                 // TEC GPS-pointing vectors
-                var _createVectorTEC = function (record, settings, index) {
+                var _createVectorTEC = function (record, settings) {
                     var value = record[parameter];
                     if (isNaN(value)) {return;}
 
@@ -1732,7 +1889,7 @@ define([
                 };
 
                 // vectors in NEC frame
-                var _createVectorNEC = function (record, settings, index) {
+                var _createVectorNEC = function (record, settings) {
                     var value = settings.norms[record.__index__];
                     if (isNaN(value)) {return;}
 
@@ -1741,7 +1898,7 @@ define([
                     var position = convertSpherical2Cartesian(
                         record.Latitude,
                         record.Longitude,
-                        record.Radius + index * get(settings, 'heightOffset', 0)
+                        record.Radius + get(settings, 'index', 0) * HEIGHT_OFFSET
                     );
 
                     var components = settings.components;
@@ -1761,7 +1918,7 @@ define([
                 };
 
                 // sheet currents in horizontal NE frame
-                var _createVectorJNE = function (record, settings, index) {
+                var _createVectorJNE = function (record, settings) {
                     var value = get(record, parameter) || settings.norms[record.__index__];
                     if (isNaN(value)) {return;}
 
@@ -1770,7 +1927,7 @@ define([
                     var position = convertSpherical2Cartesian(
                         record.Latitude,
                         record.Longitude,
-                        get(NOMINAL_RADIUS, parameter, DEFAULT_NOMINAL_RADIUS) + index * get(settings, 'heightOffset', 0)
+                        get(NOMINAL_RADIUS, parameter, DEFAULT_NOMINAL_RADIUS) + get(settings, 'index', 0) * HEIGHT_OFFSET
                     );
 
                     var components = settings.components;
@@ -1847,6 +2004,8 @@ define([
                                 collection: collection,
                                 outlines: product.get('outlines'),
                                 outline_color: product.get('color'),
+                                alpha: Math.floor(product.get('opacity') * 255),
+                                index: product.get('index') || 0,
                             },
                             options || {}
                         );
@@ -1861,10 +2020,7 @@ define([
                         if (has(parameterSettings, 'referencedParameters')) {
                             _.each(parameterSettings.referencedParameters, _addParameterToSettings);
                         } else {
-                            _addParameterToSettings(parameterName, {
-                                alpha: Math.floor(product.get('opacity') * 255),
-                                heightOffset: HEIGHT_OFFSET,
-                            });
+                            _addParameterToSettings(parameterName);
                         }
                     });
                 }, this);
@@ -1947,16 +2103,15 @@ define([
 
             if (data.isEmpty()) {return;}
 
+            this.updateHeightIndices();
+
             var settings = getSettings();
             if (_.isEmpty(settings)) {return;}
 
             data.forEachRecord(
                 function (record) {
-                    var index = 0;
                     _.each(settings[record.id], function (parameterSettings) {
-                        parameterSettings.featureCreator(
-                            record, parameterSettings, index++
-                        );
+                        parameterSettings.featureCreator(record, parameterSettings);
                     });
                 },
                 new RecordFilter(_.keys(data.data))
@@ -2212,7 +2367,7 @@ define([
             context.clearRect(0, 0, width, height);
             context.drawSvg(svgHtml, 0, 0, width, height);
 
-            var symbol = SYMBOLS[options.symbol];
+            var symbol = SYMBOLS.get(options.symbol);
             context.scale(0.5, 0.5);
             context.drawImage(symbol, 0, 0, symbol.width, symbol.height);
 

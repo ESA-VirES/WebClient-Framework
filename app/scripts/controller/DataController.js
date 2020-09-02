@@ -363,11 +363,14 @@
           this.request.fetch(options);
 
           // collect related data collections
-          var relatedCollections = {};
+          var relatedCollections = {}; // to be downloaded
+          var parentCollections = {}; // collection which triggered the download
           _.each(collections, function (collectionIds, label) {
             _.each(collectionIds, function (collectionId) {
               var related = get(RELATED_COLLECTIONS, collectionId) || [];
               _.each(related, function (related) {
+                setDefault(parentCollections, related.type, {});
+                parentCollections[related.type][label] = collectionId;
                 setDefault(relatedCollections, related.type, {});
                 relatedCollections[related.type][label] = related.collections;
               });
@@ -382,6 +385,8 @@
             var request = new vires.ViresDataRequest({
               context: this,
               success: function (data) {
+                // keep link to collections which triggered this download
+                data.parentCollections = parentCollections[productType];
                 relatedDataModel.set(productType, data);
               },
               error: function (xhr, message) {
