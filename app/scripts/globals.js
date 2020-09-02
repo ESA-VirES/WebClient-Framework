@@ -17,8 +17,8 @@ define(
     });
 
     return {
-      version: "3.3.0",
-      supportedVersions: ["3.3.0", "3.2.0", "3.1.3", "3.1.2", "3.1.1", "3.1.0"],
+      version: "3.4.0",
+      supportedVersions: ["3.4.0", "3.3.0", "3.2.0", "3.1.3", "3.1.2", "3.1.1", "3.1.0"],
       objects: new ObjectStore(),
       selections: new ObjectStore(),
       baseLayers: new Backbone.Collection(),
