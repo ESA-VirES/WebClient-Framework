@@ -495,7 +495,7 @@ define([
 
     DataLegendManager.prototype = {
 
-        toggleLegendVisibility() {
+        toggleLegendVisibility: function () {
             this.setVisibility(!this.isVisible);
         },
 
