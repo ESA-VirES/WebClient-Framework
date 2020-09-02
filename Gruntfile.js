@@ -370,7 +370,6 @@ module.exports = function (grunt) {
                         'bower_components/bootstrap/dist/*/*',
                         'bower_components/font-awesome/css/*',
                         'bower_components/lm.js/lm.js',
-                        'bower_components/Keypress/keypress.js',
                         'bower_components/d3.Graphs/lib/scripts/av.min.js',
                         'bower_components/cesium/Build/Cesium/**',
                         'bower_components/papaparse/papaparse.min.js',
