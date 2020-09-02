@@ -1,4 +1,5 @@
 /*global _ $ * d3 plotty showMessage getISODateTimeString */
+/*global get */
 
 (function () {
     'use strict';
@@ -210,44 +211,56 @@
                     this.$("#options").unbind();
                     this.$("#options").change(this.onOptionsChanged.bind(this));
 
-                    // Set values for color scale ranges
-                    this.$("#range_min").val(selectedOption.range[0]);
-                    this.$("#range_max").val(selectedOption.range[1]);
+                    this.$("#range_min").hide();
+                    this.$("#range_max").hide();
+                    this.$("#colorscale").hide();
+                    $("#opacitysilder").parent().hide();
 
-                    // Register necessary key events
-                    this.registerKeyEvents(this.$("#range_min"));
-                    this.registerKeyEvents(this.$("#range_max"));
+                    if (get(selectedOption, 'allowLayerSettings', true)) {
+                        this.$("#range_min").show();
+                        this.$("#range_max").show();
+                        this.$("#colorscale").show();
+                        $("#opacitysilder").parent().show();
+                        // Set values for color scale ranges
+                        this.$("#range_min").val(selectedOption.range[0]);
+                        this.$("#range_max").val(selectedOption.range[1]);
 
-                    this.$("#style").unbind();
-                    this.$("#style").empty();
-                    this.$("#style").append(
-                        _.map(this.colorscaletypes, function (colorscale) {
-                            var selected = "";
-                            if (selectedOption.colorscale == colorscale) {
-                                selected = " selected";
+                        // Register necessary key events
+                        this.registerKeyEvents(this.$("#range_min"));
+                        this.registerKeyEvents(this.$("#range_max"));
+
+                        this.$("#style").unbind();
+                        this.$("#style").empty();
+                        this.$("#style").append(
+                            _.map(this.colorscaletypes, function (colorscale) {
+                                var selected = "";
+                                if (selectedOption.colorscale == colorscale) {
+                                    selected = " selected";
+                                }
+                                return '<option value="' + colorscale + '"' + selected + '>' + colorscale + '</option>';
+                            }).join('')
+                        );
+                        this.$("#style").change(_.bind(function (evt) {
+                            var selected = $(evt.target).find("option:selected").text();
+                            options[this.selected].colorscale = selected;
+                            this.current_model.set("parameters", options);
+                            if (selectedOption.hasOwnProperty("logarithmic")) {
+                                this.createScale(selectedOption.logarithmic);
+                            } else {
+                                this.createScale();
                             }
-                            return '<option value="' + colorscale + '"' + selected + '>' + colorscale + '</option>';
-                        }).join('')
-                    );
-                    this.$("#style").change(_.bind(function (evt) {
-                        var selected = $(evt.target).find("option:selected").text();
-                        options[this.selected].colorscale = selected;
-                        this.current_model.set("parameters", options);
-                        if (selectedOption.hasOwnProperty("logarithmic")) {
-                            this.createScale(selectedOption.logarithmic);
-                        } else {
-                            this.createScale();
-                        }
-                        Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"), true);
-                    }, this));
+                            Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"), true);
+                        }, this));
 
-                    this.$("#opacitysilder").unbind();
-                    this.$("#opacitysilder").val(this.current_model.get("opacity") * 100);
-                    this.$("#opacitysilder").on("input change", _.bind(function (evt) {
-                        var opacity = Number(evt.target.value) / 100;
-                        this.current_model.set("opacity", opacity);
-                        Communicator.mediator.trigger('productCollection:updateOpacity', {model: this.current_model, value: opacity});
-                    }, this));
+                        this.$("#opacitysilder").unbind();
+                        this.$("#opacitysilder").val(this.current_model.get("opacity") * 100);
+                        this.$("#opacitysilder").on("input change", _.bind(function (evt) {
+                            var opacity = Number(evt.target.value) / 100;
+                            this.current_model.set("opacity", opacity);
+                            Communicator.mediator.trigger('productCollection:updateOpacity', {model: this.current_model, value: opacity});
+                        }, this));
+                    }
+
 
                     var checked;
                     if (!(typeof outlines === 'undefined')) {
@@ -308,28 +321,6 @@
                     this.createHeightTextbox(this.current_model.get("height"));
                 }
 
-                /*if(!(typeof contours === 'undefined')){
-                    var checked = "";
-                    if (contours)
-                        checked = "checked";
-
-                    $("#contours input").unbind();
-                    $("#contours").empty();
-
-                    this.$("#contours").append(
-                        '<form style="vertical-align: middle;">'+
-                        '<label class="valign" for="contours" style="width: 120px;">Contours/Isolines </label>'+
-                        '<input class="valign" style="margin-top: -5px;" type="checkbox" name="contours" value="contours" ' + checked + '></input>'+
-                        '</form>'
-                    );
-
-                    this.$("#contours input").change(function(evt){
-                        var contours = !that.current_model.get("contours");
-                        that.current_model.set("contours", contours);
-                        Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("name"));
-                    });
-                }*/
-
                 if (this.selected == "Fieldlines") {
                     $("#coefficients_range").hide();
                     $("#opacitysilder").parent().hide();
@@ -346,7 +337,6 @@
                     }
                 } else {
                     $("#coefficients_range").show();
-                    $("#opacitysilder").parent().show();
                 }
                 this.$el.append('<div class="model-sources-label hidden sourcesInfoContainer"></div>');
             },
@@ -445,20 +435,34 @@
                 var selectedOption = options[this.selected];
 
                 this.$("#style").empty();
-                this.$("#style").append(
-                    _.map(this.colorscaletypes, function (colorscale) {
-                        var selected = "";
-                        if (selectedOption.colorscale == colorscale) {
-                            selected = " selected";
-                        }
-                        return '<option value="' + colorscale + '"' + selected + '>' + colorscale + '</option>';
-                    }).join('')
-                );
 
-                $("#range_min").val(selectedOption.range[0]);
-                $("#range_max").val(selectedOption.range[1]);
+                this.$("#range_min").hide();
+                this.$("#range_max").hide();
+                this.$("#colorscale").hide();
+                $("#opacitysilder").parent().hide();
 
-                this.createScale(); // logarithmic ?
+                if (get(selectedOption, 'allowLayerSettings', true)) {
+
+                    this.$("#range_min").show();
+                    this.$("#range_max").show();
+                    this.$("#colorscale").show();
+                    $("#opacitysilder").parent().show();
+
+                    this.$("#style").append(
+                        _.map(this.colorscaletypes, function (colorscale) {
+                            var selected = "";
+                            if (selectedOption.colorscale == colorscale) {
+                                selected = " selected";
+                            }
+                            return '<option value="' + colorscale + '"' + selected + '>' + colorscale + '</option>';
+                        }).join('')
+                    );
+
+                    $("#range_min").val(selectedOption.range[0]);
+                    $("#range_max").val(selectedOption.range[1]);
+
+                    this.createScale(); // logarithmic ?
+                }
 
                 if (selectedOption.hasOwnProperty("logarithmic")) {
                     this.addLogOption(options);
@@ -488,7 +492,6 @@
                     }
                 } else {
                     $("#coefficients_range").show();
-                    $("#opacitysilder").parent().show();
                 }
 
                 // request range for selected parameter if layer is of type model
@@ -729,8 +732,12 @@
                         return "⁻" + (d + "").split("").map(function (c) {return superscript[c];}).join("");
                 };
                 */
-
                 $("#setting_colorscale").empty();
+
+                if (!get(this.current_model.get("parameters")[this.selected], 'allowLayerSettings', true)) {
+                    return;
+                }
+
                 var margin = 20;
                 var width = $("#setting_colorscale").width();
                 var scalewidth = width - margin * 2;

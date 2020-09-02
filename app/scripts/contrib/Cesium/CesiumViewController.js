@@ -86,7 +86,7 @@ define([
             );
             this.cesiumView.listenTo(
                 Communicator.mediator, 'layer:colorscale:show',
-                _.bind(this.cesiumView.checkColorscale, this.cesiumView)
+                _.bind(this.cesiumView.updateLegend, this.cesiumView)
             );
             this.cesiumView.listenTo(
                 Communicator.mediator, 'time:change',

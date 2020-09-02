@@ -2738,7 +2738,8 @@
             "name": "SW OPER IBIA TMS 2F",
             "visible": false,
             "timeSlider": true,
-            "timeSliderProtocol": "WPS-INDEX",
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_bubble_index",
             "color": "#2ca02c",
             "views": [{
                 "id": "SW_OPER_IBIATMS_2F",
@@ -2867,7 +2868,8 @@
             "visible": false,
             "timeSlider": true,
             "color": "#2ca02c",
-            "timeSliderProtocol": "WPS-INDEX",
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_bubble_index",
             "views": [{
                 "id": "SW_OPER_IBIBTMS_2F",
                 "protocol": "CZML",
@@ -2995,7 +2997,8 @@
             "visible": false,
             "timeSlider": true,
             "color": "#2ca02c",
-            "timeSliderProtocol": "WPS-INDEX",
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_bubble_index",
             "views": [{
                 "id": "SW_OPER_IBICTMS_2F",
                 "protocol": "CZML",
@@ -4160,6 +4163,498 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
+            "name": "SW_OPER_AEJALPL_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_continuous_segments",
+            "color": "#024573",
+            "views": [{
+                "id": "SW_OPER_AEJALPL_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AEJALPL_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_AEJALPL_2F"
+                }
+            ],
+            "parameters": {
+                "J_QD": {
+                    "selected": true,
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density (QD eastward)",
+                    "relatedVector": "J_NE"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "J_NE": {
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density vector"
+                },
+                "J_QD": {
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density (QD frame, east component)"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "SW_OPER_AEJBLPL_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_continuous_segments",
+            "color": "#024573",
+            "views": [{
+                "id": "SW_OPER_AEJBLPL_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AEJBLPL_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_AEJBLPL_2F"
+                }
+            ],
+            "parameters": {
+                "J_QD": {
+                    "selected": true,
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density (QD eastward)",
+                    "relatedVector": "J_NE"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "J_NE": {
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density vector"
+                },
+                "J_QD": {
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density (QD frame, east component)"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "SW_OPER_AEJCLPL_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_continuous_segments",
+            "color": "#024573",
+            "views": [{
+                "id": "SW_OPER_AEJCLPL_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AEJCLPL_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_AEJCLPL_2F"
+                }
+            ],
+            "parameters": {
+                "J_QD": {
+                    "selected": true,
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density (QD eastward)",
+                    "relatedVector": "J_NE"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "J_NE": {
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density vector"
+                },
+                "J_QD": {
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density (QD frame, east component)"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "SW_OPER_AEJALPS_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_continuous_segments",
+            "color": "#145600",
+            "views": [{
+                "id": "SW_OPER_AEJALPS_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AEJALPS_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_AEJALPS_2F"
+                }
+            ],
+            "parameters": {
+                "J_DF_SemiQD": {
+                    "selected": true,
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density at 110km (semi-QD eastward)",
+                    "relatedVector": "J_DF_NE",
+                    "referencedParameters": ["J_DF_SemiQD", "J_R"]
+                },
+                "J_CF_SemiQD": {
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density at 110km (semi-QD, northward)",
+                    "relatedVector": "J_CF_NE",
+                    "referencedParameters": ["J_CF_SemiQD", "J_R"]
+                },
+                "J_T_NE": {
+                    "range": [0, 500],
+                    "colorscale": "viridis",
+                    "uom": "A/km",
+                    "name": "Total horizontal sheet current density at 110km (J_T = J_DF + J_CF)",
+                    "referencedParameters": ["J_T_NE", "J_R"]
+                },
+                "J_R": {
+                    "fixedAltitude": true,
+                    "range": [-1, 1],
+                    "colorscale": "rdbu",
+                    "pixelSize": 4,
+                    "uom": "A/km^2",
+                    "name": "Radial ionospheric current density at 110km"
+                 }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "J_R": {
+                    "uom": "A/km^2",
+                    "name": "Radial ionospheric current density (SemiQD frame at 110km)"
+                },
+                "J_CF": {
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density vector"
+                },
+                "J_DF": {
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density vector"
+                },
+                "J_CF_SemiQD": {
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density (SemiQD frame, north component)"
+                },
+                "J_DF_SemiQD": {
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density (SemiQD frame, east component)"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "SW_OPER_AEJBLPS_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_continuous_segments",
+            "color": "#145600",
+            "views": [{
+                "id": "SW_OPER_AEJBLPS_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AEJBLPS_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_AEJBLPS_2F"
+                }
+            ],
+            "parameters": {
+                "J_DF_SemiQD": {
+                    "selected": true,
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density at 110km (semi-QD eastward)",
+                    "relatedVector": "J_DF_NE",
+                    "referencedParameters": ["J_DF_SemiQD", "J_R"]
+                },
+                "J_CF_SemiQD": {
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density at 110km (semi-QD, northward)",
+                    "relatedVector": "J_CF_NE",
+                    "referencedParameters": ["J_CF_SemiQD", "J_R"]
+                },
+                "J_T_NE": {
+                    "range": [0, 500],
+                    "colorscale": "viridis",
+                    "uom": "A/km",
+                    "name": "Total horizontal sheet current density at 110km (J_T = J_DF + J_CF)",
+                    "referencedParameters": ["J_T_NE", "J_R"]
+                },
+                "J_R": {
+                    "fixedAltitude": true,
+                    "range": [-1, 1],
+                    "colorscale": "rdbu",
+                    "pixelSize": 4,
+                    "uom": "A/km^2",
+                    "name": "Radial ionospheric current density at 110km"
+                 }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "J_R": {
+                    "uom": "A/km^2",
+                    "name": "Radial ionospheric current density (SemiQD frame at 110km)"
+                },
+                "J_CF": {
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density vector"
+                },
+                "J_DF": {
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density vector"
+                },
+                "J_CF_SemiQD": {
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density (SemiQD frame, north component)"
+                },
+                "J_DF_SemiQD": {
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density (SemiQD frame, east component)"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "SW_OPER_AEJCLPS_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_continuous_segments",
+            "color": "#145600",
+            "views": [{
+                "id": "SW_OPER_AEJCLPS_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AEJCLPS_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_AEJCLPS_2F"
+                }
+            ],
+            "parameters": {
+                "J_DF_SemiQD": {
+                    "selected": true,
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density at 110km (semi-QD eastward)",
+                    "relatedVector": "J_DF_NE",
+                    "referencedParameters": ["J_DF_SemiQD", "J_R"]
+                },
+                "J_CF_SemiQD": {
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density at 110km (semi-QD, northward)",
+                    "relatedVector": "J_CF_NE",
+                    "referencedParameters": ["J_CF_SemiQD", "J_R"]
+                },
+                "J_T_NE": {
+                    "range": [0, 500],
+                    "colorscale": "viridis",
+                    "uom": "A/km",
+                    "name": "Total horizontal sheet current density at 110km (J_T = J_DF + J_CF)",
+                    "referencedParameters": ["J_T_NE", "J_R"]
+                },
+                "J_R": {
+                    "fixedAltitude": true,
+                    "range": [-1, 1],
+                    "colorscale": "rdbu",
+                    "pixelSize": 4,
+                    "uom": "A/km^2",
+                    "name": "Radial ionospheric current density at 110km"
+                 }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "J_R": {
+                    "uom": "A/km^2",
+                    "name": "Radial ionospheric current density (SemiQD frame at 110km)"
+                },
+                "J_CF": {
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density vector"
+                },
+                "J_DF": {
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density vector"
+                },
+                "J_CF_SemiQD": {
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density (SemiQD frame, north component)"
+                },
+                "J_DF_SemiQD": {
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density (SemiQD frame, east component)"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
             "name": "MAGU LR 1B",
             "color": "#1f77b4",
             "timeSlider": true,
@@ -4424,7 +4919,7 @@
             },
             "outlines": false,
             "satellite": "Upload"
-          },{
+        },{
             "name": "IPDUIRR 2F",
             "timeSlider": true,
             "timeSliderProtocol": "USER_DATA",
@@ -4602,7 +5097,101 @@
             },
             "outlines": false,
             "satellite": "Upload"
-          },{
+        },{
+            "name": "SW_OPER_AEJULPL_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#024573",
+            "views": [{
+                "id": "SW_OPER_AEJULPL_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AEJULPL_2F"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "parameters": {
+                "J_QD": {
+                    "selected": true,
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density (QD eastward)",
+                    "relatedVector": "J_NE"
+                }
+            },
+            "outlines": false,
+            "satellite": "Upload"
+        },{
+            "name": "SW_OPER_AEJULPS_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#145600",
+            "views": [{
+                "id": "SW_OPER_AEJULPS_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AEJULPS_2F"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "parameters": {
+                "J_DF_SemiQD": {
+                    "selected": true,
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density at 110km (semi-QD eastward)",
+                    "relatedVector": "J_DF_NE",
+                    "referencedParameters": ["J_DF_SemiQD", "J_R"]
+                },
+                "J_CF_SemiQD": {
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density at 110km (semi-QD, northward)",
+                    "relatedVector": "J_CF_NE",
+                    "referencedParameters": ["J_CF_SemiQD", "J_R"]
+                },
+                "J_T_NE": {
+                    "range": [0, 500],
+                    "colorscale": "viridis",
+                    "uom": "A/km",
+                    "name": "Total horizontal sheet current density at 110km (J_T = J_DF + J_CF)",
+                    "referencedParameters": ["J_T_NE", "J_R"]
+                },
+                "J_R": {
+                    "fixedAltitude": true,
+                    "range": [-1, 1],
+                    "colorscale": "rdbu",
+                    "pixelSize": 4,
+                    "uom": "A/km^2",
+                    "name": "Radial ionospheric current density at 110km"
+                 }
+            },
+            "outlines": false,
+            "satellite": "Upload"
+        },{
             "name": "Magnetic Model",
             "visible": false,
             "timeSlider": true,
