@@ -81,6 +81,19 @@ define([
         'J_R': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
     };
 
+    var DEFAULT_NOMINAL_PRODUCT_LEVEL = 4;
+    var NOMINAL_PRODUCT_LEVEL = {
+        "SW_OPER_AEJALPS_2F": 1,
+        "SW_OPER_AEJBLPS_2F": 1,
+        "SW_OPER_AEJCLPS_2F": 1,
+        "SW_OPER_AEJULPS_2F": 1,
+    };
+    var FIXED_HEIGHT_PRODUCT = [
+        "SW_OPER_AEJALPS_2F", "SW_OPER_AEJBLPS_2F", "SW_OPER_AEJCLPS_2F", "SW_OPER_AEJULPS_2F",
+        "SW_OPER_AEJALPL_2F", "SW_OPER_AEJBLPL_2F", "SW_OPER_AEJCLPL_2F", "SW_OPER_AEJULPL_2F",
+    ];
+
+
     var TEC_VECTOR_SAMPLING = 40000; // ms
     var TEC_VECTOR_LENGTH = 500000; // m - length of the normalized TEC vectors
     var MAX_VECTOR_LENGTH = 600000; // m - length of the longest regular vector
@@ -1083,6 +1096,7 @@ define([
             }, this);
 
             globals.swarm.get('relatedData').on('change', function (model) {
+                this.updateHeightIndices();
                 _.each(model.changed, function (data, productType) {
                     if (!data) {
                         this.removeRelatedDataFeatures(productType);
@@ -1552,6 +1566,50 @@ define([
             this.dataLegends.removeProductTypeItems(productType);
         },
 
+        updateHeightIndices: function () {
+
+            // Products of the same level are considered to overlap
+            // and therefore the need different heigh index to when displayed
+            // simultaneously.
+            // Fixed height products are always displayed on their true
+            // location (index = 0).
+
+            var products = globals.products.filter(function (product) {
+                var collection = product.get('views')[0].id;
+                var spacecraft = get(globals.swarm.collection2satellite, collection);
+                return (product.get('visible') && spacecraft);
+            });
+
+            // initialize index counters
+            var index = {};
+            _.each(products, function (product) {
+                var name = product.get('name');
+                var collection = product.get('views')[0].id;
+                var spacecraft = get(globals.swarm.collection2satellite, collection);
+                var level = get(NOMINAL_PRODUCT_LEVEL, name, DEFAULT_NOMINAL_PRODUCT_LEVEL);
+                var fixedHeight = FIXED_HEIGHT_PRODUCT.includes(name);
+
+                setDefault(index, spacecraft, {});
+                setDefault(index[spacecraft], level, 0);
+
+                if (fixedHeight) {
+                    // set index offset to reserve space for fixed height product
+                    index[spacecraft][level] = 1;
+                }
+            });
+
+            // assign height indices
+            _.each(products, function (product) {
+                var name = product.get('name');
+                var collection = product.get('views')[0].id;
+                var spacecraft = get(globals.swarm.collection2satellite, collection);
+                var level = get(NOMINAL_PRODUCT_LEVEL, name, DEFAULT_NOMINAL_PRODUCT_LEVEL);
+                var fixedHeight = FIXED_HEIGHT_PRODUCT.includes(name);
+
+                product.set('index', fixedHeight ? 0 : index[spacecraft][level]++);
+            });
+        },
+
         createRelatedDataFeatures: function (productType, data, timestamp) {
 
             setDefault(this, '_relatedDataFeaturesTimestamps', {});
@@ -1602,20 +1660,22 @@ define([
                 };
             };
 
-            var getGeocetricPointRenderer = function (symbol, radius) {
+            var getGeocetricPointRenderer = function (symbol, radius, indices) {
                 return function (record) {
                     var position = Cesium.Cartesian3.clone(
                         convertSpherical2Cartesian(
-                            record.Latitude, record.Longitude, get(record, 'Radius', radius)
+                            record.Latitude, record.Longitude,
+                            get(record, 'Radius', radius) +
+                            get(indices, record.id, 0) * HEIGHT_OFFSET
                         )
                     );
                     featureCollection.add(getPointPrimitive(symbol, position));
                 };
             };
 
-            var getPeakAndBoundaryReneder = function (peakSymbol, boundarySymbol, radius) {
-                var renderBoundary = getGeocetricPointRenderer(boundarySymbol, radius);
-                var renderPeak = getGeocetricPointRenderer(peakSymbol, radius);
+            var getPeakAndBoundaryReneder = function (peakSymbol, boundarySymbol, radius, indices) {
+                var renderBoundary = getGeocetricPointRenderer(boundarySymbol, radius, indices);
+                var renderPeak = getGeocetricPointRenderer(peakSymbol, radius, indices);
                 return function (record) {
                     switch (record.PointType & PT_POINT_TYPE_MASK) {
                         case PT_PEAK:
@@ -1628,6 +1688,16 @@ define([
                 };
             };
 
+            var retrieveHeightIndices = function (parentCollections) {
+                var indices = {};
+                _.each(parentCollections, function (collectionId, sattelite) {
+                    var product = globals.products.get(
+                        globals.swarm.collection2product[collectionId]
+                    );
+                    indices[sattelite] = product.get('index') || 0;
+                });
+                return indices;
+            };
 
             // -----------------------------------------------------------------
 
@@ -1640,6 +1710,8 @@ define([
                 return;
             }
 
+            var indices = retrieveHeightIndices(data.parentCollections);
+
             var renderer;
             switch (productType) {
                 case 'AEJ_PBS':
@@ -1649,7 +1721,8 @@ define([
                         'AEJ_PBS': IONOSPHERIC_ALTITUDE,
                     };
                     renderer = getPeakAndBoundaryReneder(
-                        'TRIANGLE', 'SQUARE', EARTH_RADIUS + altitude[productType]
+                        'TRIANGLE', 'SQUARE',
+                        EARTH_RADIUS + altitude[productType], indices
                     );
                     this.dataLegends.addProductTypeItem(productType, 'EJB', {
                         symbol: 'SQUARE',
@@ -1668,7 +1741,9 @@ define([
                     });
                     break;
                 case 'AOB_FAC':
-                    renderer = getGeocetricPointRenderer('LARGE_DIMOND', EARTH_RADIUS + SWARM_ALTITUDE);
+                    renderer = getGeocetricPointRenderer(
+                        'LARGE_DIMOND', EARTH_RADIUS + SWARM_ALTITUDE, indices
+                    );
                     this.dataLegends.addProductTypeItem(productType, 'AOB', {
                         symbol: 'DIMOND',
                         title: "Aurora oval boundary",
@@ -1722,7 +1797,7 @@ define([
             // factory function returning a parameter-specific feature-creating function
             var getPointFeatureCreator = function (parameter) {
 
-                var _createPoint = function (record, settings, index) {
+                var _createPoint = function (record, settings) {
                     var value = record[parameter];
                     if (isNaN(value)) {return;}
 
@@ -1733,7 +1808,7 @@ define([
                     var position = convertSpherical2Cartesian(
                         record.Latitude,
                         record.Longitude,
-                        radius + index * get(settings, 'heightOffset', 0)
+                        radius + get(settings, 'index', 0) * HEIGHT_OFFSET
                     );
                     var color = settings.colormap.getColor(value);
                     var feature = {
@@ -1795,7 +1870,7 @@ define([
                 };
 
                 // TEC GPS-pointing vectors
-                var _createVectorTEC = function (record, settings, index) {
+                var _createVectorTEC = function (record, settings) {
                     var value = record[parameter];
                     if (isNaN(value)) {return;}
 
@@ -1816,7 +1891,7 @@ define([
                 };
 
                 // vectors in NEC frame
-                var _createVectorNEC = function (record, settings, index) {
+                var _createVectorNEC = function (record, settings) {
                     var value = settings.norms[record.__index__];
                     if (isNaN(value)) {return;}
 
@@ -1825,7 +1900,7 @@ define([
                     var position = convertSpherical2Cartesian(
                         record.Latitude,
                         record.Longitude,
-                        record.Radius + index * get(settings, 'heightOffset', 0)
+                        record.Radius + get(settings, 'index', 0) * HEIGHT_OFFSET
                     );
 
                     var components = settings.components;
@@ -1845,7 +1920,7 @@ define([
                 };
 
                 // sheet currents in horizontal NE frame
-                var _createVectorJNE = function (record, settings, index) {
+                var _createVectorJNE = function (record, settings) {
                     var value = get(record, parameter) || settings.norms[record.__index__];
                     if (isNaN(value)) {return;}
 
@@ -1854,7 +1929,7 @@ define([
                     var position = convertSpherical2Cartesian(
                         record.Latitude,
                         record.Longitude,
-                        get(NOMINAL_RADIUS, parameter, DEFAULT_NOMINAL_RADIUS) + index * get(settings, 'heightOffset', 0)
+                        get(NOMINAL_RADIUS, parameter, DEFAULT_NOMINAL_RADIUS) + get(settings, 'index', 0) * HEIGHT_OFFSET
                     );
 
                     var components = settings.components;
@@ -1932,6 +2007,7 @@ define([
                                 outlines: product.get('outlines'),
                                 outline_color: product.get('color'),
                                 alpha: Math.floor(product.get('opacity') * 255),
+                                index: product.get('index') || 0,
                             },
                             options || {}
                         );
@@ -1946,9 +2022,7 @@ define([
                         if (has(parameterSettings, 'referencedParameters')) {
                             _.each(parameterSettings.referencedParameters, _addParameterToSettings);
                         } else {
-                            _addParameterToSettings(parameterName, {
-                                heightOffset: HEIGHT_OFFSET,
-                            });
+                            _addParameterToSettings(parameterName);
                         }
                     });
                 }, this);
@@ -2031,16 +2105,15 @@ define([
 
             if (data.isEmpty()) {return;}
 
+            this.updateHeightIndices();
+
             var settings = getSettings();
             if (_.isEmpty(settings)) {return;}
 
             data.forEachRecord(
                 function (record) {
-                    var index = 0;
                     _.each(settings[record.id], function (parameterSettings) {
-                        parameterSettings.featureCreator(
-                            record, parameterSettings, index++
-                        );
+                        parameterSettings.featureCreator(record, parameterSettings);
                     });
                 },
                 new RecordFilter(_.keys(data.data))
