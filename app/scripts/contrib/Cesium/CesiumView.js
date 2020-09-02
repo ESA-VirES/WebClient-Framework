@@ -1583,11 +1583,10 @@ define([
             // initialize index counters
             var index = {};
             _.each(products, function (product) {
-                var name = product.get('name');
                 var collection = product.get('views')[0].id;
                 var spacecraft = get(globals.swarm.collection2satellite, collection);
-                var level = get(NOMINAL_PRODUCT_LEVEL, name, DEFAULT_NOMINAL_PRODUCT_LEVEL);
-                var fixedHeight = FIXED_HEIGHT_PRODUCT.includes(name);
+                var level = get(NOMINAL_PRODUCT_LEVEL, collection, DEFAULT_NOMINAL_PRODUCT_LEVEL);
+                var fixedHeight = FIXED_HEIGHT_PRODUCT.includes(collection);
 
                 setDefault(index, spacecraft, {});
                 setDefault(index[spacecraft], level, 0);
@@ -1600,11 +1599,10 @@ define([
 
             // assign height indices
             _.each(products, function (product) {
-                var name = product.get('name');
                 var collection = product.get('views')[0].id;
                 var spacecraft = get(globals.swarm.collection2satellite, collection);
-                var level = get(NOMINAL_PRODUCT_LEVEL, name, DEFAULT_NOMINAL_PRODUCT_LEVEL);
-                var fixedHeight = FIXED_HEIGHT_PRODUCT.includes(name);
+                var level = get(NOMINAL_PRODUCT_LEVEL, collection, DEFAULT_NOMINAL_PRODUCT_LEVEL);
+                var fixedHeight = FIXED_HEIGHT_PRODUCT.includes(collection);
 
                 product.set('index', fixedHeight ? 0 : index[spacecraft][level]++);
             });
