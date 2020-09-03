@@ -572,26 +572,17 @@
 
         // Make sure the available essential parameters are selected.
         var selected = _.map(ESSENTIAL_PARAMETERS, function (variable) {
-          if (_.contains(available_parameters, variable)) {
-            return {id: varaible};
+          if (_.any(available_parameters, function (item) {return item.id == variable;})) {
+            return {id: variable};
           }
         });
 
         // See if magnetic data actually selected if not remove residuals
-        var magdata = false;
-        _.each(products, function (p, key) {
-          if (key.indexOf("MAG") != -1) {
-            magdata = true;
-          }
-        });
+        var magdata = _.any(_.keys(products), function (key) {return key.includes("MAG");});
 
         if (!magdata) {
           available_parameters = _.filter(available_parameters, function (v) {
-            if (v.id.indexOf("_res_") != -1) {
-              return false;
-            } else {
-              return true;
-            }
+            return !v.id.includes("_res_");
           });
         }
 
@@ -600,7 +591,7 @@
           openOnFocus: true,
           selected: selected,
           renderItem: _.bind(function (item, index, remove) {
-            if (_.contains(ESSENTIAL_PARAMETERS, item.id)) {
+            if (ESSENTIAL_PARAMETERS.includes(item.id)) {
               remove = "";
             }
             var html = remove + this.createSubscript(item.id);
@@ -621,7 +612,7 @@
             return html;
           }, this),
           onRemove: function (evt) {
-            if (_.contains(ESSENTIAL_PARAMETERS, evt.item.id)) {
+            if (ESSENTIAL_PARAMETERS.includes(evt.item.id)) {
               evt.preventDefault();
               evt.stopPropagation();
             }
@@ -650,7 +641,7 @@
           .done(function (processes) {
             $('#download_processes').empty();
 
-            if (processes.hasOwnProperty('vires:fetch_filtered_data_async')) {
+            if (has(processes, 'vires:fetch_filtered_data_async')) {
 
               var processes_to_save = 2;
               processes = processes['vires:fetch_filtered_data_async'];
