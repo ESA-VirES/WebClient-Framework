@@ -326,7 +326,7 @@
                     "range": [15000, 55000],
                     "uom":"nT",
                     "colorscale": "jet",
-                    "name": "Magnetic field vector, NEC frame"
+                    "name": "Magnetic field vector"
                 },
                 "F": {
                     "range": [15000, 55000],
@@ -339,7 +339,7 @@
                     "range": [-600, 600],
                     "uom":"nT",
                     "colorscale": "jet",
-                    "name": "Magnetic field vector residual A - C"
+                    "name": "Magnetic field vector A - C difference"
                 }
             },
             "download_parameters": {
@@ -389,7 +389,7 @@
                 },
                 "B_NEC_resAC": {
                     "uom":"nT",
-                    "name": "Magnetic field residual (A-C) vector, NEC frame"
+                    "name": "Magnetic field vector A - C difference, NEC frame"
                 },
                 "dB_Sun": {
                     "uom": "nT",
@@ -513,7 +513,7 @@
                     "range": [15000, 55000],
                     "uom":"nT",
                     "colorscale": "jet",
-                    "name": "Magnetic field vector, NEC frame"
+                    "name": "Magnetic field vector"
                 },
                 "F": {
                     "range": [15000, 55000],
@@ -689,7 +689,7 @@
                     "range": [15000, 55000],
                     "uom":"nT",
                     "colorscale": "jet",
-                    "name": "Magnetic field vector, NEC frame"
+                    "name": "Magnetic field vector"
                 },
                 "F": {
                     "range": [15000, 55000],
@@ -4682,7 +4682,7 @@
                     "range": [15000, 55000],
                     "uom":"nT",
                     "colorscale": "jet",
-                    "name": "Magnetic field vector, NEC frame"
+                    "name": "Magnetic field vector"
                 },
                 "F": {
                     "range": [15000, 55000],

@@ -1,6 +1,15 @@
 /* global $ _ jQuery d3 require showMessage defaultFor */
 /* global get */
 
+// model residual parameters
+var MAGNETIC_MODEL_RESIDUAL = {
+    "name": "Magnetic field vector model residual",
+    "range": [-10, 40],
+    "uom": "nT",
+    "colorscale": "jet",
+    "residuals": true
+};
+
 var SPACECRAFT_TO_ID = {
     'A': 'Alpha',
     'B': 'Bravo',
@@ -23,17 +32,16 @@ var SCALAR_PARAM = [
 ];
 
 var VECTOR_PARAM = [
-    "Model", // needed by CesiumView
-    "B_NEC", "B_NEC_resAC", "GPS_Position", "LEO_Position",
+    "B_NEC", "B_NEC_resAC", "B_NEC_res_Model", "GPS_Position", "LEO_Position",
     "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle",
     'dB_other', 'dB_AOCS', 'dB_Sun',
     'J_NE', 'J_T_NE', 'J_CF_NE', 'J_DF_NE',
 ];
 
+
 var VECTOR_BREAKDOWN = {
     'B_NEC': ['B_N', 'B_E', 'B_C'],
     'B_NEC_resAC': ['B_N_resAC', 'B_E_resAC', 'B_C_resAC'],
-    'Model': ['B_N_res_Model', 'B_E_res_Model', 'B_C_res_Model'], // needed by CesiumView
     'B_NEC_res_Model': ['B_N_res_Model', 'B_E_res_Model', 'B_C_res_Model'],
     'B_error': ['B_error_X', 'B_error_Y', 'B_error_Z'],
     'B_VFM': ['B_VFM_X', 'B_VFM_Y', 'B_VFM_Z'],
