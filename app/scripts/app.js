@@ -38,6 +38,7 @@ var VECTOR_PARAM = [
     'J_NE', 'J_T_NE', 'J_CF_NE', 'J_DF_NE',
 ];
 
+var MODEL_VARIABLE_PATTERN = [RegExp('B_NEC_res_(?<model>.+)')];
 
 var VECTOR_BREAKDOWN = {
     'B_NEC': ['B_N', 'B_E', 'B_C'],
@@ -444,6 +445,15 @@ var RELATED_VARIABLES = {
                                             }
                                         }
                                     }
+                                    // special handling of model parameters
+                                    _.each(MODEL_VARIABLE_PATTERN, function (pattern) {
+                                        var match = pk.match(pattern);
+                                        if (!match) {return;}
+                                        var model = pC[match.groups.model];
+                                        if (model && get(model, 'visible')) {
+                                            product.parameters[pk] = _.clone(pars[pk]);
+                                        }
+                                    });
                                 }
                             }
                             if (pC[prodId].hasOwnProperty.download_parameters) {
