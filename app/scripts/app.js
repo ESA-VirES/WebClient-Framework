@@ -4,7 +4,7 @@
 // model residual parameters
 var MAGNETIC_MODEL_RESIDUAL = {
     "name": "Magnetic field vector model residual",
-    "range": [-10, 40],
+    "range": [0, 750],
     "uom": "nT",
     "colorscale": "jet",
     "residuals": true
