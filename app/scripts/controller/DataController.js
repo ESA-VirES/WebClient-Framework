@@ -358,6 +358,8 @@
             function (item) {return item.getCustomShcIfSelected();}
           )[0] || null;
 
+          globals.swarm.clearSources();
+
           this.request.url = retrieve_data[0].url;
           this.request.fetch(options);
 
@@ -387,6 +389,7 @@
                 // keep link to collections which triggered this download
                 data.parentCollections = parentCollections[productType];
                 relatedDataModel.set(productType, data);
+                globals.swarm.appendSources(data.info.sources)
               },
               error: function (xhr, message) {
                 if (xhr.responseText === "") {return;}
@@ -438,6 +441,7 @@
           }
         }
 
+        globals.swarm.appendSources(data.info.sources)
         globals.swarm.set({data: data});
       },
 

@@ -1,4 +1,4 @@
-/*global define */
+/*global define _ */
 
 define(
   [
@@ -6,6 +6,7 @@ define(
     'objectStore',
     'models/MagneticModelCollection',
     'models/UserDataCollection',
+    'underscore',
   ],
   function (Backbone, ObjectStore, MagneticModel, UserDataModel) {
 
@@ -13,7 +14,16 @@ define(
       defaults: {
         data: null,
         relatedData: new Backbone.Model(),
-      }
+        sources: [],
+      },
+      clearSources: function () {
+        this.set('sources', []);
+      },
+      appendSources: function (sources) {
+        sources = [].concat(this.get('sources') || [], sources || []);
+        sources.sort();
+        this.set('sources', _.unique(sources, true));
+      },
     });
 
     return {
