@@ -1,6 +1,6 @@
 /*global $ _ */
 /*global showMessage getISODateTimeString RELATED_COLLECTIONS RELATED_VARIABLES */
-/*global MAGNETIC_MODEL_RESIDUAL */
+/*global MODEL_VARIABLES */
 /*global has get pop setDefault Timer */
 
 (function () {
@@ -131,19 +131,16 @@
               }
             }
 
-            for (var i = this.activeModels.length - 1; i >= 0; i--) {
-
-              // append model residual variable
-              pars['B_NEC_res_' + this.activeModels[i]] = _.extend({
-                "name": ("Magnetic field vector residual to " + this.activeModels[i]),
-              }, MAGNETIC_MODEL_RESIDUAL);
-
-              if (this.activeModels[i] == selected) {
-                pars[this.activeModels[i]].selected = true;
-              }
-
+            _.each(this.activeModels, function (activeModel) {
+              _.each(MODEL_VARIABLES, function (params, prefix) {
+                params = _.clone(params);
+                if (activeModel == selected) {
+                  params.selected = true;
+                }
+                pars[prefix + activeModel] = params;
+              }, this);
               product.set({"parameters": pars});
-            }
+            });
           }
         }, this);
         // Make sure any possible opened settings are updated

@@ -1,13 +1,16 @@
 /* global $ _ jQuery d3 require showMessage defaultFor */
-/* global get */
+/* global has get pop pick */
 
 // model residual parameters
-var MAGNETIC_MODEL_RESIDUAL = {
-    "name": "Magnetic field vector model residual",
-    "range": [0, 750],
-    "uom": "nT",
-    "colorscale": "jet",
-    "residuals": true
+var MODEL_VARIABLES = {
+    "B_NEC_res_": {
+        "pattern": RegExp('B_NEC_res_(?<model>.+)'),
+        "name": "Magnetic field vector model residual",
+        "range": [0, 750],
+        "uom": "nT",
+        "colorscale": "jet",
+        "residuals": true
+    }
 };
 
 var SPACECRAFT_TO_ID = {
@@ -37,8 +40,6 @@ var VECTOR_PARAM = [
     'dB_other', 'dB_AOCS', 'dB_Sun',
     'J_NE', 'J_T_NE', 'J_CF_NE', 'J_DF_NE',
 ];
-
-var MODEL_VARIABLE_PATTERN = [RegExp('B_NEC_res_(?<model>.+)')];
 
 var VECTOR_BREAKDOWN = {
     'B_NEC': ['B_N', 'B_E', 'B_C'],
@@ -400,76 +401,65 @@ var RELATED_VARIABLES = {
 
                 if (localStorage.getItem('productsConfiguration') !== null) {
 
-                    var pC = JSON.parse(
+                    var productConfiguration = JSON.parse(
                         localStorage.getItem('productsConfiguration')
                     );
 
-                    _.each(config.mapConfig.products, function (product) {
+                    _.each(config.mapConfig.products, function (dst) {
                         // Check if there is something to configure
                         // We only allow configuration of specific attributes
-                        var prodId = product.download.id;
+                        var src = get(productConfiguration, dst.download.id);
 
-                        if (pC.hasOwnProperty(prodId)) {
+                        if (!src) {return;}
 
-                            if (pC[prodId].hasOwnProperty('visible')) {
-                                product.visible = pC[prodId].visible;
-                            }
-                            if (pC[prodId].hasOwnProperty('outlines')) {
-                                product.outlines = pC[prodId].outlines;
-                            }
-                            if (pC[prodId].hasOwnProperty('opacity')) {
-                                product.opacity = pC[prodId].opacity;
-                            }
-                            if (pC[prodId].hasOwnProperty('parameters')) {
-                                // Go through all parameters and extend where
-                                // necessary
-                                var pars = pC[prodId].parameters;
-                                for (var pk in pars) {
-                                    if (product.parameters.hasOwnProperty(pk)) {
-                                        if (pars[pk].hasOwnProperty('range')) {
-                                            product.parameters[pk].range = pars[pk].range;
-                                        }
-                                        if (pars[pk].hasOwnProperty('colorscale')) {
-                                            product.parameters[pk].colorscale = pars[pk].colorscale;
-                                        }
-                                        if (pars[pk].hasOwnProperty('selected')) {
-                                            product.parameters[pk].selected = pars[pk].selected;
-                                            if (pars[pk].selected === true) {
-                                                // TODO: If selected remove all other selected
-                                                for (var spk in pars) {
-                                                    if (spk !== pk && product.parameters[spk] &&
-                                                        product.parameters[spk].hasOwnProperty('selected')) {
-                                                        delete product.parameters[spk].selected;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    // special handling of model parameters
-                                    _.each(MODEL_VARIABLE_PATTERN, function (pattern) {
-                                        var match = pk.match(pattern);
-                                        if (!match) {return;}
-                                        var model = pC[match.groups.model];
-                                        if (model && get(model, 'visible')) {
-                                            product.parameters[pk] = _.clone(pars[pk]);
-                                        }
-                                    });
-                                }
-                            }
-                            if (pC[prodId].hasOwnProperty.download_parameters) {
-                                // Go through all download parameters and extend
-                                // where necessary
-                            }
-                            if (pC[prodId].hasOwnProperty('components')) {
-                                // translate renamed models
-                                product.components = _.map(pC[prodId].components, function (component) {
-                                    var table = config.magneticModels.modelIdTranslation || {};
-                                    component.id = table[component.id] || component.id;
-                                    return component;
-                                });
-                            }
+                        _.extend(dst, pick(src, ['visible', 'outlines', 'opacity']));
+
+                        if (has(src, 'components')) {
+                            // translate renamed models
+                            dst.components = _.map(src.components, function (component) {
+                                var table = config.magneticModels.modelIdTranslation || {};
+                                component.id = table[component.id] || component.id;
+                                return component;
+                            });
                         }
 
+                        if (has(src, 'parameters')) {
+                            // Find default selected variable and clear the flags.
+                            var selectedVariable = null;
+                            _.each(dst.parameters, function (dstParam, variable) {
+                                if (pop(dstParam, 'selected') && !selectedVariable) {
+                                    selectedVariable = variable;
+                                }
+                            });
+
+                            // Go through parameters and copy attributes.
+                            _.each(src.parameters, function (srcParam, variable) {
+                                var dstParam = get(dst.parameters, variable);
+                                if (!dstParam) {
+                                    // Handle model specific variables not present
+                                    // in the loaded configuration.
+                                    var modelParam = _.find(MODEL_VARIABLES, function (item) {
+                                        var match = variable.match(item.pattern);
+                                        return match && has(productConfiguration, match.groups.model);
+                                    });
+                                    if (modelParam) {
+                                        dst.parameters[variable] = dstParam = _.clone(modelParam);
+                                    }
+                                }
+                                if (dstParam) {
+                                    if (get(srcParam, 'selected')) {
+                                        // Override the selected variable.
+                                        selectedVariable = variable;
+                                    }
+                                    _.extend(dstParam, pick(srcParam, ['range', 'colorscale']));
+                                }
+                            });
+
+                            // Flag the final selected variable.
+                            if (selectedVariable) {
+                                dst.parameters[selectedVariable].selected = true;
+                            }
+                        }
                     }, this);
 
                     savedChangesApplied = true;
