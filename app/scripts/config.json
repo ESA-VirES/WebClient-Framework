@@ -297,6 +297,7 @@
         }],
         "products": [{
             "name": "MAG A LR 1B",
+            "type": "SW_MAGx_LR_1B",
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
@@ -485,6 +486,7 @@
 
         },{
             "name": "MAG B LR 1B",
+            "type": "SW_MAGx_LR_1B",
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
@@ -661,6 +663,7 @@
             "satellite": "Swarm"
         },{
             "name": "MAG C LR 1B",
+            "type": "SW_MAGx_LR_1B",
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
@@ -4656,6 +4659,7 @@
             "satellite": "Swarm"
         },{
             "name": "MAG U LR 1B",
+            "type": "SW_MAGx_LR_1B",
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "USER_DATA",

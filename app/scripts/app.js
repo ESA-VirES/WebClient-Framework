@@ -5,6 +5,7 @@
 var MODEL_VARIABLES = {
     "B_NEC_res_": {
         "pattern": RegExp('B_NEC_res_(?<model>.+)'),
+        "productTypes": ["SW_MAGx_LR_1B"],
         "name": "Magnetic field vector model residual",
         "range": [0, 750],
         "uom": "nT",
@@ -469,6 +470,7 @@ var RELATED_VARIABLES = {
                     var p_color = product.color ? product.color : autoColor.getColor();
                     var lm = new m.LayerModel({
                         name: product.name,
+                        type: product.type,
                         visible: product.visible,
                         ordinal: ordinal,
                         timeSlider: product.timeSlider,

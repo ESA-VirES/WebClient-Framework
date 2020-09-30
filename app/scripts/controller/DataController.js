@@ -131,16 +131,18 @@
               }
             }
 
-            _.each(this.activeModels, function (activeModel) {
-              _.each(MODEL_VARIABLES, function (params, prefix) {
+            _.each(MODEL_VARIABLES, function (params, prefix) {
+              if (!params.productTypes.includes(product.get('type'))) {return;}
+              _.each(this.activeModels, function (activeModel) {
                 params = _.clone(params);
                 if (activeModel == selected) {
                   params.selected = true;
                 }
                 pars[prefix + activeModel] = params;
-              }, this);
-              product.set({"parameters": pars});
-            });
+              });
+            }, this);
+
+            product.set({"parameters": pars});
           }
         }, this);
         // Make sure any possible opened settings are updated
