@@ -339,6 +339,8 @@ var savePrameterStatus = function (globals) {
         }
       } else if (innerpk === 'colorscale') {
         parC.colorscale = uomSet[pk].colorscale;
+      } else if (innerpk === 'logarithmic') {
+        parC.logarithmic = uomSet[pk].logarithmic;
       }
     }
     if (!_.isEmpty(parC)) {
