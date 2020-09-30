@@ -66,13 +66,15 @@ define([
 
     var NEAR_FAR_SCALAR = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
 
-    var HEIGHT_OFFSET = 210000; //m
+    var HEIGHT_OFFSET = 170000; //m
 
     var EARTH_RADIUS = 6371000; // m
     var SWARM_ALTITUDE = 450000; // m
     var IONOSPHERIC_ALTITUDE = 110000; // m
     var DEFAULT_NOMINAL_RADIUS = EARTH_RADIUS + SWARM_ALTITUDE;
     var NOMINAL_RADIUS = {
+        'J_QD': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
+        'J_NE': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
         'J_T_NE': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
         'J_DF_NE': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
         'J_CF_NE': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
@@ -81,16 +83,20 @@ define([
         'J_R': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
     };
 
-    var DEFAULT_NOMINAL_PRODUCT_LEVEL = 4;
+    var DEFAULT_NOMINAL_PRODUCT_LEVEL = 3;
     var NOMINAL_PRODUCT_LEVEL = {
         "SW_OPER_AEJALPS_2F": 1,
         "SW_OPER_AEJBLPS_2F": 1,
         "SW_OPER_AEJCLPS_2F": 1,
         "SW_OPER_AEJULPS_2F": 1,
+        "SW_OPER_AEJALPL_2F": 1,
+        "SW_OPER_AEJBLPL_2F": 1,
+        "SW_OPER_AEJCLPL_2F": 1,
+        "SW_OPER_AEJULPL_2F": 1,
     };
     var FIXED_HEIGHT_PRODUCT = [
         "SW_OPER_AEJALPS_2F", "SW_OPER_AEJBLPS_2F", "SW_OPER_AEJCLPS_2F", "SW_OPER_AEJULPS_2F",
-        "SW_OPER_AEJALPL_2F", "SW_OPER_AEJBLPL_2F", "SW_OPER_AEJCLPL_2F", "SW_OPER_AEJULPL_2F",
+        "SW_OPER_MAGA_LR_2F", "SW_OPER_MAGB_LR_2F", "SW_OPER_MAGC_LR_2F", "SW_OPER_MAGU_LR_2F",
     ];
 
 
@@ -1569,7 +1575,7 @@ define([
         updateHeightIndices: function () {
 
             // Products of the same level are considered to overlap
-            // and therefore the need different heigh index to when displayed
+            // and therefore they need a different heigh index when displayed
             // simultaneously.
             // Fixed height products are always displayed on their true
             // location (index = 0).
@@ -1714,13 +1720,9 @@ define([
             switch (productType) {
                 case 'AEJ_PBS':
                 case 'AEJ_PBL':
-                    var altitude = {
-                        'AEJ_PBL': SWARM_ALTITUDE,
-                        'AEJ_PBS': IONOSPHERIC_ALTITUDE,
-                    };
                     renderer = getPeakAndBoundaryReneder(
                         'TRIANGLE', 'SQUARE',
-                        EARTH_RADIUS + altitude[productType], indices
+                        EARTH_RADIUS + IONOSPHERIC_ALTITUDE, indices
                     );
                     this.dataLegends.addProductTypeItem(productType, 'EJB', {
                         symbol: 'SQUARE',
