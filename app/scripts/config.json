@@ -297,6 +297,7 @@
         }],
         "products": [{
             "name": "MAG A LR 1B",
+            "type": "SW_MAGx_LR_1B",
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
@@ -326,7 +327,7 @@
                     "range": [15000, 55000],
                     "uom":"nT",
                     "colorscale": "jet",
-                    "name": "Magnetic field vector, NEC frame"
+                    "name": "Magnetic field vector"
                 },
                 "F": {
                     "range": [15000, 55000],
@@ -339,7 +340,7 @@
                     "range": [-600, 600],
                     "uom":"nT",
                     "colorscale": "jet",
-                    "name": "Magnetic field vector residual A - C"
+                    "name": "Magnetic field vector A - C difference"
                 }
             },
             "download_parameters": {
@@ -389,7 +390,7 @@
                 },
                 "B_NEC_resAC": {
                     "uom":"nT",
-                    "name": "Magnetic field residual (A-C) vector, NEC frame"
+                    "name": "Magnetic field vector A - C difference, NEC frame"
                 },
                 "dB_Sun": {
                     "uom": "nT",
@@ -485,6 +486,7 @@
 
         },{
             "name": "MAG B LR 1B",
+            "type": "SW_MAGx_LR_1B",
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
@@ -513,7 +515,7 @@
                     "range": [15000, 55000],
                     "uom":"nT",
                     "colorscale": "jet",
-                    "name": "Magnetic field vector, NEC frame"
+                    "name": "Magnetic field vector"
                 },
                 "F": {
                     "range": [15000, 55000],
@@ -661,6 +663,7 @@
             "satellite": "Swarm"
         },{
             "name": "MAG C LR 1B",
+            "type": "SW_MAGx_LR_1B",
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
@@ -689,7 +692,7 @@
                     "range": [15000, 55000],
                     "uom":"nT",
                     "colorscale": "jet",
-                    "name": "Magnetic field vector, NEC frame"
+                    "name": "Magnetic field vector"
                 },
                 "F": {
                     "range": [15000, 55000],
@@ -4656,6 +4659,7 @@
             "satellite": "Swarm"
         },{
             "name": "MAG U LR 1B",
+            "type": "SW_MAGx_LR_1B",
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "USER_DATA",
@@ -4682,7 +4686,7 @@
                     "range": [15000, 55000],
                     "uom":"nT",
                     "colorscale": "jet",
-                    "name": "Magnetic field vector, NEC frame"
+                    "name": "Magnetic field vector"
                 },
                 "F": {
                     "range": [15000, 55000],

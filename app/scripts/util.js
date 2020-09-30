@@ -38,6 +38,19 @@ var setDefault = function (object, property, defaultValue) {
   }
 };
 
+var pick = function (source, properties) {
+  var result = {};
+  var size = properties.length;
+  for (var i = 0; i < size; i++) {
+    var property = properties[i];
+    if (has(source, property)) {
+      result[property] = source[property];
+    }
+  }
+  return result;
+};
+
+
 var Timer = function () {
   this.reset = function () {
     this.start = performance.now();

@@ -15,14 +15,20 @@ define([
     'hbs!tmpl/wps_eval_composed_model',
     'hbs!tmpl/wps_get_field_lines',
     'hbs!tmpl/FieldlinesLabel',
-    'hbs!tmpl/wps_fetchData',
+    'hbs!tmpl/SvgSymbolCircle',
+    'hbs!tmpl/SvgSymbolDimond',
+    'hbs!tmpl/SvgSymbolDimondLarge',
+    'hbs!tmpl/SvgSymbolSquare',
+    'hbs!tmpl/SvgSymbolTriangle',
     'colormap',
     'cesium/Cesium',
     'drawhelper',
     'FileSaver',
 ], function (
     Marionette, Communicator, App, MapModel, globals, msgpack, httpRequest,
-    DataUtil, tmplEvalModel, tmplGetFieldLines, tmplFieldLinesLabel, wps_fetchDataTmpl,
+    DataUtil, tmplEvalModel, tmplGetFieldLines, tmplFieldLinesLabel,
+    tmplSvgSymbolCircle, tmplSvgSymbolDimond, tmplSvgSymbolDimondLarge,
+    tmplSvgSymbolSquare, tmplSvgSymbolTriangle,
     colormap
 ) {
     'use strict';
@@ -37,7 +43,7 @@ define([
             get: function (name) {
                 return get(this.symbols, name);
             },
-            set: function (name, source) {
+            set: function (name, svg) {
                 var timer = new Timer();
                 var image = new Image();
                 image.onload = _.bind(function () {
@@ -45,34 +51,35 @@ define([
                     timer.logEllapsedTime(name + " symbol load time:");
                 }, this);
                 this.counter += 1;
-                image.src = source;
+                image.src = 'data:image/svg+xml,' + svg;
                 this.symbols[name] = image;
             },
         });
     })();
 
-    var _SVG_HEAD = 'data:image/svg+xml,<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px" height="40px" xml:space="preserve">';
-    var _SVG_TAIL = '</svg>';
-
-    SYMBOLS.set('SQUARE', _SVG_HEAD + '<rect y="10" x="10" height="20" width="20" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL);
-    SYMBOLS.set('DIMOND', _SVG_HEAD + '<path d="M 5.86,20, 20,5.86 34.14,20 20,34.14 Z" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL);
-    SYMBOLS.set('LARGE_DIMOND', _SVG_HEAD + '<path d="M 3,20, 20,3 37,20 20,37 Z" stroke="black" stroke-width="4" fill="transparent"/>' + _SVG_TAIL);
-    SYMBOLS.set('TRIANGLE', _SVG_HEAD + '<path d="M 7.75,27.07 32.25,27.07 20,5.86 Z" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL);
-    SYMBOLS.set('CIRCLE', _SVG_HEAD + '<circle cx="20" cy="20" r="10" stroke="black" stroke-width="3" fill="transparent"/>' + _SVG_TAIL);
+    SYMBOLS.set('SQUARE_BLACK', tmplSvgSymbolSquare({color: 'black'}));
+    SYMBOLS.set('DIMOND_RED', tmplSvgSymbolDimond({color: 'maroon'}));
+    SYMBOLS.set('DIMOND_GREEN', tmplSvgSymbolDimond({color: 'rgb(0,64,0)'}));
+    SYMBOLS.set('LARGE_DIMOND_RED', tmplSvgSymbolDimondLarge({color: 'maroon'}));
+    SYMBOLS.set('LARGE_DIMOND_GREEN', tmplSvgSymbolDimondLarge({color: 'rgb(0,64,0)'}));
+    SYMBOLS.set('TRIANGLE_BLACK', tmplSvgSymbolTriangle({color: 'black'}));
+    SYMBOLS.set('CIRCLE_BLACK', tmplSvgSymbolCircle({color: 'black'}));
 
     var DEG2RAD = Math.PI / 180.0;
 
-    var DEFAULT_POINT_PIXEL_SIZE = 8;
+    var DEFAULT_POINT_PIXEL_SIZE = 6;
 
     var NEAR_FAR_SCALAR = new Cesium.NearFarScalar(1.0e2, 4, 14.0e6, 0.8);
 
-    var HEIGHT_OFFSET = 210000; //m
+    var HEIGHT_OFFSET = 170000; //m
 
     var EARTH_RADIUS = 6371000; // m
     var SWARM_ALTITUDE = 450000; // m
     var IONOSPHERIC_ALTITUDE = 110000; // m
     var DEFAULT_NOMINAL_RADIUS = EARTH_RADIUS + SWARM_ALTITUDE;
     var NOMINAL_RADIUS = {
+        'J_QD': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
+        'J_NE': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
         'J_T_NE': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
         'J_DF_NE': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
         'J_CF_NE': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
@@ -81,16 +88,20 @@ define([
         'J_R': EARTH_RADIUS + IONOSPHERIC_ALTITUDE,
     };
 
-    var DEFAULT_NOMINAL_PRODUCT_LEVEL = 4;
+    var DEFAULT_NOMINAL_PRODUCT_LEVEL = 3;
     var NOMINAL_PRODUCT_LEVEL = {
         "SW_OPER_AEJALPS_2F": 1,
         "SW_OPER_AEJBLPS_2F": 1,
         "SW_OPER_AEJCLPS_2F": 1,
         "SW_OPER_AEJULPS_2F": 1,
+        "SW_OPER_AEJALPL_2F": 1,
+        "SW_OPER_AEJBLPL_2F": 1,
+        "SW_OPER_AEJCLPL_2F": 1,
+        "SW_OPER_AEJULPL_2F": 1,
     };
     var FIXED_HEIGHT_PRODUCT = [
         "SW_OPER_AEJALPS_2F", "SW_OPER_AEJBLPS_2F", "SW_OPER_AEJCLPS_2F", "SW_OPER_AEJULPS_2F",
-        "SW_OPER_AEJALPL_2F", "SW_OPER_AEJBLPL_2F", "SW_OPER_AEJCLPL_2F", "SW_OPER_AEJULPL_2F",
+        "SW_OPER_MAGA_LR_2F", "SW_OPER_MAGB_LR_2F", "SW_OPER_MAGC_LR_2F", "SW_OPER_MAGU_LR_2F",
     ];
 
 
@@ -102,9 +113,12 @@ define([
 
     var BUBLE_PROBABILITY_THRESHOLD = 0.1;
 
-    var PT_POINT_TYPE_MASK = 0x2;
-    var PT_BOUNDARY = 0x2;
-    var PT_PEAK = 0x0;
+    var PT_AEJ_POINT_TYPE_MASK = 0x2;
+    var PT_AEJ_BOUNDARY = 0x2;
+    var PT_AEJ_PEAK = 0x0;
+    var BF_AOB_POINT_TYPE_MASK = 0x3;
+    var BF_AOB_EW_BOUNDARY = 0x1;
+    var BF_AOB_PW_BOUNDARY = 0x2;
 
     // record filter class
     var RecordFilter = function (variables) {
@@ -1569,7 +1583,7 @@ define([
         updateHeightIndices: function () {
 
             // Products of the same level are considered to overlap
-            // and therefore the need different heigh index to when displayed
+            // and therefore they need a different heigh index when displayed
             // simultaneously.
             // Fixed height products are always displayed on their true
             // location (index = 0).
@@ -1671,19 +1685,31 @@ define([
                 };
             };
 
-            var getPeakAndBoundaryReneder = function (peakSymbol, boundarySymbol, radius, indices) {
-                var renderBoundary = getGeocetricPointRenderer(boundarySymbol, radius, indices);
-                var renderPeak = getGeocetricPointRenderer(peakSymbol, radius, indices);
+            var getMultiGeocetricPointRenderer = function (selector, symbols, radius, indices) {
+                var renderers = _.map(symbols, function (symbol) {
+                    return getGeocetricPointRenderer(symbol, radius, indices);
+                });
                 return function (record) {
-                    switch (record.PointType & PT_POINT_TYPE_MASK) {
-                        case PT_PEAK:
-                            renderPeak(record);
-                            break;
-                        case PT_BOUNDARY:
-                            renderBoundary(record);
-                            break;
-                    }
+                    renderers[selector(record)](record);
                 };
+            };
+
+            var selectAejPointType = function (record) {
+                switch (record.PointType & PT_AEJ_POINT_TYPE_MASK) {
+                    case PT_AEJ_PEAK:
+                        return 0;
+                    case PT_AEJ_BOUNDARY:
+                        return 1;
+                }
+            };
+
+            var selectAobPointType = function (record) {
+                switch (record.Boundary_Flag & BF_AOB_POINT_TYPE_MASK) {
+                    case BF_AOB_EW_BOUNDARY:
+                        return 0;
+                    case BF_AOB_PW_BOUNDARY:
+                        return 1;
+                }
             };
 
             var retrieveHeightIndices = function (parentCollections) {
@@ -1714,37 +1740,39 @@ define([
             switch (productType) {
                 case 'AEJ_PBS':
                 case 'AEJ_PBL':
-                    var altitude = {
-                        'AEJ_PBL': SWARM_ALTITUDE,
-                        'AEJ_PBS': IONOSPHERIC_ALTITUDE,
-                    };
-                    renderer = getPeakAndBoundaryReneder(
-                        'TRIANGLE', 'SQUARE',
-                        EARTH_RADIUS + altitude[productType], indices
+                    renderer = getMultiGeocetricPointRenderer(
+                        selectAejPointType, ['TRIANGLE_BLACK', 'SQUARE_BLACK'],
+                        EARTH_RADIUS + IONOSPHERIC_ALTITUDE, indices
                     );
                     this.dataLegends.addProductTypeItem(productType, 'EJB', {
-                        symbol: 'SQUARE',
+                        symbol: 'SQUARE_BLACK',
                         title: "Electrojet boundary",
                     });
                     this.dataLegends.addProductTypeItem(productType, 'EJP', {
-                        symbol: 'TRIANGLE',
+                        symbol: 'TRIANGLE_BLACK',
                         title: "Peak electrojet current",
                     });
                     break;
                 case 'AEJ_PBS:GroundMagneticDisturbance':
-                    renderer = getGeodeticPointRenderer('CIRCLE', 0);
+                    renderer = getGeodeticPointRenderer('CIRCLE_BLACK', 0);
                     this.dataLegends.addProductTypeItem(productType, 'MDP', {
-                        symbol: 'CIRCLE',
+                        symbol: 'CIRCLE_BLACK',
                         title: "Peak magnetic disturbance",
                     });
                     break;
                 case 'AOB_FAC':
-                    renderer = getGeocetricPointRenderer(
-                        'LARGE_DIMOND', EARTH_RADIUS + SWARM_ALTITUDE, indices
+                    renderer = getMultiGeocetricPointRenderer(
+                        selectAobPointType,
+                        ['LARGE_DIMOND_GREEN', 'LARGE_DIMOND_RED'],
+                        EARTH_RADIUS + SWARM_ALTITUDE, indices
                     );
-                    this.dataLegends.addProductTypeItem(productType, 'AOB', {
-                        symbol: 'DIMOND',
-                        title: "Aurora oval boundary",
+                    this.dataLegends.addProductTypeItem(productType, 'AOB_PW', {
+                        symbol: 'DIMOND_RED',
+                        title: "Aurora oval poleward boundary",
+                    });
+                    this.dataLegends.addProductTypeItem(productType, 'AOB_EW', {
+                        symbol: 'DIMOND_GREEN',
+                        title: "Aurora oval equatorward boundary",
                     });
                     break;
                 default:

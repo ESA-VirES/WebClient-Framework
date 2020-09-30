@@ -642,21 +642,27 @@ define(['backbone.marionette',
         }, //onShow end
 
         connectDataEvents: function () {
-            globals.swarm.on('change:data', this.reloadData.bind(this));
+            globals.swarm.on('change:data', _.bind(this.reloadData, this));
+            globals.swarm.on('change:sources', _.bind(this.updateProductSourcesContainer, this));
         },
 
-        createProductSourcesContainer: function (data) {
-            if (!data.isEmpty()) {
-                var sources = data.info.sources;
-                this.$el.append('<div id="productSourcesInfoContainer" class="sourcesInfoContainer"></div>');
-                $('#productSourcesInfoContainer').append('<button type="button" class="close" title="Close panel" data-dismiss="alert" aria-hidden="true">&times;</button>');
-                $('#productSourcesInfoContainer').append('<h4>Data sources:</h4>');
-                $('#productSourcesInfoContainer').append('<ul id="productInfoList"></ul>');
-                for (var i = 0; i < sources.length; i++) {
-                    $('#productInfoList').append(
-                        '<li>' + sources[i] + '</li>'
-                    );
-                }
+        updateProductSourcesContainer: function () {
+            if (this.productSourcesContainerExists()) {
+                this.removeProductSourcesContainer();
+                this.createProductSourcesContainer();
+            }
+        },
+
+        createProductSourcesContainer: function () {
+            var sources = globals.swarm.get('sources');
+            this.$el.append('<div id="productSourcesInfoContainer" class="sourcesInfoContainer"></div>');
+            $('#productSourcesInfoContainer').append('<button type="button" class="close" title="Close panel" data-dismiss="alert" aria-hidden="true">&times;</button>');
+            $('#productSourcesInfoContainer').append('<h4>Data sources:</h4>');
+            $('#productSourcesInfoContainer').append('<ul id="productInfoList"></ul>');
+            for (var i = 0; i < sources.length; i++) {
+                $('#productInfoList').append(
+                    '<li>' + sources[i] + '</li>'
+                );
             }
         },
 
@@ -930,12 +936,6 @@ define(['backbone.marionette',
         },
 
         reloadData: function (model, data) {
-
-            // re-render opened sources info
-            if (this.productSourcesContainerExists()) {
-                this.removeProductSourcesContainer();
-                this.createProductSourcesContainer(data);
-            }
 
             function itemExists(itemArray, item) {
                 for (var i = 0; i < itemArray.length; ++i) {

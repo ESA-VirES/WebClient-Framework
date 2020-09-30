@@ -1,5 +1,6 @@
 /*global $ _ */
 /*global showMessage getISODateTimeString RELATED_COLLECTIONS RELATED_VARIABLES */
+/*global MODEL_VARIABLES */
 /*global has get pop setDefault Timer */
 
 (function () {
@@ -130,21 +131,18 @@
               }
             }
 
-            for (var i = this.activeModels.length - 1; i >= 0; i--) {
+            _.each(MODEL_VARIABLES, function (params, prefix) {
+              if (!params.productTypes.includes(product.get('type'))) {return;}
+              _.each(this.activeModels, function (activeModel) {
+                params = _.clone(params);
+                if (activeModel == selected) {
+                  params.selected = true;
+                }
+                pars[prefix + activeModel] = params;
+              });
+            }, this);
 
-              pars[this.activeModels[i]] = {
-                "range": [-10, 40],
-                "uom": "nT",
-                "colorscale": "jet",
-                "name": ("Residuals to " + this.activeModels[i]),
-                "residuals": true
-              };
-              if (this.activeModels[i] == selected) {
-                pars[this.activeModels[i]].selected = true;
-              }
-
-              product.set({"parameters": pars});
-            }
+            product.set({"parameters": pars});
           }
         }, this);
         // Make sure any possible opened settings are updated
@@ -359,6 +357,8 @@
             function (item) {return item.getCustomShcIfSelected();}
           )[0] || null;
 
+          globals.swarm.clearSources();
+
           this.request.url = retrieve_data[0].url;
           this.request.fetch(options);
 
@@ -388,6 +388,7 @@
                 // keep link to collections which triggered this download
                 data.parentCollections = parentCollections[productType];
                 relatedDataModel.set(productType, data);
+                globals.swarm.appendSources(data.info.sources)
               },
               error: function (xhr, message) {
                 if (xhr.responseText === "") {return;}
@@ -439,6 +440,7 @@
           }
         }
 
+        globals.swarm.appendSources(data.info.sources)
         globals.swarm.set({data: data});
       },
 
