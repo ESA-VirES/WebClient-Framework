@@ -127,7 +127,7 @@ var RELATED_VARIABLES = {
     'AEJ_PBS': ['PointType'].concat(_COMMON_RELATED_VARIABLES),
     'AEJ_PBS:GroundMagneticDisturbance': [].concat(_COMMON_RELATED_VARIABLES),
     'AEJ_PBL': ['PointType'].concat(_COMMON_RELATED_VARIABLES),
-    'AOB_FAC': ['Radius'].concat(_COMMON_RELATED_VARIABLES),
+    'AOB_FAC': ['Radius', 'Boundary_Flag'].concat(_COMMON_RELATED_VARIABLES),
 };
 
 (function () {
