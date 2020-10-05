@@ -1,6 +1,7 @@
 /*global $ _ w2confirm */
 /*global getISOTimeString isValidTime parseTime getISODateTimeString */
-/*global VECTOR_BREAKDOWN */
+/*global VECTOR_BREAKDOWN TIMESTAMP */
+/*global has get pop */
 
 (function () {
   'use strict';
@@ -27,6 +28,11 @@
     DownloadProcessTmpl, wps_requestTmpl, CoverageDownloadPostTmpl,
     wps_fetchFilteredDataAsync, DataUtil
   ) {
+
+    var ESSENTIAL_PARAMETERS = [TIMESTAMP, "Latitude", "Longitude", "Radius"];
+    var EXCLUDED_PARAMETERS = [
+      TIMESTAMP, 'q_NEC_CRF', 'GPS_Position', 'LEO_Position', 'EEJ'
+    ];
 
     var DownloadProcessModel = Backbone.Model.extend({
       refreshTime: 2000, // refresh time in ms
@@ -564,39 +570,19 @@
           }
         }, this));
 
-        var selected = [];
-        // Check if latitude available
-        if (_.find(available_parameters, function (item) {return item.id == "Latitude";})) {
-          selected.push({id: "Latitude"});
-        }
-        //Check if Longitude available
-        if (_.find(available_parameters, function (item) {return item.id == "Longitude";})) {
-          selected.push({id: "Longitude"});
-        }
-        //Check if timestamp available
-        if (_.find(available_parameters, function (item) {return item.id == "Timestamp";})) {
-          selected.push({id: "Timestamp"});
-        }
-        //Check if radius available
-        if (_.find(available_parameters, function (item) {return item.id == "Radius";})) {
-          selected.push({id: "Radius"});
-        }
-
-        // See if magnetic data actually selected if not remove residuals
-        var magdata = false;
-        _.each(products, function (p, key) {
-          if (key.indexOf("MAG") != -1) {
-            magdata = true;
+        // Make sure the available essential parameters are selected.
+        var selected = _.map(ESSENTIAL_PARAMETERS, function (variable) {
+          if (_.any(available_parameters, function (item) {return item.id == variable;})) {
+            return {id: variable};
           }
         });
 
+        // See if magnetic data actually selected if not remove residuals
+        var magdata = _.any(_.keys(products), function (key) {return key.includes("MAG");});
+
         if (!magdata) {
           available_parameters = _.filter(available_parameters, function (v) {
-            if (v.id.indexOf("_res_") != -1) {
-              return false;
-            } else {
-              return true;
-            }
+            return !v.id.includes("_res_");
           });
         }
 
@@ -605,8 +591,7 @@
           openOnFocus: true,
           selected: selected,
           renderItem: _.bind(function (item, index, remove) {
-            if (item.id == "Latitude" || item.id == "Longitude" ||
-                   item.id == "Timestamp" || item.id == "Radius") {
+            if (ESSENTIAL_PARAMETERS.includes(item.id)) {
               remove = "";
             }
             var html = remove + this.createSubscript(item.id);
@@ -627,8 +612,7 @@
             return html;
           }, this),
           onRemove: function (evt) {
-            if (evt.item.id == "Radius" || evt.item.id == "Latitude" ||
-                 evt.item.id == "Longitude" || evt.item.id == "Timestamp") {
+            if (ESSENTIAL_PARAMETERS.includes(evt.item.id)) {
               evt.preventDefault();
               evt.stopPropagation();
             }
@@ -657,7 +641,7 @@
           .done(function (processes) {
             $('#download_processes').empty();
 
-            if (processes.hasOwnProperty('vires:fetch_filtered_data_async')) {
+            if (has(processes, 'vires:fetch_filtered_data_async')) {
 
               var processes_to_save = 2;
               processes = processes['vires:fetch_filtered_data_async'];
@@ -713,25 +697,20 @@
       },
 
       renderFilterList: function () {
-        var filters = this.currentFilters;
         var fil_div = this.$el.find("#filters");
         fil_div.find('.w2ui-field').remove();
         $('#downloadAddFilter').remove();
 
-        var available_uom = {};
-        // Clone object
-        _.each(globals.swarm.get('uom_set'), function (obj, key) {
-          available_uom[key] = obj;
-        });
+        var available_uom = _.clone(globals.swarm.get('uom_set') || {});
 
-        _.each(_.keys(filters), function (key) {
+        _.each(_.keys(this.currentFilters), function (key) {
 
           // Check if filter part of parameters of currently selected products
-          if (!available_uom.hasOwnProperty(key)) {
+          if (!has(available_uom, key)) {
             delete this.currentFilters[key];
 
           } else if ($('#filters #' + key).length == 0) {
-            var extent = filters[key].map(this.round);
+            var extent = this.currentFilters[key].map(this.round);
             var name = "";
             var parts = key.split("_");
             if (parts.length > 1) {
@@ -759,43 +738,30 @@
         // Create possible filter options based on possible download parameters
         var filteroptions = {};
         globals.products.each(function (model) {
-          var dpars = model.get('download_parameters');
           if (model.get('visible')) {
-            for (var key in dpars) {
-              filteroptions[key] = dpars[key];
-            }
+            _.extend(filteroptions, model.get('download_parameters'));
           }
         });
 
-        // We need to decompose all vector parameters so that filters can be
-        // applied correctly
-
-        for (var key in filteroptions) {
-          if (VECTOR_BREAKDOWN.hasOwnProperty(key)) {
-            for (var i = 0; i < VECTOR_BREAKDOWN[key].length; i++) {
-              filteroptions[VECTOR_BREAKDOWN[key][i]] = {
-                uom: filteroptions[key].uom,
-                name: 'Component of ' + filteroptions[key].name
-              };
-            }
-            delete filteroptions[key];
+        // Decompose vectors to their scalar components.
+        _.each(_.keys(filteroptions), function (variable) {
+          var components = get(VECTOR_BREAKDOWN, variable);
+          if (!components) {return;}
+          var options = pop(filteroptions, variable);
+          for (var i = 0; i < components.length; i++) {
+            filteroptions[components[i]] = {
+              uom: options.uom,
+              name: 'Component of ' + options.name
+            };
           }
-        }
+        });
 
-        var filterkeys = _.keys(this.currentFilters);
-        for (var i = 0; i < filterkeys.length; i++) {
-          if (filteroptions.hasOwnProperty(filterkeys[i])) {
-            delete filteroptions[filterkeys[i]];
-          }
-        }
-
-        // Remove unwanted parameters
-        if (filteroptions.hasOwnProperty('Timestamp')) {delete filteroptions['Timestamp'];}
-        if (filteroptions.hasOwnProperty('timestamp')) {delete filteroptions['timestamp'];}
-        if (filteroptions.hasOwnProperty('q_NEC_CRF')) {delete filteroptions['q_NEC_CRF'];}
-        if (filteroptions.hasOwnProperty('GPS_Position')) {delete filteroptions['GPS_Position'];}
-        if (filteroptions.hasOwnProperty('LEO_Position')) {delete filteroptions['LEO_Position'];}
-        if (filteroptions.hasOwnProperty('EEJ')) {delete filteroptions['EEJ'];}
+        // Remove currently filtered and other unwanted variables.
+        var _removeVariable = function (variable) {
+          pop(filteroptions, variable);
+        };
+        _.each(_.keys(this.currentFilters), _removeVariable);
+        _.each(EXCLUDED_PARAMETERS, _removeVariable);
 
         $('#filters').append(
           '<div class="w2ui-field"> <input type="list" id="addfilter"> <button id="downloadAddFilter" type="button" class="btn btn-default dropdown-toggle">Add filter <span class="caret"></span></button> </div>'

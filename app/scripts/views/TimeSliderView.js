@@ -140,7 +140,6 @@
                     controls: true
                 };
 
-              
                 this.slider = new TimeSlider(this.el, initopt);
                 // Add selection helpers
                 //this.slider.setBrushTooltip(true);
@@ -233,10 +232,10 @@
                 });
                 $('#timeslider .control').addClass('darkbutton');
                 $(this.el).mouseenter(function () {
-                  $('.control').show();
+                    $('.control').show();
                 });
                 $(this.el).mouseleave(function () {
-                  $('.control').hide();
+                    $('.control').hide();
                 });
             }, // END of onShow
 
@@ -279,28 +278,9 @@
                     });
             },
 
-            fetchBubble: function (start, end, params, callback) {
-                var request = this.url + '?service=wps&request=execute&version=1.0.0&identifier=retrieve_bubble_index&DataInputs=collection_id=' +
-                this.id + ';begin_time=' + getISODateTimeString(start) + ';end_time=' + getISODateTimeString(end) + '&RawDataOutput=output';
-                d3.csv(request)
-                    .row(function (row) {
-                        return [
-                            new Date(row.starttime),
-                            new Date(row.endtime),
-                            {
-                                id: row.identifier,
-                                bbox: row.bbox.replace(/[()]/g, '').split(',').map(parseFloat)
-                            }
-                        ];
-                    })
-                    .get(function (error, rows) {
-                        callback(rows);
-                    });
-            },
-
 
             fetchWPS: function (start, end, params, callback) {
-                var request = this.url + '?service=wps&request=execute&version=1.0.0&identifier=getTimeData&DataInputs=collection=' +
+                var request = this.url + '?service=wps&request=execute&version=1.0.0&identifier=' + this.wpsProcessName + '&DataInputs=collection=' +
                 this.id + ';begin_time=' + getISODateTimeString(start) + ';end_time=' + getISODateTimeString(end) + '&RawDataOutput=times';
                 d3.csv(request)
                     .row(function (row) {
@@ -400,6 +380,7 @@
                                     break;
                                 case 'WPS':
                                     attrs = {
+                                        wpsProcessName: product.get('timeSliderWpsProcessName') || "getTimeData",
                                         id: product.get('download').id,
                                         url: product.get('download').url
                                     };
@@ -417,6 +398,21 @@
                                     //this.slider.updateBBox([extent.left, extent.bottom, extent.right, extent.top], product.get('download').id);
                                     break;
 
+                                case 'WPS-INDEX': // deprecated use WPS with timeSliderWpsProcessName instead
+                                    this.activeWPSproducts.push(product.get('download').id);
+                                    attrs = {
+                                        wpsProcessName: 'retrieve_bubble_index',
+                                        id: product.get('download').id,
+                                        url: product.get('download').url
+                                    };
+                                    this.slider.addDataset({
+                                        id: product.get('download').id,
+                                        color: product.get('color'),
+                                        records: null,
+                                        source: {fetch: this.fetchWPS.bind(attrs)}
+                                    });
+                                    break;
+
                                 case 'MagneticModel':
                                     attrs = {
                                         id: product.get('download').id,
@@ -429,19 +425,6 @@
                                     });
                                     break;
 
-                                case 'WPS-INDEX':
-                                    this.activeWPSproducts.push(product.get('download').id);
-                                    attrs = {
-                                        id: product.get('download').id,
-                                        url: product.get('download').url
-                                    };
-                                    this.slider.addDataset({
-                                        id: product.get('download').id,
-                                        color: product.get('color'),
-                                        records: null,
-                                        source: {fetch: this.fetchBubble.bind(attrs)}
-                                    });
-                                    break;
 
                                 case 'INDEX':
                                     attrs = {

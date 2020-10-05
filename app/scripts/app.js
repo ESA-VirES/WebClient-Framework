@@ -1,4 +1,28 @@
 /* global $ _ jQuery d3 require showMessage defaultFor */
+/* global has get pop pick */
+
+// model residual parameters
+var MODEL_VARIABLES = {
+    "B_NEC_res_": {
+        "pattern": RegExp('B_NEC_res_(?<model>.+)'),
+        "productTypes": ["SW_MAGx_LR_1B"],
+        "name": "Magnetic field vector model residual",
+        "range": [0, 750],
+        "uom": "nT",
+        "colorscale": "jet",
+        "residuals": true
+    }
+};
+
+var SPACECRAFT_TO_ID = {
+    'A': 'Alpha',
+    'B': 'Bravo',
+    'C': 'Charlie',
+    '-': 'NSC',
+    'U': 'Upload',
+};
+
+var TIMESTAMP = 'Timestamp';
 
 var SCALAR_PARAM = [
     "F", "Ne", "Te", "Vs", "U_orbit", "Bubble_Index", "Bubble_Probability",
@@ -7,20 +31,20 @@ var SCALAR_PARAM = [
     "Grad_Ne_at_20km", "Grad_Ne_at_PCP_edge", "ROD", "RODI10s", "RODI20s", "delta_Ne10s",
     "delta_Ne20s", "delta_Ne40s", "Num_GPS_satellites", "mVTEC", "mROT", "mROTI10s",
     "mROTI20s", "IBI_flag", "Ionosphere_region_flag", "IPIR_index", "Ne_quality_flag",
-    "TEC_STD"
+    "TEC_STD",
+    "J_QD", "J_R", "J_CF_SemiQD", "J_DF_SemiQD", "Boundary_Flag", "Pair_Indicator",
 ];
 
 var VECTOR_PARAM = [
-    "Model", // needed by CesiumView
-    "B_NEC", "B_NEC_resAC", "GPS_Position", "LEO_Position",
+    "B_NEC", "B_NEC_resAC", "B_NEC_res_Model", "GPS_Position", "LEO_Position",
     "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle",
-    'dB_other', 'dB_AOCS', 'dB_Sun'
+    'dB_other', 'dB_AOCS', 'dB_Sun',
+    'J_NE', 'J_T_NE', 'J_CF_NE', 'J_DF_NE',
 ];
 
 var VECTOR_BREAKDOWN = {
     'B_NEC': ['B_N', 'B_E', 'B_C'],
     'B_NEC_resAC': ['B_N_resAC', 'B_E_resAC', 'B_C_resAC'],
-    'Model': ['B_N_res_Model', 'B_E_res_Model', 'B_C_res_Model'], // needed by CesiumView
     'B_NEC_res_Model': ['B_N_res_Model', 'B_E_res_Model', 'B_C_res_Model'],
     'B_error': ['B_error_X', 'B_error_Y', 'B_error_Z'],
     'B_VFM': ['B_VFM_X', 'B_VFM_Y', 'B_VFM_Z'],
@@ -28,7 +52,11 @@ var VECTOR_BREAKDOWN = {
     'LEO_Position': ['LEO_Position_X', 'LEO_Position_Y', 'LEO_Position_Z'],
     'dB_other': ['dB_other_X', 'dB_other_Y', 'dB_other_Z'],
     'dB_AOCS': ['dB_AOCS_X', 'dB_AOCS_Y', 'dB_AOCS_Z'],
-    'dB_Sun': ['dB_Sun_X', 'dB_Sun_Y', 'dB_Sun_Z']
+    'dB_Sun': ['dB_Sun_X', 'dB_Sun_Y', 'dB_Sun_Z'],
+    'J_NE': ['J_N', 'J_E'],
+    'J_T_NE': ['J_T_N', 'J_T_E'],
+    'J_CF_NE': ['J_CF_N', 'J_CF_E'],
+    'J_DF_NE': ['J_DF_N', 'J_DF_E'],
 };
 
 // Ordered from highest resolution to lowest with the exception of FAC that
@@ -40,6 +68,8 @@ var MASTER_PRIORITY = [
     'SW_OPER_TECATMS_2F', 'SW_OPER_TECBTMS_2F', 'SW_OPER_TECCTMS_2F', 'SW_OPER_TECUTMS_2F',
     'SW_OPER_IBIATMS_2F', 'SW_OPER_IBIBTMS_2F', 'SW_OPER_IBICTMS_2F', 'SW_OPER_IBIUTMS_2F',
     'SW_OPER_EEFATMS_2F', 'SW_OPER_EEFBTMS_2F', 'SW_OPER_EEFCTMS_2F', 'SW_OPER_EEFUTMS_2F',
+    'SW_OPER_AEJALPS_2F', 'SW_OPER_AEJBLPS_2F', 'SW_OPER_AEJCLPS_2F', 'SW_OPER_AEJULPS_2F',
+    'SW_OPER_AEJALPL_2F', 'SW_OPER_AEJBLPL_2F', 'SW_OPER_AEJCLPL_2F', 'SW_OPER_AEJULPL_2F',
 ];
 
 // variable translations
@@ -49,6 +79,56 @@ var REPLACED_SCALAR_VARIABLES = {
     'B_resAC_C': 'B_C_resAC'
 };
 
+// related data collections
+var RELATED_COLLECTIONS = {
+    'SW_OPER_AEJALPS_2F': [
+        {collections: ['SW_OPER_AEJAPBS_2F'], type: 'AEJ_PBS'},
+        {
+            collections: ['SW_OPER_AEJAPBS_2F:GroundMagneticDisturbance'],
+            type: 'AEJ_PBS:GroundMagneticDisturbance'
+        }
+    ],
+    'SW_OPER_AEJBLPS_2F': [
+        {collections: ['SW_OPER_AEJBPBS_2F'], type: 'AEJ_PBS'},
+        {
+            collections: ['SW_OPER_AEJBPBS_2F:GroundMagneticDisturbance'],
+            type: 'AEJ_PBS:GroundMagneticDisturbance'
+        }
+    ],
+    'SW_OPER_AEJCLPS_2F': [
+        {collections: ['SW_OPER_AEJCPBS_2F'], type: 'AEJ_PBS'},
+        {
+            collections: ['SW_OPER_AEJCPBS_2F:GroundMagneticDisturbance'],
+            type: 'AEJ_PBS:GroundMagneticDisturbance'
+        }
+    ],
+    'SW_OPER_AEJALPL_2F': [
+        {collections: ['SW_OPER_AEJAPBL_2F'], type: 'AEJ_PBL'}
+    ],
+    'SW_OPER_AEJBLPL_2F': [
+        {collections: ['SW_OPER_AEJBPBL_2F'], type: 'AEJ_PBL'}
+    ],
+    'SW_OPER_AEJCLPL_2F': [
+        {collections: ['SW_OPER_AEJCPBL_2F'], type: 'AEJ_PBL'}
+    ],
+    'SW_OPER_FACATMS_2F': [
+        {collections: ['SW_OPER_AOBAFAC_2F', 'SW_OPER_FACATMS_2F'], type: 'AOB_FAC'}
+    ],
+    'SW_OPER_FACBTMS_2F': [
+        {collections: ['SW_OPER_AOBBFAC_2F', 'SW_OPER_FACBTMS_2F'], type: 'AOB_FAC'}
+    ],
+    'SW_OPER_FACCTMS_2F': [
+        {collections: ['SW_OPER_AOBCFAC_2F', 'SW_OPER_FACCTMS_2F'], type: 'AOB_FAC'}
+    ],
+};
+
+var _COMMON_RELATED_VARIABLES = ["QDLat", "QDLon", "MLT", "Kp", "Dst", "dDst", "F107"];
+var RELATED_VARIABLES = {
+    'AEJ_PBS': ['PointType'].concat(_COMMON_RELATED_VARIABLES),
+    'AEJ_PBS:GroundMagneticDisturbance': [].concat(_COMMON_RELATED_VARIABLES),
+    'AEJ_PBL': ['PointType'].concat(_COMMON_RELATED_VARIABLES),
+    'AOB_FAC': ['Radius', 'Boundary_Flag'].concat(_COMMON_RELATED_VARIABLES),
+};
 
 (function () {
     'use strict';
@@ -322,67 +402,65 @@ var REPLACED_SCALAR_VARIABLES = {
 
                 if (localStorage.getItem('productsConfiguration') !== null) {
 
-                    var pC = JSON.parse(
+                    var productConfiguration = JSON.parse(
                         localStorage.getItem('productsConfiguration')
                     );
 
-                    _.each(config.mapConfig.products, function (product) {
+                    _.each(config.mapConfig.products, function (dst) {
                         // Check if there is something to configure
                         // We only allow configuration of specific attributes
-                        var prodId = product.download.id;
+                        var src = get(productConfiguration, dst.download.id);
 
-                        if (pC.hasOwnProperty(prodId)) {
+                        if (!src) {return;}
 
-                            if (pC[prodId].hasOwnProperty('visible')) {
-                                product.visible = pC[prodId].visible;
-                            }
-                            if (pC[prodId].hasOwnProperty('outlines')) {
-                                product.outlines = pC[prodId].outlines;
-                            }
-                            if (pC[prodId].hasOwnProperty('opacity')) {
-                                product.opacity = pC[prodId].opacity;
-                            }
-                            if (pC[prodId].hasOwnProperty('parameters')) {
-                                // Go through all parameters and extend where
-                                // necessary
-                                var pars = pC[prodId].parameters;
-                                for (var pk in pars) {
-                                    if (product.parameters.hasOwnProperty(pk)) {
-                                        if (pars[pk].hasOwnProperty('range')) {
-                                            product.parameters[pk].range = pars[pk].range;
-                                        }
-                                        if (pars[pk].hasOwnProperty('colorscale')) {
-                                            product.parameters[pk].colorscale = pars[pk].colorscale;
-                                        }
-                                        if (pars[pk].hasOwnProperty('selected')) {
-                                            product.parameters[pk].selected = pars[pk].selected;
-                                            if (pars[pk].selected === true) {
-                                                // TODO: If selected remove all other selected
-                                                for (var spk in pars) {
-                                                    if (spk !== pk && product.parameters[spk] &&
-                                                        product.parameters[spk].hasOwnProperty('selected')) {
-                                                        delete product.parameters[spk].selected;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            if (pC[prodId].hasOwnProperty.download_parameters) {
-                                // Go through all download parameters and extend
-                                // where necessary
-                            }
-                            if (pC[prodId].hasOwnProperty('components')) {
-                                // translate renamed models
-                                product.components = _.map(pC[prodId].components, function (component) {
-                                    var table = config.magneticModels.modelIdTranslation || {};
-                                    component.id = table[component.id] || component.id;
-                                    return component;
-                                });
-                            }
+                        _.extend(dst, pick(src, ['visible', 'outlines', 'opacity']));
+
+                        if (has(src, 'components')) {
+                            // translate renamed models
+                            dst.components = _.map(src.components, function (component) {
+                                var table = config.magneticModels.modelIdTranslation || {};
+                                component.id = table[component.id] || component.id;
+                                return component;
+                            });
                         }
 
+                        if (has(src, 'parameters')) {
+                            // Find default selected variable and clear the flags.
+                            var selectedVariable = null;
+                            _.each(dst.parameters, function (dstParam, variable) {
+                                if (pop(dstParam, 'selected') && !selectedVariable) {
+                                    selectedVariable = variable;
+                                }
+                            });
+
+                            // Go through parameters and copy attributes.
+                            _.each(src.parameters, function (srcParam, variable) {
+                                var dstParam = get(dst.parameters, variable);
+                                if (!dstParam) {
+                                    // Handle model specific variables not present
+                                    // in the loaded configuration.
+                                    var modelParam = _.find(MODEL_VARIABLES, function (item) {
+                                        var match = variable.match(item.pattern);
+                                        return match && has(productConfiguration, match.groups.model);
+                                    });
+                                    if (modelParam) {
+                                        dst.parameters[variable] = dstParam = _.clone(modelParam);
+                                    }
+                                }
+                                if (dstParam) {
+                                    if (get(srcParam, 'selected')) {
+                                        // Override the selected variable.
+                                        selectedVariable = variable;
+                                    }
+                                    _.extend(dstParam, pick(srcParam, ['range', 'colorscale']));
+                                }
+                            });
+
+                            // Flag the final selected variable.
+                            if (selectedVariable) {
+                                dst.parameters[selectedVariable].selected = true;
+                            }
+                        }
                     }, this);
 
                     savedChangesApplied = true;
@@ -392,11 +470,13 @@ var REPLACED_SCALAR_VARIABLES = {
                     var p_color = product.color ? product.color : autoColor.getColor();
                     var lm = new m.LayerModel({
                         name: product.name,
+                        type: product.type,
                         visible: product.visible,
                         ordinal: ordinal,
                         timeSlider: product.timeSlider,
                         // Default to WMS if no protocol is defined
-                        timeSliderProtocol: (product.timeSliderProtocol) ? product.timeSliderProtocol : "WMS",
+                        timeSliderProtocol: product.timeSliderProtocol || "WMS",
+                        timeSliderWpsProcessName: product.timeSliderWpsProcessName || null,
                         color: p_color,
                         //time: products.time, // Is set in TimeSliderView on time change.
                         opacity: defaultFor(product.opacity, 1),
@@ -584,7 +664,7 @@ var REPLACED_SCALAR_VARIABLES = {
                 var filtered = globals.products.filter(function (product) {
                     var id = product.get("download").id;
                     return !(id && id.match(
-                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD)[ABCU_]/
+                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ)[ABCU_]/
                     ));
                 });
 
@@ -632,6 +712,18 @@ var REPLACED_SCALAR_VARIABLES = {
                         "Bravo": "SW_OPER_IPDBIRR_2F",
                         "Charlie": "SW_OPER_IPDCIRR_2F",
                         "Upload": "SW_OPER_IPDUIRR_2F",
+                    },
+                    "AEJ_LPL": {
+                        "Alpha": "SW_OPER_AEJALPL_2F",
+                        "Bravo": "SW_OPER_AEJBLPL_2F",
+                        "Charlie": "SW_OPER_AEJCLPL_2F",
+                        "Upload": "SW_OPER_AEJULPL_2F",
+                    },
+                    "AEJ_LPS": {
+                        "Alpha": "SW_OPER_AEJALPS_2F",
+                        "Bravo": "SW_OPER_AEJBLPS_2F",
+                        "Charlie": "SW_OPER_AEJCLPS_2F",
+                        "Upload": "SW_OPER_AEJULPS_2F",
                     }
                 };
 
@@ -643,41 +735,37 @@ var REPLACED_SCALAR_VARIABLES = {
                     "Upload": false
                 };
 
-                var prodToSat = {};
-                var proObj = globals.swarm.products;
-                for (var coll in proObj) {
-                    for (var sat in proObj[coll]) {
-                        prodToSat[proObj[coll][sat]] = {
-                            sat: sat,
-                            coll: coll
-                        };
-                    }
-                }
+                // reversed collection to satellite mapping
+                var collection2satellite = {};
+                var collection2type = {};
+                _.each(globals.swarm.products, function (product, productType) {
+                    _.each(product, function (collection, satellite) {
+                        collection2satellite[collection] = satellite;
+                        collection2type[collection] = productType;
+                    });
+                });
+                globals.swarm.collection2satellite = collection2satellite;
 
                 // Derive which satellites should be active from active products
                 globals.products.forEach(function (product) {
-                    if (product.get('visible')) {
-                        if (prodToSat.hasOwnProperty(product.get('download').id)) {
-                            var sat = prodToSat[product.get('download').id].sat;
-                            globals.swarm.satellites[sat] = true;
-                        }
+                    var satellite = get(collection2satellite, product.get('download').id);
+                    if (satellite && product.get('visible')) {
+                        globals.swarm.satellites[satellite] = true;
                     }
                 });
 
+                // collection to product name mapping
+                globals.swarm.collection2product = {}
+                globals.products.forEach(function (product) {
+                    globals.swarm.collection2product[product.get('download').id] = product.get('name')
+                });
 
                 globals.swarm.activeProducts = [];
 
-                // reversed collection to satellite mapping
-                globals.swarm.collection2satellite = {};
-                _.each(globals.swarm.products, function (product) {
-                    _.each(product, function (collection, satellite) {
-                        globals.swarm.collection2satellite[collection] = satellite;
-                    });
-                });
                 // because user data collection needs to have identifier USER_DATA
                 var userDataId = globals.userData.views[0].id;
                 if (userDataId) {
-                    globals.swarm.collection2satellite[userDataId] = 'Upload';
+                    collection2satellite[userDataId] = 'Upload';
                 }
                 var filtered_collection = new Backbone.Collection(filtered);
 
@@ -688,20 +776,20 @@ var REPLACED_SCALAR_VARIABLES = {
                     'TEC': false,
                     'FAC': false,
                     'EEF': false,
-                    'IPD': false
+                    'IPD': false,
+                    'AEJ_LPL': false,
+                    'AEJ_LPS': false,
                 };
 
                 var clickEvent = "require(['communicator'], function(Communicator){Communicator.mediator.trigger('application:reset');});";
 
                 // Derive what container need to be active from products
                 globals.products.forEach(function (product) {
-                    if (product.get('visible') &&
-                       prodToSat.hasOwnProperty(product.get('download').id)) {
-                        var coll = prodToSat[product.get('download').id].coll;
-                        containerSelection[coll] = true;
+                    var productType = get(collection2type, product.get('download').id);
+                    if (productType && product.get('visible')) {
+                        containerSelection[productType] = true;
                     }
                 });
-
 
                 if (savedChangesApplied) {
                     showMessage('success',
@@ -743,6 +831,22 @@ var REPLACED_SCALAR_VARIABLES = {
 
                 // Add generic product (which is container for A,B and C sats)
                 filtered_collection.add({
+                    name: "Auroral Electrojet - SECS (AEJ LPS/PBS)",
+                    visible: containerSelection['AEJ_LPS'],
+                    color: "#145600",
+                    protocol: null,
+                    containerproduct: true,
+                    id: "AEJ_LPS"
+                }, {at: 0});
+                filtered_collection.add({
+                    name: "Auroral Electrojet - LC (AEJ LPL/PBL)",
+                    visible: containerSelection['AEJ_LPL'],
+                    color: "#024573",
+                    protocol: null,
+                    containerproduct: true,
+                    id: "AEJ_LPL"
+                }, {at: 0});
+                filtered_collection.add({
                     name: "Ionospheric Plasma Irregularities (IPD IRR)",
                     visible: containerSelection['IPD'],
                     //color: "#b82e2e", # TODO: set a sensible colour
@@ -759,7 +863,7 @@ var REPLACED_SCALAR_VARIABLES = {
                     id: "EEF"
                 }, {at: 0});
                 filtered_collection.add({
-                    name: "Electric current data (FAC)",
+                    name: "Electric current data (FAC/FAC AOB)",
                     visible: containerSelection['FAC'],
                     color: "#66aa00",
                     protocol: null,

@@ -1,5 +1,81 @@
 /*global $ _ */
 
+var isNumber = function (value) {
+  // return true for any finite number and +/-Infility.
+  // without implicit casting, i.e., false is returned for
+  // NaN, undefined, null, '', true, false ... etc.
+  return Number(value) === value;
+};
+
+var isArray = function (object) {
+  return Object.prototype.toString.call(object) === '[object Array]';
+};
+
+var isFuction = function (object) {
+  return Object.prototype.toString.call(object) === '[object Function]';
+};
+
+var has = function (object, property) {
+  return Object.prototype.hasOwnProperty.call(object, property);
+};
+
+var get = function (object, property, default_) {
+  return has(object, property) ? object[property] : default_;
+};
+
+var pop = function (object, property, default_) {
+  var result = default_;
+  if (has(object, property)) {
+    result = object[property];
+    delete object[property];
+  }
+  return result;
+};
+
+var setDefault = function (object, property, defaultValue) {
+  if (!has(object, property)) {
+    object[property] = defaultValue;
+  }
+};
+
+var pick = function (source, properties) {
+  var result = {};
+  var size = properties.length;
+  for (var i = 0; i < size; i++) {
+    var property = properties[i];
+    if (has(source, property)) {
+      result[property] = source[property];
+    }
+  }
+  return result;
+};
+
+
+var Timer = function () {
+  this.reset = function () {
+    this.start = performance.now();
+  };
+  this.getEllapsedTime = function () {
+    return performance.now() - this.start;
+  };
+  this.logEllapsedTime = function (label) {
+    console.log((label || "") + " " + this.getEllapsedTime() + "ms");
+  };
+  this.reset();
+};
+
+if (!Array.prototype.includes) {
+  Array.prototype.includes = function (searched) {
+    return this.indexOf(searched) !== -1;
+  };
+}
+
+if (!String.prototype.includes) {
+  String.prototype.includes = function (searched, start) {
+    return this.indexOf(searched, start) !== -1;
+  };
+}
+
 String.prototype.capitalizeFirstLetter = function () {
   return this.charAt(0).toUpperCase() + this.slice(1);
 };
@@ -236,6 +312,7 @@ var saveProductStatus = function (product) {
 var savePrameterStatus = function (globals) {
   var parConf = {};
   var uomSet = globals.swarm.get('uom_set');
+  console.log(uomSet);
 
   for (var pk in uomSet) {
     var parC = {};
@@ -260,6 +337,12 @@ var savePrameterStatus = function (globals) {
         if (uomSet[pk][innerpk].hasOwnProperty('displayName')) {
           parC[innerpk]['displayName'] = uomSet[pk][innerpk].displayName;
         }
+      } else if (innerpk === 'colorscale') {
+        parC.colorscale = uomSet[pk].colorscale;
+      } else if (innerpk === 'logarithmic') {
+        parC.logarithmic = uomSet[pk].logarithmic;
+      }  else if (innerpk === 'extent') {
+        parC.extent = uomSet[pk].extent;
       }
     }
     if (!_.isEmpty(parC)) {

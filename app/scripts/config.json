@@ -296,7 +296,8 @@
             }]
         }],
         "products": [{
-            "name": "MAGA LR 1B",
+            "name": "MAG A LR 1B",
+            "type": "SW_MAGx_LR_1B",
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
@@ -326,7 +327,7 @@
                     "range": [15000, 55000],
                     "uom":"nT",
                     "colorscale": "jet",
-                    "name": "Magnetic field vector, NEC frame"
+                    "name": "Magnetic field vector"
                 },
                 "F": {
                     "range": [15000, 55000],
@@ -339,7 +340,7 @@
                     "range": [-600, 600],
                     "uom":"nT",
                     "colorscale": "jet",
-                    "name": "Magnetic field vector residual A - C"
+                    "name": "Magnetic field vector A - C difference"
                 }
             },
             "download_parameters": {
@@ -389,7 +390,7 @@
                 },
                 "B_NEC_resAC": {
                     "uom":"nT",
-                    "name": "Magnetic field residual (A-C) vector, NEC frame"
+                    "name": "Magnetic field vector A - C difference, NEC frame"
                 },
                 "dB_Sun": {
                     "uom": "nT",
@@ -484,7 +485,8 @@
             "satellite": "Swarm"
 
         },{
-            "name": "MAGB LR 1B",
+            "name": "MAG B LR 1B",
+            "type": "SW_MAGx_LR_1B",
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
@@ -513,7 +515,7 @@
                     "range": [15000, 55000],
                     "uom":"nT",
                     "colorscale": "jet",
-                    "name": "Magnetic field vector, NEC frame"
+                    "name": "Magnetic field vector"
                 },
                 "F": {
                     "range": [15000, 55000],
@@ -660,7 +662,8 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "MAGC LR 1B",
+            "name": "MAG C LR 1B",
+            "type": "SW_MAGx_LR_1B",
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
@@ -689,7 +692,7 @@
                     "range": [15000, 55000],
                     "uom":"nT",
                     "colorscale": "jet",
-                    "name": "Magnetic field vector, NEC frame"
+                    "name": "Magnetic field vector"
                 },
                 "F": {
                     "range": [15000, 55000],
@@ -836,7 +839,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "EFIA LP 1B",
+            "name": "EFI A LP 1B",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
@@ -1006,7 +1009,7 @@
             "satellite": "Swarm"
 
         },{
-            "name": "EFIB LP 1B",
+            "name": "EFI B LP 1B",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
@@ -1176,7 +1179,7 @@
             "satellite": "Swarm"
 
         },{
-            "name": "EFIC LP 1B",
+            "name": "EFI C LP 1B",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
@@ -1346,7 +1349,7 @@
             "satellite": "Swarm"
 
         },{
-            "name": "TEC A TMS",
+            "name": "TEC A TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#990099",
@@ -1538,7 +1541,7 @@
             "satellite": "Swarm"
 
         },{
-            "name": "TEC B TMS",
+            "name": "TEC B TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#990099",
@@ -1730,7 +1733,7 @@
             "satellite": "Swarm"
 
         },{
-            "name": "TEC C TMS",
+            "name": "TEC C TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#990099",
@@ -1922,7 +1925,7 @@
             "satellite": "Swarm"
 
         },{
-            "name": "FAC A TMS",
+            "name": "FAC A TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#66aa00",
@@ -2063,7 +2066,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "FAC B TMS",
+            "name": "FAC B TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#66aa00",
@@ -2204,7 +2207,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "FAC C TMS",
+            "name": "FAC C TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#66aa00",
@@ -2345,7 +2348,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "FAC TMS",
+            "name": "FAC TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#66aa00",
@@ -2486,7 +2489,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "EEF A TMS",
+            "name": "EEF A TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#b82e2e",
@@ -2569,7 +2572,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "EEF B TMS",
+            "name": "EEF B TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#b82e2e",
@@ -2652,7 +2655,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "EEF C TMS",
+            "name": "EEF C TMS 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#b82e2e",
@@ -2735,10 +2738,11 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "SW OPER IBIA TMS 2F",
+            "name": "IBI A TMS 2F",
             "visible": false,
             "timeSlider": true,
-            "timeSliderProtocol": "WPS-INDEX",
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_bubble_index",
             "color": "#2ca02c",
             "views": [{
                 "id": "SW_OPER_IBIATMS_2F",
@@ -2863,11 +2867,12 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "SW OPER IBIB TMS 2F",
+            "name": "IBI B TMS 2F",
             "visible": false,
             "timeSlider": true,
             "color": "#2ca02c",
-            "timeSliderProtocol": "WPS-INDEX",
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_bubble_index",
             "views": [{
                 "id": "SW_OPER_IBIBTMS_2F",
                 "protocol": "CZML",
@@ -2991,11 +2996,12 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "SW OPER IBIC TMS 2F",
+            "name": "IBI C TMS 2F",
             "visible": false,
             "timeSlider": true,
             "color": "#2ca02c",
-            "timeSliderProtocol": "WPS-INDEX",
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_bubble_index",
             "views": [{
                 "id": "SW_OPER_IBICTMS_2F",
                 "protocol": "CZML",
@@ -3119,7 +3125,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "IPDAIRR 2F",
+            "name": "IPD A IRR 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
@@ -3466,7 +3472,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "IPDBIRR 2F",
+            "name": "IPD B IRR 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
@@ -3813,7 +3819,7 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "IPDCIRR 2F",
+            "name": "IPD C IRR 2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
@@ -4160,7 +4166,500 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
-            "name": "MAGU LR 1B",
+            "name": "AEJ A LPL 2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_continuous_segments",
+            "color": "#024573",
+            "views": [{
+                "id": "SW_OPER_AEJALPL_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AEJALPL_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_AEJALPL_2F"
+                }
+            ],
+            "parameters": {
+                "J_QD": {
+                    "selected": true,
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density (QD eastward)",
+                    "relatedVector": "J_NE"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "J_NE": {
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density vector"
+                },
+                "J_QD": {
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density (QD frame, east component)"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "AEJ B LPL 2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_continuous_segments",
+            "color": "#024573",
+            "views": [{
+                "id": "SW_OPER_AEJBLPL_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AEJBLPL_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_AEJBLPL_2F"
+                }
+            ],
+            "parameters": {
+                "J_QD": {
+                    "selected": true,
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density (QD eastward)",
+                    "relatedVector": "J_NE"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "J_NE": {
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density vector"
+                },
+                "J_QD": {
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density (QD frame, east component)"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "AEJ C LPL 2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_continuous_segments",
+            "color": "#024573",
+            "views": [{
+                "id": "SW_OPER_AEJCLPL_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AEJCLPL_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_AEJCLPL_2F"
+                }
+            ],
+            "parameters": {
+                "J_QD": {
+                    "selected": true,
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density (QD eastward)",
+                    "relatedVector": "J_NE"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "J_NE": {
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density vector"
+                },
+                "J_QD": {
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density (QD frame, east component)"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "AEJ A LPS 2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_continuous_segments",
+            "color": "#145600",
+            "views": [{
+                "id": "SW_OPER_AEJALPS_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AEJALPS_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_AEJALPS_2F"
+                }
+            ],
+            "parameters": {
+                "J_DF_SemiQD": {
+                    "selected": true,
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density at 110km (semi-QD eastward)",
+                    "relatedVector": "J_DF_NE",
+                    "referencedParameters": ["J_DF_SemiQD", "J_R"]
+                },
+                "J_CF_SemiQD": {
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density at 110km (semi-QD, northward)",
+                    "relatedVector": "J_CF_NE",
+                    "referencedParameters": ["J_CF_SemiQD", "J_R"]
+                },
+                "J_T_NE": {
+                    "range": [0, 500],
+                    "colorscale": "viridis",
+                    "uom": "A/km",
+                    "name": "Total horizontal sheet current density at 110km (J_T = J_DF + J_CF)",
+                    "referencedParameters": ["J_T_NE", "J_R"]
+                },
+                "J_R": {
+                    "fixedAltitude": true,
+                    "range": [-1, 1],
+                    "colorscale": "rdbu",
+                    "pixelSize": 4,
+                    "uom": "A/km^2",
+                    "name": "Radial ionospheric current density at 110km"
+                 }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "J_R": {
+                    "uom": "A/km^2",
+                    "name": "Radial ionospheric current density (SemiQD frame at 110km)"
+                },
+                "J_CF": {
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density vector"
+                },
+                "J_DF": {
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density vector"
+                },
+                "J_CF_SemiQD": {
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density (SemiQD frame, north component)"
+                },
+                "J_DF_SemiQD": {
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density (SemiQD frame, east component)"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "AEJ B LPS 2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_continuous_segments",
+            "color": "#145600",
+            "views": [{
+                "id": "SW_OPER_AEJBLPS_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AEJBLPS_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_AEJBLPS_2F"
+                }
+            ],
+            "parameters": {
+                "J_DF_SemiQD": {
+                    "selected": true,
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density at 110km (semi-QD eastward)",
+                    "relatedVector": "J_DF_NE",
+                    "referencedParameters": ["J_DF_SemiQD", "J_R"]
+                },
+                "J_CF_SemiQD": {
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density at 110km (semi-QD, northward)",
+                    "relatedVector": "J_CF_NE",
+                    "referencedParameters": ["J_CF_SemiQD", "J_R"]
+                },
+                "J_T_NE": {
+                    "range": [0, 500],
+                    "colorscale": "viridis",
+                    "uom": "A/km",
+                    "name": "Total horizontal sheet current density at 110km (J_T = J_DF + J_CF)",
+                    "referencedParameters": ["J_T_NE", "J_R"]
+                },
+                "J_R": {
+                    "fixedAltitude": true,
+                    "range": [-1, 1],
+                    "colorscale": "rdbu",
+                    "pixelSize": 4,
+                    "uom": "A/km^2",
+                    "name": "Radial ionospheric current density at 110km"
+                 }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "J_R": {
+                    "uom": "A/km^2",
+                    "name": "Radial ionospheric current density (SemiQD frame at 110km)"
+                },
+                "J_CF": {
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density vector"
+                },
+                "J_DF": {
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density vector"
+                },
+                "J_CF_SemiQD": {
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density (SemiQD frame, north component)"
+                },
+                "J_DF_SemiQD": {
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density (SemiQD frame, east component)"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "AEJ C LPS 2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "timeSliderWpsProcessName": "retrieve_continuous_segments",
+            "color": "#145600",
+            "views": [{
+                "id": "SW_OPER_AEJCLPS_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AEJCLPS_2F",
+                "protocol": "EOWCS",
+                "url": "http://localhost:9000/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_AEJCLPS_2F"
+                }
+            ],
+            "parameters": {
+                "J_DF_SemiQD": {
+                    "selected": true,
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density at 110km (semi-QD eastward)",
+                    "relatedVector": "J_DF_NE",
+                    "referencedParameters": ["J_DF_SemiQD", "J_R"]
+                },
+                "J_CF_SemiQD": {
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density at 110km (semi-QD, northward)",
+                    "relatedVector": "J_CF_NE",
+                    "referencedParameters": ["J_CF_SemiQD", "J_R"]
+                },
+                "J_T_NE": {
+                    "range": [0, 500],
+                    "colorscale": "viridis",
+                    "uom": "A/km",
+                    "name": "Total horizontal sheet current density at 110km (J_T = J_DF + J_CF)",
+                    "referencedParameters": ["J_T_NE", "J_R"]
+                },
+                "J_R": {
+                    "fixedAltitude": true,
+                    "range": [-1, 1],
+                    "colorscale": "rdbu",
+                    "pixelSize": 4,
+                    "uom": "A/km^2",
+                    "name": "Radial ionospheric current density at 110km"
+                 }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "J_R": {
+                    "uom": "A/km^2",
+                    "name": "Radial ionospheric current density (SemiQD frame at 110km)"
+                },
+                "J_CF": {
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density vector"
+                },
+                "J_DF": {
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density vector"
+                },
+                "J_CF_SemiQD": {
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density (SemiQD frame, north component)"
+                },
+                "J_DF_SemiQD": {
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density (SemiQD frame, east component)"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "MAG U LR 1B",
+            "type": "SW_MAGx_LR_1B",
             "color": "#1f77b4",
             "timeSlider": true,
             "timeSliderProtocol": "USER_DATA",
@@ -4187,7 +4686,7 @@
                     "range": [15000, 55000],
                     "uom":"nT",
                     "colorscale": "jet",
-                    "name": "Magnetic field vector, NEC frame"
+                    "name": "Magnetic field vector"
                 },
                 "F": {
                     "range": [15000, 55000],
@@ -4206,7 +4705,7 @@
             "outlines": false,
             "satellite": "Upload"
           },{
-              "name": "EFIU LP 1B",
+              "name": "EFI U LP 1B",
               "timeSlider": true,
               "timeSliderProtocol": "USER_DATA",
               "color": "#ff7f0e",
@@ -4258,7 +4757,7 @@
               "outlines": false,
               "satellite": "Upload"
           },{
-              "name": "TEC U TMS",
+              "name": "TEC U TMS 2F",
               "timeSlider": true,
               "timeSliderProtocol": "USER_DATA",
               "color": "#990099",
@@ -4316,7 +4815,7 @@
               "outlines": false,
               "satellite": "Upload"
           },{
-              "name": "FAC U TMS",
+              "name": "FAC U TMS 2F",
               "timeSlider": true,
               "timeSliderProtocol": "USER_DATA",
               "color": "#66aa00",
@@ -4356,7 +4855,7 @@
               "outlines": false,
               "satellite": "Upload"
           },{
-              "name": "EEF U TMS",
+              "name": "EEF U TMS 2F",
               "timeSlider": true,
               "timeSliderProtocol": "USER_DATA",
               "color": "#b82e2e",
@@ -4390,7 +4889,7 @@
               "outlines": false,
               "satellite": "Upload"
         },{
-            "name": "SW OPER IBIU TMS 2F",
+            "name": "IBI U TMS 2F",
             "visible": false,
             "timeSlider": true,
             "color": "#2ca02c",
@@ -4424,8 +4923,8 @@
             },
             "outlines": false,
             "satellite": "Upload"
-          },{
-            "name": "IPDUIRR 2F",
+        },{
+            "name": "IPD U IRR 2F",
             "timeSlider": true,
             "timeSliderProtocol": "USER_DATA",
             "color": "#ff7f0e",
@@ -4602,7 +5101,101 @@
             },
             "outlines": false,
             "satellite": "Upload"
-          },{
+        },{
+            "name": "AEJ U LPL 2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#024573",
+            "views": [{
+                "id": "SW_OPER_AEJULPL_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AEJULPL_2F"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "parameters": {
+                "J_QD": {
+                    "selected": true,
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Horizontal sheet current density (QD eastward)",
+                    "relatedVector": "J_NE"
+                }
+            },
+            "outlines": false,
+            "satellite": "Upload"
+        },{
+            "name": "AEJ U LPS 2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#145600",
+            "views": [{
+                "id": "SW_OPER_AEJULPS_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "http://localhost:9000/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_AEJULPS_2F"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "parameters": {
+                "J_DF_SemiQD": {
+                    "selected": true,
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Divergence-free horizontal sheet current density at 110km (semi-QD eastward)",
+                    "relatedVector": "J_DF_NE",
+                    "referencedParameters": ["J_DF_SemiQD", "J_R"]
+                },
+                "J_CF_SemiQD": {
+                    "range": [-400, 400],
+                    "colorscale": "diverging_1",
+                    "uom": "A/km",
+                    "name": "Curl-free horizontal sheet current density at 110km (semi-QD, northward)",
+                    "relatedVector": "J_CF_NE",
+                    "referencedParameters": ["J_CF_SemiQD", "J_R"]
+                },
+                "J_T_NE": {
+                    "range": [0, 500],
+                    "colorscale": "viridis",
+                    "uom": "A/km",
+                    "name": "Total horizontal sheet current density at 110km (J_T = J_DF + J_CF)",
+                    "referencedParameters": ["J_T_NE", "J_R"]
+                },
+                "J_R": {
+                    "fixedAltitude": true,
+                    "range": [-1, 1],
+                    "colorscale": "rdbu",
+                    "pixelSize": 4,
+                    "uom": "A/km^2",
+                    "name": "Radial ionospheric current density at 110km"
+                 }
+            },
+            "outlines": false,
+            "satellite": "Upload"
+        },{
             "name": "Magnetic Model",
             "visible": false,
             "timeSlider": true,
