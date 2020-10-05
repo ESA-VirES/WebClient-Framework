@@ -576,6 +576,8 @@ define(['backbone.marionette',
                 localStorage.setItem(
                     'y2AxisLocked', JSON.stringify(this.renderSettings.y2AxisLocked)
                 );
+                // Save also possible set color ranges
+                savePrameterStatus(globals);
             });
 
             this.graph.on('pointSelect', function (values) {
