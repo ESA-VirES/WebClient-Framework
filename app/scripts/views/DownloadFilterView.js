@@ -34,6 +34,26 @@
       TIMESTAMP, 'q_NEC_CRF', 'GPS_Position', 'LEO_Position', 'EEJ'
     ];
 
+    // TODO: find a better place to put the extra parameters' configuration
+    var EXTRA_PARAMETERS = {
+      "Dst": {
+        "uom": "nT",
+        "name": "Disturbance storm time index"
+      },
+      "dDst": {
+        "uom": "nT/h",
+        "name": "Absolute value of the temporal change rate of the Dst index"
+      },
+      "Kp": {
+        "uom": null,
+        "name": "Global geomagnetic storm index"
+      },
+      "F107": {
+        "uom": "1e-22 J/s/m^2/Hz",
+        "name": "Observed 10.7cm solar radio flux"
+      },
+    };
+
     var DownloadProcessModel = Backbone.Model.extend({
       refreshTime: 2000, // refresh time in ms
       defaults: {
@@ -736,7 +756,8 @@
         }, this);
 
         // Create possible filter options based on possible download parameters
-        var filteroptions = {};
+        var filteroptions = _.clone(EXTRA_PARAMETERS);
+
         globals.products.each(function (model) {
           if (model.get('visible')) {
             _.extend(filteroptions, model.get('download_parameters'));
