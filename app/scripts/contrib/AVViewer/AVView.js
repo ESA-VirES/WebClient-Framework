@@ -209,7 +209,7 @@ define(['backbone.marionette',
 
                         var rightNow = new Date();
                         var res = rightNow.toISOString().slice(0, 10).replace(/-/g, '');
-                        that.graph.fileSaveString = 'VirES_for_Swarm_' + res;
+                        that.graph.fileSaveString = 'VirES_for_Swarm_' + res + '.' + selectedType;
                         that.graph.saveImage(selectedType, selectedRes);
                         bodyContainer.remove();
                         saveimagedialog.close();
@@ -588,6 +588,8 @@ define(['backbone.marionette',
                 localStorage.setItem(
                     'y2AxisLocked', JSON.stringify(this.renderSettings.y2AxisLocked)
                 );
+                // Save also possible set color ranges
+                savePrameterStatus(globals);
             });
 
             this.graph.on('pointSelect', function (values) {

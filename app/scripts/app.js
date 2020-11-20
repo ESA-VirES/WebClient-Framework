@@ -4,7 +4,7 @@
 // model residual parameters
 var MODEL_VARIABLES = {
     "B_NEC_res_": {
-        "pattern": RegExp('B_NEC_res_(?<model>.+)'),
+        "pattern": RegExp('B_NEC_res_(.+)'),
         "productTypes": ["SW_MAGx_LR_1B"],
         "name": "Magnetic field vector model residual",
         "range": [0, 750],
@@ -441,7 +441,7 @@ var RELATED_VARIABLES = {
                                     // in the loaded configuration.
                                     var modelParam = _.find(MODEL_VARIABLES, function (item) {
                                         var match = variable.match(item.pattern);
-                                        return match && has(productConfiguration, match.groups.model);
+                                        return match && has(productConfiguration, match[1]);
                                     });
                                     if (modelParam) {
                                         dst.parameters[variable] = dstParam = _.clone(modelParam);
