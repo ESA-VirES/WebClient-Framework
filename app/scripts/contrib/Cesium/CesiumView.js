@@ -12,8 +12,8 @@ define([
     'msgpack',
     'httpRequest',
     'dataUtil',
+    'viresDataRequest',
     'hbs!tmpl/wps_eval_composed_model',
-    'hbs!tmpl/wps_get_field_lines',
     'hbs!tmpl/FieldlinesLabel',
     'hbs!tmpl/SvgSymbolCircle',
     'hbs!tmpl/SvgSymbolDimond',
@@ -26,7 +26,7 @@ define([
     'FileSaver',
 ], function (
     Marionette, Communicator, App, MapModel, globals, msgpack, httpRequest,
-    DataUtil, tmplEvalModel, tmplGetFieldLines, tmplFieldLinesLabel,
+    DataUtil, vires, tmplEvalModel, tmplFieldLinesLabel,
     tmplSvgSymbolCircle, tmplSvgSymbolDimond, tmplSvgSymbolDimondLarge,
     tmplSvgSymbolSquare, tmplSvgSymbolTriangle,
     colormap
@@ -2641,42 +2641,34 @@ define([
                     if (variable !== 'Fieldlines') return;
 
                     if (product.getModelValidity().start > time || product.getModelValidity().end < time) return;
-                    var options = {
-                        model_ids: product.getModelExpression(product.get('download').id),
-                        shc: product.getCustomShcIfSelected(),
-                        time: getISODateTimeString(time),
-                        bbox: [
-                            this.bboxsel[0], this.bboxsel[1], this.bboxsel[2], this.bboxsel[3]
-                        ].join(','),
-                    };
+
                     if (onlyStyleChange && typeof this.FLStoredData[name] !== 'undefined') {
                         // do not send request to server if no new data needed
                         this.createFLPrimitives(this.FLStoredData[name], name, style, range_min, range_max, log_scale);
                     } else {
-                        // send regular request
-                        httpRequest.asyncHttpRequest({
+                        var fieldlinesRequest = new vires.ViresFieldlinesRequest({
                             context: this,
-                            type: 'POST',
                             url: product.get('views')[0].urls[0],
-                            data: tmplGetFieldLines(options),
-                            responseType: 'arraybuffer',
-                            parse: function (data, xhr) {
-                                return msgpack.decode(new Uint8Array(data));
-                            },
                             success: function (data, xhr) {
                                 this.createFLPrimitives(data, name, style, range_min, range_max, log_scale);
                                 this.FLStoredData[name] = data;
                             },
-                            error: function (xhr) {
+                            error: function (xhr, message) {
                                 if (xhr.responseText === "") {return;}
-                                var error_text = xhr.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
-                                if (error_text && error_text.length > 1) {
-                                    error_text = error_text[1];
-                                } else {
-                                    error_text = 'Please contact feedback@vires.services if issue persists.';
+                                if (!message) {
+                                    message = 'Please contact feedback@vires.services if issue persists.';
                                 }
-                                showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+                                showMessage('danger', ('Problem retrieving data: ' + message), 35);
                             }
+                        });
+
+                        fieldlinesRequest.fetch({
+                            model_ids: product.getModelExpression(product.get('download').id),
+                            shc: product.getCustomShcIfSelected(),
+                            time: getISODateTimeString(time),
+                            bbox: [
+                                this.bboxsel[0], this.bboxsel[1], this.bboxsel[2], this.bboxsel[3]
+                            ].join(','),
                         });
                     }
                 }, this
