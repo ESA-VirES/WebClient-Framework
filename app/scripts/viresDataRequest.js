@@ -11,8 +11,7 @@
     'msgpack',
     'httpRequest',
     'hbs!tmpl/wps_fetchData',
-    //'hbs!tmpl/wps_fetchFieldlines',
-    'hbs!tmpl/wps_get_field_lines',
+    'hbs!tmpl/wps_fetchFieldlines',
     'underscore'
   ];
 
@@ -282,7 +281,6 @@
     // asynchronous field-line request.
 
     function ViresFieldlinesRequest(options) {
-      console.log(options)
       var dummyFcn = function () {};
       options = options || {};
       this.xhr = null;
@@ -310,7 +308,6 @@
       },
 
       fetch: function (options) {
-
         options = _.clone(options || {});
         options.mimeType = 'application/msgpack';
         this.abort();
@@ -343,11 +340,21 @@
       },
     };
 
+    var toCsv = function (header, records, delimiter) {
+      return ([header.join(delimiter)].concat(_.map(records, function (record) {
+        return record.join(delimiter);
+      }))).join('\n');
+    };
+
+    var locationToCsv = function (points) {
+      return toCsv(['Latitude', 'Longitude', 'Radius'], points, ',');
+    };
 
     return {
       EMPTY_DATA: emptyViresData,
       ViresDataRequest: ViresDataRequest,
       ViresFieldlinesRequest: ViresFieldlinesRequest,
+      locationToCsv: locationToCsv,
     };
 
   }

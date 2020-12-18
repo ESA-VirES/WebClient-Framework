@@ -2623,6 +2623,21 @@ define([
         },
 
         showFieldLines: function (onlyStyleChange) {
+
+            var _boundingBoxToPoints = function (bbox, nLatSteps, nLonSteps) {
+                var lon0 = bbox[1];
+                var lat0 = bbox[0];
+                var dlon = (bbox[3] - bbox[1]) / Math.max(1, nLonSteps);
+                var dlat = (bbox[2] - bbox[0]) / Math.max(1, nLatSteps);
+                var points = [];
+                for (var i = 0 ; i <= nLatSteps; i++) {
+                    for (var j = 0 ; j <= nLonSteps; j++) {
+                        points.push([lat0 + i * dlat, lon0 + j * dlon, EARTH_RADIUS]);
+                    }
+                }
+                return points;
+            };
+
             _.each(
                 globals.products.filter(function (product) {
                     return this.activeFL.indexOf(product.get('download').id) !== -1;
@@ -2666,9 +2681,7 @@ define([
                             model_ids: product.getModelExpression(product.get('download').id),
                             shc: product.getCustomShcIfSelected(),
                             time: getISODateTimeString(time),
-                            bbox: [
-                                this.bboxsel[0], this.bboxsel[1], this.bboxsel[2], this.bboxsel[3]
-                            ].join(','),
+                            locations_csv: vires.locationToCsv(_boundingBoxToPoints(this.bboxsel, 3, 3)),
                         });
                     }
                 }, this
