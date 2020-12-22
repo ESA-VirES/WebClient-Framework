@@ -8,27 +8,28 @@ define([
     'communicator',
     'app',
     'models/MapModel',
+    'viresDataRequest',
     'globals',
     'msgpack',
     'httpRequest',
     'dataUtil',
     'hbs!tmpl/wps_eval_composed_model',
-    'hbs!tmpl/wps_get_field_lines',
     'hbs!tmpl/FieldlinesLabel',
     'hbs!tmpl/SvgSymbolCircle',
     'hbs!tmpl/SvgSymbolDimond',
     'hbs!tmpl/SvgSymbolDimondLarge',
     'hbs!tmpl/SvgSymbolSquare',
     'hbs!tmpl/SvgSymbolTriangle',
+    'hbs!tmpl/wps_fetchFilteredData',
     'colormap',
     'cesium/Cesium',
     'drawhelper',
     'FileSaver',
 ], function (
-    Marionette, Communicator, App, MapModel, globals, msgpack, httpRequest,
-    DataUtil, tmplEvalModel, tmplGetFieldLines, tmplFieldLinesLabel,
+    Marionette, Communicator, App, MapModel, vires, globals, msgpack, httpRequest,
+    DataUtil, tmplEvalModel, tmplFieldLinesLabel,
     tmplSvgSymbolCircle, tmplSvgSymbolDimond, tmplSvgSymbolDimondLarge,
-    tmplSvgSymbolSquare, tmplSvgSymbolTriangle,
+    tmplSvgSymbolSquare, tmplSvgSymbolTriangle, tmplFetchFilteredData,
     colormap
 ) {
     'use strict';
@@ -635,6 +636,7 @@ define([
             this.relatedFeatureCollections = null;
             this.colorScales = null;
             this.dataLegends = null;
+            this.orbitCollection = {};
 
             this.connectDataEvents();
         },
@@ -965,11 +967,13 @@ define([
 
             // Go through all overlays and add them to the map
             globals.overlays.each(function (overlay) {
-                var layer = this.createLayer(overlay);
-                if (layer) {
-                    var imagerylayer = this.map.scene.imageryLayers.addImageryProvider(layer);
-                    imagerylayer.show = overlay.get('visible');
-                    overlay._cesiumLayer = imagerylayer;
+                if (overlay.get("view").id !== "satellite_orbit") {
+                    var layer = this.createLayer(overlay);
+                    if (layer) {
+                        var imagerylayer = this.map.scene.imageryLayers.addImageryProvider(layer);
+                        imagerylayer.show = overlay.get('visible');
+                        overlay._cesiumLayer = imagerylayer;
+                    }
                 }
             }, this);
 
@@ -1126,6 +1130,10 @@ define([
             }, this);
         },
 
+        multiChangeLayer: function () {
+            this.loadOrbits();
+        },
+
         onResize: function () {
             this.bindPolarButtons();
             if (this.map._sceneModePicker) {
@@ -1188,6 +1196,7 @@ define([
             // No supported protocol defined in config.json!
             return null;
         },
+
 
         createWMTSLayer: function (layerdesc, view) {
             var options = {
@@ -1404,12 +1413,17 @@ define([
             } else {
                 globals.overlays.each(function (overlay) {
                     if (overlay.get('name') === options.name) {
-                        var cesLayer = overlay._cesiumLayer;
-                        cesLayer.show = options.visible;
-                        if (options.visible) {
-                            this.addCustomAttribution(overlay.get('view'));
+                        if (overlay.get('view').id === 'satellite_orbit') {
+                            overlay.set('visible', options.visible);
+                            this.loadOrbits();
                         } else {
-                            this.removeCustomAttribution(overlay.get('view'));
+                            var cesLayer = overlay._cesiumLayer;
+                            cesLayer.show = options.visible;
+                            if (options.visible) {
+                                this.addCustomAttribution(overlay.get('view'));
+                            } else {
+                                this.removeCustomAttribution(overlay.get('view'));
+                            }
                         }
                     }
                 }, this);
@@ -2608,6 +2622,83 @@ define([
             );
         },
 
+        loadOrbits: function () {
+            var satellites = ['Alpha', 'Bravo', 'Charlie'];
+            _.each(satellites, function (sat) {
+                this.removeOrbitPrimitives(sat);
+            }, this);
+
+            globals.overlays.each(function (overlay) {
+                if (overlay.get("view").id === "satellite_orbit") {
+
+                    if (overlay.get('visible')) {
+                        _.each(satellites, function (sat) {
+                            if (globals.swarm.satellites[sat]) {
+                                var request = new vires.ViresDataRequest({
+                                    context: this,
+                                    // customTemplate: tmplFetchFilteredData,
+                                    success: function (data) {
+                                        this.createOrbitPrimitives(data.data, sat);
+                                    },
+                                    error: function (xhr, message) {
+                                        if (xhr.responseText === "") {return;}
+                                        this.showErrorMessage(message);
+                                    },
+                                });
+
+                                request.url = overlay.get("view").url;
+                                var colls = {
+                                    'Alpha': '{"Alpha":["SW_OPER_MAGA_LR_1B"]}',
+                                    'Bravo': '{"Bravo":["SW_OPER_MAGB_LR_1B"]}',
+                                    'Charlie': '{"Charlie":["SW_OPER_MAGC_LR_1B"]}',
+                                };
+                                request.fetch({
+                                    collections_ids: colls[sat],
+                                    begin_time: getISODateTimeString(this.beginTime),
+                                    end_time: getISODateTimeString(this.endTime),
+                                    sampling_step: "PT20S",
+                                    format: "application/msgpack",
+                                });
+                            }
+                        }, this);
+                    }
+
+                }
+            }, this);
+        },
+
+        removeOrbitPrimitives: function (name) {
+            if (this.orbitCollection.hasOwnProperty(name)) {
+                this.map.scene.primitives.remove(this.orbitCollection[name]);
+                delete this.orbitCollection[name];
+            }
+        },
+
+        createOrbitPrimitives: function (data, name) {
+            var positions = _.map(data.Latitude, function (ds, idx) {
+                return Cesium.Cartesian3.clone(
+                    convertSpherical2Cartesian(
+                        data.Latitude[idx],
+                        data.Longitude[idx],
+                        data.Radius[idx]
+                    )
+                );
+            });
+            this.removeOrbitPrimitives(name);
+            var lineCollection = new Cesium.PolylineCollection();
+
+            lineCollection.add({
+                positions: positions,
+                width: 2,
+                material: Cesium.Material.fromType('Color', {
+                    color: new Cesium.Color(0.2, 0.2, 0.8, 1.0)
+                }),
+            });
+
+            this.orbitCollection[name] = lineCollection;
+            this.map.scene.primitives.add(this.orbitCollection[name]);
+        },
+
         updateFieldLines: function (onlyStyleChange) {
             if (typeof this.showFieldLinesDebounced === 'undefined') {
                 this.showFieldLinesDebounced = _.debounce(function (onlyStyleChange) {
@@ -2623,6 +2714,21 @@ define([
         },
 
         showFieldLines: function (onlyStyleChange) {
+
+            var _boundingBoxToPoints = function (bbox, nLatSteps, nLonSteps) {
+                var lon0 = bbox[1];
+                var lat0 = bbox[0];
+                var dlon = (bbox[3] - bbox[1]) / Math.max(1, nLonSteps);
+                var dlat = (bbox[2] - bbox[0]) / Math.max(1, nLatSteps);
+                var points = [];
+                for (var i = 0 ; i <= nLatSteps; i++) {
+                    for (var j = 0 ; j <= nLonSteps; j++) {
+                        points.push([lat0 + i * dlat, lon0 + j * dlon, EARTH_RADIUS]);
+                    }
+                }
+                return points;
+            };
+
             _.each(
                 globals.products.filter(function (product) {
                     return this.activeFL.indexOf(product.get('download').id) !== -1;
@@ -2641,42 +2747,32 @@ define([
                     if (variable !== 'Fieldlines') return;
 
                     if (product.getModelValidity().start > time || product.getModelValidity().end < time) return;
-                    var options = {
-                        model_ids: product.getModelExpression(product.get('download').id),
-                        shc: product.getCustomShcIfSelected(),
-                        time: getISODateTimeString(time),
-                        bbox: [
-                            this.bboxsel[0], this.bboxsel[1], this.bboxsel[2], this.bboxsel[3]
-                        ].join(','),
-                    };
+
                     if (onlyStyleChange && typeof this.FLStoredData[name] !== 'undefined') {
                         // do not send request to server if no new data needed
                         this.createFLPrimitives(this.FLStoredData[name], name, style, range_min, range_max, log_scale);
                     } else {
-                        // send regular request
-                        httpRequest.asyncHttpRequest({
+                        var fieldlinesRequest = new vires.ViresFieldlinesRequest({
                             context: this,
-                            type: 'POST',
                             url: product.get('views')[0].urls[0],
-                            data: tmplGetFieldLines(options),
-                            responseType: 'arraybuffer',
-                            parse: function (data, xhr) {
-                                return msgpack.decode(new Uint8Array(data));
-                            },
                             success: function (data, xhr) {
                                 this.createFLPrimitives(data, name, style, range_min, range_max, log_scale);
                                 this.FLStoredData[name] = data;
                             },
-                            error: function (xhr) {
+                            error: function (xhr, message) {
                                 if (xhr.responseText === "") {return;}
-                                var error_text = xhr.responseText.match("<ows:ExceptionText>(.*)</ows:ExceptionText>");
-                                if (error_text && error_text.length > 1) {
-                                    error_text = error_text[1];
-                                } else {
-                                    error_text = 'Please contact feedback@vires.services if issue persists.';
+                                if (!message) {
+                                    message = 'Please contact feedback@vires.services if issue persists.';
                                 }
-                                showMessage('danger', ('Problem retrieving data: ' + error_text), 35);
+                                showMessage('danger', ('Problem retrieving data: ' + message), 35);
                             }
+                        });
+
+                        fieldlinesRequest.fetch({
+                            model_ids: product.getModelExpression(product.get('download').id),
+                            shc: product.getCustomShcIfSelected(),
+                            time: getISODateTimeString(time),
+                            locations_csv: vires.locationToCsv(_boundingBoxToPoints(this.bboxsel, 3, 3)),
                         });
                     }
                 }, this
@@ -2929,6 +3025,7 @@ define([
                 }
             }, this);
             this.updateFieldLines();
+            this.loadOrbits();
         },
 
         onSetExtent: function (bbox) {

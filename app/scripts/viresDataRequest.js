@@ -11,10 +11,11 @@
     'msgpack',
     'httpRequest',
     'hbs!tmpl/wps_fetchData',
+    'hbs!tmpl/wps_fetchFieldlines',
     'underscore'
   ];
 
-  function init(globals, msgpack, httpRequest, wps_fetchDataTmpl) {
+  function init(globals, msgpack, httpRequest, wps_fetchDataTmpl, wps_fetchFieldlinesTmpl) {
 
     //var ORBIT_DIRECTION_ASCENDING = +1;
     var ORBIT_DIRECTION_DESCENDING = -1;
@@ -137,6 +138,7 @@
       this.xhr = null;
       this.url = get(options, 'url', null);
       this.context = get(options, 'context', null);
+      this.customTemplate = get(options, 'customTemplate', null);
       this.callbacks = {
         aborted: get(options, 'aborted') || dummyFcn,
         opened: get(options, 'opened') || dummyFcn,
@@ -160,12 +162,13 @@
       fetch: function (options) {
         options = _.clone(options || {});
         options.mimeType = 'application/msgpack';
+        var template = this.customTemplate !== null ? this.customTemplate : wps_fetchDataTmpl;
         this.abort();
         this.xhr = httpRequest.asyncHttpRequest({
           context: this,
           type: 'POST',
           url: this.url,
-          data: wps_fetchDataTmpl(options),
+          data: template(options),
           responseType: 'arraybuffer',
           parse: function (data, xhr) {
             var timer = new Timer();
@@ -276,9 +279,84 @@
     }
 
 
+    // VirES field-line request class wrapping the API specific details of the
+    // asynchronous field-line request.
+
+    function ViresFieldlinesRequest(options) {
+      var dummyFcn = function () {};
+      options = options || {};
+      this.xhr = null;
+      this.url = get(options, 'url', null);
+      this.context = get(options, 'context', null);
+      this.callbacks = {
+        aborted: get(options, 'aborted') || dummyFcn,
+        opened: get(options, 'opened') || dummyFcn,
+        completed: get(options, 'completed') || dummyFcn,
+        success: get(options, 'success') || dummyFcn,
+        error: get(options, 'error') || dummyFcn,
+      };
+    }
+
+    ViresFieldlinesRequest.prototype = {
+
+      abort: function () {
+        if (this.xhr !== null) {
+          // A request has been sent and the response not yet been received
+          // and we need to cancel it
+          this.callbacks.aborted.call(this.context);
+          this.xhr.abort();
+          this.xhr = null;
+        }
+      },
+
+      fetch: function (options) {
+        options = _.clone(options || {});
+        options.mimeType = 'application/msgpack';
+        this.abort();
+        this.xhr = httpRequest.asyncHttpRequest({
+          context: this,
+          type: 'POST',
+          url: this.url,
+          data: wps_fetchFieldlinesTmpl(options),
+          responseType: 'arraybuffer',
+          parse: function (data, xhr) {
+            var timer = new Timer();
+            var decodedObj = msgpack.decode(new Uint8Array(data));
+            timer.logEllapsedTime("fieldline parsing:");
+            return decodedObj;
+          },
+          opened: function () {
+            this.callbacks.opened.call(this.context);
+          },
+          completed: function () {
+            this.xhr = null;
+            this.callbacks.completed.call(this.context);
+          },
+          success: function (data) {
+            this.callbacks.success.call(this.context, data);
+          },
+          error: function (xhr) {
+            this.callbacks.error.call(this.context, xhr, parseOwsException(xhr));
+          },
+        });
+      },
+    };
+
+    var toCsv = function (header, records, delimiter) {
+      return ([header.join(delimiter)].concat(_.map(records, function (record) {
+        return record.join(delimiter);
+      }))).join('\n');
+    };
+
+    var locationToCsv = function (points) {
+      return toCsv(['Latitude', 'Longitude', 'Radius'], points, ',');
+    };
+
     return {
       EMPTY_DATA: emptyViresData,
       ViresDataRequest: ViresDataRequest,
+      ViresFieldlinesRequest: ViresFieldlinesRequest,
+      locationToCsv: locationToCsv,
     };
 
   }

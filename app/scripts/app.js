@@ -82,21 +82,21 @@ var REPLACED_SCALAR_VARIABLES = {
 // related data collections
 var RELATED_COLLECTIONS = {
     'SW_OPER_AEJALPS_2F': [
-        {collections: ['SW_OPER_AEJAPBS_2F'], type: 'AEJ_PBS'},
+        {collections: ['SW_OPER_AEJAPBS_2F', 'SW_OPER_AEJALPS_2F'], type: 'AEJ_PBS'},
         {
             collections: ['SW_OPER_AEJAPBS_2F:GroundMagneticDisturbance'],
             type: 'AEJ_PBS:GroundMagneticDisturbance'
         }
     ],
     'SW_OPER_AEJBLPS_2F': [
-        {collections: ['SW_OPER_AEJBPBS_2F'], type: 'AEJ_PBS'},
+        {collections: ['SW_OPER_AEJBPBS_2F', 'SW_OPER_AEJBLPS_2F'], type: 'AEJ_PBS'},
         {
             collections: ['SW_OPER_AEJBPBS_2F:GroundMagneticDisturbance'],
             type: 'AEJ_PBS:GroundMagneticDisturbance'
         }
     ],
     'SW_OPER_AEJCLPS_2F': [
-        {collections: ['SW_OPER_AEJCPBS_2F'], type: 'AEJ_PBS'},
+        {collections: ['SW_OPER_AEJCPBS_2F', 'SW_OPER_AEJCLPS_2F'], type: 'AEJ_PBS'},
         {
             collections: ['SW_OPER_AEJCPBS_2F:GroundMagneticDisturbance'],
             type: 'AEJ_PBS:GroundMagneticDisturbance'
@@ -122,12 +122,15 @@ var RELATED_COLLECTIONS = {
     ],
 };
 
-var _COMMON_RELATED_VARIABLES = ["QDLat", "QDLon", "MLT", "Kp", "Dst", "dDst", "F107"];
+var _COMMON_RELATED_VARIABLES = [
+    'QDLat', 'QDLon', 'MLT', 'Kp', 'Dst', 'dDst', 'F107',
+    'QDOrbitDirection', 'OrbitDirection',
+];
 var RELATED_VARIABLES = {
-    'AEJ_PBS': ['PointType'].concat(_COMMON_RELATED_VARIABLES),
+    'AEJ_PBS': ['J_DF_SemiQD', 'J_CF_SemiQD', 'J_R', 'PointType'].concat(_COMMON_RELATED_VARIABLES),
     'AEJ_PBS:GroundMagneticDisturbance': [].concat(_COMMON_RELATED_VARIABLES),
-    'AEJ_PBL': ['PointType'].concat(_COMMON_RELATED_VARIABLES),
-    'AOB_FAC': ['Radius', 'Boundary_Flag'].concat(_COMMON_RELATED_VARIABLES),
+    'AEJ_PBL': ['J_QD', 'PointType'].concat(_COMMON_RELATED_VARIABLES),
+    'AOB_FAC': ['FAC', 'Radius', 'Boundary_Flag'].concat(_COMMON_RELATED_VARIABLES),
 };
 
 (function () {
@@ -746,18 +749,23 @@ var RELATED_VARIABLES = {
                 });
                 globals.swarm.collection2satellite = collection2satellite;
 
-                // Derive which satellites should be active from active products
-                globals.products.forEach(function (product) {
-                    var satellite = get(collection2satellite, product.get('download').id);
-                    if (satellite && product.get('visible')) {
-                        globals.swarm.satellites[satellite] = true;
-                    }
-                });
+                // Check if we have the satellites saved in localstorage
+                if (localStorage.getItem('satellites')) {
+                    globals.swarm.satellites = JSON.parse(localStorage.getItem('satellites'));
+                } else {
+                    // Derive which satellites should be active from active products
+                    globals.products.forEach(function (product) {
+                        var satellite = get(collection2satellite, product.get('download').id);
+                        if (satellite && product.get('visible')) {
+                            globals.swarm.satellites[satellite] = true;
+                        }
+                    });
+                }
 
                 // collection to product name mapping
-                globals.swarm.collection2product = {}
+                globals.swarm.collection2product = {};
                 globals.products.forEach(function (product) {
-                    globals.swarm.collection2product[product.get('download').id] = product.get('name')
+                    globals.swarm.collection2product[product.get('download').id] = product.get('name');
                 });
 
                 globals.swarm.activeProducts = [];
