@@ -755,9 +755,9 @@ var RELATED_VARIABLES = {
                 });
 
                 // collection to product name mapping
-                globals.swarm.collection2product = {}
+                globals.swarm.collection2product = {};
                 globals.products.forEach(function (product) {
-                    globals.swarm.collection2product[product.get('download').id] = product.get('name')
+                    globals.swarm.collection2product[product.get('download').id] = product.get('name');
                 });
 
                 globals.swarm.activeProducts = [];
