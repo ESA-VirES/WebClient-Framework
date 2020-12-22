@@ -9,8 +9,7 @@
         </wps:ComplexData>
       </wps:Data>
     </wps:Input>
-    {{#if variables}}
-    <wps:Input>
+    {{#if variables}}<wps:Input>
       <ows:Identifier>variables</ows:Identifier>
       <wps:Data>
         <wps:LiteralData>{{variables}}</wps:LiteralData>
@@ -28,6 +27,12 @@
         <wps:LiteralData>{{end_time}}</wps:LiteralData>
       </wps:Data>
     </wps:Input>
+    {{#if sampling_step}}<wps:Input>
+      <ows:Identifier>sampling_step</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>{{sampling_step}}</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>{{/if}}
     {{#if filters}}<wps:Input>
       <ows:Identifier>filters</ows:Identifier>
       <wps:Data>
@@ -56,12 +61,6 @@
       <ows:Identifier>csv_time_format</ows:Identifier>
       <wps:Data>
         <wps:LiteralData>{{time_format}}</wps:LiteralData>
-      </wps:Data>
-    </wps:Input>{{/if}}
-    {{#if sampling_step}}<wps:Input>
-      <ows:Identifier>sampling_step</ows:Identifier>
-      <wps:Data>
-        <wps:LiteralData>{{sampling_step}}</wps:LiteralData>
       </wps:Data>
     </wps:Input>{{/if}}
   </wps:DataInputs>

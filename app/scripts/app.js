@@ -749,13 +749,18 @@ var RELATED_VARIABLES = {
                 });
                 globals.swarm.collection2satellite = collection2satellite;
 
-                // Derive which satellites should be active from active products
-                globals.products.forEach(function (product) {
-                    var satellite = get(collection2satellite, product.get('download').id);
-                    if (satellite && product.get('visible')) {
-                        globals.swarm.satellites[satellite] = true;
-                    }
-                });
+                // Check if we have the satellites saved in localstorage
+                if (localStorage.getItem('satellites')) {
+                    globals.swarm.satellites = JSON.parse(localStorage.getItem('satellites'));
+                } else {
+                    // Derive which satellites should be active from active products
+                    globals.products.forEach(function (product) {
+                        var satellite = get(collection2satellite, product.get('download').id);
+                        if (satellite && product.get('visible')) {
+                            globals.swarm.satellites[satellite] = true;
+                        }
+                    });
+                }
 
                 // collection to product name mapping
                 globals.swarm.collection2product = {};

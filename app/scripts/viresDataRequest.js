@@ -138,6 +138,7 @@
       this.xhr = null;
       this.url = get(options, 'url', null);
       this.context = get(options, 'context', null);
+      this.customTemplate = get(options, 'customTemplate', null);
       this.callbacks = {
         aborted: get(options, 'aborted') || dummyFcn,
         opened: get(options, 'opened') || dummyFcn,
@@ -161,12 +162,13 @@
       fetch: function (options) {
         options = _.clone(options || {});
         options.mimeType = 'application/msgpack';
+        var template = this.customTemplate !== null ? this.customTemplate : wps_fetchDataTmpl;
         this.abort();
         this.xhr = httpRequest.asyncHttpRequest({
           context: this,
           type: 'POST',
           url: this.url,
-          data: wps_fetchDataTmpl(options),
+          data: template(options),
           responseType: 'arraybuffer',
           parse: function (data, xhr) {
             var timer = new Timer();

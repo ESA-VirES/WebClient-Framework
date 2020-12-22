@@ -143,6 +143,11 @@
                 if (event === 'layout:switch:splitview') {
                     localStorage.setItem('viewSelection', '"split"');
                 }
+                if (event === 'map:multilayer:change') {
+                    localStorage.setItem(
+                        'satellites', JSON.stringify(globals.swarm.satellites)
+                    );
+                }
 
                 // Tracking of layers
                 if (event === 'map:layer:change') {

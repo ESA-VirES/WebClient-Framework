@@ -8,11 +8,11 @@ define([
     'communicator',
     'app',
     'models/MapModel',
+    'viresDataRequest',
     'globals',
     'msgpack',
     'httpRequest',
     'dataUtil',
-    'viresDataRequest',
     'hbs!tmpl/wps_eval_composed_model',
     'hbs!tmpl/FieldlinesLabel',
     'hbs!tmpl/SvgSymbolCircle',
@@ -20,15 +20,16 @@ define([
     'hbs!tmpl/SvgSymbolDimondLarge',
     'hbs!tmpl/SvgSymbolSquare',
     'hbs!tmpl/SvgSymbolTriangle',
+    'hbs!tmpl/wps_fetchFilteredData',
     'colormap',
     'cesium/Cesium',
     'drawhelper',
     'FileSaver',
 ], function (
-    Marionette, Communicator, App, MapModel, globals, msgpack, httpRequest,
-    DataUtil, vires, tmplEvalModel, tmplFieldLinesLabel,
+    Marionette, Communicator, App, MapModel, vires, globals, msgpack, httpRequest,
+    DataUtil, tmplEvalModel, tmplFieldLinesLabel,
     tmplSvgSymbolCircle, tmplSvgSymbolDimond, tmplSvgSymbolDimondLarge,
-    tmplSvgSymbolSquare, tmplSvgSymbolTriangle,
+    tmplSvgSymbolSquare, tmplSvgSymbolTriangle, tmplFetchFilteredData,
     colormap
 ) {
     'use strict';
@@ -635,6 +636,7 @@ define([
             this.relatedFeatureCollections = null;
             this.colorScales = null;
             this.dataLegends = null;
+            this.orbitCollection = {};
 
             this.connectDataEvents();
         },
@@ -965,11 +967,13 @@ define([
 
             // Go through all overlays and add them to the map
             globals.overlays.each(function (overlay) {
-                var layer = this.createLayer(overlay);
-                if (layer) {
-                    var imagerylayer = this.map.scene.imageryLayers.addImageryProvider(layer);
-                    imagerylayer.show = overlay.get('visible');
-                    overlay._cesiumLayer = imagerylayer;
+                if (overlay.get("view").id !== "satellite_orbit") {
+                    var layer = this.createLayer(overlay);
+                    if (layer) {
+                        var imagerylayer = this.map.scene.imageryLayers.addImageryProvider(layer);
+                        imagerylayer.show = overlay.get('visible');
+                        overlay._cesiumLayer = imagerylayer;
+                    }
                 }
             }, this);
 
@@ -1126,6 +1130,10 @@ define([
             }, this);
         },
 
+        multiChangeLayer: function () {
+            this.loadOrbits();
+        },
+
         onResize: function () {
             this.bindPolarButtons();
             if (this.map._sceneModePicker) {
@@ -1188,6 +1196,7 @@ define([
             // No supported protocol defined in config.json!
             return null;
         },
+
 
         createWMTSLayer: function (layerdesc, view) {
             var options = {
@@ -1404,12 +1413,17 @@ define([
             } else {
                 globals.overlays.each(function (overlay) {
                     if (overlay.get('name') === options.name) {
-                        var cesLayer = overlay._cesiumLayer;
-                        cesLayer.show = options.visible;
-                        if (options.visible) {
-                            this.addCustomAttribution(overlay.get('view'));
+                        if (overlay.get('view').id === 'satellite_orbit') {
+                            overlay.set('visible', options.visible);
+                            this.loadOrbits();
                         } else {
-                            this.removeCustomAttribution(overlay.get('view'));
+                            var cesLayer = overlay._cesiumLayer;
+                            cesLayer.show = options.visible;
+                            if (options.visible) {
+                                this.addCustomAttribution(overlay.get('view'));
+                            } else {
+                                this.removeCustomAttribution(overlay.get('view'));
+                            }
                         }
                     }
                 }, this);
@@ -2608,6 +2622,83 @@ define([
             );
         },
 
+        loadOrbits: function () {
+            var satellites = ['Alpha', 'Bravo', 'Charlie'];
+            _.each(satellites, function (sat) {
+                this.removeOrbitPrimitives(sat);
+            }, this);
+
+            globals.overlays.each(function (overlay) {
+                if (overlay.get("view").id === "satellite_orbit") {
+
+                    if (overlay.get('visible')) {
+                        _.each(satellites, function (sat) {
+                            if (globals.swarm.satellites[sat]) {
+                                var request = new vires.ViresDataRequest({
+                                    context: this,
+                                    // customTemplate: tmplFetchFilteredData,
+                                    success: function (data) {
+                                        this.createOrbitPrimitives(data.data, sat);
+                                    },
+                                    error: function (xhr, message) {
+                                        if (xhr.responseText === "") {return;}
+                                        this.showErrorMessage(message);
+                                    },
+                                });
+
+                                request.url = overlay.get("view").url;
+                                var colls = {
+                                    'Alpha': '{"Alpha":["SW_OPER_MAGA_LR_1B"]}',
+                                    'Bravo': '{"Bravo":["SW_OPER_MAGB_LR_1B"]}',
+                                    'Charlie': '{"Charlie":["SW_OPER_MAGC_LR_1B"]}',
+                                };
+                                request.fetch({
+                                    collections_ids: colls[sat],
+                                    begin_time: getISODateTimeString(this.beginTime),
+                                    end_time: getISODateTimeString(this.endTime),
+                                    sampling_step: "PT20S",
+                                    format: "application/msgpack",
+                                });
+                            }
+                        }, this);
+                    }
+
+                }
+            }, this);
+        },
+
+        removeOrbitPrimitives: function (name) {
+            if (this.orbitCollection.hasOwnProperty(name)) {
+                this.map.scene.primitives.remove(this.orbitCollection[name]);
+                delete this.orbitCollection[name];
+            }
+        },
+
+        createOrbitPrimitives: function (data, name) {
+            var positions = _.map(data.Latitude, function (ds, idx) {
+                return Cesium.Cartesian3.clone(
+                    convertSpherical2Cartesian(
+                        data.Latitude[idx],
+                        data.Longitude[idx],
+                        data.Radius[idx]
+                    )
+                );
+            });
+            this.removeOrbitPrimitives(name);
+            var lineCollection = new Cesium.PolylineCollection();
+
+            lineCollection.add({
+                positions: positions,
+                width: 2,
+                material: Cesium.Material.fromType('Color', {
+                    color: new Cesium.Color(0.2, 0.2, 0.8, 1.0)
+                }),
+            });
+
+            this.orbitCollection[name] = lineCollection;
+            this.map.scene.primitives.add(this.orbitCollection[name]);
+        },
+
         updateFieldLines: function (onlyStyleChange) {
             if (typeof this.showFieldLinesDebounced === 'undefined') {
                 this.showFieldLinesDebounced = _.debounce(function (onlyStyleChange) {
@@ -2934,6 +3025,7 @@ define([
                 }
             }, this);
             this.updateFieldLines();
+            this.loadOrbits();
         },
 
         onSetExtent: function (bbox) {

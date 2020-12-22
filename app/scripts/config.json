@@ -5478,6 +5478,17 @@
                 "wrapDateLine": true,
                 "zoomOffset": 0
             }
+        },
+        {
+            "name": "Satellite Orbit",
+            "visible": false,
+            "view":{
+                "id": "satellite_orbit",
+                "protocol": "WPS",
+                "url": "/vires00/ows",
+                "style": "default",
+                "format": "image/png"
+            }
         }]
     },
 
