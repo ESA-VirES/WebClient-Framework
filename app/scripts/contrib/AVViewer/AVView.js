@@ -701,9 +701,9 @@ define(['backbone.marionette',
                     case 'AEJ_PBS':
                         overlaySettings[key] = {
                             keyParameter: 'PointType',
-                            /*displayParameters: [
+                            displayParameters: [
                                 'Latitude', 'Timestamp', 'J_QD', 'Longitude'
-                            ],*/
+                            ],
                             typeDefinition: [
                                 {
                                     match: function (value) {
