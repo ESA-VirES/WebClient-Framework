@@ -640,7 +640,7 @@ define(['backbone.marionette',
 
             globals.swarm.on('change:data', _.bind(this.reloadData, this));
             globals.swarm.on('change:sources', _.bind(this.updateProductSourcesContainer, this));
-            globals.swarm.get('relatedData').on('change',  _.bind(this.loadRelatedData, this));
+            globals.swarm.get('relatedData').on('change', _.bind(this.loadRelatedData, this));
         },
 
         loadRelatedData: function (model) {
@@ -671,8 +671,8 @@ define(['backbone.marionette',
                 "AEJ_PBS": function (data) {
                     var indices = getNanIndices(data.J_DF_SemiQD);
                     setValues(data.J_DF_SemiQD, 0, indices);
-                    setValues(data.J_CF_SemiQD, 0, indices);
-                    setValues(data.J_R, 0, indices);
+                    //setValues(data.J_CF_SemiQD, 0, indices);
+                    //setValues(data.J_R, 0, indices);
                 },
                 "AEJ_PBL": function (data) {
                     var indices = getNanIndices(data.J_QD);
@@ -701,9 +701,7 @@ define(['backbone.marionette',
                     case 'AEJ_PBS':
                         overlaySettings[key] = {
                             keyParameter: 'PointType',
-                            displayParameters: [
-                                'Latitude', 'Timestamp', 'J_QD', 'Longitude'
-                            ],
+                            displayParameters: ['J_QD', 'J_DF_SemiQD'],
                             typeDefinition: [
                                 {
                                     match: function (value) {
@@ -734,6 +732,7 @@ define(['backbone.marionette',
                     case 'AOB_FAC':
                         overlaySettings[key] = {
                             keyParameter: 'Boundary_Flag',
+                            displayParameters: ['FAC'],
                             typeDefinition: [
                                 {
                                     match: function (value) {
