@@ -626,12 +626,24 @@ define(['backbone.marionette',
                 this.renderFilterList();
             }
 
+            var relatedData = globals.swarm.get('relatedData').attributes;
+            if (!$.isEmptyObject(relatedData)) {
+                this.loadRelatedData();
+            }
+
             this.isClosed = false;
 
             return this;
         }, //onShow end
 
         connectDataEvents: function () {
+
+            globals.swarm.on('change:data', _.bind(this.reloadData, this));
+            globals.swarm.on('change:sources', _.bind(this.updateProductSourcesContainer, this));
+            globals.swarm.get('relatedData').on('change', _.bind(this.loadRelatedData, this));
+        },
+
+        loadRelatedData: function (model) {
 
             var getNanIndices = function (values) {
                 var indices = [];
@@ -659,8 +671,8 @@ define(['backbone.marionette',
                 "AEJ_PBS": function (data) {
                     var indices = getNanIndices(data.J_DF_SemiQD);
                     setValues(data.J_DF_SemiQD, 0, indices);
-                    setValues(data.J_CF_SemiQD, 0, indices);
-                    setValues(data.J_R, 0, indices);
+                    //setValues(data.J_CF_SemiQD, 0, indices);
+                    //setValues(data.J_R, 0, indices);
                 },
                 "AEJ_PBL": function (data) {
                     var indices = getNanIndices(data.J_QD);
@@ -671,120 +683,115 @@ define(['backbone.marionette',
                 },
             };
 
-            globals.swarm.on('change:data', _.bind(this.reloadData, this));
-            globals.swarm.on('change:sources', _.bind(this.updateProductSourcesContainer, this));
+            var PT_AEJ_POINT_TYPE_MASK = 0x2;
+            var PT_AEJ_BOUNDARY = 0x2;
+            var PT_AEJ_PEAK = 0x0;
+            var BF_AOB_POINT_TYPE_MASK = 0x3;
+            var BF_AOB_EW_BOUNDARY = 0x1;
+            var BF_AOB_PW_BOUNDARY = 0x2;
 
-            globals.swarm.get('relatedData').on('change', function (model) {
+            // We create combined settings and dataset for related data
+            var overlaySettings = {};
+            var overlayData = {};
+            var relatedData = globals.swarm.get('relatedData').attributes;
 
-                var PT_AEJ_POINT_TYPE_MASK = 0x2;
-                var PT_AEJ_BOUNDARY = 0x2;
-                var PT_AEJ_PEAK = 0x0;
-                var BF_AOB_POINT_TYPE_MASK = 0x3;
-                var BF_AOB_EW_BOUNDARY = 0x1;
-                var BF_AOB_PW_BOUNDARY = 0x2;
-
-                // We create combined settings and dataset for related data
-                var overlaySettings = {};
-                var overlayData = {};
-                var relatedData = globals.swarm.get('relatedData').attributes;
-
-                _.each(relatedData, function (data, key) {
-                    switch (key) {
-                        case 'AEJ_PBL':
-                        case 'AEJ_PBS':
-                            overlaySettings[key] = {
-                                keyParameter: 'PointType',
-                                typeDefinition: [
-                                    {
-                                        match: function (value) {
-                                            return (value & PT_AEJ_POINT_TYPE_MASK) === PT_AEJ_PEAK;
-                                        },
-                                        name: 'Peak electrojet current',
-                                        style: {
-                                            symbol: 'triangle_empty',
-                                            size: 15,
-                                            color: [0.0, 0, 0.0, 0.8],
-                                        }
+            _.each(relatedData, function (data, key) {
+                switch (key) {
+                    case 'AEJ_PBL':
+                    case 'AEJ_PBS':
+                        overlaySettings[key] = {
+                            keyParameter: 'PointType',
+                            displayParameters: ['J_QD', 'J_DF_SemiQD'],
+                            typeDefinition: [
+                                {
+                                    match: function (value) {
+                                        return (value & PT_AEJ_POINT_TYPE_MASK) === PT_AEJ_PEAK;
                                     },
-                                    {
-                                        match: function (value) {
-                                            return (value & PT_AEJ_POINT_TYPE_MASK) === PT_AEJ_BOUNDARY;
-                                        },
-                                        name: 'Electrojet Boundary',
-                                        style: {
-                                            symbol: 'rectangle_empty',
-                                            size: 15,
-                                            color: [0, 0, 0.0, 0.8],
-                                        }
+                                    name: 'Peak electrojet current',
+                                    style: {
+                                        symbol: 'triangle_empty',
+                                        size: 15,
+                                        color: [0.0, 0, 0.0, 0.8],
+                                    }
+                                },
+                                {
+                                    match: function (value) {
+                                        return (value & PT_AEJ_POINT_TYPE_MASK) === PT_AEJ_BOUNDARY;
                                     },
-                                ]
-                            };
-                            overlayData[key] = data.data;
-                            break;
-                        case 'AOB_FAC':
-                            overlaySettings[key] = {
-                                keyParameter: 'Boundary_Flag',
-                                typeDefinition: [
-                                    {
-                                        match: function (value) {
-                                            return (value & BF_AOB_POINT_TYPE_MASK) === BF_AOB_EW_BOUNDARY;
-                                        },
-                                        name: 'Aurora oval equatorward boundary',
-                                        style: {
-                                            symbol: 'circle_empty',
-                                            size: 15,
-                                            color: [0.0, 0.25, 0.0, 0.8],
-                                        }
+                                    name: 'Electrojet Boundary',
+                                    style: {
+                                        symbol: 'rectangle_empty',
+                                        size: 13,
+                                        color: [0, 0, 0.0, 0.8],
+                                    }
+                                },
+                            ]
+                        };
+                        overlayData[key] = data.data;
+                        break;
+                    case 'AOB_FAC':
+                        overlaySettings[key] = {
+                            keyParameter: 'Boundary_Flag',
+                            displayParameters: ['FAC'],
+                            typeDefinition: [
+                                {
+                                    match: function (value) {
+                                        return (value & BF_AOB_POINT_TYPE_MASK) === BF_AOB_EW_BOUNDARY;
                                     },
-                                    {
-                                        match: function (value) {
-                                            return (value & BF_AOB_POINT_TYPE_MASK) === BF_AOB_PW_BOUNDARY;
-                                        },
-                                        name: 'Aurora oval poleward boundary',
-                                        style: {
-                                            symbol: 'circle_empty',
-                                            size: 15,
-                                            color: [0.25, 0.0, 0.0, 0.8],
-                                        }
+                                    name: 'Aurora oval equatorward boundary',
+                                    style: {
+                                        symbol: 'diamond_empty',
+                                        size: 13 * Math.sqrt(2),
+                                        color: [0.0, 0.25, 0.0, 0.8],
+                                    }
+                                },
+                                {
+                                    match: function (value) {
+                                        return (value & BF_AOB_POINT_TYPE_MASK) === BF_AOB_PW_BOUNDARY;
                                     },
-                                ]
-                            };
-                            overlayData[key] = data.data;
-                            break;
-                        /*
-                        case 'AEJ_PBS:GroundMagneticDisturbance':
-                            overlaySettings[key] = {
-                                keyParameter: 'Timestamp',
-                                typeDefinition: [
-                                    {
-                                        match: function () {return true;},
-                                        name: 'Peak Magnetic disturbance',
-                                        style: {
-                                            symbol: 'circle_empty',
-                                            size: 15,
-                                            color: [0.0, 0, 0.0, 0.8],
-                                        }
-                                    },
-                                ]
-                            };
-                            overlayData[key] = data.data;
-                            break;
-                        */
-                    }
-                });
+                                    name: 'Aurora oval poleward boundary',
+                                    style: {
+                                        symbol: 'diamond_empty',
+                                        size: 13 * Math.sqrt(2),
+                                        color: [0.25, 0.0, 0.0, 0.8],
+                                    }
+                                },
+                            ]
+                        };
+                        overlayData[key] = data.data;
+                        break;
+                    /*
+                    case 'AEJ_PBS:GroundMagneticDisturbance':
+                        overlaySettings[key] = {
+                            keyParameter: 'Timestamp',
+                            typeDefinition: [
+                                {
+                                    match: function () {return true;},
+                                    name: 'Peak Magnetic disturbance',
+                                    style: {
+                                        symbol: 'circle_empty',
+                                        size: 15,
+                                        color: [0.0, 0, 0.0, 0.8],
+                                    }
+                                },
+                            ]
+                        };
+                        overlayData[key] = data.data;
+                        break;
+                    */
+                }
+            });
 
-                // data corrections
-                _.each(overlayData, function (data, productType) {
-                    var correctData = get(dataCorrections, productType);
-                    if (correctData) {
-                        correctData(data);
-                    }
-                });
+            // data corrections
+            _.each(overlayData, function (data, productType) {
+                var correctData = get(dataCorrections, productType);
+                if (correctData) {
+                    correctData(data);
+                }
+            });
 
-                this.graph.overlaySettings = overlaySettings;
-                this.graph.loadOverlayData(overlayData);
-
-            }, this);
+            this.graph.overlaySettings = overlaySettings;
+            this.graph.loadOverlayData(overlayData);
         },
 
         updateProductSourcesContainer: function () {
