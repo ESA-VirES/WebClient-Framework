@@ -721,7 +721,7 @@ define(['backbone.marionette',
                                     name: 'Electrojet Boundary',
                                     style: {
                                         symbol: 'rectangle_empty',
-                                        size: 15,
+                                        size: 13,
                                         color: [0, 0, 0.0, 0.8],
                                     }
                                 },
@@ -740,8 +740,8 @@ define(['backbone.marionette',
                                     },
                                     name: 'Aurora oval equatorward boundary',
                                     style: {
-                                        symbol: 'circle_empty',
-                                        size: 15,
+                                        symbol: 'diamond_empty',
+                                        size: 13 * Math.sqrt(2),
                                         color: [0.0, 0.25, 0.0, 0.8],
                                     }
                                 },
@@ -751,8 +751,8 @@ define(['backbone.marionette',
                                     },
                                     name: 'Aurora oval poleward boundary',
                                     style: {
-                                        symbol: 'circle_empty',
-                                        size: 15,
+                                        symbol: 'diamond_empty',
+                                        size: 13 * Math.sqrt(2),
                                         color: [0.25, 0.0, 0.0, 0.8],
                                     }
                                 },
