@@ -300,7 +300,7 @@
             fetchWPSClipped: function (start, end, params, callback) {
                 var request = this.url + '?service=wps&request=execute&version=1.0.0&identifier=' + this.wpsProcessName + '&DataInputs=collection=' +
                 this.id + ';begin_time=' + getISODateTimeString(start) + ';end_time=' + getISODateTimeString(end) + '&RawDataOutput=times';
-                var clippedStart, clippedEnd;
+                var currStart, currEnd;
                 var currExtent = end.getTime() - start.getTime();
 
                 d3.csv(request)
@@ -310,18 +310,14 @@
                         // Check start and end validity to see if we can clip the range
                         // to avoid possible clipping of the browser of the rendered line
                         if (currStart.getTime() < start.getTime()) {
-                            clippedStart = new Date(start.getTime() - currExtent);
-                        } else {
-                            clippedStart = currStart;
+                            currStart = start;
                         }
                         if (currEnd.getTime() > end.getTime()) {
-                            clippedEnd = new Date(end.getTime() + currExtent);
-                        } else {
-                            clippedEnd = currEnd;
+                            currEnd = end;
                         }
                         return [
-                            clippedStart,
-                            clippedEnd,
+                            currStart,
+                            currEnd,
                             {
                                 id: row.identifier,
                                 bbox: row.bbox.replace(/[()]/g, '').split(',').map(parseFloat)
