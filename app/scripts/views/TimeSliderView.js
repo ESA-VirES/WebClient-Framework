@@ -278,7 +278,6 @@
                     });
             },
 
-
             fetchWPS: function (start, end, params, callback) {
                 var request = this.url + '?service=wps&request=execute&version=1.0.0&identifier=' + this.wpsProcessName + '&DataInputs=collection=' +
                 this.id + ';begin_time=' + getISODateTimeString(start) + ';end_time=' + getISODateTimeString(end) + '&RawDataOutput=times';
@@ -287,6 +286,42 @@
                         return [
                             new Date(row.starttime),
                             new Date(row.endtime),
+                            {
+                                id: row.identifier,
+                                bbox: row.bbox.replace(/[()]/g, '').split(',').map(parseFloat)
+                            }
+                        ];
+                    })
+                    .get(function (error, rows) {
+                        callback(rows);
+                    });
+            },
+
+            fetchWPSClipped: function (start, end, params, callback) {
+                var request = this.url + '?service=wps&request=execute&version=1.0.0&identifier=' + this.wpsProcessName + '&DataInputs=collection=' +
+                this.id + ';begin_time=' + getISODateTimeString(start) + ';end_time=' + getISODateTimeString(end) + '&RawDataOutput=times';
+                var clippedStart, clippedEnd;
+                var currExtent = end.getTime() - start.getTime();
+
+                d3.csv(request)
+                    .row(function (row) {
+                        var currStart = new Date(row.starttime);
+                        var currEnd = new Date(row.endtime);
+                        // Check start and end validity to see if we can clip the range
+                        // to avoid possible clipping of the browser of the rendered line
+                        if (currStart.getTime() < start.getTime()) {
+                            clippedStart = new Date(start.getTime() - currExtent);
+                        } else {
+                            clippedStart = currStart;
+                        }
+                        if (currEnd.getTime() > end.getTime()) {
+                            clippedEnd = new Date(end.getTime() + currExtent);
+                        } else {
+                            clippedEnd = currEnd;
+                        }
+                        return [
+                            clippedStart,
+                            clippedEnd,
                             {
                                 id: row.identifier,
                                 bbox: row.bbox.replace(/[()]/g, '').split(',').map(parseFloat)
@@ -396,6 +431,32 @@
                                     // Withouth this update the first time activating a layer after the first map move
                                     // the bbox doesnt seem to be defined in the timeslider library and the points shown are wrong
                                     //this.slider.updateBBox([extent.left, extent.bottom, extent.right, extent.top], product.get('download').id);
+
+                                    // Check if we have special case of LPL or LPS
+                                    // where we activate an additional boundary products
+                                    if (product.get('download').id.match(/SW_OPER_AEJ.LPL_2F/g)
+                                        || product.get('download').id.match(/SW_OPER_AEJ.LPS_2F/g) ) {
+                                        var sat = product.get('download').id.charAt(11);
+                                        var auxId = 'SW_OPER_AEJ'+sat;
+                                        if (product.get('download').id.match(/SW_OPER_AEJ.LPL_2F/g)) {
+                                            auxId += 'PBL_2F';
+                                        }
+                                        if (product.get('download').id.match(/SW_OPER_AEJ.LPS_2F/g)) {
+                                            auxId += 'PBS_2F';
+                                        }
+                                        var extAtt = {
+                                            wpsProcessName: "getTimeData",
+                                            id: auxId,
+                                            url: product.get('download').url
+                                        };
+                                        this.slider.addDataset({
+                                            id: auxId,
+                                            color: product.get('color'),
+                                            records: null,
+                                            source: {fetch: this.fetchWPSClipped.bind(extAtt)}
+                                        });
+                                        this.activeWPSproducts.push(auxId);
+                                    }
                                     break;
 
                                 case 'WPS-INDEX': // deprecated use WPS with timeSliderWpsProcessName instead
@@ -444,6 +505,26 @@
                             this.slider.removeDataset(product.get('download').id);
                             if (this.activeWPSproducts.indexOf(product.get('download').id) !== -1) {
                                 this.activeWPSproducts.splice(this.activeWPSproducts.indexOf(product.get('download').id), 1);
+                            }
+
+                            // Check if we have special case of LPL or LPS
+                            // to remove and cleanup things
+                            if (product.get('download').id.match(/SW_OPER_AEJ.LPL_2F/g)
+                                || product.get('download').id.match(/SW_OPER_AEJ.LPS_2F/g) ) {
+                                var sat = product.get('download').id.charAt(11);
+                                var auxId = 'SW_OPER_AEJ'+sat;
+                                if (product.get('download').id.match(/SW_OPER_AEJ.LPL_2F/g)) {
+                                    auxId += 'PBL_2F';
+                                }
+                                if (product.get('download').id.match(/SW_OPER_AEJ.LPS_2F/g)) {
+                                    auxId += 'PBS_2F';
+                                }
+                                this.slider.removeDataset(auxId);
+                                if (this.activeWPSproducts.indexOf(auxId) !== -1) {
+                                    this.activeWPSproducts.splice(
+                                        this.activeWPSproducts.indexOf(auxId), 1
+                                    );
+                                }
                             }
                         }
                     }
