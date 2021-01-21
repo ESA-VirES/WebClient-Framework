@@ -1,4 +1,5 @@
 /*global $ _ d3 TimeSlider getISODateTimeString */
+/*global RELATED_COLLECTIONS get blendColors */
 
 (function () {
     'use strict';
@@ -300,8 +301,6 @@
             fetchWPSClipped: function (start, end, params, callback) {
                 var request = this.url + '?service=wps&request=execute&version=1.0.0&identifier=' + this.wpsProcessName + '&DataInputs=collection=' +
                 this.id + ';begin_time=' + getISODateTimeString(start) + ';end_time=' + getISODateTimeString(end) + '&RawDataOutput=times';
-                var currStart, currEnd;
-                var currExtent = end.getTime() - start.getTime();
 
                 d3.csv(request)
                     .row(function (row) {
@@ -410,6 +409,27 @@
                                     });
                                     break;
                                 case 'WPS':
+
+                                    // Check if we have special products for which
+                                    // we activate an additional related products
+                                    _.each(get(RELATED_COLLECTIONS, product.get('download').id), function (related) {
+                                        var auxId = get(related, 'timeSliderDataset');
+                                        if (!auxId) {return;}
+
+                                        var extAtt = {
+                                            wpsProcessName: "getTimeData",
+                                            id: auxId,
+                                            url: product.get('download').url
+                                        };
+                                        this.slider.addDataset({
+                                            id: auxId,
+                                            color: blendColors(product.get('color'), '#ffffff', 0.66),
+                                            records: null,
+                                            source: {fetch: this.fetchWPSClipped.bind(extAtt)}
+                                        });
+                                        this.activeWPSproducts.push(auxId);
+                                    }, this);
+
                                     attrs = {
                                         wpsProcessName: product.get('timeSliderWpsProcessName') || "getTimeData",
                                         id: product.get('download').id,
@@ -428,31 +448,6 @@
                                     // the bbox doesnt seem to be defined in the timeslider library and the points shown are wrong
                                     //this.slider.updateBBox([extent.left, extent.bottom, extent.right, extent.top], product.get('download').id);
 
-                                    // Check if we have special case of LPL or LPS
-                                    // where we activate an additional boundary products
-                                    if (product.get('download').id.match(/SW_OPER_AEJ.LPL_2F/g)
-                                        || product.get('download').id.match(/SW_OPER_AEJ.LPS_2F/g) ) {
-                                        var sat = product.get('download').id.charAt(11);
-                                        var auxId = 'SW_OPER_AEJ'+sat;
-                                        if (product.get('download').id.match(/SW_OPER_AEJ.LPL_2F/g)) {
-                                            auxId += 'PBL_2F';
-                                        }
-                                        if (product.get('download').id.match(/SW_OPER_AEJ.LPS_2F/g)) {
-                                            auxId += 'PBS_2F';
-                                        }
-                                        var extAtt = {
-                                            wpsProcessName: "getTimeData",
-                                            id: auxId,
-                                            url: product.get('download').url
-                                        };
-                                        this.slider.addDataset({
-                                            id: auxId,
-                                            color: product.get('color'),
-                                            records: null,
-                                            source: {fetch: this.fetchWPSClipped.bind(extAtt)}
-                                        });
-                                        this.activeWPSproducts.push(auxId);
-                                    }
                                     break;
 
                                 case 'WPS-INDEX': // deprecated use WPS with timeSliderWpsProcessName instead
@@ -498,30 +493,25 @@
                                     break;
                             } // END of switch
                         } else {
-                            this.slider.removeDataset(product.get('download').id);
-                            if (this.activeWPSproducts.indexOf(product.get('download').id) !== -1) {
-                                this.activeWPSproducts.splice(this.activeWPSproducts.indexOf(product.get('download').id), 1);
-                            }
 
-                            // Check if we have special case of LPL or LPS
-                            // to remove and cleanup things
-                            if (product.get('download').id.match(/SW_OPER_AEJ.LPL_2F/g)
-                                || product.get('download').id.match(/SW_OPER_AEJ.LPS_2F/g) ) {
-                                var sat = product.get('download').id.charAt(11);
-                                var auxId = 'SW_OPER_AEJ'+sat;
-                                if (product.get('download').id.match(/SW_OPER_AEJ.LPL_2F/g)) {
-                                    auxId += 'PBL_2F';
+                            var _removeDataset = _.bind(function (id) {
+                                this.slider.removeDataset(id);
+                                var index = this.activeWPSproducts.indexOf(id);
+                                if (index !== -1) {
+                                    this.activeWPSproducts.splice(index, 1);
                                 }
-                                if (product.get('download').id.match(/SW_OPER_AEJ.LPS_2F/g)) {
-                                    auxId += 'PBS_2F';
+                            }, this);
+
+                            _removeDataset(product.get('download').id);
+
+                            // Check if we have special products with
+                            // related datasets.
+                            _.each(get(RELATED_COLLECTIONS, product.get('download').id), function (related) {
+                                var auxId = get(related, 'timeSliderDataset');
+                                if (auxId) {
+                                    _removeDataset(auxId);
                                 }
-                                this.slider.removeDataset(auxId);
-                                if (this.activeWPSproducts.indexOf(auxId) !== -1) {
-                                    this.activeWPSproducts.splice(
-                                        this.activeWPSproducts.indexOf(auxId), 1
-                                    );
-                                }
-                            }
+                            });
                         }
                     }
                 }

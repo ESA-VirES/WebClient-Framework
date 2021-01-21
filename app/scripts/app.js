@@ -82,43 +82,78 @@ var REPLACED_SCALAR_VARIABLES = {
 // related data collections
 var RELATED_COLLECTIONS = {
     'SW_OPER_AEJALPS_2F': [
-        {collections: ['SW_OPER_AEJAPBS_2F', 'SW_OPER_AEJALPS_2F'], type: 'AEJ_PBS'},
+        {
+            timeSliderDataset: 'SW_OPER_AEJAPBS_2F',
+            collections: ['SW_OPER_AEJAPBS_2F', 'SW_OPER_AEJALPS_2F'],
+            type: 'AEJ_PBS'
+        },
         {
             collections: ['SW_OPER_AEJAPBS_2F:GroundMagneticDisturbance'],
             type: 'AEJ_PBS:GroundMagneticDisturbance'
         }
     ],
     'SW_OPER_AEJBLPS_2F': [
-        {collections: ['SW_OPER_AEJBPBS_2F', 'SW_OPER_AEJBLPS_2F'], type: 'AEJ_PBS'},
+        {
+            timeSliderDataset: 'SW_OPER_AEJBPBS_2F',
+            collections: ['SW_OPER_AEJBPBS_2F', 'SW_OPER_AEJBLPS_2F'], type: 'AEJ_PBS'
+        },
         {
             collections: ['SW_OPER_AEJBPBS_2F:GroundMagneticDisturbance'],
             type: 'AEJ_PBS:GroundMagneticDisturbance'
         }
     ],
     'SW_OPER_AEJCLPS_2F': [
-        {collections: ['SW_OPER_AEJCPBS_2F', 'SW_OPER_AEJCLPS_2F'], type: 'AEJ_PBS'},
+        {
+            timeSliderDataset: 'SW_OPER_AEJCPBS_2F',
+            collections: ['SW_OPER_AEJCPBS_2F', 'SW_OPER_AEJCLPS_2F'],
+            type: 'AEJ_PBS'
+        },
         {
             collections: ['SW_OPER_AEJCPBS_2F:GroundMagneticDisturbance'],
             type: 'AEJ_PBS:GroundMagneticDisturbance'
         }
     ],
     'SW_OPER_AEJALPL_2F': [
-        {collections: ['SW_OPER_AEJAPBL_2F'], type: 'AEJ_PBL'}
+        {
+            timeSliderDataset: 'SW_OPER_AEJAPBL_2F',
+            collections: ['SW_OPER_AEJAPBL_2F'],
+            type: 'AEJ_PBL'
+        }
     ],
     'SW_OPER_AEJBLPL_2F': [
-        {collections: ['SW_OPER_AEJBPBL_2F'], type: 'AEJ_PBL'}
+        {
+            timeSliderDataset: 'SW_OPER_AEJBPBL_2F',
+            collections: ['SW_OPER_AEJBPBL_2F'],
+            type: 'AEJ_PBL'
+        }
     ],
     'SW_OPER_AEJCLPL_2F': [
-        {collections: ['SW_OPER_AEJCPBL_2F'], type: 'AEJ_PBL'}
+        {
+            timeSliderDataset: 'SW_OPER_AEJCPBL_2F',
+            collections: ['SW_OPER_AEJCPBL_2F'],
+            type: 'AEJ_PBL'
+        }
     ],
     'SW_OPER_FACATMS_2F': [
-        {collections: ['SW_OPER_AOBAFAC_2F', 'SW_OPER_FACATMS_2F'], type: 'AOB_FAC'}
+        {
+            timeSliderDataset: 'SW_OPER_AOBAFAC_2F',
+            collections: ['SW_OPER_AOBAFAC_2F', 'SW_OPER_FACATMS_2F'],
+            type: 'AOB_FAC'
+        }
     ],
     'SW_OPER_FACBTMS_2F': [
-        {collections: ['SW_OPER_AOBBFAC_2F', 'SW_OPER_FACBTMS_2F'], type: 'AOB_FAC'}
+        {
+            timeSliderDataset: 'SW_OPER_AOBBFAC_2F',
+            collections: ['SW_OPER_AOBBFAC_2F', 'SW_OPER_FACBTMS_2F'],
+            type: 'AOB_FAC'
+        }
     ],
     'SW_OPER_FACCTMS_2F': [
-        {collections: ['SW_OPER_AOBCFAC_2F', 'SW_OPER_FACCTMS_2F'], type: 'AOB_FAC'}
+        {
+            timeSliderDataset: 'SW_OPER_AOBCFAC_2F',
+            collections: ['SW_OPER_AOBCFAC_2F', 'SW_OPER_FACCTMS_2F'],
+            type: 'AOB_FAC'
+        }
     ],
 };
 
