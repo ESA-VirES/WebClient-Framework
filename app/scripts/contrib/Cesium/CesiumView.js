@@ -2687,11 +2687,26 @@ define([
             this.removeOrbitPrimitives(name);
             var lineCollection = new Cesium.PolylineCollection();
 
+            // Color based on satellite
+            var color;
+            switch(name) {
+              case 'Alpha':
+                color = new Cesium.Color(0.2, 0.2, 0.8, 1.0);
+                break;
+              case 'Bravo':
+                color = new Cesium.Color(0.8, 0.2, 0.2, 1.0);
+                break;
+              case 'Charlie':
+                color = new Cesium.Color(0.2, 0.8, 0.2, 1.0);
+                break;
+              default:
+                color = new Cesium.Color(0.0, 0.0, 0.0, 1.0);
+            }
             lineCollection.add({
                 positions: positions,
                 width: 2,
                 material: Cesium.Material.fromType('Color', {
-                    color: new Cesium.Color(0.2, 0.2, 0.8, 1.0)
+                    color: color
                 }),
             });
 
