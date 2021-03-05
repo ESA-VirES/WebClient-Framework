@@ -312,7 +312,6 @@ var saveProductStatus = function (product) {
 var savePrameterStatus = function (globals) {
   var parConf = {};
   var uomSet = globals.swarm.get('uom_set');
-  console.log(uomSet);
 
   for (var pk in uomSet) {
     var parC = {};

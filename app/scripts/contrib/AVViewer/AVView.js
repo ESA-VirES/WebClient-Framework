@@ -1,6 +1,6 @@
 /* global $ _ define w2popup w2utils showMessage graphly plotty FilterManager */
 /* global savePrameterStatus VECTOR_BREAKDOWN */
-/* global get */
+/* global get setDefault */
 
 define(['backbone.marionette',
     'communicator',
@@ -560,17 +560,16 @@ define(['backbone.marionette',
                     'plotConfiguration', JSON.stringify(confArr)
                 );
 
-                // We check if any overlays have been disabled
-                var disabledOverlays = [];
-                for (var key in this.overlaySettings) {
-                    var currSetts = this.overlaySettings[key];
-                    for (var i = 0; i < currSetts.typeDefinition.length; i++) {
-                        if (currSetts.typeDefinition[i].hasOwnProperty('active') &&
-                            !currSetts.typeDefinition[i].active) {
-                            disabledOverlays.push(currSetts.typeDefinition[i].name);
+                // Save disabled overlays.
+                var disabledOverlays = {};
+                _.each(this.overlaySettings, function (data, productType) {
+                    _.each(data.typeDefinition, function (typeDefinition) {
+                        if (!get(typeDefinition, 'active', true)) {
+                            setDefault(disabledOverlays, productType, []);
+                            disabledOverlays[productType].push(typeDefinition.name);
                         }
-                    }
-                }
+                    });
+                });
                 localStorage.setItem(
                     'disabledOverlays', JSON.stringify(disabledOverlays)
                 );
@@ -797,31 +796,21 @@ define(['backbone.marionette',
                 }
             });
 
-            // Now we check if we need to disable any overlay datasets
-            var disabledOverlays = localStorage.getItem('disabledOverlays');
-            var matchedOverlays = [];
-            if (disabledOverlays !== null) {
-                disabledOverlays = JSON.parse(disabledOverlays);
-                // See if we find the disabled overlays in the current settings
-                // if not lets remove them also from the saved localstorage
-                for (var key in overlaySettings) {
-                    var currSetts = overlaySettings[key];
-                    for (var i = 0; i < currSetts.typeDefinition.length; i++) {
-                        if (disabledOverlays.indexOf(currSetts.typeDefinition[i].name) !== -1) {
-                            currSetts.typeDefinition[i].active = false;
-                            if (matchedOverlays.indexOf(currSetts.typeDefinition[i].name) === -1) {
-                                matchedOverlays.push(currSetts.typeDefinition[i].name);
-                            }
-                        }
-                    }
-                }
-                // Only set if we actually have an overlaysettings object
-                if (Object.keys(overlaySettings).length !== 0) {
-                    localStorage.setItem('disabledOverlays', JSON.stringify(matchedOverlays));
-                }
+            // Load and set disabled overlays.
+            var disabledOverlays = JSON.parse(localStorage.getItem('disabledOverlays')) || {};
+            if (Array.isArray(disabledOverlays)) {
+                // ignore arrays stored by the earlier version
+                disabledOverlays = {};
             }
+            _.each(overlaySettings, function (item, key) {
+                _.each(item.typeDefinition, function (typeDefinition) {
+                    typeDefinition.active = !(
+                        get(disabledOverlays, key, []).includes(typeDefinition.name)
+                    );
+                });
+            });
 
-            // data corrections
+            // Apply data corrections.
             _.each(overlayData, function (data, productType) {
                 var correctData = get(dataCorrections, productType);
                 if (correctData) {
