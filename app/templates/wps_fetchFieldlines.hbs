@@ -20,6 +20,12 @@
       <wps:ComplexData mimeType="text/csv"><![CDATA[{{locations_csv}}]]></wps:ComplexData>
       </wps:Data>
     </wps:Input>
+    {{#if shc}}<wps:Input>
+      <ows:Identifier>shc</ows:Identifier>
+      <wps:Data>
+        <wps:ComplexData>{{shc}}</wps:ComplexData>
+      </wps:Data>
+    </wps:Input>{{/if}}
   </wps:DataInputs>
   <wps:ResponseForm>
     <wps:RawDataOutput mimeType="application/msgpack">
