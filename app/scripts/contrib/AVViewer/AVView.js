@@ -563,16 +563,16 @@ define(['backbone.marionette',
                 // We check if any overlays have been disabled
                 var disabledOverlays = [];
                 for (var key in this.overlaySettings) {
-                  var currSetts = this.overlaySettings[key];
-                  for (var i = 0; i < currSetts.typeDefinition.length; i++) {
-                    if (currSetts.typeDefinition[i].hasOwnProperty('active') &&
-                      !currSetts.typeDefinition[i].active) {
-                      disabledOverlays.push(currSetts.typeDefinition[i].name);
+                    var currSetts = this.overlaySettings[key];
+                    for (var i = 0; i < currSetts.typeDefinition.length; i++) {
+                        if (currSetts.typeDefinition[i].hasOwnProperty('active') &&
+                            !currSetts.typeDefinition[i].active) {
+                            disabledOverlays.push(currSetts.typeDefinition[i].name);
+                        }
                     }
-                  }
                 }
                 localStorage.setItem(
-                  'disabledOverlays', JSON.stringify(disabledOverlays)
+                    'disabledOverlays', JSON.stringify(disabledOverlays)
                 );
 
                 savePrameterStatus(globals);
@@ -801,24 +801,24 @@ define(['backbone.marionette',
             var disabledOverlays = localStorage.getItem('disabledOverlays');
             var matchedOverlays = [];
             if (disabledOverlays !== null) {
-              disabledOverlays = JSON.parse(disabledOverlays);
-              // See if we find the disabled overlays in the current settings
-              // if not lets remove them also from the saved localstorage
-              for (var key in overlaySettings) {
-                var currSetts = overlaySettings[key];
-                for (var i = 0; i < currSetts.typeDefinition.length; i++) {
-                  if (disabledOverlays.indexOf(currSetts.typeDefinition[i].name) !== -1) {
-                    currSetts.typeDefinition[i].active = false;
-                    if(matchedOverlays.indexOf(currSetts.typeDefinition[i].name) === -1){
-                      matchedOverlays.push(currSetts.typeDefinition[i].name);
+                disabledOverlays = JSON.parse(disabledOverlays);
+                // See if we find the disabled overlays in the current settings
+                // if not lets remove them also from the saved localstorage
+                for (var key in overlaySettings) {
+                    var currSetts = overlaySettings[key];
+                    for (var i = 0; i < currSetts.typeDefinition.length; i++) {
+                        if (disabledOverlays.indexOf(currSetts.typeDefinition[i].name) !== -1) {
+                            currSetts.typeDefinition[i].active = false;
+                            if (matchedOverlays.indexOf(currSetts.typeDefinition[i].name) === -1) {
+                                matchedOverlays.push(currSetts.typeDefinition[i].name);
+                            }
+                        }
                     }
-                  }
                 }
-              }
-              // Only set if we actually have an overlaysettings object
-              if(Object.keys(overlaySettings).length !== 0){
-                localStorage.setItem('disabledOverlays', JSON.stringify(matchedOverlays));
-              }
+                // Only set if we actually have an overlaysettings object
+                if (Object.keys(overlaySettings).length !== 0) {
+                    localStorage.setItem('disabledOverlays', JSON.stringify(matchedOverlays));
+                }
             }
 
             // data corrections
