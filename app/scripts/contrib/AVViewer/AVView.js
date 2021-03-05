@@ -1,6 +1,6 @@
 /* global $ _ define w2popup w2utils showMessage graphly plotty FilterManager */
 /* global savePrameterStatus VECTOR_BREAKDOWN */
-/* global get */
+/* global get setDefault */
 
 define(['backbone.marionette',
     'communicator',
@@ -560,6 +560,20 @@ define(['backbone.marionette',
                     'plotConfiguration', JSON.stringify(confArr)
                 );
 
+                // Save disabled overlays.
+                var disabledOverlays = {};
+                _.each(this.overlaySettings, function (data, productType) {
+                    _.each(data.typeDefinition, function (typeDefinition) {
+                        if (!get(typeDefinition, 'active', true)) {
+                            setDefault(disabledOverlays, productType, []);
+                            disabledOverlays[productType].push(typeDefinition.name);
+                        }
+                    });
+                });
+                localStorage.setItem(
+                    'disabledOverlays', JSON.stringify(disabledOverlays)
+                );
+
                 savePrameterStatus(globals);
             });
 
@@ -782,7 +796,21 @@ define(['backbone.marionette',
                 }
             });
 
-            // data corrections
+            // Load and set disabled overlays.
+            var disabledOverlays = JSON.parse(localStorage.getItem('disabledOverlays')) || {};
+            if (Array.isArray(disabledOverlays)) {
+                // ignore arrays stored by the earlier version
+                disabledOverlays = {};
+            }
+            _.each(overlaySettings, function (item, key) {
+                _.each(item.typeDefinition, function (typeDefinition) {
+                    typeDefinition.active = !(
+                        get(disabledOverlays, key, []).includes(typeDefinition.name)
+                    );
+                });
+            });
+
+            // Apply data corrections.
             _.each(overlayData, function (data, productType) {
                 var correctData = get(dataCorrections, productType);
                 if (correctData) {
