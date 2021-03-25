@@ -80,7 +80,7 @@
         for (var idx = 0, size = this.size; idx < size; idx++) {
           var record = getRecord(idx);
           if (filter(record)) {
-            action(record);
+            action(record, idx);
           }
         }
       },

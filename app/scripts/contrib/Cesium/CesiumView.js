@@ -999,6 +999,7 @@ define([
             var handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
             handler.setInputAction(function (click) {
                 var pickedObject = scene.pick(click.position);
+                console.log(pickedObject);
                 if (Cesium.defined(pickedObject) && typeof pickedObject.id !== 'undefined' && pickedObject.id.toString().indexOf('vec_line_fl') !== -1) {
                     this.onFieldlineClicked(pickedObject, click.position);
                 } else {
@@ -1837,7 +1838,7 @@ define([
             // factory function returning a parameter-specific feature-creating function
             var getPointFeatureCreator = function (parameter) {
 
-                var _createPoint = function (record, settings) {
+                var _createPoint = function (record, settings, index) {
                     var value = record[parameter];
                     if (isNaN(value)) {return;}
 
@@ -1858,6 +1859,7 @@ define([
                         ),
                         pixelSize: get(settings, 'pixelSize', DEFAULT_POINT_PIXEL_SIZE),
                         scaleByDistance: NEAR_FAR_SCALAR,
+                        id: index,
                     };
                     if (settings.outlines) {
                         feature.outlineWidth = 0.5;
@@ -2151,9 +2153,9 @@ define([
             if (_.isEmpty(settings)) {return;}
 
             data.forEachRecord(
-                function (record) {
+                function (record, index) {
                     _.each(settings[record.id], function (parameterSettings) {
-                        parameterSettings.featureCreator(record, parameterSettings);
+                        parameterSettings.featureCreator(record, parameterSettings, index);
                     });
                 },
                 new RecordFilter(_.keys(data.data))
