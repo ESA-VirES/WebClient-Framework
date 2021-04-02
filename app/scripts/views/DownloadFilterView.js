@@ -693,7 +693,7 @@
               _.each(processes.reverse(), function (process) {
                 var model = new DownloadProcessModel({
                   id: process.id,
-                  creation_time: process.created.slice(0, -13),
+                  creation_time: getISODateTimeString(new Date(Date.parse(process.created)), true),
                   status_url: process.url,
                   status: process.status
                 });
