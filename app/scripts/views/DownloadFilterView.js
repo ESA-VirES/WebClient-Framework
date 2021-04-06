@@ -785,10 +785,11 @@
         _.each(EXCLUDED_PARAMETERS, _removeVariable);
 
         $('#filters').append(
-          '<div class="w2ui-field"> <input type="list" id="addfilter"> <button id="downloadAddFilter" type="button" class="btn btn-default dropdown-toggle">Add filter <span class="caret"></span></button> </div>'
+          '<div class="w2ui-field"> <button id="downloadAddFilter" type="button" class="btn btn-default dropdown-toggle">Add filter <span class="caret"></span></button> <input type="list" id="addfilter"></div>'
         );
 
         $("#downloadAddFilter").click(function () {
+          $('.w2ui-field-helper input').css('text-indent', '0em');
           $("#addfilter").focus();
         });
 
@@ -816,6 +817,8 @@
           delete this.currentFilters[item.id];
           this.renderFilterList();
         }, this));
+
+        $('.w2ui-field-helper input').attr('placeholder', 'Type to search');
 
       },
 
