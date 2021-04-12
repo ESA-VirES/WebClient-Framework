@@ -41,10 +41,12 @@
           context: this,
           opened: this.onRequestStart,
           completed: this.onRequestEnd,
-          aborted: this.onRequestEnd,
+          aborted: this.onRequestAborted,
           success: this.onDataReceived,
           error: this.onRequestError,
         });
+
+        this.relatedRequests = [];
 
       },
 
@@ -357,6 +359,10 @@
             function (item) {return item.getCustomShcIfSelected();}
           )[0] || null;
 
+          // stop all related data requests
+          _.each(this.relatedRequests, function (request) {request.abort();});
+          this.relatedRequests = [];
+
           globals.swarm.clearSources();
 
           this.request.url = retrieve_data[0].url;
@@ -381,14 +387,14 @@
 
           relatedDataModel.clear();
 
-          _.each(relatedCollections, function (collections, productType) {
+          this.relatedRequests = _.map(relatedCollections, function (collections, productType) {
             var request = new vires.ViresDataRequest({
               context: this,
               success: function (data) {
                 // keep link to collections which triggered this download
                 data.parentCollections = parentCollections[productType];
                 relatedDataModel.set(productType, data);
-                globals.swarm.appendSources(data.info.sources)
+                globals.swarm.appendSources(data.info.sources);
               },
               error: function (xhr, message) {
                 if (xhr.responseText === "") {return;}
@@ -406,6 +412,8 @@
               bbox: options.bbox,
             });
 
+            return request;
+
           }, this);
         }
       },
@@ -416,6 +424,15 @@
 
       onRequestEnd: function () {
         Communicator.mediator.trigger("progress:change", false);
+      },
+
+      onRequestAborted: function () {
+        // stop all related data requests
+        _.each(this.relatedRequests, function (request) {request.abort();});
+        this.relatedRequests = [];
+        globals.swarm.clearSources();
+        globals.swarm.get('relatedData').clear();
+        this.onRequestEnd();
       },
 
       onDataReceived: function (data) {
