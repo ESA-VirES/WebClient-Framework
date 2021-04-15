@@ -312,7 +312,6 @@ var saveProductStatus = function (product) {
 var savePrameterStatus = function (globals) {
   var parConf = {};
   var uomSet = globals.swarm.get('uom_set');
-  console.log(uomSet);
 
   for (var pk in uomSet) {
     var parC = {};
@@ -341,7 +340,7 @@ var savePrameterStatus = function (globals) {
         parC.colorscale = uomSet[pk].colorscale;
       } else if (innerpk === 'logarithmic') {
         parC.logarithmic = uomSet[pk].logarithmic;
-      }  else if (innerpk === 'extent') {
+      } else if (innerpk === 'extent') {
         parC.extent = uomSet[pk].extent;
       }
     }
@@ -351,4 +350,44 @@ var savePrameterStatus = function (globals) {
   }
   // Save parameter style changes
   localStorage.setItem('parameterConfiguration', JSON.stringify(parConf));
+};
+
+
+var blendColors = function (color0, color1, alpha) {
+  // blend two hex RGB colors with the given alpha factor
+
+  var parseColor = function (color) {
+    if (color.length == 7 && color[0] == '#') {
+      var tmp = parseInt(color.slice(1, 7), 16);
+      return [
+        (tmp & 0xFF0000) >> 16,
+        (tmp & 0x00FF00) >> 8,
+        (tmp & 0x0000FF)
+      ];
+    }
+    return null;
+  };
+
+  var formatColor = function (rgb) {
+    var tmp = (
+      (Math.min(255, Math.max(0, Math.floor(rgb[0]))) << 16) +
+      (Math.min(255, Math.max(0, Math.floor(rgb[1]))) << 8) +
+      Math.min(255, Math.max(0, Math.floor(rgb[2])))
+    ).toString(16);
+    return '#' + '000000'.slice(0, 6 - tmp.length) + tmp;
+  };
+
+  var rgb0 = parseColor(color0);
+  var rgb1 = parseColor(color1);
+
+  // if the color strings cannot be parsed pass the first color unchanged
+  if (!rgb0 || !rgb1) {return color0;}
+
+  var a = Math.min(1.0, Math.max(0.0, alpha));
+  var b = 1 - a;
+  return formatColor([
+    a * rgb0[0] + b * rgb1[0],
+    a * rgb0[1] + b * rgb1[1],
+    a * rgb0[2] + b * rgb1[2],
+  ]);
 };

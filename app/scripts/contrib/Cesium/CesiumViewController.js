@@ -52,6 +52,9 @@ define([
             this.cesiumView.listenTo(Communicator.mediator, 'map:layer:change',
                 _.bind(this.cesiumView.changeLayer, this.cesiumView)
             );
+            this.cesiumView.listenTo(Communicator.mediator, 'map:multilayer:change',
+                _.bind(this.cesiumView.multiChangeLayer, this.cesiumView)
+            );
             this.cesiumView.listenTo(
                 Communicator.mediator, 'productCollection:sortUpdated',
                 _.bind(this.cesiumView.onSortProducts, this.cesiumView)

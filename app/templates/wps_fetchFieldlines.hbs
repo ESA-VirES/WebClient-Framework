@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
-  <ows:Identifier>retrieve_field_lines</ows:Identifier>
+  <ows:Identifier>vires:fetch_fieldlines</ows:Identifier>
   <wps:DataInputs>
-    {{#if model_ids}}<wps:Input>
+    <wps:Input>
       <ows:Identifier>model_ids</ows:Identifier>
       <wps:Data>
         <wps:LiteralData>{{{model_ids}}}</wps:LiteralData>
       </wps:Data>
-    </wps:Input>{{/if}}
+    </wps:Input>
     <wps:Input>
       <ows:Identifier>time</ows:Identifier>
       <wps:Data>
         <wps:LiteralData>{{time}}</wps:LiteralData>
       </wps:Data>
     </wps:Input>
-    {{#if bbox}}<wps:Input>
-      <ows:Identifier>bbox</ows:Identifier>
+    <wps:Input>
+      <ows:Identifier>locations</ows:Identifier>
       <wps:Data>
-        <wps:ComplexData>{{bbox}}</wps:ComplexData>
+      <wps:ComplexData mimeType="text/csv"><![CDATA[{{locations_csv}}]]></wps:ComplexData>
       </wps:Data>
-    </wps:Input>{{/if}}
-     {{#if shc}}<wps:Input>
+    </wps:Input>
+    {{#if shc}}<wps:Input>
       <ows:Identifier>shc</ows:Identifier>
       <wps:Data>
         <wps:ComplexData>{{shc}}</wps:ComplexData>

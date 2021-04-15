@@ -1,4 +1,5 @@
 /*global $ _ d3 TimeSlider getISODateTimeString */
+/*global RELATED_COLLECTIONS get blendColors */
 
 (function () {
     'use strict';
@@ -278,7 +279,6 @@
                     });
             },
 
-
             fetchWPS: function (start, end, params, callback) {
                 var request = this.url + '?service=wps&request=execute&version=1.0.0&identifier=' + this.wpsProcessName + '&DataInputs=collection=' +
                 this.id + ';begin_time=' + getISODateTimeString(start) + ';end_time=' + getISODateTimeString(end) + '&RawDataOutput=times';
@@ -287,6 +287,36 @@
                         return [
                             new Date(row.starttime),
                             new Date(row.endtime),
+                            {
+                                id: row.identifier,
+                                bbox: row.bbox.replace(/[()]/g, '').split(',').map(parseFloat)
+                            }
+                        ];
+                    })
+                    .get(function (error, rows) {
+                        callback(rows);
+                    });
+            },
+
+            fetchWPSClipped: function (start, end, params, callback) {
+                var request = this.url + '?service=wps&request=execute&version=1.0.0&identifier=' + this.wpsProcessName + '&DataInputs=collection=' +
+                this.id + ';begin_time=' + getISODateTimeString(start) + ';end_time=' + getISODateTimeString(end) + '&RawDataOutput=times';
+
+                d3.csv(request)
+                    .row(function (row) {
+                        var currStart = new Date(row.starttime);
+                        var currEnd = new Date(row.endtime);
+                        // Check start and end validity to see if we can clip the range
+                        // to avoid possible clipping of the browser of the rendered line
+                        if (currStart.getTime() < start.getTime()) {
+                            currStart = start;
+                        }
+                        if (currEnd.getTime() > end.getTime()) {
+                            currEnd = end;
+                        }
+                        return [
+                            currStart,
+                            currEnd,
                             {
                                 id: row.identifier,
                                 bbox: row.bbox.replace(/[()]/g, '').split(',').map(parseFloat)
@@ -379,6 +409,27 @@
                                     });
                                     break;
                                 case 'WPS':
+
+                                    // Check if we have special products for which
+                                    // we activate an additional related products
+                                    _.each(get(RELATED_COLLECTIONS, product.get('download').id), function (related) {
+                                        var auxId = get(related, 'timeSliderDataset');
+                                        if (!auxId) {return;}
+
+                                        var extAtt = {
+                                            wpsProcessName: "getTimeData",
+                                            id: auxId,
+                                            url: product.get('download').url
+                                        };
+                                        this.slider.addDataset({
+                                            id: auxId,
+                                            color: blendColors(product.get('color'), '#ffffff', 0.66),
+                                            records: null,
+                                            source: {fetch: this.fetchWPSClipped.bind(extAtt)}
+                                        });
+                                        this.activeWPSproducts.push(auxId);
+                                    }, this);
+
                                     attrs = {
                                         wpsProcessName: product.get('timeSliderWpsProcessName') || "getTimeData",
                                         id: product.get('download').id,
@@ -396,6 +447,7 @@
                                     // Withouth this update the first time activating a layer after the first map move
                                     // the bbox doesnt seem to be defined in the timeslider library and the points shown are wrong
                                     //this.slider.updateBBox([extent.left, extent.bottom, extent.right, extent.top], product.get('download').id);
+
                                     break;
 
                                 case 'WPS-INDEX': // deprecated use WPS with timeSliderWpsProcessName instead
@@ -441,10 +493,25 @@
                                     break;
                             } // END of switch
                         } else {
-                            this.slider.removeDataset(product.get('download').id);
-                            if (this.activeWPSproducts.indexOf(product.get('download').id) !== -1) {
-                                this.activeWPSproducts.splice(this.activeWPSproducts.indexOf(product.get('download').id), 1);
-                            }
+
+                            var _removeDataset = _.bind(function (id) {
+                                this.slider.removeDataset(id);
+                                var index = this.activeWPSproducts.indexOf(id);
+                                if (index !== -1) {
+                                    this.activeWPSproducts.splice(index, 1);
+                                }
+                            }, this);
+
+                            _removeDataset(product.get('download').id);
+
+                            // Check if we have special products with
+                            // related datasets.
+                            _.each(get(RELATED_COLLECTIONS, product.get('download').id), function (related) {
+                                var auxId = get(related, 'timeSliderDataset');
+                                if (auxId) {
+                                    _removeDataset(auxId);
+                                }
+                            });
                         }
                     }
                 }

@@ -18,7 +18,7 @@
                 'cameraPosition', 'xAxisSelection', 'xAxisLabel', 'plotConfiguration',
                 'parameterConfiguration', 'filterSelection', 'filtersMinimized',
                 'frustum', 'additionalXTicks', 'yAxisExtent', 'y2AxisExtent',
-                'yAxisLocked', 'y2AxisLocked',
+                'yAxisLocked', 'y2AxisLocked', 'satellites', 'disabledOverlays'
             ],
             initialize: function (options) {
                 this.listenTo(Communicator.mediator, "dialog:open:about", this.onDialogOpenAbout);
