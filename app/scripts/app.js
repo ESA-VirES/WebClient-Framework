@@ -155,6 +155,27 @@ var RELATED_COLLECTIONS = {
             type: 'AOB_FAC'
         }
     ],
+    'SW_OPER_EFIA_LP_1B': [
+        {
+            timeSliderDataset: 'SW_OPER_MITA_LP_2F',
+            collections: ['SW_OPER_MITA_LP_2F:ID'],
+            type: 'MIT_LP'
+        }
+    ],
+    'SW_OPER_EFIB_LP_1B': [
+        {
+            timeSliderDataset: 'SW_OPER_MITB_LP_2F:ID',
+            collections: ['SW_OPER_MITB_LP_2F:ID'],
+            type: 'MIT_LP'
+        }
+    ],
+    'SW_OPER_EFIC_LP_1B': [
+        {
+            timeSliderDataset: 'SW_OPER_MITC_LP_2F:ID',
+            collections: ['SW_OPER_MITC_LP_2F:ID'],
+            type: 'MIT_LP'
+        }
+    ],
 };
 
 var _COMMON_RELATED_VARIABLES = [
@@ -166,6 +187,7 @@ var RELATED_VARIABLES = {
     'AEJ_PBS:GroundMagneticDisturbance': [].concat(_COMMON_RELATED_VARIABLES),
     'AEJ_PBL': ['J_QD', 'PointType'].concat(_COMMON_RELATED_VARIABLES),
     'AOB_FAC': ['FAC', 'Radius', 'Boundary_Flag'].concat(_COMMON_RELATED_VARIABLES),
+    'MIT_LP': ['Ne', 'Te', 'PointType'],
 };
 
 (function () {

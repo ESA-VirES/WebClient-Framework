@@ -704,6 +704,14 @@ define(['backbone.marionette',
             var BF_AOB_EW_BOUNDARY = 0x1;
             var BF_AOB_PW_BOUNDARY = 0x2;
 
+            var LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
+            var LP_MIT_POLEWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x1;
+            var LP_MIT_EQUATORWARD_EDGE_OF_POLEWARD_WALL = 0x2;
+            var LP_MIT_POLEWARD_EDGE_OF_THE_POLEWARD_BOUNDARY = 0x3;
+            var LP_SETE_EQUATORWARD_BOUNDING_POSITION = 0x4;
+            var LP_SETE_POLEWARD_BOUNDING_POSITION = 0x5;
+            var LP_TE_PEAK_POSITION = 0x6;
+
             // We create combined settings and dataset for related data
             var overlaySettings = {};
             var overlayData = {};
@@ -711,6 +719,92 @@ define(['backbone.marionette',
 
             _.each(relatedData, function (data, key) {
                 switch (key) {
+                    case 'MIT_LP':
+                        overlaySettings[key] = {
+                            keyParameter: 'PointType',
+                            displayParameters: ['Ne', 'Te'],
+                            typeDefinition: [
+                                {
+                                    match: function (value) {
+                                        return value === LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL;
+                                    },
+                                    name: 'Equatorward edge of the equatorward wall',
+                                    style: {
+                                        symbol: 'circle',
+                                        size: 9,
+                                        color: [0, 1, 0, 0.8],
+                                    }
+                                },
+                                {
+                                    match: function (value) {
+                                        return value === LP_MIT_POLEWARD_EDGE_OF_THE_EQUATORWARD_WALL;
+                                    },
+                                    name: 'Poleward edge of the equatorward wall',
+                                    style: {
+                                        symbol: 'rectangle',
+                                        size: 9,
+                                        color: [0, 1, 0, 0.8],
+                                    }
+                                },
+                                {
+                                    match: function (value) {
+                                        return value === LP_MIT_EQUATORWARD_EDGE_OF_POLEWARD_WALL;
+                                    },
+                                    name: 'Equatorward edge of poleward wall',
+                                    style: {
+                                        symbol: 'circle',
+                                        size: 9,
+                                        color: [0, 0.5, 0.5, 0.8],
+                                    }
+                                },
+                                {
+                                    match: function (value) {
+                                        return value === LP_MIT_POLEWARD_EDGE_OF_THE_POLEWARD_BOUNDARY;
+                                    },
+                                    name: 'Poleward edge of the poleward boundary',
+                                    style: {
+                                        symbol: 'rectangle',
+                                        size: 9,
+                                        color: [0, 0.5, 0.5, 0.8],
+                                    }
+                                },
+                                {
+                                    match: function (value) {
+                                        return value === LP_SETE_EQUATORWARD_BOUNDING_POSITION;
+                                    },
+                                    name: 'Equatorward bounding position',
+                                    style: {
+                                        symbol: 'x',
+                                        size: 9,
+                                        color: [0, 0, 1.0, 0.8],
+                                    }
+                                },
+                                {
+                                    match: function (value) {
+                                        return value === LP_SETE_POLEWARD_BOUNDING_POSITION;
+                                    },
+                                    name: 'Poleward bounding position',
+                                    style: {
+                                        symbol: 'diamond',
+                                        size: 9,
+                                        color: [0, 0, 1.0, 0.8],
+                                    }
+                                },
+                                {
+                                    match: function (value) {
+                                        return value === LP_TE_PEAK_POSITION;
+                                    },
+                                    name: 'Te peak position',
+                                    style: {
+                                        symbol: 'triangle',
+                                        size: 9,
+                                        color: [1, 0, 0, 0.8],
+                                    }
+                                },
+                            ]
+                        };
+                        overlayData[key] = data.data;
+                        break;
                     case 'AEJ_PBL':
                     case 'AEJ_PBS':
                         overlaySettings[key] = {
