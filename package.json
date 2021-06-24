@@ -1,14 +1,13 @@
 {
   "name": "eoxclient",
   "version": "0.0.0",
-  "dependencies": {},
   "devDependencies": {
     "bower": "~1.2.7",
     "connect-livereload": "~0.2.0",
     "grunt": "~0.4.1",
     "grunt-bower-requirejs": "~0.7.1",
     "grunt-concurrent": "~0.1.0",
-    "grunt-connect-proxy": "~0.2.0",
+    "grunt-connect-proxy2": "^2.0.0",
     "grunt-contrib-clean": "~0.4.0",
     "grunt-contrib-coffee": "~0.6.5",
     "grunt-contrib-compass": "~0.2.0",

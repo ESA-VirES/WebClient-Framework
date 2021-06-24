@@ -6,8 +6,7 @@ var mountFolder = function (connect, dir) {
     return connect.static(require('path').resolve(dir));
 };
 
-var proxySnippet = require('grunt-connect-proxy/lib/utils').proxyRequest;
-
+var proxySnippet = require('grunt-connect-proxy2/lib/utils').proxyRequest;
 // # Globbing
 // for performance reasons we're only matching one level down:
 // 'test/spec/{,*/}*.js'
@@ -18,7 +17,7 @@ var proxySnippet = require('grunt-connect-proxy/lib/utils').proxyRequest;
 module.exports = function (grunt) {
     // load all grunt tasks
     require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
-    grunt.loadNpmTasks('grunt-connect-proxy');
+    grunt.loadNpmTasks('grunt-connect-proxy2');
     // configurable paths
     var yeomanConfig = {
         app: 'app',
@@ -70,21 +69,22 @@ module.exports = function (grunt) {
         connect: {
             options: {
                 port: 9000,
-                // change this to '0.0.0.0' to access the server from outside
                 hostname: '0.0.0.0'
             },
             proxies: [{
                 context: '/vires00',
-                //host: 'staging.vires.services',
+                // change to testing or staging server
+                // host: 'staging.viresdisc.vires.services',
+                // port: 443,
+                // headers: {"Authorization": "Bearer xxx"}
                 host: 'localhost',
                 port: 8300,
                 rewrite: {
                     '^/vires00': '/'
                 },
-                /*portocol: 'https',
-                https: true,*/
+                https: true,
                 changeOrigin: true,
-                xforward: false
+                xforward: false,
             },{
                 context: '/ows',
                 host: 'localhost',
