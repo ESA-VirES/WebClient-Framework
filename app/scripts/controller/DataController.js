@@ -303,6 +303,9 @@
             "B_NEC_Model", "B_NEC_res_Model", "F_Model", "F_res_Model",
             "J_NE", "J_QD", "J_CF_NE", "J_CF_SemiQD", "J_DF_NE", "J_DF_SemiQD", "J_R",
             "Boundary_Flag", "Pair_Indicator",
+            // MIT TEC
+            "Latitude_QD", "Longitude_QD", "MLT_QD", "L_value", "SZA", "TEC",
+            "Depth", "DR", "Width", "dL", "PW_Gradient", "EW_Gradient", "Quality"
           ];
 
           var collectionList = _.chain(collections)
@@ -435,6 +438,7 @@
       },
 
       onDataReceived: function (data) {
+        console.log(data);
         // This should only happen here if there has been
         // some issue with the saved filter configuration
         // Check if current brushes are valid for current data

@@ -33,6 +33,8 @@ var SCALAR_PARAM = [
     "mROTI20s", "IBI_flag", "Ionosphere_region_flag", "IPIR_index", "Ne_quality_flag",
     "TEC_STD",
     "J_QD", "J_R", "J_CF_SemiQD", "J_DF_SemiQD", "Boundary_Flag", "Pair_Indicator",
+    // MIT TEC
+    "L_value", "Width", "DR", "dL",
 ];
 
 var VECTOR_PARAM = [
@@ -724,7 +726,7 @@ var RELATED_VARIABLES = {
                 var filtered = globals.products.filter(function (product) {
                     var id = product.get("download").id;
                     return !(id && id.match(
-                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ)[ABCU_]/
+                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ|MIT)[ABCU_]/
                     ));
                 });
 
@@ -784,6 +786,11 @@ var RELATED_VARIABLES = {
                         "Bravo": "SW_OPER_AEJBLPS_2F",
                         "Charlie": "SW_OPER_AEJCLPS_2F",
                         "Upload": "SW_OPER_AEJULPS_2F",
+                    },
+                    "MIT_TEC": {
+                        "Alpha": "SW_OPER_MITATEC_2F",
+                        "Bravo": "SW_OPER_MITBTEC_2F",
+                        "Charlie": "SW_OPER_MITCTEC_2F",
                     }
                 };
 
@@ -844,6 +851,7 @@ var RELATED_VARIABLES = {
                     'IPD': false,
                     'AEJ_LPL': false,
                     'AEJ_LPS': false,
+                    'MIT_TEC': false,
                 };
 
                 var clickEvent = "require(['communicator'], function(Communicator){Communicator.mediator.trigger('application:reset');});";
@@ -895,6 +903,14 @@ var RELATED_VARIABLES = {
                 }
 
                 // Add generic product (which is container for A,B and C sats)
+                filtered_collection.add({
+                    name: "Midlatitude Ionospheric Trough - (MIT TEC)",
+                    visible: containerSelection['MIT_TEC'],
+                    color: "#645600",
+                    protocol: null,
+                    containerproduct: true,
+                    id: "MIT_TEC"
+                }, {at: 0});
                 filtered_collection.add({
                     name: "Auroral Electrojet - SECS (AEJ LPS/PBS)",
                     visible: containerSelection['AEJ_LPS'],
