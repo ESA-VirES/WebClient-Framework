@@ -178,27 +178,6 @@ var RELATED_COLLECTIONS = {
             type: 'MIT_LP'
         }
     ],
-    'SW_OPER_TECATMS_2F': [
-        {
-            timeSliderDataset: 'SW_OPER_MITATEC_2F',
-            collections: ['SW_OPER_MITATEC_2F:ID'],
-            type: 'MIT_TEC'
-        }
-    ],
-    'SW_OPER_TECBTMS_2F': [
-        {
-            timeSliderDataset: 'SW_OPER_MITBTEC_2F',
-            collections: ['SW_OPER_MITBTEC_2F:ID'],
-            type: 'MIT_TEC'
-        }
-    ],
-    'SW_OPER_TECCTMS_2F': [
-        {
-            timeSliderDataset: 'SW_OPER_MITCTEC_2F',
-            collections: ['SW_OPER_MITCTEC_2F:ID'],
-            type: 'MIT_TEC'
-        }
-    ],
 };
 
 var _COMMON_RELATED_VARIABLES = [
@@ -211,7 +190,6 @@ var RELATED_VARIABLES = {
     'AEJ_PBL': ['J_QD', 'PointType'].concat(_COMMON_RELATED_VARIABLES),
     'AOB_FAC': ['FAC', 'Radius', 'Boundary_Flag'].concat(_COMMON_RELATED_VARIABLES),
     'MIT_LP': ['Ne', 'Te', 'PointType'],
-    'MIT_TEC': ['Latitude', 'Longitude', 'TEC', 'PointType'],
 };
 
 (function () {
