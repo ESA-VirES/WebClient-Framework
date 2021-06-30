@@ -305,7 +305,9 @@
             "Boundary_Flag", "Pair_Indicator",
             // MIT TEC
             "Latitude_QD", "Longitude_QD", "MLT_QD", "L_value", "SZA", "TEC",
-            "Depth", "DR", "Width", "dL", "PW_Gradient", "EW_Gradient", "Quality"
+            "Depth", "DR", "Width", "dL", "PW_Gradient", "EW_Gradient", "Quality",
+            // PPI FAC also overlaps with MIT TEC params
+            "Sigma", "PPI",
           ];
 
           var collectionList = _.chain(collections)

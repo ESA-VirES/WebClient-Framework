@@ -1290,6 +1290,8 @@ define(['backbone.marionette',
                     'Pair_Indicator', 'Boundary_Flag',
                     // MIT TEC
                     "L_value", "Width", "DR", "dL",
+                    // PPI FAC
+                    "Sigma", "PPI",
                 ];
 
                 filterstouse = filterstouse.concat(['MLT']);
@@ -1353,6 +1355,8 @@ define(['backbone.marionette',
                     'Pair_Indicator',
                     // MIT TEC
                     "L_value",
+                    // PPI FAC
+                    "Sigma", "PPI",
                 ];
 
                 // Go trough all plots and see if they need to be removed

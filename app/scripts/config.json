@@ -5042,6 +5042,306 @@
             "outlines": false,
             "satellite": "Swarm"
         },{
+            "name": "PPI A FAC 2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#241620",
+            "views": [{
+                "id": "SW_OPER_PPIAFAC_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_PPIAFAC_2F",
+                "protocol": "EOWCS",
+                "url": "/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_PPIAFAC_2F"
+                }
+            ],
+            "parameters": {
+                "Sigma": {
+                    "range": [0, 1],
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Standard deviation of the linear fit of S at the boundary"
+                },
+                "PPI": {
+                    "range": [0, 10],
+                    "selected": true,
+                    "colorscale": "viridis",
+                    "uom": "R_E",
+                    "name": "Midnight plasmapause index"
+                }
+            },
+            "download_parameters": {
+                "Counter": {
+                    "uom": null,
+                    "name": "Swarm orbit and quarter orbit counters"
+                },
+                "Timestamp": {
+                    "uom": null,
+                    "name": "UTC time of the SSFAC boundary"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "ITRF geocentric latitude of the SSFAC boundary"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "ITRF geocentric longitude of the SSFAC boundary"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "ITRF geocentric radius of the SSFAC boundary"
+                },
+                "Latitude_QD": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude of the SSFAC boundary"
+                },
+                "Longitude_QD": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude of the SSFAC boundary"
+                },
+                "MLT_QD": {
+                    "uom": "hour",
+                    "name": "Magnetic local time (QD) of the SSFAC boundary"
+                },
+                "L_value": {
+                    "uom": null,
+                    "name": "L-value in earth radii of the SSFAC boundary"
+                },
+                "SZA": {
+                    "uom": "deg",
+                    "name": "Solar zenith angle of the SSFAC boundary"
+                },
+                "Sigma": {
+                    "uom": null,
+                    "name": "Standard deviation of the linear fit of S at the boundary"
+                },
+                "PPI": {
+                    "uom": "R_E",
+                    "name": "Midnight plasmapause index"
+                },
+                "dL": {
+                    "uom": "deg",
+                    "name": "Boundary width in Earth radii"
+                },
+                "Quality": {
+                    "uom": null,
+                    "name": "Quality indicators of SSFAC boundary detection"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "PPI B FAC 2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#241620",
+            "views": [{
+                "id": "SW_OPER_PPIBFAC_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_PPIBFAC_2F",
+                "protocol": "EOWCS",
+                "url": "/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_PPIBFAC_2F"
+                }
+            ],
+            "parameters": {
+                "Sigma": {
+                    "range": [0, 1],
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Standard deviation of the linear fit of S at the boundary"
+                },
+                "PPI": {
+                    "range": [0, 10],
+                    "selected": true,
+                    "colorscale": "viridis",
+                    "uom": "R_E",
+                    "name": "Midnight plasmapause index"
+                }
+            },
+            "download_parameters": {
+                "Counter": {
+                    "uom": null,
+                    "name": "Swarm orbit and quarter orbit counters"
+                },
+                "Timestamp": {
+                    "uom": null,
+                    "name": "UTC time of the SSFAC boundary"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "ITRF geocentric latitude of the SSFAC boundary"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "ITRF geocentric longitude of the SSFAC boundary"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "ITRF geocentric radius of the SSFAC boundary"
+                },
+                "Latitude_QD": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude of the SSFAC boundary"
+                },
+                "Longitude_QD": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude of the SSFAC boundary"
+                },
+                "MLT_QD": {
+                    "uom": "hour",
+                    "name": "Magnetic local time (QD) of the SSFAC boundary"
+                },
+                "L_value": {
+                    "uom": null,
+                    "name": "L-value in earth radii of the SSFAC boundary"
+                },
+                "SZA": {
+                    "uom": "deg",
+                    "name": "Solar zenith angle of the SSFAC boundary"
+                },
+                "Sigma": {
+                    "uom": null,
+                    "name": "Standard deviation of the linear fit of S at the boundary"
+                },
+                "PPI": {
+                    "uom": "R_E",
+                    "name": "Midnight plasmapause index"
+                },
+                "dL": {
+                    "uom": "deg",
+                    "name": "Boundary width in Earth radii"
+                },
+                "Quality": {
+                    "uom": null,
+                    "name": "Quality indicators of SSFAC boundary detection"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
+            "name": "PPI C FAC 2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#241620",
+            "views": [{
+                "id": "SW_OPER_PPICFAC_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_PPICFAC_2F",
+                "protocol": "EOWCS",
+                "url": "/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_PPICFAC_2F"
+                }
+            ],
+            "parameters": {
+                "Sigma": {
+                    "range": [0, 1],
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Standard deviation of the linear fit of S at the boundary"
+                },
+                "PPI": {
+                    "range": [0, 10],
+                    "selected": true,
+                    "colorscale": "viridis",
+                    "uom": "R_E",
+                    "name": "Midnight plasmapause index"
+                }
+            },
+            "download_parameters": {
+                "Counter": {
+                    "uom": null,
+                    "name": "Swarm orbit and quarter orbit counters"
+                },
+                "Timestamp": {
+                    "uom": null,
+                    "name": "UTC time of the SSFAC boundary"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "ITRF geocentric latitude of the SSFAC boundary"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "ITRF geocentric longitude of the SSFAC boundary"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "ITRF geocentric radius of the SSFAC boundary"
+                },
+                "Latitude_QD": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude of the SSFAC boundary"
+                },
+                "Longitude_QD": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude of the SSFAC boundary"
+                },
+                "MLT_QD": {
+                    "uom": "hour",
+                    "name": "Magnetic local time (QD) of the SSFAC boundary"
+                },
+                "L_value": {
+                    "uom": null,
+                    "name": "L-value in earth radii of the SSFAC boundary"
+                },
+                "SZA": {
+                    "uom": "deg",
+                    "name": "Solar zenith angle of the SSFAC boundary"
+                },
+                "Sigma": {
+                    "uom": null,
+                    "name": "Standard deviation of the linear fit of S at the boundary"
+                },
+                "PPI": {
+                    "uom": "R_E",
+                    "name": "Midnight plasmapause index"
+                },
+                "dL": {
+                    "uom": "deg",
+                    "name": "Boundary width in Earth radii"
+                },
+                "Quality": {
+                    "uom": null,
+                    "name": "Quality indicators of SSFAC boundary detection"
+                }
+            },
+            "outlines": false,
+            "satellite": "Swarm"
+        },{
             "name": "MAG U LR 1B",
             "type": "SW_MAGx_LR_1B",
             "color": "#1f77b4",

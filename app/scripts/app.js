@@ -35,6 +35,8 @@ var SCALAR_PARAM = [
     "J_QD", "J_R", "J_CF_SemiQD", "J_DF_SemiQD", "Boundary_Flag", "Pair_Indicator",
     // MIT TEC
     "L_value", "Width", "DR", "dL",
+    // PPI FAC
+    "Sigma", "PPI",
 ];
 
 var VECTOR_PARAM = [
@@ -726,7 +728,7 @@ var RELATED_VARIABLES = {
                 var filtered = globals.products.filter(function (product) {
                     var id = product.get("download").id;
                     return !(id && id.match(
-                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ|MIT)[ABCU_]/
+                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ|MIT|PPI)[ABCU_]/
                     ));
                 });
 
@@ -791,6 +793,11 @@ var RELATED_VARIABLES = {
                         "Alpha": "SW_OPER_MITATEC_2F",
                         "Bravo": "SW_OPER_MITBTEC_2F",
                         "Charlie": "SW_OPER_MITCTEC_2F",
+                    },
+                    "PPI_FAC": {
+                        "Alpha": "SW_OPER_PPIAFAC_2F",
+                        "Bravo": "SW_OPER_PPIBFAC_2F",
+                        "Charlie": "SW_OPER_PPICFAC_2F",
                     }
                 };
 
@@ -852,6 +859,7 @@ var RELATED_VARIABLES = {
                     'AEJ_LPL': false,
                     'AEJ_LPS': false,
                     'MIT_TEC': false,
+                    'PPI_FAC': false,
                 };
 
                 var clickEvent = "require(['communicator'], function(Communicator){Communicator.mediator.trigger('application:reset');});";
@@ -903,6 +911,14 @@ var RELATED_VARIABLES = {
                 }
 
                 // Add generic product (which is container for A,B and C sats)
+                filtered_collection.add({
+                    name: "Midnight Plasmapause Index - (PPI FAC)",
+                    visible: containerSelection['PPI_FAC'],
+                    color: "#241620",
+                    protocol: null,
+                    containerproduct: true,
+                    id: "PPI_FAC"
+                }, {at: 0});
                 filtered_collection.add({
                     name: "Midlatitude Ionospheric Trough - (MIT TEC)",
                     visible: containerSelection['MIT_TEC'],
