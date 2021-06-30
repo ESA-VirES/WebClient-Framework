@@ -129,6 +129,11 @@ define([
     var LP_SETE_POLEWARD_BOUNDING_POSITION = 0x5;
     var LP_TE_PEAK_POSITION = 0x6;
 
+    var TEC_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
+    var TEC_MIT_POLEWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x1;
+    var TEC_MIT_EQUATORWARD_EDGE_OF_POLEWARD_WALL = 0x2;
+    var TEC_MIT_POLEWARD_EDGE_OF_THE_POLEWARD_BOUNDARY = 0x3;
+
     // record filter class
     var RecordFilter = function (variables) {
         // get subset of applicable global filters
@@ -1741,12 +1746,28 @@ var LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
     var LP_SETE_EQUATORWARD_BOUNDING_POSITION = 0x4;
     var LP_SETE_POLEWARD_BOUNDING_POSITION = 0x5;
     var LP_TE_PEAK_POSITION = 0x6;
+
+    var TEC_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
+    var TEC_MIT_POLEWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x1;
+    var TEC_MIT_EQUATORWARD_EDGE_OF_POLEWARD_WALL = 0x2;
+    var TEC_MIT_POLEWARD_EDGE_OF_THE_POLEWARD_BOUNDARY = 0x3;
   */
             var selectMITPointType = function (record) {
                 switch (record.PointType) {
                     case LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL:
                         return 0;
                     case LP_MIT_POLEWARD_EDGE_OF_THE_EQUATORWARD_WALL:
+                        return 1;
+                    default:
+                        return 0;
+                }
+            };
+
+            var selectTEC_MITPointType = function (record) {
+                switch (record.PointType) {
+                    case TEC_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL:
+                        return 0;
+                    case TEC_MIT_POLEWARD_EDGE_OF_THE_EQUATORWARD_WALL:
                         return 1;
                     default:
                         return 0;
@@ -1779,6 +1800,12 @@ var LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
 
             var renderer;
             switch (productType) {
+                case 'MIT_TEC':
+                    renderer = getMultiGeocetricPointRenderer(
+                        selectTEC_MITPointType, ['TRIANGLE_BLACK', 'SQUARE_BLACK'],
+                        EARTH_RADIUS + IONOSPHERIC_ALTITUDE, indices
+                    );
+                    break;
                 case 'MIT_LP':
                     renderer = getMultiGeocetricPointRenderer(
                         selectMITPointType, ['TRIANGLE_BLACK', 'SQUARE_BLACK'],

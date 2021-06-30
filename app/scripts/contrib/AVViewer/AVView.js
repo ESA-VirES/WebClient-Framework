@@ -712,6 +712,11 @@ define(['backbone.marionette',
             var LP_SETE_POLEWARD_BOUNDING_POSITION = 0x5;
             var LP_TE_PEAK_POSITION = 0x6;
 
+            var TEC_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
+            var TEC_MIT_POLEWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x1;
+            var TEC_MIT_EQUATORWARD_EDGE_OF_POLEWARD_WALL = 0x2;
+            var TEC_MIT_POLEWARD_EDGE_OF_THE_POLEWARD_BOUNDARY = 0x3;
+
             // We create combined settings and dataset for related data
             var overlaySettings = {};
             var overlayData = {};
@@ -799,6 +804,59 @@ define(['backbone.marionette',
                                         symbol: 'triangle',
                                         size: 9,
                                         color: [1, 0, 0, 0.8],
+                                    }
+                                },
+                            ]
+                        };
+                        overlayData[key] = data.data;
+                        break;
+                    case 'MIT_TEC':
+                        overlaySettings[key] = {
+                            keyParameter: 'PointType',
+                            displayParameters: ['Latitude', 'Longitude'],
+                            typeDefinition: [
+                                {
+                                    match: function (value) {
+                                        return value === TEC_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL;
+                                    },
+                                    name: 'Equatorward edge of the equatorward wall',
+                                    style: {
+                                        symbol: 'circle',
+                                        size: 9,
+                                        color: [0, 1, 0, 0.8],
+                                    }
+                                },
+                                {
+                                    match: function (value) {
+                                        return value === TEC_MIT_POLEWARD_EDGE_OF_THE_EQUATORWARD_WALL;
+                                    },
+                                    name: 'Poleward edge of the equatorward wall',
+                                    style: {
+                                        symbol: 'rectangle',
+                                        size: 9,
+                                        color: [0, 1, 0, 0.8],
+                                    }
+                                },
+                                {
+                                    match: function (value) {
+                                        return value === TEC_MIT_EQUATORWARD_EDGE_OF_POLEWARD_WALL;
+                                    },
+                                    name: 'Equatorward edge of poleward wall',
+                                    style: {
+                                        symbol: 'circle',
+                                        size: 9,
+                                        color: [0, 0.5, 0.5, 0.8],
+                                    }
+                                },
+                                {
+                                    match: function (value) {
+                                        return value === TEC_MIT_POLEWARD_EDGE_OF_THE_POLEWARD_BOUNDARY;
+                                    },
+                                    name: 'Poleward edge of the poleward boundary',
+                                    style: {
+                                        symbol: 'rectangle',
+                                        size: 9,
+                                        color: [0, 0.5, 0.5, 0.8],
                                     }
                                 },
                             ]
