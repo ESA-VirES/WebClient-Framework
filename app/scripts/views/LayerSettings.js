@@ -327,8 +327,9 @@
                     // Check if there is a selection available if not, show message
 
                     // Check for possible already available selection
-                    if (localStorage.getItem('areaSelection') === null ||
-                       !JSON.parse(localStorage.getItem('areaSelection'))) {
+                    if (this.current_model.id.indexOf('PPI') === -1 &&
+                      (localStorage.getItem('areaSelection') === null ||
+                       !JSON.parse(localStorage.getItem('areaSelection')))) {
                         showMessage(
                             'warning',
                             'In order to visualize fieldlines please select an area using the "Select Area" button in the globe view. Click on a fieldline to display additional information.',
@@ -482,8 +483,9 @@
                     $("#coefficients_range").hide();
                     $("#opacitysilder").parent().hide();
                     // Check for possible already available selection
-                    if (localStorage.getItem('areaSelection') === null ||
-                       !JSON.parse(localStorage.getItem('areaSelection'))) {
+                    if (this.current_model.id.indexOf('PPI') === -1 &&
+                      (localStorage.getItem('areaSelection') === null ||
+                       !JSON.parse(localStorage.getItem('areaSelection')))) {
                         showMessage(
                             'warning',
                             'In order to visualize fieldlines please select an area using the "Select Area" button in the globe view. Click on a fieldline to display additional information.',

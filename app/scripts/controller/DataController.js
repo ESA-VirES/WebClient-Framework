@@ -440,7 +440,6 @@
       },
 
       onDataReceived: function (data) {
-        console.log(data);
         // This should only happen here if there has been
         // some issue with the saved filter configuration
         // Check if current brushes are valid for current data

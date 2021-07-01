@@ -5079,6 +5079,13 @@
                     "colorscale": "viridis",
                     "uom": "R_E",
                     "name": "Midnight plasmapause index"
+                },
+                "Fieldlines":{
+                    "range": [0, 0],
+                    "uom":"nT",
+                    "name": "Fieldlines",
+                    "description": "Fieldlines are be calculated from the PP footprint",
+                    "colorscale": "blackwhite"
                 }
             },
             "download_parameters": {
@@ -5179,6 +5186,13 @@
                     "colorscale": "viridis",
                     "uom": "R_E",
                     "name": "Midnight plasmapause index"
+                },
+                "Fieldlines":{
+                    "range": [0, 0],
+                    "uom":"nT",
+                    "name": "Fieldlines",
+                    "description": "Fieldlines are be calculated from the PP footprint",
+                    "colorscale": "blackwhite"
                 }
             },
             "download_parameters": {
@@ -5279,6 +5293,13 @@
                     "colorscale": "viridis",
                     "uom": "R_E",
                     "name": "Midnight plasmapause index"
+                },
+                "Fieldlines":{
+                    "range": [0, 0],
+                    "uom":"nT",
+                    "name": "Fieldlines",
+                    "description": "Fieldlines are be calculated from the PP footprint",
+                    "colorscale": "blackwhite"
                 }
             },
             "download_parameters": {

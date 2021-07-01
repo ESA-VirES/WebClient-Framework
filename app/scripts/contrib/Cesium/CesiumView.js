@@ -1486,7 +1486,18 @@ define([
                                 cesLayer = product._cesiumLayer;
                                 cesLayer.show = options.visible;
                             }
-                        } // END of WMS and WMTS case
+                        // END of WMS and WMTS case
+                        } else if (product.get('views')[0].protocol === 'CZML') {
+                            // Special case for selected fieldlines of a product
+                            var parameters = product.get('parameters');
+                            if (parameters) {
+                                var band = this.getSelectedVariable(parameters);
+                                if (band === 'Fieldlines') {
+                                    this.updateActiveFL(product);
+                                    this.updateFieldLines();
+                                }
+                            }
+                        }
                     }
 
                     if (product.get('model') && product.get('name') === options.name) {
@@ -2078,6 +2089,7 @@ var LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
                 // collect visible parameters and their settings
 
                 var settings = {};
+                var currentCollection = null;
 
                 globals.products.each(function (product) {
                     if (!product.get('visible')) {return;}
@@ -2200,18 +2212,28 @@ var LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
             var settings = getSettings();
             if (_.isEmpty(settings)) {return;}
 
+            var fieldlinesActive = false;
             data.forEachRecord(
                 function (record) {
                     _.each(settings[record.id], function (parameterSettings) {
-                        parameterSettings.featureCreator(record, parameterSettings);
+                        // If parameter fieldlines we do not create features for it
+                        if(parameterSettings.name !== 'Fieldlines') {
+                          parameterSettings.featureCreator(record, parameterSettings);
+                        } else {
+                          fieldlinesActive = true;
+                        }
                     });
                 },
-                new RecordFilter(_.keys(data.data))
+                new RecordFilter(_.keys(data.data)), this
             );
 
             this.featureCollections.showAll();
 
             timer.logEllapsedTime("createDataFeatures()");
+
+            if (fieldlinesActive) {
+              this.updateFieldLines();
+            }
         },
 
         onLayerOutlinesChanged: function (collection) {
@@ -2230,6 +2252,12 @@ var LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
                 return;
             } else if (product.get('views')[0].protocol === 'CZML') {
                 this.createDataFeatures(globals.swarm.get('data'));
+                if (variable === 'Fieldlines') {
+                    this.updateActiveFL(product);
+                } else {
+                    this.deleteActiveFL(product);
+                }
+                this.updateFieldLines(onlyStyleChange);
             } else if (product.get('views')[0].protocol === 'WMS') {
 
                 if (variable === 'Fieldlines') {
@@ -2771,7 +2799,7 @@ var LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
                 }, 2000);
             }
             this.hideFieldLinesLabel();
-            if (this.activeFL.length > 0 && this.bboxsel) {
+            if (this.activeFL.length > 0) {
                 this.showFieldLinesDebounced(onlyStyleChange);
             } else {
                 this.hideFieldLines();
@@ -2779,7 +2807,6 @@ var LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
         },
 
         showFieldLines: function (onlyStyleChange) {
-
             var _boundingBoxToPoints = function (bbox, nLatSteps, nLonSteps) {
                 var lon0 = bbox[1];
                 var lat0 = bbox[0];
@@ -2811,7 +2838,9 @@ var LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
 
                     if (variable !== 'Fieldlines') return;
 
-                    if (product.getModelValidity().start > time || product.getModelValidity().end < time) return;
+                    if (product.getModelValidity()){
+                      if (product.getModelValidity().start > time || product.getModelValidity().end < time) return;
+                    }
 
                     if (onlyStyleChange && typeof this.FLStoredData[name] !== 'undefined') {
                         // do not send request to server if no new data needed
@@ -2833,12 +2862,39 @@ var LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
                             }
                         });
 
-                        fieldlinesRequest.fetch({
-                            model_ids: product.getModelExpression(product.get('download').id),
-                            shc: product.getCustomShcIfSelected(),
-                            time: getISODateTimeString(time),
-                            locations_csv: vires.locationToCsv(_boundingBoxToPoints(this.bboxsel, 3, 3)),
-                        });
+                        // Try to get bbox points if not available check if
+                        // product data is available to use as points
+                        var points = [];
+                        if (this.bboxsel) {
+                          points = _boundingBoxToPoints(this.bboxsel, 3, 3);
+                        } else {
+                          var data = globals.swarm.get('data');
+                          data.forEachRecord(function (record) {
+                              points.push([record.Latitude, record.Longitude, record.Radius]);
+                          },
+                          new RecordFilter(_.keys(data.data)), this);
+                        }
+                        // If fieldlines are selected for a non model product
+                        // we use a standard model for calculation
+                        var model_ids = null;
+                        var prodId = product.get('download').id;
+                        if (prodId !== 'Model') {
+                          // Find model product
+                          var modelProd = globals.products.find(function (pr) {
+                            return pr.get('download').id === 'Model';
+                          });
+                          model_ids = modelProd.getModelExpression(modelProd.get('download').id)
+                        } else {
+                          model_ids = product.getModelExpression(product.get('download').id)
+                        }
+                        if (points.length > 0){
+                          fieldlinesRequest.fetch({
+                              model_ids: model_ids,
+                              shc: product.getCustomShcIfSelected(),
+                              time: getISODateTimeString(time),
+                              locations_csv: vires.locationToCsv(points),
+                          });
+                        }
                     }
                 }, this
             );
