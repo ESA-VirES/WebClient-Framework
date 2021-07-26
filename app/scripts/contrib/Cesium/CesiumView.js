@@ -2648,9 +2648,9 @@ define([
 
                                 request.url = overlay.get("view").url;
                                 var colls = {
-                                    'Alpha': '{"Alpha":["SW_OPER_MAGA_LR_1B"]}',
-                                    'Bravo': '{"Bravo":["SW_OPER_MAGB_LR_1B"]}',
-                                    'Charlie': '{"Charlie":["SW_OPER_MAGC_LR_1B"]}',
+                                    'Alpha': '{"Alpha":["SW_OPER_MODA_SC_1B"]}',
+                                    'Bravo': '{"Bravo":["SW_OPER_MODB_SC_1B"]}',
+                                    'Charlie': '{"Charlie":["SW_OPER_MODC_SC_1B"]}',
                                 };
                                 request.fetch({
                                     collections_ids: colls[sat],
