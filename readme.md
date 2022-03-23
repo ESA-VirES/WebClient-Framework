@@ -1,6 +1,6 @@
-# EOxClient
+# VirES for Swarm web client
 
-The EOxClient focuses on creating a webclient for map applications, which allows easy customization through a centralized configuration concept.
+The VirES for Swarm we blint focuses on creating a webclient for map applications, which allows easy customization through a centralized configuration concept.
 
 ## Technologies used
 
@@ -20,10 +20,10 @@ The application uses [Yeoman](http://yeoman.io/) which integrates:
 
 ## How to setup development environmet (on a Linux machine)
 
-0.  Get the code from GitHub [EOxClient repository](https://github.com/EOX-A/EOxClient.git):
+0.  Get the code from GitHub [VirES for Swarm web client repository](https://github.com/ESA-VirES/WebClient-Framework):
 
     ```
-    git clone git@github.com:EOX-A/EOxClient.git
+    git clone git@github.com:ESA-VirES/WebClient-Framework.git
     ```
 
 0.  Install development enviroment: 
