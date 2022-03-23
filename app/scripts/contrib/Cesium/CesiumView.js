@@ -677,7 +677,7 @@ define([
             this.$el.append('<div id="cesium_attribution"></div>');
             this.$el.append('<div id="cesium_custom_attribution"></div>');
             $('#cesium_custom_attribution').append(
-                '<div style="float:left"><a href="http://cesiumjs.org" target="_blank">Cesium</a>' +
+                '<div style="float:left"><a href="https://cesium.com/platform/cesiumjs/" target="_blank">CesiumJS</a>' +
                 '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>'
             );
 

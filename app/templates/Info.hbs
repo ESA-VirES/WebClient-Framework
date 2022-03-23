@@ -5,18 +5,21 @@
       <h3 class="panel-title" id="about-title"><i class="fa fa-fw fa-info-circle"></i> About </h3>
     </div>
     <div class="modal-body modal-body-about">
-		<p style="font-size:1.4em">VirES for Swarm</p>
-		<p>
-      <i>VirES for Swarm</i> is an interactive web interface for visualization of the <a target="_blank" href="https://earth.esa.int/swarm" target="_blank">Swarm mission</a> products officially released by the European Space Agency.  It includes tools for studying various geomagnetic models by comparing them to the Swarm satellite measurements at given space weather and ionospheric conditions.
-		</p>
-		<p>
+    <p style="font-size:1.4em">VirES for Swarm</p>
+    <p>
+      <i>VirES for Swarm</i> is an interactive web interface for visualization of the <a target="_blank" href="https://earth.esa.int/eogateway/missions/swarm" target="_blank">Swarm mission</a> products officially released by the European Space Agency.  It includes tools for studying various geomagnetic models by comparing them to the Swarm satellite measurements at given space weather and ionospheric conditions.
+    </p>
+    <p>
       In addition to this interactive web interface, users can also explore the data in
       <a target="_blank" href="https://swarm-vre.readthedocs.io/en/latest/intro.html">Jupyter-based</a>
       <a target="_blank" href="https://vre.vires.services"><i>Virtual Reseach Environmet</i> (VRE)</a>
       or on their own computer via the <a target="_blank" href="https://viresclient.readthedocs.io/en/latest/readme.html">Python client</a>.
-		</p>
+    </p>
+    <p>
+      Selected datasets can be also accessed via the <a target="_blank" href="/hapi">Heliophysics Application Programming Interface (HAPI)</a>.
+    </p>
 
-		<p style="font-size:1.4em">Data</p>
+    <p style="font-size:1.4em">Data</p>
 
           <p>Data from the following Swarm products are available in VirES:</p>
           <ul>
@@ -24,7 +27,7 @@
               The low resolution (1Hz) magnetic VFM vector and ASM scalar data (<a target="_blank" href="https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-1b-product-definitions#MAGX_LR_1B_Product">MAGx_LR_1B</a>)
             </li>
             <li style="list-style-type: circle;">
-              The high resolution (50Hz) magnetic VFM vector data (<a target="_blank" href="https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-1b-product-definitions#MAGX_HR_1B_Product">MAGx_HR_1B</a>,
+              The high resolution (50Hz) magnetic VFM vector data (<a target="_blank" href="https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-1b-product-definitions#Magnetic_Products">MAGx_HR_1B</a>,
               accessible via the <a target="_blank" href="https://viresclient.readthedocs.io/en/latest/available_parameters.html#collections">Python client</a>,
               readily available in <a target="_blank" href="https://vre.vires.services">VRE</a>)
             </li>
@@ -50,35 +53,35 @@
             </li>
             <li style="list-style-type: circle;">
                High-latitude ionospheric horizontal sheet current densities profiles calculated using
-               the Line Current (<a target="_blank" href="https://earth.esa.int/eogateway/activities/swarm-aebs">AEJxLPL_2F</a>)
-               and Spherical Elementary Current Systems (<a target="_blank" href="https://earth.esa.int/eogateway/activities/swarm-aebs">AEJxLPS_2F</a>) methods
+               the Line Current (<a target="_blank" href="https://earth.esa.int/eogateway/documents/20142/37627/Swarm-AEBS-product-definition.pdf">AEJxLPL_2F</a>)
+               and Spherical Elementary Current Systems (<a target="_blank" href="https://earth.esa.int/eogateway/documents/20142/37627/Swarm-AEBS-product-definition.pdf">AEJxLPS_2F</a>) methods
             </li>
             <li style="list-style-type: circle;">
                High-latitude ionospheric horizontal sheet current boundaries and peaks locations calculated using
-               the Line Current (<a target="_blank" href="https://earth.esa.int/eogateway/activities/swarm-aebs">AEJxPBL_2F</a>)
-               and Spherical Elementary Current Systems (<a target="_blank" href="https://earth.esa.int/eogateway/activities/swarm-aebs">AEJxPBS_2F</a>) methods
+               the Line Current (<a target="_blank" href="https://earth.esa.int/eogateway/documents/20142/37627/Swarm-AEBS-product-definition.pdf">AEJxPBL_2F</a>)
+               and Spherical Elementary Current Systems (<a target="_blank" href="https://earth.esa.int/eogateway/documents/20142/37627/Swarm-AEBS-product-definition.pdf">AEJxPBS_2F</a>) methods
             </li>
             <li style="list-style-type: circle;">
                Aurora oval boundaries derived from the Field-Aligned Currents data
-               (<a target="_blank" href="https://earth.esa.int/eogateway/activities/swarm-aebs">AOBxFAC_2F</a>)
+               (<a target="_blank" href="https://earth.esa.int/eogateway/documents/20142/37627/Swarm-AEBS-product-definition.pdf">AOBxFAC_2F</a>)
             </li>
             <li style="list-style-type: circle;">
                Mid-latitude ionospheric trough (MIT) boundaries and minima based on the Langmuir probe electron density and temperature measurements
-               (<a target="_blank" href="https://earth.esa.int/eogateway/activities/plasmapause-related-boundaries-in-the-topside-ionosphere-as-derived-from-swarm-measurements">MITx_LP_2F</a>),
+               (<a target="_blank" href="https://earth.esa.int/eogateway/documents/20142/37627/Swarm-PRISM-Product-Definition.pdf">MITx_LP_2F</a>),
                accessible via the <a target="_blank" href="https://viresclient.readthedocs.io/en/latest/available_parameters.html#collections">Python client</a>.
             </li>
             <li style="list-style-type: circle;">
                Mid-latitude ionospheric trough (MIT) boundaries and minima derived from the GPS TEC estimate
-               (<a target="_blank" href="https://earth.esa.int/eogateway/activities/plasmapause-related-boundaries-in-the-topside-ionosphere-as-derived-from-swarm-measurements">MITxTEC_2F</a>),
+               (<a target="_blank" href="https://earth.esa.int/eogateway/documents/20142/37627/Swarm-PRISM-Product-Definition.pdf">MITxTEC_2F</a>),
                accessible via the <a target="_blank" href="https://viresclient.readthedocs.io/en/latest/available_parameters.html#collections">Python client</a>.
             </li>
             <li style="list-style-type: circle;">
                Midnight plasma-pause index (PPI) and the associated SSFAC boundaries
-               (<a target="_blank" href="https://earth.esa.int/eogateway/activities/plasmapause-related-boundaries-in-the-topside-ionosphere-as-derived-from-swarm-measurements">PPIxFAC_2F</a>),
+               (<a target="_blank" href="https://earth.esa.int/eogateway/documents/20142/37627/Swarm-PRISM-Product-Definition.pdf">PPIxFAC_2F</a>),
                accessible via the <a target="_blank" href="https://viresclient.readthedocs.io/en/latest/available_parameters.html#collections">Python client</a>.
             </li>
             <li style="list-style-type: circle;">
-               Swarm spacecrafts' positions (<a target="_blank" href="https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#MODx_SC_1B">MODx_SC_1B</a>)
+               Swarm spacecrafts' positions (<a target="_blank" href="https://earth.esa.int/eogateway/missions/swarm/product-data-handbook/level-1b-product-definitions#Ephemeris_Products">MODx_SC_1B</a>)
             </li>
           </ul>
 
@@ -87,7 +90,7 @@
             <li style="list-style-type: circle;">
               Hourly, 1 minute and 1 second ground magnetic observatory data (AUX_OBS) from
               <a target="_blank" href="https://intermagnet.org/index-eng.php">INTERMAGNET</a> and
-              <a target="_blank" href="http://www.wdc.bgs.ac.uk/">WDC</a>
+              <a target="_blank" href="https://wdc.bgs.ac.uk/">WDC</a>
             </li>
             <li style="list-style-type: circle;">
               1 and 4 months Virtual Observatory data (VOBS) from the
@@ -106,10 +109,10 @@
           <p>The following models of the Earth's magnetic field and its components (core, crust, lithospheric, magnetospheric, and ionospheric magnetic field) are available</p>
           <ul>
             <li style="list-style-type: circle;">
-              The 13th generation of the International Geomagnetic Reference Field (<a target="_blank" href="http://earth-planets-space.springeropen.com/articles/10.1186/s40623-015-0228-9">IGRF 12</a>) released in December 2019 by the International Association of Geomagnetism and Aeronomy
+              The 13th generation of the International Geomagnetic Reference Field (<a target="_blank" href="https://earth-planets-space.springeropen.com/articles/10.1186/s40623-020-01288-x">IGRF 13</a>) released in December 2019 by the International Association of Geomagnetism and Aeronomy
             </li>
             <li style="list-style-type: circle;">
-              The CHAOS-7 high resolution geomagnetic field model derived from Swarm, CHAMP, Ørsted, SAC-C and Cryosat satellite magnetic data along with ground observatory data (<a target="_blank" href="http://www.spacecenter.dk/files/magnetic-models/CHAOS-7/">CHAOS-7</a>)
+              The CHAOS-7 high resolution geomagnetic field model derived from Swarm, CHAMP, Ørsted, SAC-C and Cryosat satellite magnetic data along with ground observatory data (<a target="_blank" href="https://spacecenter.dk/files/magnetic-models/CHAOS-7/">CHAOS-7</a>)
             </li>
             <li style="list-style-type: circle;">
               Spherical harmonic model of the main (core) field and its temporal variation (<a target="_blank" href="https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#MCO_SHA_2C">MCO_SHA_2C</a>)
@@ -124,13 +127,13 @@
               Spherical harmonic model of the lithospheric field (<a target="_blank" href="https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#MLI_SHA_2D">MLI_SHA_2D</a>)
             </li>
             <li style="list-style-type: circle;">
-              The LCS-1 high-resolution lithospheric field model, derived from CHAMP and Swarm satellite observations (<a target="_blank" href="http://www.spacecenter.dk/files/magnetic-models/LCS-1/">LCS-1</a>)
+              The LCS-1 high-resolution lithospheric field model, derived from CHAMP and Swarm satellite observations (<a target="_blank" href="https://spacecenter.dk/files/magnetic-models/LCS-1/">LCS-1</a>)
             </li>
             <li style="list-style-type: circle;">
-              The MF7 crustal field model, derived from CHAMP satellite observations (<a target="_blank" href="http://geomag.org/models/MF7.html">MF7</a>)
+              The MF7 crustal field model, derived from CHAMP satellite observations (<a target="_blank" href="https://geomag.us/models/MF7.html">MF7</a>)
             </li>
             <li style="list-style-type: circle;">
-              Spherical harmonic model of the lithospheric field (<a target="_blank" href="https://earth.esa.int/documents/10174/1514862/Swarm_L2_Product_Specification">MLI_SHA_2E</a>)
+              Spherical harmonic model of the lithospheric field (<a target="_blank" href="https://earth.esa.int/eogateway/missions/swarm/product-data-handbook/level-2-product-definitions#MLI_SHA_2E">MLI_SHA_2E</a>)
             </li>
             <li style="list-style-type: circle;">
               Spherical harmonic model of the large-scale magnetospheric field and its Earth-induced counterpart (<a target="_blank" href="https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#MMA_SHA_2C">MMA_SHA_2C primary and secondary field</a>)
@@ -139,7 +142,7 @@
               Spherical harmonic model of the large-scale magnetospheric field and its Earth-induced counterpart (<a target="_blank" href="https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#MMA_SHA_2F">MMA_SHA_2F primary and secondary field</a>)
             </li>
             <li style="list-style-type: circle;">
-              The <a target="_blank" href="http://www.spacecenter.dk/files/magnetic-models/CHAOS-7/">CHAOS</a> spherical harmonic model of the large-scale magnetospheric field and its Earth-induced counterpart (CHAOS-MMA primary and secondary field)
+              The <a target="_blank" href="https://spacecenter.dk/files/magnetic-models/CHAOS-7/">CHAOS</a> spherical harmonic model of the large-scale magnetospheric field and its Earth-induced counterpart (CHAOS-MMA primary and secondary field)
             </li>
             <li style="list-style-type: circle;">
               Spherical harmonic model of the daily geomagnetic variation at middle latitudes (Sq) and low latitudes (EEJ) (<a target="_blank" href="https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#MIO_SHA_2C">MIO_SHA_2C primary and secondary field</a>)
@@ -152,7 +155,7 @@
             </li>
           </ul>
 
-          <p>Users can also work with Custom Models and upload own Spherical Harmonic Expansion coefficients (<a target="_blank" href="http://www.spacecenter.dk/files/magnetic-models/CHAOS-5/SHC-Format-Decsription.pdf">SHC file format</a>)</p>
+          <p>Users can also work with Custom Models and upload own Spherical Harmonic Expansion coefficients (<a target="_blank" href="https://spacecenter.dk/files/magnetic-models/CHAOS-5/SHC-Format-Decsription.pdf">SHC file format</a>)</p>
 
           <p>The global context of space weather is provided in form of:</p>
           <ul>
@@ -165,7 +168,7 @@
             <li style="list-style-type: circle;">
               Observed daily measure of the solar radio flux per unit frequency at a wavelength of 10.7 cm
               (<a target="_blank" href="https://en.wikipedia.org/wiki/Solar_cycle#Solar_radio_flux">F10.7 index</a>) read from
-              the auxiliary <a target="_blank" href="https://earth.esa.int/documents/10174/1514862/Swarm_L2_Product_Specification/">AUX_F10_2_</a> product.
+              the auxiliary <a target="_blank" href="https://earth.esa.int/eogateway/documents/20142/37627/swarm-level-2-product-specification.pdf/2979b351-b6a2-69b6-8539-9ed9f32984f0">AUX_F10_2_</a> product.
             </li>
           </ul>
 
@@ -173,22 +176,22 @@
             The data accessible on VirES consists of the newest versions available and any new data will appear within 4 hours after being published.
           </p>
 
-		<p style="font-size:1.4em">Questions?</p>
+    <p style="font-size:1.4em">Questions?</p>
 
-		<p>Have a look at our <a target="_blank" href="/faq">Frequently asked Questions</a> or our <a href="/swarm_static/other/VirES_for_Swarm_Tutorial_Slides.pdf" target="_blank">tutorial slides</a>. For any further questions or ideas on how we can improve feel free to contact us at <a href="mailto:feedback@vires.services">feedback@vires.services</a></p>
-	   	<div class="row" style="margin-top:30px;">
-	   		<div class="col-md-3" style="text-align:center;"><a target="_blank" href="//eox.at"><img style="height:32px;vertical-align: center" src="/swarm_static/workspace/images/logos/EOX_Logo.png" alt="EOX IT Services GmbH logo"></a></div>
-	   		<div class="col-md-3" style="text-align:center;"></div>
-	   		<div class="col-md-3" style="text-align:center;"></div>
-	   		<div class="col-md-3" style="text-align:center;"><a target="_blank" href="http://esa.int"><img style="height:80px; margin-top:-22px; vertical-align: center" src="/swarm_static/workspace/images/logos/esa.png" alt="European Space Agency Logo"></a></div>
-	   	</div>
-	</div>
-	<div class="text-muted" style="text-align: center; margin-top:-2em; position: relative;">
-		<a style="display:inline; margin-right:5px;" href="/data_terms" target="_blank">ESA Data Terms</a> |
-		<a style="display:inline; margin-left:5px;" href="/service_terms" target="_blank">VirES Service Terms</a> |
-		<a style="display:inline; margin-left:5px;" href="/privacy_notice" target="_blank">Privacy Notice</a> |
-		<a style="display:inline; margin-left:5px;" href="/changelog" target="_blank">New release information</a>
-	</div>
+    <p>Have a look at our <a target="_blank" href="/faq">Frequently asked Questions</a> or our <a href="/swarm_static/other/VirES_for_Swarm_Tutorial_Slides.pdf" target="_blank">tutorial slides</a>. For any further questions or ideas on how we can improve feel free to contact us at <a href="mailto:feedback@vires.services">feedback@vires.services</a></p>
+      <div class="row" style="margin-top:30px;">
+        <div class="col-md-3" style="text-align:center;"><a target="_blank" href="https//eox.at"><img style="height:32px;vertical-align: center" src="/swarm_static/workspace/images/logos/EOX_Logo.png" alt="EOX IT Services GmbH logo"></a></div>
+        <div class="col-md-3" style="text-align:center;"></div>
+        <div class="col-md-3" style="text-align:center;"></div>
+        <div class="col-md-3" style="text-align:center;"><a target="_blank" href="https://www.esa.int"><img style="height:80px; margin-top:-22px; vertical-align: center" src="/swarm_static/workspace/images/logos/esa.png" alt="European Space Agency Logo"></a></div>
+      </div>
+  </div>
+  <div class="text-muted" style="text-align: center; margin-top:-2em; position: relative;">
+    <a style="display:inline; margin-right:5px;" href="/data_terms" target="_blank">ESA Data Terms</a> |
+    <a style="display:inline; margin-left:5px;" href="/service_terms" target="_blank">VirES Service Terms</a> |
+    <a style="display:inline; margin-left:5px;" href="/privacy_notice" target="_blank">Privacy Notice</a> |
+    <a style="display:inline; margin-left:5px;" href="/changelog" target="_blank">New release information</a>
+  </div>
     <p style="text-align:right;margin-right:1em;">Service version: {{ version }}</p>
   </div>
 </div>
