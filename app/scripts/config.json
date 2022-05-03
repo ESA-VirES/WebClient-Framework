@@ -16,6 +16,64 @@
             "url": "/vires00/ows"
         }]
     },
+    "additionalInformation": {
+        "MAG": [
+            "<b>Magnetic VFM vector and ASM scalar data (1Hz)</b></br>",
+            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-1b-product-definitions#MAGX_LR_1B_Product' target='_blank'>Product information</a><br>",
+            "<b>Virtual Research Environment</b><br>",
+            "<a href='https://vre.vires.services/hub/user-redirect/git-pull?repo=https://github.com/Swarm-DISC/Swarm_notebooks&urlpath=lab/tree/Swarm_notebooks/notebooks/03a1_Demo-MAGx_LR_1B.ipynb&branch=master' target='_blank'>Launch example in VRE</a>"
+        ],
+        "EFI": [
+            "<b>Plasma data from the Langmuir probe including electron temperature and plasma density (2Hz)</b></br>",
+            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-1b-product-definitions#EFIX_LP_1B_Product' target='_blank'>Product information</a><br>",
+            "<b>Virtual Research Environment</b><br>",
+            "<a href='https://vre.vires.services/hub/user-redirect/git-pull?repo=https://github.com/Swarm-DISC/Swarm_notebooks&urlpath=lab/tree/Swarm_notebooks/notebooks/03b__Demo-EFIx_LP_1B.ipynb&branch=master' target='_blank'>Launch example in VRE</a>"
+        ],
+        "IBI": [
+            "<b>Ionospheric bubble index data</b></br>",
+            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#IBIxTMS_2F' target='_blank'>Product information</a><br>",
+            "<b>Virtual Research Environment</b><br>",
+            "<a href='https://vre.vires.services/hub/user-redirect/git-pull?repo=https://github.com/Swarm-DISC/Swarm_notebooks&urlpath=lab/tree/Swarm_notebooks/notebooks/03g__Demo-IBIxTMS_2F.ipynb&branch=master' target='_blank'>Launch example in VRE</a>"
+        ],
+        "TEC": [
+            "<b>Ionospheric total electron content data</b></br>",
+            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#TECxTMS_2F' target='_blank'>Product information</a><br>",
+            "<b>Virtual Research Environment</b><br>",
+            "<a href='https://vre.vires.services/hub/user-redirect/git-pull?repo=https://github.com/Swarm-DISC/Swarm_notebooks&urlpath=lab/tree/Swarm_notebooks/notebooks/03d__Demo-TECxTMS_2F.ipynb&branch=master' target='_blank'>Launch example in VRE</a>"
+        ],
+        "FAC": [
+            "<b>Single and combined S/C solution for the current density data</b></br>",
+            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#FACxTMS_2F' target='_blank'>Product information (Single)</a><br>",
+            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#FAC_TMS_2F' target='_blank'>Product information (Combined)</a><br>",
+            "<b>Virtual Research Environment</b><br>",
+            "<a href='https://vre.vires.services/hub/user-redirect/git-pull?repo=https://github.com/Swarm-DISC/Swarm_notebooks&urlpath=lab/tree/Swarm_notebooks/notebooks/03e1_Demo-FACxTMS_2F.ipynb&branch=master' target='_blank'>Launch example in VRE (Single)</a><br>",
+            "<a href='https://vre.vires.services/hub/user-redirect/git-pull?repo=https://github.com/Swarm-DISC/Swarm_notebooks&urlpath=lab/tree/Swarm_notebooks/notebooks/03e2_Demo-FAC_TMS_2F.ipynb&branch=master' target='_blank'>Launch example in VRE (Combined)</a>"
+        ],
+        "EEF": [
+            "<b>Dayside equatorial electric field data</b></br>",
+            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#EEFxTMS_2F' target='_blank'>Product information</a><br>",
+            "<b>Virtual Research Environment</b><br>",
+            "<a href='https://vre.vires.services/hub/user-redirect/git-pull?repo=https://github.com/Swarm-DISC/Swarm_notebooks&urlpath=lab/tree/Swarm_notebooks/notebooks/03f__Demo-EEFxTMS_2F.ipynb&branch=master' target='_blank'>Launch example in VRE</a>"
+        ],
+        "IPD": [
+            "<b>Ionospheric plasma densities</b></br>",
+            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#IPDxIRR_2F' target='_blank'>Product information</a><br>",
+            "<b>Virtual Research Environment</b><br>",
+            "<a href='https://vre.vires.services/hub/user-redirect/git-pull?repo=https://github.com/Swarm-DISC/Swarm_notebooks&urlpath=lab/tree/Swarm_notebooks/notebooks/03c__Demo-IPDxIRR_2F.ipynb&branch=master' target='_blank'>Launch example in VRE</a>"
+        ],
+        "AEJ_LPL": [
+            "<b>Auroral electrojets calculated using the Line Current</b></br>",
+            "<a href='https://earth.esa.int/eogateway/documents/20142/37627/Swarm-AEBS-product-definition.pdf' target='_blank'>Product information</a><br>",
+            "<b>Virtual Research Environment</b><br>",
+            "<a href='https://vre.vires.services/hub/user-redirect/git-pull?repo=https://github.com/Swarm-DISC/Swarm_notebooks&urlpath=lab/tree/Swarm_notebooks/notebooks/03h1_Demo-AEBS-AEJxLPL.ipynb&branch=master' target='_blank'>Launch example in VRE</a>"
+        ],
+        "AEJ_LPS": [
+            "<b>Auroral electrojets calculated using the Spherical Elementary Current Systems</b></br>",
+            "<a href='https://earth.esa.int/eogateway/documents/20142/37627/Swarm-AEBS-product-definition.pdf' target='_blank'>Product information</a><br>",
+            "<b>Virtual Research Environment</b><br>",
+            "<a href='https://vre.vires.services/hub/user-redirect/git-pull?repo=https://github.com/Swarm-DISC/Swarm_notebooks&urlpath=lab/tree/Swarm_notebooks/notebooks/03h2_Demo-AEBS-AEJxLPS.ipynb&branch=master' target='_blank'>Launch example in VRE</a>"
+        ]
+    },
     "magneticModels": {
         "infoUrl": "/vires00/ows",
         "models": [
