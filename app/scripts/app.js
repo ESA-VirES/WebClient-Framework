@@ -948,7 +948,6 @@ var RELATED_VARIABLES = {
 
                 // Load possible additional tooltip information from config
                 filtered_collection.forEach(function(item) {
-                    console.log(item);
                     if(config.hasOwnProperty("additionalInformation")
                         && config.additionalInformation.hasOwnProperty(item.get("id"))) {
                         item.set("info", config.additionalInformation[item.get("id")].join(''));
