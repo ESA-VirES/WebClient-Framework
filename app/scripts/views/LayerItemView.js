@@ -59,11 +59,14 @@
                 $('.fa-adjust').popover({
                     trigger: 'manual'
                 });
+                $('.fa-info-circle').popover({
+                    trigger: 'focus',
+                });
 
                 var that = this;
 
                 if(this.model.get("containerproduct")){
-                    this.$el.find( ".fa-sort" ).css("visibility", "hidden");
+                    this.$el.find( ".fa-sort" ).remove();
                     this.$el.appendTo("#containerproductslist");
                     this.$el.find('.fa-sliders').click(function(){
                                 
@@ -310,7 +313,6 @@
             drop: function(event, index) {
                 Communicator.mediator.trigger('productCollection:updateSort', {model:this.model, position:index});
             },
-
             onOpenSlider: function(evt){
 
                 if (this.$('.fa-adjust').toggleClass('active').hasClass('active')) {

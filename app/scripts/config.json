@@ -16,6 +16,57 @@
             "url": "/vires00/ows"
         }]
     },
+    "additionalInformation": {
+        "MAG": [
+            "<p>Magnetic VFM vector and ASM scalar data (1Hz)</p>",
+            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-1b-product-definitions#MAGX_LR_1B_Product' target='_blank'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03a1_demo-magx_lr_1b' target='notebooks'>Example VRE notebook</a>"
+        ],
+        "EFI": [
+            "<p>Plasma data from the Langmuir probe including electron temperature and plasma density (2Hz)</p>",
+            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-1b-product-definitions#EFIX_LP_1B_Product' target='_blank'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03b__demo-efix_lp_1b' target='notebooks'>Example VRE notebook</a>"
+        ],
+        "IBI": [
+            "<p>Ionospheric bubble index data</p>",
+            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#IBIxTMS_2F' target='_blank'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03g__demo-ibixtms_2f' target='notebooks'>Example VRE notebook</a>"
+        ],
+        "TEC": [
+            "<p>Ionospheric total electron content data</p>",
+            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#TECxTMS_2F' target='_blank'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03d__demo-tecxtms_2f' target='notebooks'>Example VRE notebook</a>"
+        ],
+        "FAC": [
+            "<p>Field aligned current (single and dual S/C) and auroral oval boundaries determined from FAC</p>",
+            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#FACxTMS_2F' target='_blank'>Single S/C FAC product specification</a><br>",
+            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#FAC_TMS_2F' target='_blank'>Dual S/C FAC product specification</a><br>",
+            "<a href='https://earth.esa.int/eogateway/documents/20142/37627/Swarm-AEBS-product-definition.pdf' target='aebs_spec'>AOB product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03e1_demo-facxtms_2f' target='notebooks'>Single S/C FAC example VRE notebook</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03e2_demo-fac_tms_2f' target='notebooks'>Dual S/C FAC example VRE notebook</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03h3_demo-aebs-aobxfac' target='notebooks'>AOB example VRE notebook</a>"
+        ],
+        "EEF": [
+            "<p>Dayside equatorial electric field data</p>",
+            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#EEFxTMS_2F' target='_blank'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03f__demo-eefxtms_2f' target='notebooks'>Example VRE notebook</a>"
+        ],
+        "IPD": [
+            "<p>Ionospheric plasma densities</p>",
+            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#IPDxIRR_2F' target='_blank'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03c__demo-ipdxirr_2f' target='notebooks'>Example VRE notebook</a>"
+        ],
+        "AEJ_LPL": [
+            "<p>Auroral electrojets calculated by the Line Current method</p>",
+            "<a href='https://earth.esa.int/eogateway/documents/20142/37627/Swarm-AEBS-product-definition.pdf' target='aebs_spec'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03h1_demo-aebs-aejxlpl' target='notebooks'>Example VRE notebook</a>"
+        ],
+        "AEJ_LPS": [
+            "<p>Auroral electrojets calculated by the Spherical Elementary Current Systems method</p>",
+            "<a href='https://earth.esa.int/eogateway/documents/20142/37627/Swarm-AEBS-product-definition.pdf' target='aebs_spec'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03h2_demo-aebs-aejxlps' target='notebooks'>Example VRE notebook</a>"
+        ]
+    },
     "magneticModels": {
         "infoUrl": "/vires00/ows",
         "models": [
@@ -264,7 +315,7 @@
             "views": [{
                 "id": "s2cloudless",
                 "protocol": "WMTS",
-                "urlTemplate": "https://{s}.s2maps-tiles.eu/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=s2cloudless-2020&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fjpg",
+                "urlTemplate": "https://{s}.s2maps-tiles.eu/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=s2cloudless-2021&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fjpg",
                 "subdomains": "abcdef",
                 "urls": [
                     "//a.tiles.maps.eox.at/wmts/",
@@ -283,7 +334,7 @@
                 "isphericalMercator": false,
                 "wrapDateLine": true,
                 "zoomOffset": 0,
-                "attribution": "Sentinel-2 cloudless - <a href=\"https://s2maps.eu\" target=\"_blank\">https://s2maps.eu</a> by <a href=\"https://eox.at\" target=\"_blank\">EOX IT Services GmbH</a> (Contains modified Copernicus Sentinel data 2020)"
+                "attribution": "Sentinel-2 cloudless - <a href=\"https://s2maps.eu\" target=\"_blank\">https://s2maps.eu</a> by <a href=\"https://eox.at\" target=\"_blank\">EOX IT Services GmbH</a> (Contains modified Copernicus Sentinel data 2021)"
             }, {
                 "id": "s2cloudless",
                 "protocol": "WMS",

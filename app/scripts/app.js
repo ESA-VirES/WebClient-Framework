@@ -946,6 +946,14 @@ var RELATED_VARIABLES = {
                     id: "MAG"
                 }, {at: 0});
 
+                // Load possible additional tooltip information from config
+                filtered_collection.forEach(function(item) {
+                    if(config.hasOwnProperty("additionalInformation")
+                        && config.additionalInformation.hasOwnProperty(item.get("id"))) {
+                        item.set("info", config.additionalInformation[item.get("id")].join(''));
+                    }
+                });
+
                 this.productsView = new v.LayerSelectionView({
                     collection: filtered_collection,
                     itemView: v.LayerItemView.extend({
