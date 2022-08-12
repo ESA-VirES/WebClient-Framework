@@ -276,6 +276,12 @@ define(['backbone.marionette',
             var filtersGlobal = _.clone(globals.swarm.get('uom_set'));
             //filter out periodic latitudes from initial filters
             var filtersNotUsed = ['QDLatitude_periodic', 'Latitude_periodic'];
+            for (var i = 0; i < filtersNotUsed.length; i++) {
+                if (filtersGlobal.hasOwnProperty(filtersNotUsed[i])) {
+                    delete filtersGlobal[filtersNotUsed[i]];
+                }
+            }
+            /*
             var filtersGlobalFiltered = _.filter(filtersGlobal, function (obj, key) {
                 if (!filtersNotUsed.some(function (filter) {return key.indexOf(filter) >= 0;})) {
                     // Filter not found in list of not to be used ones
@@ -283,13 +289,29 @@ define(['backbone.marionette',
                 } else {
                     return false;
                 }
-            });
+            });*/
             this.filterManager = new FilterManager({
                 el: '#analyticsFilters',
                 filterSettings: {
                     visibleFilters: this.selectedFilterList,
-                    dataSettings: filtersGlobalFiltered,
-                    parameterMatrix: {}
+                    dataSettings: filtersGlobal,
+                    parameterMatrix: {},
+                    maskParameter: {
+                        'Flag_ti_meas': {
+                            values: [
+                                ['Bit 0', 'High-latitude frictional heating included/omitted'],
+                                ['Bit 1', 'Electron temperature from low/high-gain probe'],
+                                ['Bit 2', 'Ion temperature data available/data value is set to NaN'],
+                            ]
+                        },
+                        'Flag_ti_model': {
+                            values: [
+                                ['Bit 0', 'High-latitude frictional heating included/omitted'],
+                                ['Bit 1', 'Electron temperature from low/high-gain probe'],
+                                ['Bit 2', 'Ion temperature data available/data value is set to NaN'],
+                            ]
+                        }
+                    }
                 },
                 showCloseButtons: true,
                 ignoreParameters: EXCLUDED_PARAMETERS,
@@ -609,6 +631,8 @@ define(['backbone.marionette',
                 localStorage.setItem('filterSelection', JSON.stringify(this.brushes));
                 Communicator.mediator.trigger('analytics:set:filter', this.brushes);
                 globals.swarm.set({filters: filters});
+                // Make sure any open tooltips are cleared
+                $('.ui-tooltip').remove();
 
             });
 
