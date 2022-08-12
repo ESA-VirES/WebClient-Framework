@@ -1193,7 +1193,9 @@ define(['backbone.marionette',
                     'IRC', 'FAC',
                     'EEF',
                     'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
-                    'Pair_Indicator', 'Boundary_Flag'
+                    'Pair_Indicator', 'Boundary_Flag',
+                    'Ti_meas_drift', 'Ti_model_drift', 'Tn_msis',
+                    'Flag_ti_meas', 'Flag_ti_model',
                 ];
 
                 filterstouse = filterstouse.concat(['MLT']);
@@ -1255,6 +1257,7 @@ define(['backbone.marionette',
                     'Ne', 'F', 'Bubble_Probability', 'Absolute_STEC',
                     'FAC', 'EEF', 'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
                     'Pair_Indicator',
+                    'Ti_meas_drift', 'Ti_model_drift'
                 ];
 
                 // Go trough all plots and see if they need to be removed

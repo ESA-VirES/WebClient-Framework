@@ -33,6 +33,7 @@ var SCALAR_PARAM = [
     "mROTI20s", "IBI_flag", "Ionosphere_region_flag", "IPIR_index", "Ne_quality_flag",
     "TEC_STD",
     "J_QD", "J_R", "J_CF_SemiQD", "J_DF_SemiQD", "Boundary_Flag", "Pair_Indicator",
+    "Tn_msis", "Ti_meas_drift", "Ti_model_drift", "Flag_ti_meas", "Flag_ti_model"
 ];
 
 var VECTOR_PARAM = [
@@ -64,6 +65,7 @@ var VECTOR_BREAKDOWN = {
 var MASTER_PRIORITY = [
     'SW_OPER_FACATMS_2F', 'SW_OPER_FACBTMS_2F', 'SW_OPER_FACCTMS_2F', 'SW_OPER_FAC_TMS_2F', 'SW_OPER_FACUTMS_2F',
     'SW_OPER_EFIA_LP_1B', 'SW_OPER_EFIB_LP_1B', 'SW_OPER_EFIC_LP_1B', 'SW_OPER_EFIU_LP_1B',
+    'SW_OPER_EFIATIE_2_', 'SW_OPER_EFIBTIE_2_', 'SW_OPER_EFICTIE_2_', 'SW_OPER_EFIUTIE_2_',
     'SW_OPER_MAGA_LR_1B', 'SW_OPER_MAGB_LR_1B', 'SW_OPER_MAGC_LR_1B', 'SW_OPER_MAGU_LR_1B',
     'SW_OPER_TECATMS_2F', 'SW_OPER_TECBTMS_2F', 'SW_OPER_TECCTMS_2F', 'SW_OPER_TECUTMS_2F',
     'SW_OPER_IBIATMS_2F', 'SW_OPER_IBIBTMS_2F', 'SW_OPER_IBICTMS_2F', 'SW_OPER_IBIUTMS_2F',
@@ -702,7 +704,7 @@ var RELATED_VARIABLES = {
                 var filtered = globals.products.filter(function (product) {
                     var id = product.get("download").id;
                     return !(id && id.match(
-                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ)[ABCU_]/
+                        /^SW_OPER_(MAG|EFI|EFI_TIE|IBI|TEC|FAC|EEF|IPD|AEJ)[ABCU_]/
                     ));
                 });
 
@@ -719,6 +721,12 @@ var RELATED_VARIABLES = {
                         "Bravo": "SW_OPER_EFIB_LP_1B",
                         "Charlie": "SW_OPER_EFIC_LP_1B",
                         "Upload": "SW_OPER_EFIU_LP_1B",
+                    },
+                    "EFI_TIE": {
+                        "Alpha": "SW_OPER_EFIATIE_2_",
+                        "Bravo": "SW_OPER_EFIBTIE_2_",
+                        "Charlie": "SW_OPER_EFICTIE_2_",
+                        "Upload": "SW_OPER_EFIUTIE_2_",
                     },
                     "IBI": {
                         "Alpha": "SW_OPER_IBIATMS_2F",
@@ -815,6 +823,7 @@ var RELATED_VARIABLES = {
                 var containerSelection = {
                     'MAG': false,
                     'EFI': false,
+                    'EFI_TIE': false,
                     'IBI': false,
                     'TEC': false,
                     'FAC': false,
@@ -936,6 +945,14 @@ var RELATED_VARIABLES = {
                     protocol: null,
                     containerproduct: true,
                     id: "EFI"
+                }, {at: 0});
+                filtered_collection.add({
+                    name: "Ion Temperature Estimate (EFI TIE)",
+                    visible: containerSelection['EFI_TIE'],
+                    color: "#ff7f0e",
+                    protocol: null,
+                    containerproduct: true,
+                    id: "EFI_TIE"
                 }, {at: 0});
                 filtered_collection.add({
                     name: "Magnetic data (MAG LR)",

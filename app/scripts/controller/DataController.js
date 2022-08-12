@@ -303,6 +303,7 @@
             "B_NEC_Model", "B_NEC_res_Model", "F_Model", "F_res_Model",
             "J_NE", "J_QD", "J_CF_NE", "J_CF_SemiQD", "J_DF_NE", "J_DF_SemiQD", "J_R",
             "Boundary_Flag", "Pair_Indicator",
+            "Tn_msis", "Ti_meas_drift", "Ti_model_drift", "Flag_ti_meas", "Flag_ti_model"
           ];
 
           var collectionList = _.chain(collections)

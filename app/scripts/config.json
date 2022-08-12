@@ -27,6 +27,9 @@
             "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-1b-product-definitions#EFIX_LP_1B_Product' target='_blank'>Product specification</a><br>",
             "<a href='https://notebooks.vires.services/notebooks/03b__demo-efix_lp_1b' target='notebooks'>Example VRE notebook</a>"
         ],
+        "EFI_TIE": [
+            "<p>Swarm Ion Temperature Estimate</p>"
+        ],
         "IBI": [
             "<p>Ionospheric bubble index data</p>",
             "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#IBIxTMS_2F' target='_blank'>Product specification</a><br>",
@@ -1394,6 +1397,351 @@
                 {
                     "id": "retrieve_data",
                     "layer_id": "SW_OPER_EFIC_LP_1B"
+                }
+            ],
+            "outlines": false,
+            "satellite": "Swarm"
+
+        },{
+            "name": "EFI A TIE 2",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#ff7f0e",
+            "views": [{
+                "id": "SW_OPER_EFIATIE_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_EFIATIE_2_",
+                "protocol": "EOWCS",
+                "url": "/vires00/ows"
+            },
+            "parameters": {
+                "Tn_msis": {
+                    "range": [700, 1300],
+                    "uom":"K",
+                    "colorscale": "plasma",
+                    "selected": true,
+                    "name": "Neutral temperature"
+                },
+                "Ti_meas_drift": {
+                    "range": [1000, 2000],
+                    "uom":"K",
+                    "colorscale": "plasma",
+                    "name": "Ion temperature (Swarm TII drift)"
+                },
+                "Ti_model_drift": {
+                    "range": [1000, 2000],
+                    "uom":"K",
+                    "colorscale": "plasma",
+                    "name": "Ion temperature (Weimer 2005)"
+                },
+                "Flag_ti_meas": {
+                    "range": [0, 200000],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "Flags (TII-based)"
+                },
+                "Flag_ti_model": {
+                    "range": [0, 200000],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "Flags (Weimer 2005)"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "SyncStatus": {
+                    "uom": null,
+                    "name": "Time synchronization status (of LP), source and quality"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "QDLat": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude"
+                },
+                "QDLon": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude"
+                },
+                "MLT": {
+                    "uom": null,
+                    "name": "Magnetic local time"
+                },
+                "Tn_msis": {
+                    "uom":"K",
+                    "name": "Neutral temperature"
+                },
+                "Ti_meas_drift": {
+                    "uom":"K",
+                    "name": "Ion temperature (Swarm TII drift)"
+                },
+                "Ti_model_drift": {
+                    "uom":"K",
+                    "name": "Ion temperature (Weimer 2005)"
+                },
+                "Flag_ti_meas": {
+                    "uom": null,
+                    "name": "Flags (TII-based)"
+                },
+                "Flag_ti_model": {
+                    "uom": null,
+                    "name": "Flags (Weimer 2005)"
+                }
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_EFIATIE_2_"
+                }
+            ],
+            "outlines": false,
+            "satellite": "Swarm"
+
+        },{
+            "name": "EFI B TIE 2",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#ff7f0e",
+            "views": [{
+                "id": "SW_OPER_EFIBTIE_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_EFIBTIE_2_",
+                "protocol": "EOWCS",
+                "url": "/vires00/ows"
+            },
+            "parameters": {
+                "Tn_msis": {
+                    "range": [700, 1300],
+                    "uom":"K",
+                    "colorscale": "plasma",
+                    "selected": true,
+                    "name": "Neutral temperature"
+                },
+                "Ti_meas_drift": {
+                    "range": [1000, 2000],
+                    "uom":"K",
+                    "colorscale": "plasma",
+                    "name": "Ion temperature (Swarm TII drift)"
+                },
+                "Ti_model_drift": {
+                    "range": [1000, 2000],
+                    "uom":"K",
+                    "colorscale": "plasma",
+                    "name": "Ion temperature (Weimer 2005)"
+                },
+                "Flag_ti_meas": {
+                    "range": [0, 200000],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "Flags (TII-based)"
+                },
+                "Flag_ti_model": {
+                    "range": [0, 200000],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "Flags (Weimer 2005)"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "SyncStatus": {
+                    "uom": null,
+                    "name": "Time synchronization status (of LP), source and quality"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "QDLat": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude"
+                },
+                "QDLon": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude"
+                },
+                "MLT": {
+                    "uom": null,
+                    "name": "Magnetic local time"
+                },
+                "Tn_msis": {
+                    "uom":"K",
+                    "name": "Neutral temperature"
+                },
+                "Ti_meas_drift": {
+                    "uom":"K",
+                    "name": "Ion temperature (Swarm TII drift)"
+                },
+                "Ti_model_drift": {
+                    "uom":"K",
+                    "name": "Ion temperature (Weimer 2005)"
+                },
+                "Flag_ti_meas": {
+                    "uom": null,
+                    "name": "Flags (TII-based)"
+                },
+                "Flag_ti_model": {
+                    "uom": null,
+                    "name": "Flags (Weimer 2005)"
+                }
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_EFIBTIE_2_"
+                }
+            ],
+            "outlines": false,
+            "satellite": "Swarm"
+
+        },{
+            "name": "EFI C TIE 2",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#ff7f0e",
+            "views": [{
+                "id": "SW_OPER_EFICTIE_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_EFICTIE_2_",
+                "protocol": "EOWCS",
+                "url": "/vires00/ows"
+            },
+            "parameters": {
+                "Tn_msis": {
+                    "range": [700, 1300],
+                    "uom":"K",
+                    "colorscale": "plasma",
+                    "selected": true,
+                    "name": "Neutral temperature"
+                },
+                "Ti_meas_drift": {
+                    "range": [1000, 2000],
+                    "uom":"K",
+                    "colorscale": "plasma",
+                    "name": "Ion temperature (Swarm TII drift)"
+                },
+                "Ti_model_drift": {
+                    "range": [1000, 2000],
+                    "uom":"K",
+                    "colorscale": "plasma",
+                    "name": "Ion temperature (Weimer 2005)"
+                },
+                "Flag_ti_meas": {
+                    "range": [0, 200000],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "Flags (TII-based)"
+                },
+                "Flag_ti_model": {
+                    "range": [0, 200000],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "Flags (Weimer 2005)"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "SyncStatus": {
+                    "uom": null,
+                    "name": "Time synchronization status (of LP), source and quality"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "QDLat": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude"
+                },
+                "QDLon": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude"
+                },
+                "MLT": {
+                    "uom": null,
+                    "name": "Magnetic local time"
+                },
+                "Tn_msis": {
+                    "uom":"K",
+                    "name": "Neutral temperature"
+                },
+                "Ti_meas_drift": {
+                    "uom":"K",
+                    "name": "Ion temperature (Swarm TII drift)"
+                },
+                "Ti_model_drift": {
+                    "uom":"K",
+                    "name": "Ion temperature (Weimer 2005)"
+                },
+                "Flag_ti_meas": {
+                    "uom": null,
+                    "name": "Flags (TII-based)"
+                },
+                "Flag_ti_model": {
+                    "uom": null,
+                    "name": "Flags (Weimer 2005)"
+                }
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_EFICTIE_2_"
                 }
             ],
             "outlines": false,
