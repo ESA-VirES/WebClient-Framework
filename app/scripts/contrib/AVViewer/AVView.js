@@ -310,7 +310,24 @@ define(['backbone.marionette',
                                 ['Bit 1', 'Electron temperature from low/high-gain probe'],
                                 ['Bit 2', 'Ion temperature data available/data value is set to NaN'],
                             ]
-                        }
+                        },
+                        'Quality_flags': {
+                            values: [
+                                ['Bit 0', 'Vixh calibration successful(1)/unsuccessful(0)'],
+                                ['Bit 1', 'Vixv calibration successful(1)/unsuccessful(0)'],
+                                ['Bit 2', 'Viy calibration successful(1)/unsuccessful(0)'],
+                                ['Bit 3', 'Viz calibration successful(1)/unsuccessful(0)'],
+                            ]
+                        },
+                        'Calibration_flags': {
+                            values: [
+                                ['Bit 0', '1 indicates that a background linear model offset was not removed'],
+                                ['Bit 1', '1 indicates that this was an incomplete fit region, and therefore no background subtraction was performed.'],
+                                ['Bit 2', '1 indicates that the GNU Scientific Library reported a fit error'],
+                                ['Bit 3', '1 indicates that the mid-latitude median absolute deviation threshold was exceeded'],
+                                ['Bit 4', '1 indicates that the 16 Hz ion flow magnitude exceeded 8 km/s'],
+                            ]
+                        },
                     }
                 },
                 showCloseButtons: true,
@@ -1220,6 +1237,7 @@ define(['backbone.marionette',
                     'Pair_Indicator', 'Boundary_Flag',
                     'Ti_meas_drift', 'Ti_model_drift', 'Tn_msis',
                     'Flag_ti_meas', 'Flag_ti_model',
+                    "Viz", "Viz_error", "Quality_flags", "Calibration_flags",
                 ];
 
                 filterstouse = filterstouse.concat(['MLT']);
@@ -1281,7 +1299,8 @@ define(['backbone.marionette',
                     'Ne', 'F', 'Bubble_Probability', 'Absolute_STEC',
                     'FAC', 'EEF', 'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
                     'Pair_Indicator',
-                    'Ti_meas_drift', 'Ti_model_drift'
+                    'Ti_meas_drift', 'Ti_model_drift',
+                    'Viz',
                 ];
 
                 // Go trough all plots and see if they need to be removed

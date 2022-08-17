@@ -303,7 +303,12 @@
             "B_NEC_Model", "B_NEC_res_Model", "F_Model", "F_res_Model",
             "J_NE", "J_QD", "J_CF_NE", "J_CF_SemiQD", "J_DF_NE", "J_DF_SemiQD", "J_R",
             "Boundary_Flag", "Pair_Indicator",
-            "Tn_msis", "Ti_meas_drift", "Ti_model_drift", "Flag_ti_meas", "Flag_ti_model"
+            "Tn_msis", "Ti_meas_drift", "Ti_model_drift", "Flag_ti_meas", "Flag_ti_model",
+            "Vixh", "Vixh_error", "Vixv", "Vixv_error", "Viy", "Viy_error",
+            // EFI TII
+            "Viz", "Viz_error", "VsatN", "VsatE", "VsatC", "Ehx", "Ehy", "Ehz",
+            "Evx", "Evy", "Evz", "Bx", "By", "Bz", "Vicrx", "Vicry", "Vicrz",
+            "Quality_flags", "Calibration_flags", 
           ];
 
           var collectionList = _.chain(collections)

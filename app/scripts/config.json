@@ -30,6 +30,9 @@
         "EFI_TIE": [
             "<p>Swarm Ion Temperature Estimate</p>"
         ],
+        "EFI_TII": [
+            "<p>University of Calgary EFI TII cross-satellite-track ion flow dataset</p>"
+        ],
         "IBI": [
             "<p>Ionospheric bubble index data</p>",
             "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#IBIxTMS_2F' target='_blank'>Product specification</a><br>",
@@ -1406,7 +1409,7 @@
             "name": "EFI A TIE 2",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
-            "color": "#ff7f0e",
+            "color": "#ef8ede",
             "views": [{
                 "id": "SW_OPER_EFIATIE_2_",
                 "protocol": "CZML",
@@ -1521,7 +1524,7 @@
             "name": "EFI B TIE 2",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
-            "color": "#ff7f0e",
+            "color": "#ef8ede",
             "views": [{
                 "id": "SW_OPER_EFIBTIE_2_",
                 "protocol": "CZML",
@@ -1636,7 +1639,7 @@
             "name": "EFI C TIE 2",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
-            "color": "#ff7f0e",
+            "color": "#ef8ede",
             "views": [{
                 "id": "SW_OPER_EFICTIE_2_",
                 "protocol": "CZML",
@@ -1742,6 +1745,651 @@
                 {
                     "id": "retrieve_data",
                     "layer_id": "SW_OPER_EFICTIE_2_"
+                }
+            ],
+            "outlines": false,
+            "satellite": "Swarm"
+
+        },{
+            "name": "EFI A TCT02",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#ec0b0b",
+            "views": [{
+                "id": "SW_EXPT_EFIA_TCT02",
+                "protocol": "CZML",
+                "urls": [
+                    "/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_EXPT_EFIA_TCT02",
+                "protocol": "EOWCS",
+                "url": "/vires00/ows"
+            },
+            "parameters": {
+                "Vixh": {
+                    "selected": true,
+                    "range": [-2000, 2000],
+                    "colorscale": "plasma",
+                    "name": "Along-track ion drift (horizontal TII)",
+                    "description": "Along-track ion drift from horizontal TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Vixv": {
+                    "range": [-2000, 2000],
+                    "colorscale": "plasma",
+                    "name": "Along-track ion drift (vertical TII)",
+                    "description": "Along-track ion drift from vertical TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Viy": {
+                    "range": [-2000, 2000],
+                    "colorscale": "plasma",
+                    "name": "Cross-track vertical ion drift (horizontal TII)",
+                    "description": "Cross-track vertical ion drift from horizontal TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Viz": {
+                    "range": [-2000, 2000],
+                    "colorscale": "plasma",
+                    "name": "Cross-track vertical ion drift (vertival TII)",
+                    "description": "Cross-track vertical ion drift from vertical TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "QDLat": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude"
+                },
+                "QDLon": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude"
+                },
+                "MLT": {
+                    "uom": null,
+                    "name": "Magnetic local time"
+                },
+                "Vixh": {
+                    "name": "Along-track ion drift (horizontal TII)",
+                    "description": "Along-track ion drift from horizontal TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Vixh_error": {
+                    "name": "Random error estimate for along-track ion drift (horizontal TII)",
+                    "description": "Random error estimate for along-track ion drift from horizontal TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
+                    "uom": "m/s"
+                },
+                "Vixv": {
+                    "name": "Along-track ion drift (vertical TII)",
+                    "description": "Along-track ion drift from vertical TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Vixv_error": {
+                    "name": "Random error estimate for along-track ion drift (vertical TII)",
+                    "description": "Random error estimate for along-track ion drift from vertical TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
+                    "uom": "m/s"
+                },
+                "Viy": {
+                    "name": "Cross-track vertical ion drift (horizontal TII)",
+                    "description": "Cross-track vertical ion drift from horizontal TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Viy_error": {
+                    "name": "Random error estimate for cross-track vertical ion drift (horizontal TII)",
+                    "description": "Random error estimate for cross-track vertical ion drift from horizontal TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
+                    "uom": "m/s"
+                },
+                "Viz": {
+                    "name": "Cross-track vertical ion drift (vertival TII)",
+                    "description": "Cross-track vertical ion drift from vertical TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Viz_error": {
+                    "name": "Random error estimate for cross-track vertical ion drift (vertical TII)",
+                    "description": "Random error estimate for cross-track vertical ion drift from vertical TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
+                    "uom": "m/s"
+                },
+                "VsatN": {
+                    "name": "Satellite velocity N component",
+                    "description": "Satellite velocity N component in north-east-centre coordinates.",
+                    "uom": "m/s"
+                },
+                "VsatE": {
+                    "name": "Satellite velocity E component",
+                    "description": "Satellite velocity E component in north-east-centre coordinates.",
+                    "uom": "m/s"
+                },
+                "VsatC": {
+                    "name": "Satellite velocity C component",
+                    "description": "Satellite velocity C component in north-east-centre coordinates.",
+                    "uom": "m/s"
+                },
+                "Ehx": {
+                    "name": "Electric field x component (horizontal)",
+                    "description": "Electric field x component in satellite-track coordinates, derived from -VxB with along-track ion drift from horizontal sensor.",
+                    "uom": "mV/m"
+                },
+                "Ehy": {
+                    "name": "Electric field y component (horizontal)",
+                    "description": "Electric field y component in satellite-track coordinates, derived from -VxB with along-track ion drift from horizontal sensor.",
+                    "uom": "mV/m"
+                },
+                "Ehz": {
+                    "name": "Electric field z component (horizontal)",
+                    "description": "Electric field z component in satellite-track coordinates, derived from -VxB with along-track ion drift from horizontal sensor.",
+                    "uom": "mV/m"
+                },
+                "Evx": {
+                    "name": "Electric field x component (vertical)",
+                    "description": "Electric field x component in satellite-track coordinates, derived from -VxB with along-track ion drift from vertical sensor.",
+                    "uom": "mV/m"
+                },
+                "Evy": {
+                    "name": "Electric field y component (vertical)",
+                    "description": "Electric field y component in satellite-track coordinates, derived from -VxB with along-track ion drift from vertical sensor.",
+                    "uom": "mV/m"
+                },
+                "Evz": {
+                    "name": "Electric field z component (vertical)",
+                    "description": "Electric field z component in satellite-track coordinates, derived from -VxB with along-track ion drift from vertical sensor.",
+                    "uom": "mV/m"
+                },
+                "Bx": {
+                    "name": "Geomagnetic field x component",
+                    "description": "Geomagnetic field x component in satellite-track coordinates, derived from the 1 Hz product.",
+                    "uom": "nT"
+                },
+                "By": {
+                    "name": "Geomagnetic field y component",
+                    "description": "Geomagnetic field y component in satellite-track coordinates, derived from the 1 Hz product.",
+                    "uom": "nT"
+                },
+                "Bz": {
+                    "name": "Geomagnetic field z component",
+                    "description": "Geomagnetic field z component in satellite-track coordinates, derived from the 1 Hz product.",
+                    "uom": "nT"
+                },
+                "Vicrx": {
+                    "name": "Ion drift corotation signal x component",
+                    "description": "Ion drift corotation signal x component in satellite-track coordinates. This has been removed from ion drift and electric field.",
+                    "uom": "m/s"
+                },
+                "Vicry": {
+                    "name": "Ion drift corotation signal y component",
+                    "description": "Ion drift corotation signal y component in satellite-track coordinates. This has been removed from ion drift and electric field.",
+                    "uom": "m/s"
+                },
+                "Vicrz": {
+                    "name": "Ion drift corotation signal z component",
+                    "description": "Ion drift corotation signal z component in satellite-track coordinates. This has been removed from ion drift and electric field.",
+                    "uom": "m/s"
+                },
+                "Quality_flags": {
+                    "name": "Bitwise flag for each velocity component",
+                    "description": "Bitwise flag for each velocity component, where a value of 1 for a particular component signifies that calibration was successful, and that the baseline 1-sigma noise level is less than or equal to 100 m/s at 2 Hz. Electric field quality can be assessed from these flags according to -vxB. Bit0 (least significant) = Vixh, bit1 = Vixv, bit2 = Viy, bit3 = Viz. Refer to the release notes for details.",
+                    "uom": "-"
+                },
+                "Calibration_flags": {
+                    "name": "Information about the calibration process",
+                    "description": "Information about the calibration process. Refer to the release notes for details.",
+                    "uom": "-"
+                }
+                
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_EXPT_EFIA_TCT02"
+                }
+            ],
+            "outlines": false,
+            "satellite": "Swarm"
+
+        },{
+            "name": "EFI B TCT02",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#ec0b0b",
+            "views": [{
+                "id": "SW_EXPT_EFIB_TCT02",
+                "protocol": "CZML",
+                "urls": [
+                    "/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_EXPT_EFIB_TCT02",
+                "protocol": "EOWCS",
+                "url": "/vires00/ows"
+            },
+            "parameters": {
+                "Vixh": {
+                    "selected": true,
+                    "range": [-2000, 2000],
+                    "colorscale": "plasma",
+                    "name": "Along-track ion drift (horizontal TII)",
+                    "description": "Along-track ion drift from horizontal TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Vixv": {
+                    "range": [-2000, 2000],
+                    "colorscale": "plasma",
+                    "name": "Along-track ion drift (vertical TII)",
+                    "description": "Along-track ion drift from vertical TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Viy": {
+                    "range": [-2000, 2000],
+                    "colorscale": "plasma",
+                    "name": "Cross-track vertical ion drift (horizontal TII)",
+                    "description": "Cross-track vertical ion drift from horizontal TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Viz": {
+                    "range": [-2000, 2000],
+                    "colorscale": "plasma",
+                    "name": "Cross-track vertical ion drift (vertival TII)",
+                    "description": "Cross-track vertical ion drift from vertical TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "QDLat": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude"
+                },
+                "QDLon": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude"
+                },
+                "MLT": {
+                    "uom": null,
+                    "name": "Magnetic local time"
+                },
+                "Vixh": {
+                    "name": "Along-track ion drift (horizontal TII)",
+                    "description": "Along-track ion drift from horizontal TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Vixh_error": {
+                    "name": "Random error estimate for along-track ion drift (horizontal TII)",
+                    "description": "Random error estimate for along-track ion drift from horizontal TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
+                    "uom": "m/s"
+                },
+                "Vixv": {
+                    "name": "Along-track ion drift (vertical TII)",
+                    "description": "Along-track ion drift from vertical TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Vixv_error": {
+                    "name": "Random error estimate for along-track ion drift (vertical TII)",
+                    "description": "Random error estimate for along-track ion drift from vertical TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
+                    "uom": "m/s"
+                },
+                "Viy": {
+                    "name": "Cross-track vertical ion drift (horizontal TII)",
+                    "description": "Cross-track vertical ion drift from horizontal TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Viy_error": {
+                    "name": "Random error estimate for cross-track vertical ion drift (horizontal TII)",
+                    "description": "Random error estimate for cross-track vertical ion drift from horizontal TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
+                    "uom": "m/s"
+                },
+                "Viz": {
+                    "name": "Cross-track vertical ion drift (vertival TII)",
+                    "description": "Cross-track vertical ion drift from vertical TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Viz_error": {
+                    "name": "Random error estimate for cross-track vertical ion drift (vertical TII)",
+                    "description": "Random error estimate for cross-track vertical ion drift from vertical TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
+                    "uom": "m/s"
+                },
+                "VsatN": {
+                    "name": "Satellite velocity N component",
+                    "description": "Satellite velocity N component in north-east-centre coordinates.",
+                    "uom": "m/s"
+                },
+                "VsatE": {
+                    "name": "Satellite velocity E component",
+                    "description": "Satellite velocity E component in north-east-centre coordinates.",
+                    "uom": "m/s"
+                },
+                "VsatC": {
+                    "name": "Satellite velocity C component",
+                    "description": "Satellite velocity C component in north-east-centre coordinates.",
+                    "uom": "m/s"
+                },
+                "Ehx": {
+                    "name": "Electric field x component (horizontal)",
+                    "description": "Electric field x component in satellite-track coordinates, derived from -VxB with along-track ion drift from horizontal sensor.",
+                    "uom": "mV/m"
+                },
+                "Ehy": {
+                    "name": "Electric field y component (horizontal)",
+                    "description": "Electric field y component in satellite-track coordinates, derived from -VxB with along-track ion drift from horizontal sensor.",
+                    "uom": "mV/m"
+                },
+                "Ehz": {
+                    "name": "Electric field z component (horizontal)",
+                    "description": "Electric field z component in satellite-track coordinates, derived from -VxB with along-track ion drift from horizontal sensor.",
+                    "uom": "mV/m"
+                },
+                "Evx": {
+                    "name": "Electric field x component (vertical)",
+                    "description": "Electric field x component in satellite-track coordinates, derived from -VxB with along-track ion drift from vertical sensor.",
+                    "uom": "mV/m"
+                },
+                "Evy": {
+                    "name": "Electric field y component (vertical)",
+                    "description": "Electric field y component in satellite-track coordinates, derived from -VxB with along-track ion drift from vertical sensor.",
+                    "uom": "mV/m"
+                },
+                "Evz": {
+                    "name": "Electric field z component (vertical)",
+                    "description": "Electric field z component in satellite-track coordinates, derived from -VxB with along-track ion drift from vertical sensor.",
+                    "uom": "mV/m"
+                },
+                "Bx": {
+                    "name": "Geomagnetic field x component",
+                    "description": "Geomagnetic field x component in satellite-track coordinates, derived from the 1 Hz product.",
+                    "uom": "nT"
+                },
+                "By": {
+                    "name": "Geomagnetic field y component",
+                    "description": "Geomagnetic field y component in satellite-track coordinates, derived from the 1 Hz product.",
+                    "uom": "nT"
+                },
+                "Bz": {
+                    "name": "Geomagnetic field z component",
+                    "description": "Geomagnetic field z component in satellite-track coordinates, derived from the 1 Hz product.",
+                    "uom": "nT"
+                },
+                "Vicrx": {
+                    "name": "Ion drift corotation signal x component",
+                    "description": "Ion drift corotation signal x component in satellite-track coordinates. This has been removed from ion drift and electric field.",
+                    "uom": "m/s"
+                },
+                "Vicry": {
+                    "name": "Ion drift corotation signal y component",
+                    "description": "Ion drift corotation signal y component in satellite-track coordinates. This has been removed from ion drift and electric field.",
+                    "uom": "m/s"
+                },
+                "Vicrz": {
+                    "name": "Ion drift corotation signal z component",
+                    "description": "Ion drift corotation signal z component in satellite-track coordinates. This has been removed from ion drift and electric field.",
+                    "uom": "m/s"
+                },
+                "Quality_flags": {
+                    "name": "Bitwise flag for each velocity component",
+                    "description": "Bitwise flag for each velocity component, where a value of 1 for a particular component signifies that calibration was successful, and that the baseline 1-sigma noise level is less than or equal to 100 m/s at 2 Hz. Electric field quality can be assessed from these flags according to -vxB. Bit0 (least significant) = Vixh, bit1 = Vixv, bit2 = Viy, bit3 = Viz. Refer to the release notes for details.",
+                    "uom": "-"
+                },
+                "Calibration_flags": {
+                    "name": "Information about the calibration process",
+                    "description": "Information about the calibration process. Refer to the release notes for details.",
+                    "uom": "-"
+                }
+                
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_EXPT_EFIB_TCT02"
+                }
+            ],
+            "outlines": false,
+            "satellite": "Swarm"
+
+        },{
+            "name": "EFI C TCT02",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#ec0b0b",
+            "views": [{
+                "id": "SW_EXPT_EFIC_TCT02",
+                "protocol": "CZML",
+                "urls": [
+                    "/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_EXPT_EFIC_TCT02",
+                "protocol": "EOWCS",
+                "url": "/vires00/ows"
+            },
+            "parameters": {
+                "Vixh": {
+                    "selected": true,
+                    "range": [-2000, 2000],
+                    "colorscale": "plasma",
+                    "name": "Along-track ion drift (horizontal TII)",
+                    "description": "Along-track ion drift from horizontal TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Vixv": {
+                    "range": [-2000, 2000],
+                    "colorscale": "plasma",
+                    "name": "Along-track ion drift (vertical TII)",
+                    "description": "Along-track ion drift from vertical TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Viy": {
+                    "range": [-2000, 2000],
+                    "colorscale": "plasma",
+                    "name": "Cross-track vertical ion drift (horizontal TII)",
+                    "description": "Cross-track vertical ion drift from horizontal TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Viz": {
+                    "range": [-1500, 1500],
+                    "colorscale": "plasma",
+                    "name": "Cross-track vertical ion drift (vertival TII)",
+                    "description": "Cross-track vertical ion drift from vertical TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "QDLat": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude"
+                },
+                "QDLon": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude"
+                },
+                "MLT": {
+                    "uom": null,
+                    "name": "Magnetic local time"
+                },
+                "Vixh": {
+                    "name": "Along-track ion drift (horizontal TII)",
+                    "description": "Along-track ion drift from horizontal TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Vixh_error": {
+                    "name": "Random error estimate for along-track ion drift (horizontal TII)",
+                    "description": "Random error estimate for along-track ion drift from horizontal TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
+                    "uom": "m/s"
+                },
+                "Vixv": {
+                    "name": "Along-track ion drift (vertical TII)",
+                    "description": "Along-track ion drift from vertical TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Vixv_error": {
+                    "name": "Random error estimate for along-track ion drift (vertical TII)",
+                    "description": "Random error estimate for along-track ion drift from vertical TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
+                    "uom": "m/s"
+                },
+                "Viy": {
+                    "name": "Cross-track vertical ion drift (horizontal TII)",
+                    "description": "Cross-track vertical ion drift from horizontal TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Viy_error": {
+                    "name": "Random error estimate for cross-track vertical ion drift (horizontal TII)",
+                    "description": "Random error estimate for cross-track vertical ion drift from horizontal TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
+                    "uom": "m/s"
+                },
+                "Viz": {
+                    "name": "Cross-track vertical ion drift (vertival TII)",
+                    "description": "Cross-track vertical ion drift from vertical TII sensor in satellite-track coordinates.",
+                    "uom": "m/s"
+                },
+                "Viz_error": {
+                    "name": "Random error estimate for cross-track vertical ion drift (vertical TII)",
+                    "description": "Random error estimate for cross-track vertical ion drift from vertical TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
+                    "uom": "m/s"
+                },
+                "VsatN": {
+                    "name": "Satellite velocity N component",
+                    "description": "Satellite velocity N component in north-east-centre coordinates.",
+                    "uom": "m/s"
+                },
+                "VsatE": {
+                    "name": "Satellite velocity E component",
+                    "description": "Satellite velocity E component in north-east-centre coordinates.",
+                    "uom": "m/s"
+                },
+                "VsatC": {
+                    "name": "Satellite velocity C component",
+                    "description": "Satellite velocity C component in north-east-centre coordinates.",
+                    "uom": "m/s"
+                },
+                "Ehx": {
+                    "name": "Electric field x component (horizontal)",
+                    "description": "Electric field x component in satellite-track coordinates, derived from -VxB with along-track ion drift from horizontal sensor.",
+                    "uom": "mV/m"
+                },
+                "Ehy": {
+                    "name": "Electric field y component (horizontal)",
+                    "description": "Electric field y component in satellite-track coordinates, derived from -VxB with along-track ion drift from horizontal sensor.",
+                    "uom": "mV/m"
+                },
+                "Ehz": {
+                    "name": "Electric field z component (horizontal)",
+                    "description": "Electric field z component in satellite-track coordinates, derived from -VxB with along-track ion drift from horizontal sensor.",
+                    "uom": "mV/m"
+                },
+                "Evx": {
+                    "name": "Electric field x component (vertical)",
+                    "description": "Electric field x component in satellite-track coordinates, derived from -VxB with along-track ion drift from vertical sensor.",
+                    "uom": "mV/m"
+                },
+                "Evy": {
+                    "name": "Electric field y component (vertical)",
+                    "description": "Electric field y component in satellite-track coordinates, derived from -VxB with along-track ion drift from vertical sensor.",
+                    "uom": "mV/m"
+                },
+                "Evz": {
+                    "name": "Electric field z component (vertical)",
+                    "description": "Electric field z component in satellite-track coordinates, derived from -VxB with along-track ion drift from vertical sensor.",
+                    "uom": "mV/m"
+                },
+                "Bx": {
+                    "name": "Geomagnetic field x component",
+                    "description": "Geomagnetic field x component in satellite-track coordinates, derived from the 1 Hz product.",
+                    "uom": "nT"
+                },
+                "By": {
+                    "name": "Geomagnetic field y component",
+                    "description": "Geomagnetic field y component in satellite-track coordinates, derived from the 1 Hz product.",
+                    "uom": "nT"
+                },
+                "Bz": {
+                    "name": "Geomagnetic field z component",
+                    "description": "Geomagnetic field z component in satellite-track coordinates, derived from the 1 Hz product.",
+                    "uom": "nT"
+                },
+                "Vicrx": {
+                    "name": "Ion drift corotation signal x component",
+                    "description": "Ion drift corotation signal x component in satellite-track coordinates. This has been removed from ion drift and electric field.",
+                    "uom": "m/s"
+                },
+                "Vicry": {
+                    "name": "Ion drift corotation signal y component",
+                    "description": "Ion drift corotation signal y component in satellite-track coordinates. This has been removed from ion drift and electric field.",
+                    "uom": "m/s"
+                },
+                "Vicrz": {
+                    "name": "Ion drift corotation signal z component",
+                    "description": "Ion drift corotation signal z component in satellite-track coordinates. This has been removed from ion drift and electric field.",
+                    "uom": "m/s"
+                },
+                "Quality_flags": {
+                    "name": "Bitwise flag for each velocity component",
+                    "description": "Bitwise flag for each velocity component, where a value of 1 for a particular component signifies that calibration was successful, and that the baseline 1-sigma noise level is less than or equal to 100 m/s at 2 Hz. Electric field quality can be assessed from these flags according to -vxB. Bit0 (least significant) = Vixh, bit1 = Vixv, bit2 = Viy, bit3 = Viz. Refer to the release notes for details.",
+                    "uom": "-"
+                },
+                "Calibration_flags": {
+                    "name": "Information about the calibration process",
+                    "description": "Information about the calibration process. Refer to the release notes for details.",
+                    "uom": "-"
+                }
+                
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_EXPT_EFIC_TCT02"
                 }
             ],
             "outlines": false,
