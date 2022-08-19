@@ -336,6 +336,12 @@ var savePrameterStatus = function (globals) {
         if (uomSet[pk][innerpk].hasOwnProperty('displayName')) {
           parC[innerpk]['displayName'] = uomSet[pk][innerpk].displayName;
         }
+        if (uomSet[pk][innerpk].hasOwnProperty('errorParameter')) {
+          parC[innerpk]['errorParameter'] = uomSet[pk][innerpk].errorParameter;
+        }
+        if (uomSet[pk][innerpk].hasOwnProperty('errorParameterActive')) {
+          parC[innerpk]['errorParameterActive'] = uomSet[pk][innerpk].errorParameterActive;
+        }
       } else if (innerpk === 'colorscale') {
         parC.colorscale = uomSet[pk].colorscale;
       } else if (innerpk === 'logarithmic') {
