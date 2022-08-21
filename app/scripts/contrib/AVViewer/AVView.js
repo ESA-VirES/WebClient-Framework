@@ -13,6 +13,9 @@ define(['backbone.marionette',
 ], function (Marionette, Communicator, App, AVModel, globals) {
     'use strict';
 
+    // variables not not offered as filters
+    var EXCLUDED_FILTERS = ['QDLatitude_periodic', 'Latitude_periodic'];
+
     // parameters not visible in the AV panel
     var EXCLUDED_PARAMETERS = [
         'J_N', 'J_E', 'J_T_N', 'J_T_E', 'J_DF_E', 'J_DF_N', 'J_CF_E', 'J_CF_N'
@@ -273,23 +276,8 @@ define(['backbone.marionette',
 
 
             // Clone object
-            var filtersGlobal = _.clone(globals.swarm.get('uom_set'));
-            //filter out periodic latitudes from initial filters
-            var filtersNotUsed = ['QDLatitude_periodic', 'Latitude_periodic'];
-            for (var i = 0; i < filtersNotUsed.length; i++) {
-                if (filtersGlobal.hasOwnProperty(filtersNotUsed[i])) {
-                    delete filtersGlobal[filtersNotUsed[i]];
-                }
-            }
-            /*
-            var filtersGlobalFiltered = _.filter(filtersGlobal, function (obj, key) {
-                if (!filtersNotUsed.some(function (filter) {return key.indexOf(filter) >= 0;})) {
-                    // Filter not found in list of not to be used ones
-                    return true;
-                } else {
-                    return false;
-                }
-            });*/
+            var filtersGlobal = _.omit(globals.swarm.get('uom_set'), EXCLUDED_FILTERS);
+
             this.filterManager = new FilterManager({
                 el: '#analyticsFilters',
                 filterSettings: {
@@ -1044,41 +1032,20 @@ define(['backbone.marionette',
 
             filCon.find('.w2ui-field').remove();
 
-            var filtersNotUsed = ['QDLatitude_periodic', 'Latitude_periodic'];
-            var aUOM = {};
-            // Clone object
-            _.each(globals.swarm.get('uom_set'), function (obj, key) {
-                if (!filtersNotUsed.some(function (filter) {return key.indexOf(filter) >= 0;})) {
-                    // Filter not found in list of not to be used ones
-                    aUOM[key] = obj;
-                }
-            });
+            // Show only filters for currently available data, ...
+            var aUOM = _.pick(globals.swarm.get('uom_set'), this.currentKeys);
 
-            // Remove currently visible filters from list
-            for (var i = 0; i < this.selectedFilterList.length; i++) {
-                if (aUOM.hasOwnProperty(this.selectedFilterList[i])) {
-                    delete aUOM[this.selectedFilterList[i]];
-                }
-            }
-
-            // Show only filters for currently available data
-            for (var key in aUOM) {
-                if (this.currentKeys && this.currentKeys.indexOf(key) === -1) {
-                    delete aUOM[key];
-                }
-            }
-
-            // Remove unwanted parameters
-            if (aUOM.hasOwnProperty('Timestamp')) {delete aUOM.Timestamp;}
-            if (aUOM.hasOwnProperty('timestamp')) {delete aUOM.timestamp;}
-            if (aUOM.hasOwnProperty('q_NEC_CRF')) {delete aUOM.q_NEC_CRF;}
-            if (aUOM.hasOwnProperty('GPS_Position')) {delete aUOM.GPS_Position;}
-            if (aUOM.hasOwnProperty('LEO_Position')) {delete aUOM.LEO_Position;}
-            if (aUOM.hasOwnProperty('Spacecraft')) {delete aUOM.Spacecraft;}
-            if (aUOM.hasOwnProperty('id')) {delete aUOM.id;}
-            _.each(EXCLUDED_PARAMETERS, function (parameter) {
-                if (aUOM.hasOwnProperty(parameter)) {delete aUOM[parameter];}
-            });
+            // ... do not show currently visible filters,
+            // and remove other excluded parameters
+            aUOM = _.omit(aUOM, _.flatten([
+                this.selectedFilterList,
+                EXCLUDED_FILTERS,
+                EXCLUDED_PARAMETERS,
+                [
+                    'Timestamp', 'timestamp', 'q_NEC_CRF', 'GPS_Position',
+                    'LEO_Position', 'Spacecraft', 'id',
+                ]
+            ]));
 
             $('#filterSelectDrop').prepend(
                 '<div class="w2ui-field"> <button id="analyticsAddFilter" type="button" class="btn btn-success darkbutton dropdown-toggle">Add filter <span class="caret"></span></button> <input type="list" id="inputAnalyticsAddfilter"></div>'
