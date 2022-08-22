@@ -299,9 +299,22 @@ var RELATED_VARIABLES = {
 
                 var translateKeys = function (object, translation_table) {
                     _.each(object, function (value, key) {
-                        if (translation_table.hasOwnProperty(key)) {
+                        if (has(translation_table, key)) {
                             object[translation_table[key]] = object[key];
                             delete object[key];
+                        }
+                    });
+                    return object;
+                };
+
+                var convertRangeFilters = function (object) {
+                    _.each(object, function (value, key) {
+                        if (Array.isArray(value)) {
+                            object[key] = {
+                                type: "RangeFilter",
+                                lowerBound: value[0],
+                                upperBound: value[1],
+                            };
                         }
                     });
                     return object;
@@ -338,9 +351,11 @@ var RELATED_VARIABLES = {
 
                 if (JSON.parse(localStorage.getItem('filterSelection')) !== null) {
                     localStorage.setItem('filterSelection', JSON.stringify(
-                        translateKeys(
-                            JSON.parse(localStorage.getItem('filterSelection')),
-                            REPLACED_SCALAR_VARIABLES
+                        convertRangeFilters(
+                            translateKeys(
+                                JSON.parse(localStorage.getItem('filterSelection')),
+                                REPLACED_SCALAR_VARIABLES
+                            )
                         )
                     ));
                 }
@@ -624,6 +639,9 @@ var RELATED_VARIABLES = {
                     );
                     console.log("Added overlay " + overlay.name);
                 }, this);
+
+                // configure download parameters
+                globals.download.set(config.download);
 
                 // fetch user data info
                 _.extend(globals.userData, config.userData);
@@ -964,9 +982,9 @@ var RELATED_VARIABLES = {
                 }, {at: 0});
 
                 // Load possible additional tooltip information from config
-                filtered_collection.forEach(function(item) {
-                    if(config.hasOwnProperty("additionalInformation")
-                        && config.additionalInformation.hasOwnProperty(item.get("id"))) {
+                filtered_collection.forEach(function (item) {
+                    if (has(config, "additionalInformation")
+                        && has(config.additionalInformation, item.get("id"))) {
                         item.set("info", config.additionalInformation[item.get("id")].join(''));
                     }
                 });
@@ -1084,21 +1102,24 @@ var RELATED_VARIABLES = {
                 // Instance timeslider view
                 this.timeSliderView = new v.TimeSliderView(config.timeSlider);
 
-                var compare = function (val) {
-                    return val <= this[1] && val >= this[0];
+                var filterFunctions = {
+                    "RangeFilter": function (value) {
+                        return this.lowerBound <= value && value <= this.upperBound;
+                    },
+                    "BitmaskFilter": function (value) {
+                        return (value & this.mask) === this.selection;
+                    },
                 };
 
                 // Load possible available filter selection
                 if (localStorage.getItem('filterSelection') !== null) {
                     var filters = JSON.parse(localStorage.getItem('filterSelection'));
                     var filterfunc = {};
-                    for (var f in filters) {
-                        var ext = filters[f];
-                        filterfunc[f] = compare.bind(ext);
-                    }
+                    _.each(filters, function (filter, key) {
+                        filterfunc[key] = filterFunctions[filter.type].bind(filter);
+                    });
                     globals.swarm.set('filters', filterfunc);
                     Communicator.mediator.trigger('analytics:set:filter', filters);
-                    //globals.swarm.set('filters', JSON.parse(localStorage.getItem('filterSelection')));
                 }
             },
 

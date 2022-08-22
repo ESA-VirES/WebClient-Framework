@@ -40,6 +40,7 @@ define(
       swarm: new SwarmModel(),
       models: new MagneticModel.MagneticModelCollection(),
       userData: new UserDataModel.UserDataCollection(),
+      download: new Backbone.Model(),
     };
   }
 );

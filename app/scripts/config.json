@@ -6000,6 +6000,9 @@
         }
     },
 
+    "download": {
+        "url": "/vires00/ows"
+    },
 
     "views": [
         "views/NavBarCollectionView",

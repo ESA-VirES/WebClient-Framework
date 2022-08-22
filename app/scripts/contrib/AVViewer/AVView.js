@@ -1,6 +1,6 @@
 /* global $ _ define w2popup w2utils showMessage graphly plotty FilterManager */
 /* global savePrameterStatus VECTOR_BREAKDOWN */
-/* global get setDefault */
+/* global get has setDefault */
 
 define(['backbone.marionette',
     'communicator',
@@ -287,16 +287,16 @@ define(['backbone.marionette',
                     maskParameter: {
                         'Flag_ti_meas': {
                             values: [
-                                ['Bit 0', 'High-latitude frictional heating included/omitted'],
-                                ['Bit 1', 'Electron temperature from low/high-gain probe'],
-                                ['Bit 2', 'Ion temperature data available/data value is set to NaN'],
+                                ['bit 0', 'High-latitude frictional heating included/omitted'],
+                                ['bit 1', 'Electron temperature from low/high-gain probe'],
+                                ['bit 2', 'Ion temperature data available/data value is set to NaN'],
                             ]
                         },
                         'Flag_ti_model': {
                             values: [
-                                ['Bit 0', 'High-latitude frictional heating included/omitted'],
-                                ['Bit 1', 'Electron temperature from low/high-gain probe'],
-                                ['Bit 2', 'Ion temperature data available/data value is set to NaN'],
+                                ['bit 0', 'High-latitude frictional heating included/omitted'],
+                                ['bit 1', 'Electron temperature from low/high-gain probe'],
+                                ['bit 2', 'Ion temperature data available/data value is set to NaN'],
                             ]
                         }
                     }
@@ -525,7 +525,35 @@ define(['backbone.marionette',
 
             if (localStorage.getItem('filterSelection') !== null) {
                 var filters = JSON.parse(localStorage.getItem('filterSelection'));
-                this.filterManager.brushes = filters;
+                this.filterManager.brushes = {};
+                var integerToBooleanArray = function (value, size) {
+                    var result = [];
+                    for (var i = 0 ; i < size ; ++i) {
+                        result[i] = Boolean(1 << i & value);
+                    }
+                    return result;
+                };
+                var filterSetters = {
+                    "RangeFilter": function (manager, name, filter) {
+                        manager.brushes[name] = [filter.lowerBound, filter.upperBound];
+                    },
+                    "BitmaskFilter": function (manager, name, filter) {
+                        if (has(manager.originalMaskParameter, name))
+                        {
+                            var size = manager.originalMaskParameter[name].values.length;
+                            manager.maskParameter[name] = _.extend(
+                                manager.originalMaskParameter[name],
+                                {
+                                    enabled: integerToBooleanArray(filter.mask, size),
+                                    selection: integerToBooleanArray(filter.selection, size),
+                                }
+                            );
+                        }
+                    },
+                };
+                _.each(filters, function (filter, name) {
+                    filterSetters[filter.type](this.filterManager, name, filter);
+                }, this);
                 this.graph.filters = globals.swarm.get('filters');
                 this.filterManager.filters = globals.swarm.get('filters');
             }
@@ -616,8 +644,35 @@ define(['backbone.marionette',
             });
 
             this.filterManager.on('filterChange', function (filters) {
-                localStorage.setItem('filterSelection', JSON.stringify(this.brushes));
-                Communicator.mediator.trigger('analytics:set:filter', this.brushes);
+
+                var boolArrayToInteger = function (boolArray) {
+                    var result = 0;
+                    _.each(boolArray, function (flag, index) {
+                        if (flag) result |= 1 << index;
+                    });
+                    return result;
+                };
+
+                var appliedFilters = {};
+
+                _.each(this.brushes, function (range, name) {
+                    appliedFilters[name] = {
+                        type: "RangeFilter",
+                        lowerBound: range[0],
+                        upperBound: range[1],
+                    };
+                });
+
+                _.each(this.maskParameter, function (data, name) {
+                    appliedFilters[name] = {
+                        type: "BitmaskFilter",
+                        mask: boolArrayToInteger(data.enabled),
+                        selection: boolArrayToInteger(data.selection),
+                    };
+                });
+
+                localStorage.setItem('filterSelection', JSON.stringify(appliedFilters));
+                Communicator.mediator.trigger('analytics:set:filter', appliedFilters);
                 globals.swarm.set({filters: filters});
                 // Make sure any open tooltips are cleared
                 $('.ui-tooltip').remove();

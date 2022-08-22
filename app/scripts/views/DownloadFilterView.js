@@ -13,10 +13,9 @@
     'globals',
     'models/DownloadModel',
     'hbs!tmpl/DownloadFilter',
-    'hbs!tmpl/FilterTemplate',
+    'hbs!tmpl/RangeFilterTemplate',
+    'hbs!tmpl/BitmaskFilterTemplate',
     'hbs!tmpl/DownloadProcess',
-    'hbs!tmpl/wps_retrieve_data_filtered',
-    'hbs!tmpl/CoverageDownloadPost',
     'hbs!tmpl/wps_fetchFilteredDataAsync',
     'dataUtil',
     'underscore',
@@ -24,9 +23,8 @@
     'w2popup'
   ],
   function (
-    Backbone, Communicator, globals, m, DownloadFilterTmpl, FilterTmpl,
-    DownloadProcessTmpl, wps_requestTmpl, CoverageDownloadPostTmpl,
-    wps_fetchFilteredDataAsync, DataUtil
+    Backbone, Communicator, globals, m, DownloadFilterTmpl, RangeFilterTmpl,
+    BitmaskFilterTmpl, DownloadProcessTmpl, wps_fetchFilteredDataAsync, DataUtil
   ) {
 
     var ESSENTIAL_PARAMETERS = [TIMESTAMP, "Latitude", "Longitude", "Radius"];
@@ -329,12 +327,14 @@
           return {
             label: 'Start time',
             body: input.data,
+            note: "(incl.)",
           };
         },
         end_time: function (input) {
           return {
             label: 'End time',
             body: input.data,
+            note: "(excl.)",
           };
         },
         filters: function (input) {
@@ -453,30 +453,30 @@
         // Initialise datepickers
         $.datepicker.setDefaults({
           showOn: "both",
-          dateFormat: "dd.mm.yy"
+          dateFormat: "yy-mm-dd"
         });
 
         var timeinterval = this.model.get("ToI");
 
-        this.start_picker = this.$('#starttime').datepicker({
+        this.start_picker = this.$('#startDate').datepicker({
           onSelect: _.bind(function () {
             var start = this.start_picker.datepicker("getDate");
             var end = this.end_picker.datepicker("getDate");
             if (start > end) {
               this.end_picker.datepicker("setDate", start);
             }
-          }, this)
+          }, this),
         });
         this.start_picker.datepicker("setDate", timeinterval.start);
 
-        this.end_picker = this.$('#endtime').datepicker({
+        this.end_picker = this.$('#endDate').datepicker({
           onSelect: _.bind(function () {
             var start = this.start_picker.datepicker("getDate");
             var end = this.end_picker.datepicker("getDate");
             if (end < start) {
               this.start_picker.datepicker("setDate", end);
             }
-          }, this)
+          }, this),
         });
         this.end_picker.datepicker("setDate", timeinterval.end);
 
@@ -545,9 +545,10 @@
         var subsetting_cb = '<div class="checkbox"><label><input type="checkbox" value="" id="custom_subsetting_cb">Custom time subsampling</label></div>';
         var subsettingFilter =
           '<div class="input-group" id=custom_subsetting_filter style="margin:7px">' +
+            '<input type="hidden" id="type" name="type" value="SamplingRateFilter">' +
             '<span class="form-control">' +
               'Time subsetting (Expected format ISO-8601 duration e.g. PT1H10M30S)' +
-              '<textarea id="custom_subsetting_ta" rows="1" cols="20" style="float:right; resize:none;">PT10S</textarea>' +
+              '<textarea id="duration" name="duration" rows="1" cols="20" style="float:right; resize:none;">PT10S</textarea>' +
             '</span>' +
         '</div>';
 
@@ -573,15 +574,13 @@
           $('#customtimefilter').empty();
           if ($('#custom_time_cb').is(':checked')) {
             var timeinterval = this.model.get("ToI");
-            var extent = [
-              getISOTimeString(timeinterval.start),
-              getISOTimeString(timeinterval.end)
-            ];
             var name = "Time (hh:mm:ss.fff)";
-            var $html = $(FilterTmpl({
+            var $html = $(RangeFilterTmpl({
               id: "timefilter",
+              type: "TimeRangeFilter",
               name: name,
-              extent: extent
+              lowerBound: getISOTimeString(timeinterval.start),
+              upperBound: getISOTimeString(timeinterval.end),
             })
             );
             $('#customtimefilter').append($html);
@@ -655,7 +654,10 @@
 
       updateJobs: function () {
 
-        var url_jobs = '/ows?service=wps&request=execute&version=1.0.0&identifier=listJobs&RawDataOutput=job_list';
+        var url_jobs = (
+          globals.download.get('url') +
+          '?service=wps&request=execute&version=1.0.0&identifier=listJobs&RawDataOutput=job_list'
+        );
 
         $.get(url_jobs, 'json')
           .done(function (processes) {
@@ -723,36 +725,59 @@
 
         var available_uom = _.clone(globals.swarm.get('uom_set') || {});
 
-        _.each(_.keys(this.currentFilters), function (key) {
-
-          // Check if filter part of parameters of currently selected products
-          if (!has(available_uom, key)) {
-            delete this.currentFilters[key];
-
-          } else if ($('#filters #' + key).length == 0) {
-            var extent = this.currentFilters[key].map(this.round);
-            var name = "";
-            var parts = key.split("_");
-            if (parts.length > 1) {
-              name = parts[0];
-              for (var i = 1; i < parts.length; i++) {
-                name += (" " + parts[i]).sub();
-              }
-            } else {
-              name = key;
+        var getFancyName = function (name) {
+          var parts = name.split("_");
+          if (parts.length > 1) {
+            name = parts[0];
+            for (var i = 1; i < parts.length; i++) {
+              name += (" " + parts[i]).sub();
             }
+          }
+          return name;
+        };
 
-            var $html = $(FilterTmpl({
+        var filterRenders = {
+          "RangeFilter": _.bind(function (key, filter) {
+            return $(RangeFilterTmpl({
               id: key,
-              name: name,
-              extent: extent,
+              name: getFancyName(key),
+              type: filter.type,
+              lowerBound: this.round(filter.lowerBound),
+              upperBound: this.round(filter.upperBound),
               index1: this.tabindex++,
               index2: this.tabindex++,
               index3: this.tabindex++
             }));
+          }, this),
+          "BitmaskFilter": _.bind(function (key, filter) {
+            if (filter.mask > 0) {
+              return $(BitmaskFilterTmpl({
+                id: key,
+                name: getFancyName(key),
+                type: filter.type,
+                mask: filter.mask,
+                selection: filter.mask & filter.selection,
+                index1: this.tabindex++,
+                index2: this.tabindex++,
+                index3: this.tabindex++
+              }));
+            }
+          }, this),
+        };
 
-            fil_div.append($html);
+        _.each(this.currentFilters, function (filter, key) {
+
+          if (!has(available_uom, key)) {
+            delete this.currentFilters[key];
+            return;
           }
+
+          if ($('#filters #' + key).length != 0) {
+            // filter already rendered
+            return;
+          }
+
+          fil_div.append(filterRenders[filter.type](key, filter));
         }, this);
 
         // Create possible filter options based on possible download parameters
@@ -827,41 +852,76 @@
       },
 
       fieldsValid: function () {
-        var filter_elem = this.$el.find(".input-group");
 
-        var valid = true;
+        var validateBitmask = function (value) {
+          return value.match(/^\s*\d+\s*$/) !== null;
+        };
 
-        _.each(filter_elem, function (fe) {
-          var extent_elem = $(fe).find("textarea");
+        var validateDate = function (value) {
+          return (
+            (value.match(/^\s*\d{4,4}-\d{2,2}-\d{2,2}\s*$/) !== null) &&
+            (!isNaN(Date.parse(value)))
+          );
+        };
 
-          for (var i = extent_elem.length - 1; i >= 0; i--) {
+        var validateDuration = function (value) {
+          return value[0] === "P"; // FIXME
+        };
 
-            if (extent_elem.context.id == 'timefilter') {
-              if (!isValidTime(extent_elem[i].value)) {
-                $(extent_elem[i]).css('background-color', 'rgb(255, 215, 215)');
-                valid = false;
-              } else {
-                $(extent_elem[i]).css('background-color', 'transparent');
-              }
-            } else if (extent_elem.context.id == 'custom_subsetting_filter') {
-              if ((extent_elem[i].value)[0] !== 'P') {
-                $(extent_elem[i]).css('background-color', 'rgb(255, 215, 215)');
-                valid = false;
-              } else {
-                $(extent_elem[i]).css('background-color', 'transparent');
-              }
-            } else {
-              if (!$.isNumeric(extent_elem[i].value)) {
-                $(extent_elem[i]).css('background-color', 'rgb(255, 215, 215)');
-                valid = false;
-              } else {
-                $(extent_elem[i]).css('background-color', 'transparent');
-              }
-            }
+        var validateTextInput = function ($element, validate) {
+          if (!validate($element.val())) {
+            $($element).css('background-color', 'rgb(255, 215, 215)');
+            return false;
+          } else {
+            $($element).css('background-color', '');
+            return true;
+          }
+        };
 
+        var isValid = true;
+        var $filterElements = this.$el.find(".input-group");
+
+        var validators = {
+          "DateRangeFilter": function ($element) {
+            return (
+              validateTextInput($($element).find("#startDate"), validateDate) &&
+              validateTextInput($($element).find("#endDate"), validateDate)
+            );
+          },
+          "TimeRangeFilter": function ($element) {
+            return (
+              validateTextInput($($element).find("#lowerBound"), isValidTime) &&
+              validateTextInput($($element).find("#upperBound"), isValidTime)
+            );
+          },
+          "SamplingRateFilter": function ($element) {
+            return (
+              validateTextInput($($element).find("#duration"), validateDuration)
+            );
+          },
+          "RangeFilter": function ($element) {
+            return (
+              validateTextInput($($element).find("#lowerBound"), $.isNumeric) &&
+              validateTextInput($($element).find("#upperBound"), $.isNumeric)
+            );
+          },
+          "BitmaskFilter": function ($element) {
+            return (
+              validateTextInput($($element).find("#mask"), validateBitmask) &&
+              validateTextInput($($element).find("#selection"), validateBitmask)
+            );
+          }
+
+        };
+
+        _.each($filterElements, function ($filterElement) {
+          var type = $($filterElement).find("#type").val();
+          if (has(validators, type)) {
+            isValid = isValid && validators[type]($filterElement);
           }
         });
-        return valid;
+
+        return isValid;
 
       },
 
@@ -892,23 +952,29 @@
           ));
         };
 
-        options.begin_time = copyUTCDate(this.start_picker.datepicker("getDate"));
+        options.begin_time = copyUTCDate(new Date(this.$("#startDate").val()));
         options.begin_time.setUTCHours(0, 0, 0, 0);
 
-        options.end_time = copyUTCDate(this.end_picker.datepicker("getDate"));
+        options.end_time = copyUTCDate(new Date(this.$("#endDate").val()));
         options.end_time.setUTCHours(23, 59, 59, 999);
 
         // Add time subsetting option
         if ($('#custom_subsetting_filter').length != 0) {
-          options.sampling_step = $('#custom_subsetting_ta').val();
+          options.sampling_step = $('#custom_subsetting_filter #duration').val();
         }
 
         // Rewrite time for start and end date if custom time is active
         if ($("#timefilter").length != 0) {
-          var s = parseTime($($("#timefilter").find('textarea')[1]).val());
-          var e = parseTime($($("#timefilter").find('textarea')[0]).val());
-          options.begin_time.setUTCHours(s[0], s[1], s[2], s[3]);
-          options.end_time.setUTCHours(e[0], e[1], e[2], e[3]);
+          var start = parseTime($("#timefilter #lowerBound").val());
+          var end = parseTime($("#timefilter #upperBound").val());
+          options.begin_time.setUTCHours(start[0], start[1], start[2], start[3]);
+          options.end_time.setUTCHours(end[0], end[1], end[2], end[3]);
+        } else {
+          // round start date down to the start of the next whole day
+          options.begin_time.setUTCHours(0, 0, 0, 0);
+          // round end date up to the start of the next whole day
+          options.end_time.setDate(options.end_time.getDate() + 1);
+          options.end_time.setUTCHours(0, 0, 0, 0);
         }
 
         var bt_obj = options.begin_time;
@@ -957,32 +1023,40 @@
         var filters = [];
         var filter_elem = $('#filters').find(".input-group");
 
-        _.each(filter_elem, function (fe) {
-
-          var extent_elem = $(fe).find("textarea");
-          if (extent_elem.context.id == 'timefilter') {
-            return;
-          }
-          var extent = [];
-          for (var i = extent_elem.length - 1; i >= 0; i--) {
-            extent[i] = parseFloat(extent_elem[i].value);
-          }
-          // Make sure smaller value is first item
-          extent.sort(function (a, b) {return a - b;});
-
+        var getVariableName = function (id) {
           // Check to see if filter is on a vector component
-          var variable = fe.id;
+          var variable = id;
           _.any(VECTOR_BREAKDOWN, function (components, vectorVariable) {
-            var index = _.indexOf(components, fe.id);
+            var index = _.indexOf(components, id);
             if (index === -1) {return false;}
             variable = vectorVariable + '[' + index + ']';
             return true;
           });
+          return variable;
+        };
 
-          filters.push(variable + ':' + extent.join(","));
+        var extractAndFormatFilter = {
+          "RangeFilter": function ($element) {
+            var variable = getVariableName($element.id);
+            var lowerBound = parseFloat($($element).find("#lowerBound").val());
+            var upperBound = parseFloat($($element).find("#upperBound").val());
+            return [variable, ">=", lowerBound, "AND", variable, "<=", upperBound].join(" ");
+          },
+          "BitmaskFilter": function ($element) {
+            var variable = getVariableName($element.id);
+            var mask = parseInt($($element).find("#mask").val());
+            var selection = parseInt($($element).find("#selection").val());
+            return [variable, "&", mask, "==", mask & selection].join(" ");
+          },
+        };
+
+        _.each(filter_elem, function ($element) {
+          var filterType = $($element).find("#type").val();
+          var formattedFilter = extractAndFormatFilter[filterType]($element);
+          filters.push(formattedFilter);
         });
 
-        options.filters = filters.join(";");
+        options.filters = filters.join(" AND ");
 
         // Custom variables
         var variables;
