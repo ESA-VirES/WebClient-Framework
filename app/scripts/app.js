@@ -452,6 +452,18 @@ var RELATED_VARIABLES = {
                 // Remove three first colors as they are used by the products
                 autoColor.getColor();autoColor.getColor();autoColor.getColor();
 
+                // Fill the shared paremeters from the product type configuration.
+                var productTypes = get(config, "productTypes", {});
+                config.mapConfig.products = _.map(
+                    config.mapConfig.products,
+                    function (product) {
+                        if (has(product, "type") && has(productTypes, product.type)) {
+                            product = _.extend({}, productTypes[product.type], product);
+                        }
+                        return product;
+                    }
+                );
+
                 // If there are already saved product config in the local
                 // storage use that instead
 
