@@ -290,7 +290,8 @@
 
 
           var variables = [
-            "F", "F_error", "B_NEC_resAC", "B_VFM", "B_error", "B_NEC", "Ne", "Te", "Vs",
+            "F", "F_error", "B_NEC_resAC", "B_VFM", "B_error", "B_NEC",
+            "Flags_F", "Flags_B", "Ne", "Te", "Vs",
             "U_orbit", "Bubble_Probability", "Kp", "Dst", "dDst", "F107", "QDLat", "QDLon", "MLT",
             "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle", "GPS_Position", "LEO_Position",
             "IRC", "IRC_Error", "FAC", "FAC_Error",

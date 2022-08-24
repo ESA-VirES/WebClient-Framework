@@ -278,28 +278,20 @@ define(['backbone.marionette',
             // Clone object
             var filtersGlobal = _.omit(globals.swarm.get('uom_set'), EXCLUDED_FILTERS);
 
+            var maskParameters = {};
+            _.each(filtersGlobal, function (item, name) {
+                if (has(item, "bitmask")) {
+                    maskParameters[name] = {values: item.bitmask.flags};
+                }
+            });
+
             this.filterManager = new FilterManager({
                 el: '#analyticsFilters',
                 filterSettings: {
                     visibleFilters: this.selectedFilterList,
                     dataSettings: filtersGlobal,
                     parameterMatrix: {},
-                    maskParameter: {
-                        'Flag_ti_meas': {
-                            values: [
-                                ['bit 0', 'High-latitude frictional heating included/omitted'],
-                                ['bit 1', 'Electron temperature from low/high-gain probe'],
-                                ['bit 2', 'Ion temperature data available/data value is set to NaN'],
-                            ]
-                        },
-                        'Flag_ti_model': {
-                            values: [
-                                ['bit 0', 'High-latitude frictional heating included/omitted'],
-                                ['bit 1', 'Electron temperature from low/high-gain probe'],
-                                ['bit 2', 'Ion temperature data available/data value is set to NaN'],
-                            ]
-                        }
-                    }
+                    maskParameter: maskParameters,
                 },
                 showCloseButtons: true,
                 ignoreParameters: EXCLUDED_PARAMETERS,
@@ -938,11 +930,23 @@ define(['backbone.marionette',
 
             // extract parameters from the product configuration
             globals.products.each(function (product) {
-                var parameters = product.get('download_parameters') || {};
-                _.extend(availableParameters, parameters);
-                if (product.get('visible')) {
-                    _.extend(activeParameters, parameters);
-                }
+                var isVisible = product.get('visible');
+                // extract parameters
+                _.each(product.get('download_parameters') || {}, function (item, name) {
+                    if (get(item, "ignore")) return;
+                    var item_copy = _.clone(item);
+                    availableParameters[name] = item_copy;
+                    if (isVisible) {
+                        activeParameters[name] = item_copy;
+                    }
+                });
+
+                // extract bitmask configuration
+                _.each(product.get('parameters') || {}, function (item, name) {
+                    if (has(item, "bitmask")) {
+                        availableParameters[name].bitmask = item.bitmask;
+                    }
+                });
             });
 
             // update parameters
@@ -1241,6 +1245,7 @@ define(['backbone.marionette',
                     'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
                     'Pair_Indicator', 'Boundary_Flag',
                     'Ti_meas_drift', 'Ti_model_drift', 'Tn_msis',
+                    'Flags_F', 'Flags_B',
                     'Flag_ti_meas', 'Flag_ti_model',
                 ];
 

@@ -253,6 +253,41 @@
                     "uom":"nT",
                     "colorscale": "jet",
                     "name": "Magnetic field vector A - C difference"
+                },
+                "Flags_F": {
+                    "range": [0, 255],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "Flags characterizing the magnetic field intensity measurement (F)",
+                    "bitmask": {
+                        "flags": [
+                            ["bit 0", "Set if ASM is running in vector mode."],
+                            ["bit 1", "Set for outlier detected, gap, or not enough ASM frequency calibration data for filtering."],
+                            ["bit 2", "Set if at least one of 4 nearest ASM samples is suspicious."],
+                            ["bit 3", "Set for loss of magnetic field lock or telemetry within 8 seconds after ASM restart."],
+                            ["bit 4", "Set for discrepancy between ASM and VFM measurements – at least one of the 4 nearest ASM samples differ from VFM measurements."],
+                            ["bit 5", "Set for gap in 4 nearest ASM samples."],
+                            ["bit 6", "Set for VFM instrument turned off (no stray field corrections)."],
+                            ["no-data", "Set for not enough ASM samples to generate F."]
+                        ]
+                    }
+                },
+                "Flags_B": {
+                    "range": [0, 255],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "Flags characterizing the magnetic field vector measurement (B_VFM, B_NEC)",
+                    "bitmask": {
+                        "flags": [
+                            ["bit 0", "Set if ASM instrument is turned off."],
+                            ["bit 1", "Set for outlier detected, gap, or not enough VFM temperature data for filtering."],
+                            ["bit 2", "Set for suspiciuos VFM sample."],
+                            ["bit 3", "Set for more than 5 suspiciuos VFM samples in 2 seconds surrounding record time."],
+                            ["bit 4", "Set for discrepancy between ASM and VFM measurements."],
+                            ["bit 5", "Set for in VFM samples in surrounding 2 seconds."],
+                            ["no-data", "Set for not enough VFM samples to generate B_VFM and B_NEC."]
+                        ]
+                    }
                 }
             },
             "download_parameters": {
@@ -560,13 +595,27 @@
                     "range": [0, 200000],
                     "uom": null,
                     "colorscale": "plasma",
-                    "name": "Flags (TII-based)"
+                    "name": "Flags (TII-based)",
+                    "bitmask": {
+                        "flags": [
+                            ["bit 0", "High-latitude frictional heating included/omitted"],
+                            ["bit 1", "Electron temperature from low/high-gain probe"],
+                            ["bit 2", "Ion temperature data available/data value is set to NaN"]
+                        ]
+                    }
                 },
                 "Flag_ti_model": {
                     "range": [0, 200000],
                     "uom": null,
                     "colorscale": "plasma",
-                    "name": "Flags (Weimer 2005)"
+                    "name": "Flags (Weimer 2005)",
+                    "bitmask": {
+                        "flags": [
+                            ["bit 0", "High-latitude frictional heating included/omitted"],
+                            ["bit 1", "Electron temperature from low/high-gain probe"],
+                            ["bit 2", "Ion temperature data available/data value is set to NaN"]
+                        ]
+                    }
                 }
             },
             "download_parameters": {
@@ -841,14 +890,17 @@
                     "name": "Flags characterizing the product quality (processing flags)"
                 },
                 "Flags_F": {
+                    "ignore": true,
                     "uom": null,
                     "name": "Flags_F passed through from L1b and accumulated for quad points"
                 },
                 "Flags_B": {
+                    "ignore": true,
                     "uom": null,
                     "name": "Flags_B passed through from L1b and accumulated for quad points"
                 },
                 "Flags_q": {
+                    "ignore": true,
                     "uom": null,
                     "name": "Flags_q passed through from L1b and accumulated for quad points"
                 },
@@ -993,14 +1045,17 @@
                     "name": "Flags related to the plasma bubble index"
                 },
                 "Flags_F": {
+                    "ignore": true,
                     "uom": null,
                     "name": "Flags_F passed through from MAGx_L1_B"
                 },
                 "Flags_B": {
+                    "ignore": true,
                     "uom": null,
                     "name": "Flags_B passed through from MAGx_L1_B"
                 },
                 "Flags_q": {
+                    "ignore": true,
                     "uom": null,
                     "name": "Flags_q passed through from MAGx_L1_B"
                 },
