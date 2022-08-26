@@ -1,4 +1,4 @@
-/* global $ _ jQuery d3 require showMessage defaultFor */
+/* global $ _ jQuery d3 require showMessage defaultFor BitwiseInt */
 /* global has get pop pick */
 
 // model residual parameters
@@ -194,7 +194,9 @@ var RELATED_VARIABLES = {
         'controller/LoadingController',
         'controller/LayerController',
         'controller/SelectionController',
-        'controller/DataController'
+        'controller/DataController',
+        'd3',
+        'graphly',
     ],
 
     function (
@@ -1114,23 +1116,35 @@ var RELATED_VARIABLES = {
                 // Instance timeslider view
                 this.timeSliderView = new v.TimeSliderView(config.timeSlider);
 
-                var filterFunctions = {
-                    "RangeFilter": function (value) {
-                        return this.lowerBound <= value && value <= this.upperBound;
+                var filterFunctionFactory = {
+                    "RangeFilter": function (filter) {
+                        var lowerBound = filter.lowerBound;
+                        var upperBound = filter.upperBound;
+                        return function (value) {
+                            return lowerBound <= value && value <= upperBound;
+                        };
                     },
-                    "BitmaskFilter": function (value) {
-                        return (value & this.mask) === this.selection;
+                    "BitmaskFilter": function (filter) {
+                        if (filter.mask == 0) {return;}
+                        var mask = BitwiseInt.fromNumber(filter.mask);
+                        var selection = BitwiseInt.fromNumber(filter.selection);
+                        return function (value) {
+                            return BitwiseInt.fromNumber(value).and(mask).equals(selection);
+                        };
                     },
                 };
 
                 // Load possible available filter selection
                 if (localStorage.getItem('filterSelection') !== null) {
                     var filters = JSON.parse(localStorage.getItem('filterSelection'));
-                    var filterfunc = {};
+                    var filterFunctions = {};
                     _.each(filters, function (filter, key) {
-                        filterfunc[key] = filterFunctions[filter.type].bind(filter);
+                        var filterFunction = filterFunctionFactory[filter.type](filter);
+                        if (filterFunction) {
+                            filterFunctions[key] = filterFunction;
+                        }
                     });
-                    globals.swarm.set('filters', filterfunc);
+                    globals.swarm.set('filters', filterFunctions);
                     Communicator.mediator.trigger('analytics:set:filter', filters);
                 }
             },
