@@ -26,7 +26,7 @@ var TIMESTAMP = 'Timestamp';
 
 var SCALAR_PARAM = [
     "F", "Flags_F", "Flags_B", "Ne", "Te", "Vs", "U_orbit",
-    "Bubble_Index", "Bubble_Probability", "IRC", "FAC", "EEF",
+    "Bubble_Index", "Bubble_Probability", "Flags_Bubble", "IRC", "FAC", "EEF",
     "Background_Ne", "Foreground_Ne", "PCP_flag", "Grad_Ne_at_100km", "Grad_Ne_at_50km",
     "Grad_Ne_at_20km", "Grad_Ne_at_PCP_edge", "ROD", "RODI10s", "RODI20s", "delta_Ne10s",
     "delta_Ne20s", "delta_Ne40s", "Num_GPS_satellites", "mVTEC", "mROT", "mROTI10s",

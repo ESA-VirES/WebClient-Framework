@@ -1013,7 +1013,24 @@
                     "colorscale": "jet",
                     "selected": true,
                     "name": "Detection probability of the plasma bubble"
+                },
+                "Flags_Bubble": {
+                    "range": [0, 63],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "Flags related to the plasma bubble index",
+                    "bitmask": {
+                        "flags": [
+                            ["bit 0", "Set for confirmed plasma bubble."],
+                            ["bit 1", "Set for unconfirmed plasma bubble."],
+                            ["bit 2", "Set for large peak in unfiltered magnetic field residuals."],
+                            ["bit 3", "Set for time gap."],
+                            ["bit 4", "Set for too many peaks in filtered magnetic field residuals."],
+                            ["bit 5", "Set for outside equatorial orbit segment or invalid latitude/local time."]
+                        ]
+                    }
                 }
+
             },
             "download_parameters": {
                 "Timestamp": {

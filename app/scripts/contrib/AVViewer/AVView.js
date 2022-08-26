@@ -1245,7 +1245,7 @@ define(['backbone.marionette',
                     'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
                     'Pair_Indicator', 'Boundary_Flag',
                     'Ti_meas_drift', 'Ti_model_drift', 'Tn_msis',
-                    'Flags_F', 'Flags_B',
+                    'Flags_F', 'Flags_B', "Flags_Bubble",
                     'Flag_ti_meas', 'Flag_ti_model',
                 ];
 
