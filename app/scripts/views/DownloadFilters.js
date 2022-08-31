@@ -19,16 +19,17 @@
 
 
     // Data types used by the rage filters.
-    class FloatType {
-      static parseValue(source) {
+
+    var FloatType = {
+      pattern: /^[-+]?([0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?|Infinity)$/,
+      isCoparable: true,
+      parseValue: function (source) {
         return FloatType.pattern.test(source) ? Number(source) : null;
-      }
-      static isValid(value) {
+      },
+      isValid: function (value) {
         return typeof value === 'number';
-      }
-    }
-    FloatType.isCoparable = true;
-    FloatType.pattern = /^[-+]?([0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?|Infinity)$/;
+      },
+    };
 
 
     var getFancyName = function (name) {
@@ -197,11 +198,11 @@
               _.range(attr.size),
               BitwiseInt.fromNumber(attr.mask).toBoolArray(attr.size),
               BitwiseInt.fromNumber(attr.selection).toBoolArray(attr.size),
-              _.map(attr.parameters.bitmask.flags, (item)=>item[0]),
-              _.map(attr.parameters.bitmask.flags, (item)=>item[1]),
+              _.map(attr.parameters.bitmask.flags, function (item) {return item[0];}),
+              _.map(attr.parameters.bitmask.flags, function (item) {return item[1];}),
               _.range(attr.tabIndex, attr.tabIndex + attr.size)
             ),
-            (item) => _.object(keys, item)
+            function (item) {return _.object(keys, item);}
           ),
         }));
       },
