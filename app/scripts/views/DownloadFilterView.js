@@ -1,4 +1,4 @@
-/*global $ _ w2confirm */
+/*global $ _ w2confirm BitwiseInt */
 /*global getISOTimeString isValidTime parseTime getISODateTimeString */
 /*global VECTOR_BREAKDOWN TIMESTAMP */
 /*global has get pop */
@@ -17,14 +17,18 @@
     'hbs!tmpl/BitmaskFilterTemplate',
     'hbs!tmpl/DownloadProcess',
     'hbs!tmpl/wps_fetchFilteredDataAsync',
+    'views/DownloadFilters',
     'dataUtil',
     'underscore',
     'w2ui',
-    'w2popup'
+    'w2popup',
+    'd3',
+    'graphly'
   ],
   function (
     Backbone, Communicator, globals, m, DownloadFilterTmpl, RangeFilterTmpl,
-    BitmaskFilterTmpl, DownloadProcessTmpl, wps_fetchFilteredDataAsync, DataUtil
+    BitmaskFilterTmpl, DownloadProcessTmpl, wps_fetchFilteredDataAsync,
+    DownloadFilters, DataUtil
   ) {
 
     var ESSENTIAL_PARAMETERS = [TIMESTAMP, "Latitude", "Longitude", "Radius"];
@@ -369,6 +373,7 @@
       return status && (status !== 'SUCCEEDED') && (status !== 'FAILED');
     }
 
+
     var DownloadFilterView = Backbone.Marionette.ItemView.extend({
       tagName: "div",
       id: "modal-start-download",
@@ -387,6 +392,7 @@
         this.loadcounter = 0;
         this.currentFilters = {};
         this.tabindex = 1;
+        this.filterViews = {};
       },
 
       createSubscript: function createSubscript(string) {
@@ -406,10 +412,26 @@
 
       handleItemSelected: function handleItemSelected(evt) {
         var selected = $('#addfilter').val();
-        if (selected !== '') {
-          this.currentFilters[selected] = [0, 0];
-          this.renderFilterList();
+        var parameters = get(globals.swarm.get('uom_set') || {}, selected);
+        if (!parameters) {return;}
+        var filters = this.model.get("filter") || {};
+        if (has(filters, selected)) {
+          this.currentFilters[selected] = filters[selected];
+        } else if (has(parameters, "bitmask")) {
+          this.currentFilters[selected] = {
+            type: "BitmaskFilter",
+            size: parameters.bitmask.flags.length,
+            mask: 0,
+            selection: 0
+          };
+        } else {
+          this.currentFilters[selected] = {
+            type: "RangeFilter",
+            lowerBound: 0.0,
+            upperBound: 0.0
+          };
         }
+        this.renderFilterList();
       },
 
       onShow: function (view) {
@@ -430,18 +452,36 @@
 
         // Check for filters
 
-        var filters = this.model.get("filter");
-        if (typeof filters === 'undefined') {
-          filters = {};
-        }
+        _.extend(this.currentFilters, (function () {
+          var filters = this.model.get("filter");
 
-        var aoi = this.model.get("AoI");
-        if (aoi) {
-          filters["Longitude"] = [aoi.w, aoi.e];
-          filters["Latitude"] = [aoi.s, aoi.n];
-        }
+          if (typeof filters === 'undefined') {
+            filters = {};
+          }
 
-        this.currentFilters = filters;
+          var aoi = this.model.get("AoI");
+          if (aoi) {
+            filters["Longitude"] = {
+              type: "RangeFilter",
+              lowerBound: aoi.w,
+              upperBound: aoi.e
+            };
+            filters["Latitude"] = {
+              type: "RangeFilter",
+              lowerBound: aoi.s,
+              upperBound: aoi.n
+            };
+          }
+
+          // omit zero Bitmask filters
+          _.each(filters, function (filter, key) {
+            if (filter.type === "BitmaskFilter" && filter.mask === 0) {
+              delete filters[key];
+            }
+          });
+
+          return filters;
+        }).call(this));
 
         this.renderFilterList();
 
@@ -575,13 +615,16 @@
           if ($('#custom_time_cb').is(':checked')) {
             var timeinterval = this.model.get("ToI");
             var name = "Time (hh:mm:ss.fff)";
-            var $html = $(RangeFilterTmpl({
-              id: "timefilter",
-              type: "TimeRangeFilter",
-              name: name,
-              lowerBound: getISOTimeString(timeinterval.start),
-              upperBound: getISOTimeString(timeinterval.end),
-            })
+            var $html = $(
+              '<div class="input-group" id="timefilter" style="margin:7px">'
+              + RangeFilterTmpl({
+                id: "timefilter",
+                type: "TimeRangeFilter",
+                name: name,
+                lowerBound: getISOTimeString(timeinterval.start),
+                upperBound: getISOTimeString(timeinterval.end),
+              })
+              + "</div>"
             );
             $('#customtimefilter').append($html);
             $('#customtimefilter .input-group-btn button').removeClass();
@@ -723,91 +766,58 @@
         fil_div.find('.w2ui-field').remove();
         $('#downloadAddFilter').remove();
 
-        var available_uom = _.clone(globals.swarm.get('uom_set') || {});
+        var availableParameters = globals.swarm.get('uom_set') || {};
 
-        var getFancyName = function (name) {
-          var parts = name.split("_");
-          if (parts.length > 1) {
-            name = parts[0];
-            for (var i = 1; i < parts.length; i++) {
-              name += (" " + parts[i]).sub();
-            }
-          }
-          return name;
+        var filterViewClass = {
+          "RangeFilter": DownloadFilters.RangeFilterView,
+          "BitmaskFilter": DownloadFilters.BitmaskFilterView
         };
 
-        var filterRenders = {
-          "RangeFilter": _.bind(function (key, filter) {
-            return $(RangeFilterTmpl({
-              id: key,
-              name: getFancyName(key),
-              type: filter.type,
-              lowerBound: this.round(filter.lowerBound),
-              upperBound: this.round(filter.upperBound),
-              index1: this.tabindex++,
-              index2: this.tabindex++,
-              index3: this.tabindex++
-            }));
-          }, this),
-          "BitmaskFilter": _.bind(function (key, filter) {
-            if (filter.mask > 0) {
-              return $(BitmaskFilterTmpl({
-                id: key,
-                name: getFancyName(key),
-                type: filter.type,
-                mask: filter.mask,
-                selection: filter.mask & filter.selection,
-                index1: this.tabindex++,
-                index2: this.tabindex++,
-                index3: this.tabindex++
-              }));
-            }
-          }, this),
-        };
+        _.each(this.currentFilters, function (filter, name) {
 
-        _.each(this.currentFilters, function (filter, key) {
-
-          if (!has(available_uom, key)) {
-            delete this.currentFilters[key];
+          if (!has(availableParameters, name)) {
+            delete this.currentFilters[name];
             return;
           }
 
-          if ($('#filters #' + key).length != 0) {
+          if (has(this.filterViews, name)) {
             // filter already rendered
             return;
           }
 
-          fil_div.append(filterRenders[filter.type](key, filter));
+          var view = new filterViewClass[filter.type]({
+            id: name,
+            filter: filter,
+            parameters: availableParameters[name],
+            tabIndex: this.tabindex
+          });
+
+          view.render();
+          fil_div.append(view.$el);
+          this.tabindex += view.getTabCount();
+          this.filterViews[name] = view;
         }, this);
 
         // Create possible filter options based on possible download parameters
-        var filteroptions = _.clone(EXTRA_PARAMETERS);
+        var filterOptions = _.clone(EXTRA_PARAMETERS);
 
         globals.products.each(function (model) {
           if (model.get('visible')) {
-            _.extend(filteroptions, model.get('download_parameters'));
-          }
-        });
-
-        // Decompose vectors to their scalar components.
-        _.each(_.keys(filteroptions), function (variable) {
-          var components = get(VECTOR_BREAKDOWN, variable);
-          if (!components) {return;}
-          var options = pop(filteroptions, variable);
-          for (var i = 0; i < components.length; i++) {
-            filteroptions[components[i]] = {
-              uom: options.uom,
-              name: 'Component of ' + options.name
-            };
+            _.each(model.get('download_parameters'), function (item, key) {
+              var sources = _.pick(availableParameters, get(VECTOR_BREAKDOWN, key) || [key]);
+              _.each(sources, function (item, key) {
+                filterOptions[key] = {uom: item.uom, name: item.name};
+              });
+              _.each(get(VECTOR_BREAKDOWN, key) || [], function (key) {
+                filterOptions[key].name = 'Component of ' + filterOptions[key].name;
+              });
+            });
           }
         });
 
         // Remove currently filtered and other unwanted variables.
-        var _removeVariable = function (variable) {
-          pop(filteroptions, variable);
-        };
-        _.each(_.keys(this.currentFilters), _removeVariable);
-        _.each(EXCLUDED_PARAMETERS, _removeVariable);
+        filterOptions = _.omit(filterOptions, _.keys(this.currentFilters));
+        filterOptions = _.omit(filterOptions, EXCLUDED_PARAMETERS);
 
         $('#filters').append(
           '<div class="w2ui-field"> <button id="downloadAddFilter" type="button" class="btn btn-default dropdown-toggle">Add filter <span class="caret"></span></button> <input type="list" id="addfilter"></div>'
@@ -819,14 +829,14 @@
         });
 
         $('#addfilter').w2field('list', {
-          items: _.keys(filteroptions).sort(),
+          items: _.keys(filterOptions).sort(),
           renderDrop: _.bind(function (item, options) {
             var html = '<b>' + this.createSubscript(item.id) + '</b>';
-            if (filteroptions[item.id].uom != null) {
-              html += ' [' + filteroptions[item.id].uom + ']';
+            if (filterOptions[item.id].uom != null) {
+              html += ' [' + filterOptions[item.id].uom + ']';
             }
-            if (filteroptions[item.id].name != null) {
-              html += ': ' + filteroptions[item.id].name;
+            if (filterOptions[item.id].name != null) {
+              html += ': ' + filterOptions[item.id].name;
             }
             return html;
           }, this)
@@ -838,7 +848,7 @@
         this.$('.delete-filter').off('click');
         this.$('.delete-filter').on('click', _.bind(function (evt) {
           var item = evt.currentTarget.parentElement.parentElement;
-          item.parentElement.removeChild(item);
+          pop(this.filterViews, item.id).remove();
           delete this.currentFilters[item.id];
           this.renderFilterList();
         }, this));
@@ -847,15 +857,7 @@
 
       },
 
-      round: function (val) {
-        return val.toFixed(2);
-      },
-
       fieldsValid: function () {
-
-        var validateBitmask = function (value) {
-          return value.match(/^\s*\d+\s*$/) !== null;
-        };
 
         var validateDate = function (value) {
           return (
@@ -899,20 +901,11 @@
               validateTextInput($($element).find("#duration"), validateDuration)
             );
           },
-          "RangeFilter": function ($element) {
-            return (
-              validateTextInput($($element).find("#lowerBound"), $.isNumeric) &&
-              validateTextInput($($element).find("#upperBound"), $.isNumeric)
-            );
-          },
-          "BitmaskFilter": function ($element) {
-            return (
-              validateTextInput($($element).find("#mask"), validateBitmask) &&
-              validateTextInput($($element).find("#selection"), validateBitmask)
-            );
-          }
-
         };
+
+        _.each(this.filterViews, function (view, key) {
+          isValid = isValid && view.model.isValid();
+        });
 
         _.each($filterElements, function ($filterElement) {
           var type = $($filterElement).find("#type").val();
@@ -922,7 +915,6 @@
         });
 
         return isValid;
-
       },
 
       onStartDownloadClicked: function () {
@@ -1021,38 +1013,25 @@
 
         // filters
         var filters = [];
-        var filter_elem = $('#filters').find(".input-group");
-
-        var getVariableName = function (id) {
-          // Check to see if filter is on a vector component
-          var variable = id;
-          _.any(VECTOR_BREAKDOWN, function (components, vectorVariable) {
-            var index = _.indexOf(components, id);
-            if (index === -1) {return false;}
-            variable = vectorVariable + '[' + index + ']';
-            return true;
-          });
-          return variable;
-        };
 
         var extractAndFormatFilter = {
-          "RangeFilter": function ($element) {
-            var variable = getVariableName($element.id);
-            var lowerBound = parseFloat($($element).find("#lowerBound").val());
-            var upperBound = parseFloat($($element).find("#upperBound").val());
+          "RangeFilter": function (model) {
+            var variable = model.get("id");
+            var lowerBound = model.get("lowerBound");
+            var upperBound = model.get("upperBound");
             return [variable, ">=", lowerBound, "AND", variable, "<=", upperBound].join(" ");
           },
-          "BitmaskFilter": function ($element) {
-            var variable = getVariableName($element.id);
-            var mask = parseInt($($element).find("#mask").val());
-            var selection = parseInt($($element).find("#selection").val());
+          "BitmaskFilter": function (model) {
+            var variable = model.get("id");
+            var mask = model.get("mask");
+            var selection = model.get("selection");
             return [variable, "&", mask, "==", mask & selection].join(" ");
           },
         };
 
-        _.each(filter_elem, function ($element) {
-          var filterType = $($element).find("#type").val();
-          var formattedFilter = extractAndFormatFilter[filterType]($element);
+        _.each(this.filterViews, function (view, key) {
+          var filterType = view.model.get("type");
+          var formattedFilter = extractAndFormatFilter[filterType](view.model);
           filters.push(formattedFilter);
         });
 
@@ -1128,6 +1107,9 @@
 
       onClose: function () {
         Communicator.mediator.trigger("ui:close", "download");
+        for (var key in this.filterViews) {
+          pop(this.filterViews, key).remove();
+        }
         this.close();
       }
     });

@@ -1,4 +1,5 @@
-/* global $ _ define w2popup w2utils showMessage graphly plotty FilterManager */
+/* global $ _ define w2popup w2utils showMessage */
+/* global plotty graphly FilterManager BitwiseInt */
 /* global savePrameterStatus VECTOR_BREAKDOWN */
 /* global get has setDefault */
 
@@ -518,13 +519,6 @@ define(['backbone.marionette',
             if (localStorage.getItem('filterSelection') !== null) {
                 var filters = JSON.parse(localStorage.getItem('filterSelection'));
                 this.filterManager.brushes = {};
-                var integerToBooleanArray = function (value, size) {
-                    var result = [];
-                    for (var i = 0 ; i < size ; ++i) {
-                        result[i] = Boolean(1 << i & value);
-                    }
-                    return result;
-                };
                 var filterSetters = {
                     "RangeFilter": function (manager, name, filter) {
                         manager.brushes[name] = [filter.lowerBound, filter.upperBound];
@@ -533,11 +527,12 @@ define(['backbone.marionette',
                         if (has(manager.originalMaskParameter, name))
                         {
                             var size = manager.originalMaskParameter[name].values.length;
+                            filter.size = size; // fix the filter size
                             manager.maskParameter[name] = _.extend(
                                 manager.originalMaskParameter[name],
                                 {
-                                    enabled: integerToBooleanArray(filter.mask, size),
-                                    selection: integerToBooleanArray(filter.selection, size),
+                                    enabled: BitwiseInt.fromNumber(filter.mask).toBoolArray(filter.size),
+                                    selection: BitwiseInt.fromNumber(filter.selection).toBoolArray(filter.size),
                                 }
                             );
                         }
@@ -637,14 +632,6 @@ define(['backbone.marionette',
 
             this.filterManager.on('filterChange', function (filters) {
 
-                var boolArrayToInteger = function (boolArray) {
-                    var result = 0;
-                    _.each(boolArray, function (flag, index) {
-                        if (flag) result |= 1 << index;
-                    });
-                    return result;
-                };
-
                 var appliedFilters = {};
 
                 _.each(this.brushes, function (range, name) {
@@ -658,8 +645,9 @@ define(['backbone.marionette',
                 _.each(this.maskParameter, function (data, name) {
                     appliedFilters[name] = {
                         type: "BitmaskFilter",
-                        mask: boolArrayToInteger(data.enabled),
-                        selection: boolArrayToInteger(data.selection),
+                        size: data.enabled.length,
+                        mask: BitwiseInt.fromBoolArray(data.enabled).toNumber(),
+                        selection: BitwiseInt.fromBoolArray(data.selection).toNumber(),
                     };
                 });
 

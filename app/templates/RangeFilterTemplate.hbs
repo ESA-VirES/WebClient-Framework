@@ -1,13 +1,13 @@
-<div class="input-group" id={{id}} style="margin:7px">
+<!-- div class="input-group" id={{id}} style="margin:7px" -->
   <span class="form-control">
     {{{name}}}
     <input type="hidden" id="type" name="type" value="{{type}}">
-    <textarea id="upperBound" name="upperBound" tabindex="{{index2}}" rows="1" cols="20" style="float:right; resize:none; overflow: hidden; margin-left:6px">{{upperBound}}</textarea>
-    <textarea id="lowerBound" name="lowerBound" tabindex="{{index1}}" rows="1" cols="20" style="float:right; resize:none; overflow: hidden;">{{lowerBound}}</textarea>
+    <textarea id="upperBound" name="upperBound" tabindex="{{index2}}" rows="1" cols="20" style="float:right; resize:none; overflow: hidden; margin-left:6px{{#unless upperBoundIsValid}};background-color:rgb(255, 215, 215){{/unless}}">{{upperBound}}</textarea>
+    <textarea id="lowerBound" name="lowerBound" tabindex="{{index1}}" rows="1" cols="20" style="float:right; resize:none; overflow: hidden;{{#unless lowerBoundIsValid}};background-color:rgb(255, 215, 215){{/unless}}">{{lowerBound}}</textarea>
   </span>
   <span class="input-group-btn">
     <button tabindex="{{index3}}" rows="1" class="btn btn-danger delete-filter" type="button">
       <i class="fa fa-minus-circle"></i>
     </button>
   </span>
-</div>
+<!-- /div -->
