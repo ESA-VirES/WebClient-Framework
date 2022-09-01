@@ -1,6 +1,6 @@
 /*global $ _ w2confirm BitwiseInt */
 /*global getISOTimeString isValidTime parseTime getISODateTimeString */
-/*global VECTOR_BREAKDOWN TIMESTAMP */
+/*global VECTOR_BREAKDOWN REVERSE_VECTOR_BREAKDOWN TIMESTAMP */
 /*global has get pop */
 
 (function () {
@@ -996,10 +996,16 @@
           return item.getCustomShcIfSelected();
         })[0] || null;
 
+        var getSourceVariableName = function (name) {
+          var v = get(REVERSE_VECTOR_BREAKDOWN, name);
+          return v ? (v.source + "[" + v.index + "]") : name;
+        };
+
         // filters
         var filters = _.map(this.filterViews, function (view, key) {
-          var model = view.model;
-          return viresFilters.formatFilter(model.get("id"), model.toFilter());
+          return viresFilters.formatFilter(
+            getSourceVariableName(view.model.get("id")), view.model.toFilter()
+          );
         });
 
         options.filters = viresFilters.joinFormattedFilters(filters);

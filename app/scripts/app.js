@@ -24,6 +24,7 @@ var SPACECRAFT_TO_ID = {
 
 var TIMESTAMP = 'Timestamp';
 
+// parameters displayed by Cesium as scalars
 var SCALAR_PARAM = [
     "F", "Flags_F", "Flags_B", "Ne", "Te", "Vs", "U_orbit",
     "Bubble_Index", "Bubble_Probability", "Flags_Bubble", "IRC", "FAC", "EEF",
@@ -36,6 +37,9 @@ var SCALAR_PARAM = [
     "Tn_msis", "Ti_meas_drift", "Ti_model_drift", "Flag_ti_meas", "Flag_ti_model"
 ];
 
+// parameters displayed by Cesium as vectors by Cesium (note that some of them
+// are actually scalars and the vector orientation is taken from another
+// parameter)
 var VECTOR_PARAM = [
     "B_NEC", "B_NEC_resAC", "B_NEC_res_Model", "GPS_Position", "LEO_Position",
     "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle",
@@ -43,6 +47,7 @@ var VECTOR_PARAM = [
     'J_NE', 'J_T_NE', 'J_CF_NE', 'J_DF_NE',
 ];
 
+// breakdown of vector parameters to their components
 var VECTOR_BREAKDOWN = {
     'B_NEC': ['B_N', 'B_E', 'B_C'],
     'B_NEC_resAC': ['B_N_resAC', 'B_E_resAC', 'B_C_resAC'],
@@ -59,6 +64,13 @@ var VECTOR_BREAKDOWN = {
     'J_CF_NE': ['J_CF_N', 'J_CF_E'],
     'J_DF_NE': ['J_DF_N', 'J_DF_E'],
 };
+
+var REVERSE_VECTOR_BREAKDOWN = {};
+_.each(VECTOR_BREAKDOWN, function (components, source) {
+    _.each(components, function (component, index) {
+        REVERSE_VECTOR_BREAKDOWN[component] = {source: source, index: index};
+    });
+});
 
 // Ordered from highest resolution to lowest with the exception of FAC that
 // needs to be first as the master product needs to be the same
