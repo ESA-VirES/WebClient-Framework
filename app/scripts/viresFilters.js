@@ -38,7 +38,7 @@
       "BitmaskFilter": function (filter) {
         if (filter.mask != 0) {
           var mask = BitwiseInt.fromNumber(filter.mask);
-          var selection = BitwiseInt.fromNumber(filter.selection);
+          var selection = BitwiseInt.fromNumber(filter.selection).and(mask);
           return function (value) {
             return BitwiseInt.fromNumber(value).and(mask).equals(selection);
           };
