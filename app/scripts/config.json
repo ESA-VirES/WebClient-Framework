@@ -574,24 +574,24 @@
         "SW_EFIxTIE_2_": {
             "satellite": "Swarm",
             "parameters": {
-                "Tn_msis": {
-                    "range": [700, 1300],
-                    "uom":"K",
-                    "colorscale": "plasma",
-                    "selected": true,
-                    "name": "Neutral temperature"
-                },
                 "Ti_meas_drift": {
                     "range": [1000, 2000],
                     "uom":"K",
                     "colorscale": "plasma",
-                    "name": "Ion temperature (Swarm TII drift)"
+                    "selected": true,
+                    "name": "Ion temperature (TII drift)"
                 },
                 "Ti_model_drift": {
                     "range": [1000, 2000],
                     "uom":"K",
                     "colorscale": "plasma",
-                    "name": "Ion temperature (Weimer 2005)"
+                    "name": "Ion temperature (model)"
+                },
+                "Tn_msis": {
+                    "range": [700, 1300],
+                    "uom":"K",
+                    "colorscale": "plasma",
+                    "name": "Neutral temperature"
                 },
                 "Flag_ti_meas": {
                     "range": [0, 200000],
@@ -610,7 +610,7 @@
                     "range": [0, 200000],
                     "uom": null,
                     "colorscale": "plasma",
-                    "name": "Flags (Weimer 2005)",
+                    "name": "Flags (model-based)",
                     "bitmask": {
                         "flags": [
                             ["bit 0", "High-latitude frictional heating included/omitted"],
