@@ -633,13 +633,14 @@ define(['backbone.marionette',
 
             this.filterManager.on('filterChange', function (filters) {
 
+                var names = _.keys(filters);
                 var appliedFilters = {};
 
-                _.each(this.brushes, function (range, name) {
+                _.each(_.pick(this.brushes, names), function (range, name) {
                     appliedFilters[name] = viresFilters.createRangeFilter(range[0], range[1]);
                 });
 
-                _.each(this.maskParameter, function (data, name) {
+                _.each(_.pick(this.maskParameter, names), function (data, name) {
                     appliedFilters[name] = viresFilters.createBitmaskFilter(
                         data.enabled.length,
                         BitwiseInt.fromBoolArray(data.enabled).toNumber(),
@@ -650,6 +651,7 @@ define(['backbone.marionette',
                 localStorage.setItem('filterSelection', JSON.stringify(appliedFilters));
                 Communicator.mediator.trigger('analytics:set:filter', appliedFilters);
                 globals.swarm.set({filters: filters});
+
                 // Make sure any open tooltips are cleared
                 $('.ui-tooltip').remove();
 
