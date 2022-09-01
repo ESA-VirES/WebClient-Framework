@@ -8,13 +8,15 @@
     'backbone',
     'hbs!tmpl/RangeFilterTemplate',
     'hbs!tmpl/BitmaskFilterTemplate',
+    'viresFilters',
     'd3',
     'graphly'
   ],
   function (
     backbone,
     RangeFilterTmpl,
-    BitmaskFilterTmpl
+    BitmaskFilterTmpl,
+    viresFilters
   ) {
 
 
@@ -53,6 +55,10 @@
         upperBound: NaN,
         parameters: null,
         tabIndex: 0
+      },
+      toFilter: function () {
+        var attr = this.attributes;
+        return viresFilters.createRangeFilter(attr.lowerBound, attr.upperBound);
       },
       validate: function (attrs) {
         if (!this.dataType.isValid(attrs.lowerBound)) {
@@ -145,6 +151,10 @@
         selection: 0,
         parameters: null,
         tabIndex: 0
+      },
+      toFilter: function () {
+        var attr = this.attributes;
+        return viresFilters.createBitmaskFilter(attr.size, attr.mask, attr.selection);
       },
       validate: function (attr) {
         if (BitwiseInt.fromNumber(attr.mask).toNumber() !== attr.mask) {

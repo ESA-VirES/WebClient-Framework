@@ -8,10 +8,11 @@ define(['backbone.marionette',
     'app',
     'models/AVModel',
     'globals',
+    'viresFilters',
     'd3',
     'graphly',
     'analytics'
-], function (Marionette, Communicator, App, AVModel, globals) {
+], function (Marionette, Communicator, App, AVModel, globals, viresFilters) {
     'use strict';
 
     // variables not not offered as filters
@@ -635,20 +636,15 @@ define(['backbone.marionette',
                 var appliedFilters = {};
 
                 _.each(this.brushes, function (range, name) {
-                    appliedFilters[name] = {
-                        type: "RangeFilter",
-                        lowerBound: range[0],
-                        upperBound: range[1],
-                    };
+                    appliedFilters[name] = viresFilters.createRangeFilter(range[0], range[1]);
                 });
 
                 _.each(this.maskParameter, function (data, name) {
-                    appliedFilters[name] = {
-                        type: "BitmaskFilter",
-                        size: data.enabled.length,
-                        mask: BitwiseInt.fromBoolArray(data.enabled).toNumber(),
-                        selection: BitwiseInt.fromBoolArray(data.selection).toNumber(),
-                    };
+                    appliedFilters[name] = viresFilters.createBitmaskFilter(
+                        data.enabled.length,
+                        BitwiseInt.fromBoolArray(data.enabled).toNumber(),
+                        BitwiseInt.fromBoolArray(data.selection).toNumber()
+                    );
                 });
 
                 localStorage.setItem('filterSelection', JSON.stringify(appliedFilters));

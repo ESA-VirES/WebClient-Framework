@@ -185,6 +185,7 @@ var RELATED_VARIABLES = {
         'layouts/OptionsLayout',
         'core/SplitView/WindowView',
         'communicator',
+        'viresFilters',
         'jquery',
         'backbone.marionette',
         'controller/ContentController',
@@ -201,7 +202,8 @@ var RELATED_VARIABLES = {
 
     function (
         Backbone, globals, DialogRegion, UIRegion, LayerControlLayout,
-        ToolControlLayout, OptionsLayout, WindowView, Communicator
+        ToolControlLayout, OptionsLayout, WindowView, Communicator,
+        viresFilters
     ) {
 
         var Application = Backbone.Marionette.Application.extend({
@@ -312,11 +314,7 @@ var RELATED_VARIABLES = {
                 var convertRangeFilters = function (object) {
                     _.each(object, function (value, key) {
                         if (Array.isArray(value)) {
-                            object[key] = {
-                                type: "RangeFilter",
-                                lowerBound: value[0],
-                                upperBound: value[1],
-                            };
+                            object[key] = viresFilters.createRangeFilter(value[0], value[1]);
                         }
                     });
                     return object;
@@ -1116,30 +1114,12 @@ var RELATED_VARIABLES = {
                 // Instance timeslider view
                 this.timeSliderView = new v.TimeSliderView(config.timeSlider);
 
-                var filterFunctionFactory = {
-                    "RangeFilter": function (filter) {
-                        var lowerBound = filter.lowerBound;
-                        var upperBound = filter.upperBound;
-                        return function (value) {
-                            return lowerBound <= value && value <= upperBound;
-                        };
-                    },
-                    "BitmaskFilter": function (filter) {
-                        if (filter.mask == 0) {return;}
-                        var mask = BitwiseInt.fromNumber(filter.mask);
-                        var selection = BitwiseInt.fromNumber(filter.selection);
-                        return function (value) {
-                            return BitwiseInt.fromNumber(value).and(mask).equals(selection);
-                        };
-                    },
-                };
-
                 // Load possible available filter selection
                 if (localStorage.getItem('filterSelection') !== null) {
                     var filters = JSON.parse(localStorage.getItem('filterSelection'));
                     var filterFunctions = {};
                     _.each(filters, function (filter, key) {
-                        var filterFunction = filterFunctionFactory[filter.type](filter);
+                        var filterFunction = viresFilters.getFilterFunction(filter);
                         if (filterFunction) {
                             filterFunctions[key] = filterFunction;
                         }

@@ -14,11 +14,11 @@
     'models/DownloadModel',
     'hbs!tmpl/DownloadFilter',
     'hbs!tmpl/RangeFilterTemplate',
-    'hbs!tmpl/BitmaskFilterTemplate',
     'hbs!tmpl/DownloadProcess',
     'hbs!tmpl/wps_fetchFilteredDataAsync',
     'views/DownloadFilters',
     'dataUtil',
+    'viresFilters',
     'underscore',
     'w2ui',
     'w2popup',
@@ -27,8 +27,8 @@
   ],
   function (
     Backbone, Communicator, globals, m, DownloadFilterTmpl, RangeFilterTmpl,
-    BitmaskFilterTmpl, DownloadProcessTmpl, wps_fetchFilteredDataAsync,
-    DownloadFilters, DataUtil
+    DownloadProcessTmpl, wps_fetchFilteredDataAsync,
+    DownloadFilters, DataUtil, viresFilters
   ) {
 
     var ESSENTIAL_PARAMETERS = [TIMESTAMP, "Latitude", "Longitude", "Radius"];
@@ -418,18 +418,11 @@
         if (has(filters, selected)) {
           this.currentFilters[selected] = filters[selected];
         } else if (has(parameters, "bitmask")) {
-          this.currentFilters[selected] = {
-            type: "BitmaskFilter",
-            size: parameters.bitmask.flags.length,
-            mask: 0,
-            selection: 0
-          };
+          this.currentFilters[selected] = viresFilters.createBitmaskFilter(
+            parameters.bitmask.flags.length, 0, 0
+          );
         } else {
-          this.currentFilters[selected] = {
-            type: "RangeFilter",
-            lowerBound: 0.0,
-            upperBound: 0.0
-          };
+          this.currentFilters[selected] = viresFilters.createRangeFilter(0.0, 0.0);
         }
         this.renderFilterList();
       },
@@ -461,16 +454,8 @@
 
           var aoi = this.model.get("AoI");
           if (aoi) {
-            filters["Longitude"] = {
-              type: "RangeFilter",
-              lowerBound: aoi.w,
-              upperBound: aoi.e
-            };
-            filters["Latitude"] = {
-              type: "RangeFilter",
-              lowerBound: aoi.s,
-              upperBound: aoi.n
-            };
+            filters["Longitude"] = viresFilters.createRangeFilter(aoi.w, aoi.e);
+            filters["Latitude"] = viresFilters.createRangeFilter(aoi.s, aoi.n);
           }
 
           // omit zero Bitmask filters
@@ -1012,30 +997,12 @@
         })[0] || null;
 
         // filters
-        var filters = [];
-
-        var extractAndFormatFilter = {
-          "RangeFilter": function (model) {
-            var variable = model.get("id");
-            var lowerBound = model.get("lowerBound");
-            var upperBound = model.get("upperBound");
-            return [variable, ">=", lowerBound, "AND", variable, "<=", upperBound].join(" ");
-          },
-          "BitmaskFilter": function (model) {
-            var variable = model.get("id");
-            var mask = model.get("mask");
-            var selection = model.get("selection");
-            return [variable, "&", mask, "==", mask & selection].join(" ");
-          },
-        };
-
-        _.each(this.filterViews, function (view, key) {
-          var filterType = view.model.get("type");
-          var formattedFilter = extractAndFormatFilter[filterType](view.model);
-          filters.push(formattedFilter);
+        var filters = _.map(this.filterViews, function (view, key) {
+          var model = view.model;
+          return viresFilters.formatFilter(model.get("id"), model.toFilter());
         });
 
-        options.filters = filters.join(" AND ");
+        options.filters = viresFilters.joinFormattedFilters(filters);
 
         // Custom variables
         var variables;
