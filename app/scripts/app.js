@@ -734,7 +734,7 @@ var RELATED_VARIABLES = {
                 var filtered = globals.products.filter(function (product) {
                     var id = product.get("download").id;
                     return !(id && id.match(
-                        /^SW_OPER_(MAG|EFI|EFI_TIE|IBI|TEC|FAC|EEF|IPD|AEJ)[ABCU_]/
+                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ)[ABCU_]/
                     ));
                 });
 
@@ -865,7 +865,7 @@ var RELATED_VARIABLES = {
 
                 var clickEvent = "require(['communicator'], function(Communicator){Communicator.mediator.trigger('application:reset');});";
 
-                // Derive what container need to be active from products
+                // Derive from product what container needs to be active
                 globals.products.forEach(function (product) {
                     var productType = get(collection2type, product.get('download').id);
                     if (productType && product.get('visible')) {
@@ -961,12 +961,20 @@ var RELATED_VARIABLES = {
                     id: "TEC"
                 }, {at: 0});
                 filtered_collection.add({
-                    name: "Bubble Index data (IBI)",
+                    name: "Bubble index data (IBI)",
                     visible: containerSelection['IBI'],
                     color: "#2ca02c",
                     protocol: null,
                     containerproduct: true,
                     id: "IBI"
+                }, {at: 0});
+                filtered_collection.add({
+                    name: "Ion temperature (EFI TIE)",
+                    visible: containerSelection['EFI_TIE'],
+                    color: "#ff7f0e",
+                    protocol: null,
+                    containerproduct: true,
+                    id: "EFI_TIE"
                 }, {at: 0});
                 filtered_collection.add({
                     name: "Plasma data (EFI LP)",
@@ -975,14 +983,6 @@ var RELATED_VARIABLES = {
                     protocol: null,
                     containerproduct: true,
                     id: "EFI"
-                }, {at: 0});
-                filtered_collection.add({
-                    name: "Ion Temperature Estimate (EFI TIE)",
-                    visible: containerSelection['EFI_TIE'],
-                    color: "#ff7f0e",
-                    protocol: null,
-                    containerproduct: true,
-                    id: "EFI_TIE"
                 }, {at: 0});
                 filtered_collection.add({
                     name: "Magnetic data (MAG LR)",
