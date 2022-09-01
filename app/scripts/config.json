@@ -28,7 +28,9 @@
             "<a href='https://notebooks.vires.services/notebooks/03b__demo-efix_lp_1b' target='notebooks'>Example VRE notebook</a>"
         ],
         "EFI_TIE": [
-            "<p>Swarm Ion Temperature Estimate</p>"
+            "<p>Swarm Ion Temperature Estimate</p>",
+            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#EFIxTIE_2_' target='_blank'>Product specification</a><br>",
+            "<a target='_blank' href='https://viresclient.readthedocs.io/en/latest/available_parameters.html#collections'>Python API</a>"
         ],
         "IBI": [
             "<p>Ionospheric bubble index data</p>",
