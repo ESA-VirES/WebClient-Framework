@@ -15,6 +15,7 @@ define(
         data: null,
         relatedData: new Backbone.Model(),
         sources: [],
+        filters: {},
       },
       clearSources: function () {
         this.set('sources', []);

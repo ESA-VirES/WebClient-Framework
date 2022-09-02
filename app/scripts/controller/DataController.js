@@ -205,9 +205,7 @@
 
       },
 
-      onAnalyticsFilterChanged: function (filters) {
-        //globals.swarm.set({filters: filters});
-      },
+      onAnalyticsFilterChanged: function (filters) {},
 
       checkSelections: function () {
         if (this.selected_time == null)
@@ -441,21 +439,16 @@
         // some issue with the saved filter configuration
         // Check if current brushes are valid for current data
         var availableVariables = _.keys(data.data);
-        var filters = globals.swarm.get('filters');
-        var filtersSelec = JSON.parse(localStorage.getItem('filterSelection'));
         var filtersModified = false;
-        if (filters) {
-          for (var filterName in filters) {
-            if (!availableVariables.includes(filterName)) {
-              delete filters[filterName];
-              delete filtersSelec[filterName];
-              filtersModified = true;
-            }
-          }
-          if (filtersModified) {
-            globals.swarm.set('filters', filters);
-            localStorage.setItem('filterSelection', JSON.stringify(filtersSelec));
-          }
+        var filters = globals.swarm.get('filters') || {};
+
+        var removedFilters = _.difference(_.keys(filters), availableVariables);
+
+        if (removedFilters.length > 0) {
+          filters = _.omit(filters, removedFilters);
+          localStorage.setItem('filterSelection', JSON.stringify(filters));
+          globals.swarm.set('filters', filters);
+          Communicator.mediator.trigger('analytics:set:filter', filters);
         }
 
         globals.swarm.appendSources(data.info.sources)

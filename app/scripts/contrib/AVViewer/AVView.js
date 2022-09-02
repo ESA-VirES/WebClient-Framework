@@ -277,27 +277,86 @@ define(['backbone.marionette',
             }
 
 
-            // Clone object
-            var filtersGlobal = _.omit(globals.swarm.get('uom_set'), EXCLUDED_FILTERS);
+            // Initialize graphly filter manager
+            this.filterManager = (function (selectedFilterList) {
 
-            var maskParameters = {};
-            _.each(filtersGlobal, function (item, name) {
-                if (has(item, "bitmask")) {
-                    maskParameters[name] = {values: item.bitmask.flags};
-                }
+                var filtersGlobal = _.omit(globals.swarm.get('uom_set'), EXCLUDED_FILTERS);
+
+                var maskParameters = {};
+                _.each(filtersGlobal, function (item, name) {
+                    if (has(item, "bitmask")) {
+                        maskParameters[name] = {values: item.bitmask.flags};
+                    }
+                });
+
+                var manager = new FilterManager({
+                    el: '#analyticsFilters',
+                    filterSettings: {
+                        visibleFilters: selectedFilterList,
+                        dataSettings: filtersGlobal,
+                        parameterMatrix: {},
+                        maskParameter: maskParameters,
+                    },
+                    showCloseButtons: true,
+                    ignoreParameters: EXCLUDED_PARAMETERS,
+                });
+
+
+                _.each(
+                    globals.swarm.get('filters') || {},
+                    function (filter, name) {
+                        switch (filter.type) {
+                            case "RangeFilter":
+                                manager._setFilter(name, filter.lowerBound, filter.upperBound);
+                                break;
+                            case "BitmaskFilter":
+                                manager._setMaskFilter(name, filter.mask, filter.selection);
+                                break;
+                        }
+                    }
+                );
+
+                return manager;
+
+            })(this.selectedFilterList);
+
+            this.filterManager.on('filterChange', function (filters) {
+                var names = _.intersection(this.visibleFilters, _.keys(filters));
+                var appliedFilters = {};
+
+                _.each(_.pick(this.brushes, names), function (range, name) {
+                    appliedFilters[name] = viresFilters.createRangeFilter(range[0], range[1]);
+                });
+
+                _.each(_.pick(this.maskParameter, names), function (data, name) {
+                    appliedFilters[name] = viresFilters.createBitmaskFilter(
+                        data.enabled.length,
+                        BitwiseInt.fromBoolArray(data.enabled).toNumber(),
+                        BitwiseInt.fromBoolArray(data.selection).toNumber()
+                    );
+                });
+
+                localStorage.setItem('filterSelection', JSON.stringify(appliedFilters));
+                globals.swarm.set({filters: appliedFilters});
+                Communicator.mediator.trigger('analytics:set:filter', appliedFilters);
+
+                // Make sure any open tooltips are cleared
+                $('.ui-tooltip').remove();
             });
 
-            this.filterManager = new FilterManager({
-                el: '#analyticsFilters',
-                filterSettings: {
-                    visibleFilters: this.selectedFilterList,
-                    dataSettings: filtersGlobal,
-                    parameterMatrix: {},
-                    maskParameter: maskParameters,
-                },
-                showCloseButtons: true,
-                ignoreParameters: EXCLUDED_PARAMETERS,
-            });
+            this.filterManager.on('removeFilter', _.bind(function (filterName) {
+                var manager = this.graph.filterManager;
+
+                manager.visibleFilters = _.without(manager.visibleFilters, filterName);
+                manager._removeFilter(filterName);
+                manager._filtersChanged();
+
+                this.selectedFilterList = manager.visibleFilters;
+                localStorage.setItem('selectedFilterList', JSON.stringify(this.selectedFilterList));
+
+                // I can modify options of w2field, but not aUOM, thus rerendering everything in list
+                that.renderFilterList();
+            }, this));
 
 
             var identifiers = [];
@@ -517,35 +576,6 @@ define(['backbone.marionette',
                 allowLockingAxisScale: true,
             });
 
-            if (localStorage.getItem('filterSelection') !== null) {
-                var filters = JSON.parse(localStorage.getItem('filterSelection'));
-                this.filterManager.brushes = {};
-                var filterSetters = {
-                    "RangeFilter": function (manager, name, filter) {
-                        manager.brushes[name] = [filter.lowerBound, filter.upperBound];
-                    },
-                    "BitmaskFilter": function (manager, name, filter) {
-                        if (has(manager.originalMaskParameter, name))
-                        {
-                            var size = manager.originalMaskParameter[name].values.length;
-                            filter.size = size; // fix the filter size
-                            manager.maskParameter[name] = _.extend(
-                                manager.originalMaskParameter[name],
-                                {
-                                    enabled: BitwiseInt.fromNumber(filter.mask).toBoolArray(filter.size),
-                                    selection: BitwiseInt.fromNumber(filter.selection).toBoolArray(filter.size),
-                                }
-                            );
-                        }
-                    },
-                };
-                _.each(filters, function (filter, name) {
-                    filterSetters[filter.type](this.filterManager, name, filter);
-                }, this);
-                this.graph.filters = globals.swarm.get('filters');
-                this.filterManager.filters = globals.swarm.get('filters');
-            }
-
             this.graph.on('colorScaleChange', function (parameter) {
                 globals.swarm.set('uom_set', this.dataSettings);
             });
@@ -628,51 +658,6 @@ define(['backbone.marionette',
                     );
                 } else {
                     Communicator.mediator.trigger('cesium:highlight:removeAll');
-                }
-            });
-
-            this.filterManager.on('filterChange', function (filters) {
-
-                var names = _.keys(filters);
-                var appliedFilters = {};
-
-                _.each(_.pick(this.brushes, names), function (range, name) {
-                    appliedFilters[name] = viresFilters.createRangeFilter(range[0], range[1]);
-                });
-
-                _.each(_.pick(this.maskParameter, names), function (data, name) {
-                    appliedFilters[name] = viresFilters.createBitmaskFilter(
-                        data.enabled.length,
-                        BitwiseInt.fromBoolArray(data.enabled).toNumber(),
-                        BitwiseInt.fromBoolArray(data.selection).toNumber()
-                    );
-                });
-
-                localStorage.setItem('filterSelection', JSON.stringify(appliedFilters));
-                Communicator.mediator.trigger('analytics:set:filter', appliedFilters);
-                globals.swarm.set({filters: filters});
-
-                // Make sure any open tooltips are cleared
-                $('.ui-tooltip').remove();
-
-            });
-
-            this.filterManager.on('removeFilter', function (filter) {
-                var index = that.selectedFilterList.indexOf(filter);
-                if (index !== -1) {
-                    that.selectedFilterList.splice(index, 1);
-                    // Check if filter was set
-                    if (that.graph.filterManager.filters.hasOwnProperty(filter)) {
-                        delete that.graph.filterManager.filters[filter];
-                        delete that.graph.filterManager.brushes[filter];
-                    }
-                    that.graph.filterManager._filtersChanged();
-                    localStorage.setItem(
-                        'selectedFilterList',
-                        JSON.stringify(that.selectedFilterList)
-                    );
-                    // I can modify options of w2field, but not aUOM, thus rerendering everything in list
-                    that.renderFilterList();
                 }
             });
 
@@ -981,13 +966,9 @@ define(['backbone.marionette',
             var selected = $('#inputAnalyticsAddfilter').val();
             if (selected !== '') {
                 this.selectedFilterList.push(selected);
-                var setts = this.graph.filterManager.filterSettings;
-                setts.visibleFilters = this.selectedFilterList;
-                this.graph.filterManager.updateFilterSettings(setts);
-                localStorage.setItem(
-                    'selectedFilterList',
-                    JSON.stringify(this.selectedFilterList)
-                );
+                this.graph.filterManager.visibleFilters = this.selectedFilterList;
+                this.graph.filterManager._filtersChanged();
+                localStorage.setItem('selectedFilterList', JSON.stringify(this.selectedFilterList));
                 this.renderFilterList();
             }
         },
@@ -1168,7 +1149,7 @@ define(['backbone.marionette',
                 return;
             }
 
-            var idKeys = Object.keys(data.data);
+            var idKeys = _.keys(data.data);
             this.currentKeys = idKeys;
 
             $('#nodataavailable').hide();
@@ -1222,7 +1203,7 @@ define(['backbone.marionette',
             // config from last time should be loaded
             if (!_.isEqual(this.prevParams, idKeys)) {
                 // Define which parameters should be selected defaultwise as filtering
-                var filterstouse = [
+                var requiredFilters = [
                     'Ne', 'Te', 'Bubble_Probability',
                     'Relative_STEC_RMS', 'Relative_STEC', 'Absolute_STEC',
                     'Absolute_VTEC', 'Elevation_Angle',
@@ -1233,59 +1214,30 @@ define(['backbone.marionette',
                     'Ti_meas_drift', 'Ti_model_drift', 'Tn_msis',
                     'Flags_F', 'Flags_B', "Flags_Bubble",
                     'Flag_ti_meas', 'Flag_ti_model',
+                    'MLT'
                 ];
 
-                filterstouse = filterstouse.concat(['MLT']);
                 var residuals = _.filter(idKeys, function (item) {
-                    return item.indexOf('_res_') !== -1;
+                    return item.includes('_res_');
                 });
                 // If new datasets contains residuals add those instead of normal components
                 if (residuals.length > 0) {
-                    filterstouse = filterstouse.concat(residuals);
+                    requiredFilters = requiredFilters.concat(residuals);
                 } else {
-                    if (filterstouse.indexOf('F') === -1) {
-                        filterstouse.push('F');
-                    }
-                    if (filterstouse.indexOf('F_error') === -1) {
-                        filterstouse.push('F_error');
-                    }
+                    requiredFilters = requiredFilters.concat(['F', 'F_error']);
                 }
 
-                // Check if configured filters apply to new data
-                for (var fKey in this.graph.filterManager.brushes) {
-                    if (idKeys.indexOf(fKey) === -1) {
-                        delete this.graph.filterManager.brushes[fKey];
-                    }
-                }
+                // Strip non-available parameters from the required filters
+                requiredFilters = _.intersection(requiredFilters, idKeys);
 
-                for (var filKey in this.graph.filterManager.filters) {
-                    if (idKeys.indexOf(filKey) === -1) {
-                        delete this.graph.filterManager.filters[fKey];
-                    }
-                }
+                // Add the required filters
+                this.selectedFilterList = _.union(this.selectedFilterList, requiredFilters);
+                localStorage.setItem('selectedFilterList', JSON.stringify(this.selectedFilterList));
 
-                for (var filgraphKey in this.graph.filters) {
-                    if (idKeys.indexOf(filgraphKey) === -1) {
-                        delete this.graph.filters[fKey];
-                    }
-                }
-
-                for (var i = filterstouse.length - 1; i >= 0; i--) {
-                    if (this.selectedFilterList.indexOf(filterstouse[i]) === -1) {
-                        this.selectedFilterList.push(filterstouse[i]);
-                    }
-                }
-                var setts = this.graph.filterManager.filterSettings;
-                setts.visibleFilters = this.selectedFilterList;
-
-
-                this.graph.filterManager.updateFilterSettings(setts);
-                localStorage.setItem(
-                    'selectedFilterList',
-                    JSON.stringify(this.selectedFilterList)
-                );
-                this.renderFilterList();
-                //localStorage.setItem('selectedFilterList', JSON.stringify(filterstouse));
+                // Update filters
+                var manager = this.graph.filterManager;
+                _.each(_.difference(manager.visibleFilters, idKeys), manager._removeFilter, manager);
+                manager.visibleFilters = this.selectedFilterList;
 
                 // Check if we want to change the y-selection
                 // If previous does not contain key data and new one
@@ -1490,15 +1442,6 @@ define(['backbone.marionette',
                 // TODO: We should not need to do anything here but we
                 // could introduce some sanity checks if strange data
                 // is loaded for some reason
-            }
-
-            // This should only happen here if there has been
-            // some issue with the saved filter configuration
-            // Check if current brushes are valid for current data
-            for (var fKey in this.graph.filterManager.brushes) {
-                if (idKeys.indexOf(fKey) === -1) {
-                    delete this.graph.filterManager.brushes[fKey];
-                }
             }
 
             this.$('#filterSelectDrop').remove();

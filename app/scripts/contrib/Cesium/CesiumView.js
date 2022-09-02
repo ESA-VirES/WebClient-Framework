@@ -22,6 +22,7 @@ define([
     'hbs!tmpl/SvgSymbolTriangle',
     'hbs!tmpl/wps_fetchFilteredData',
     'colormap',
+    'viresFilters',
     'cesium/Cesium',
     'drawhelper',
     'FileSaver',
@@ -30,7 +31,7 @@ define([
     DataUtil, tmplEvalModel, tmplFieldLinesLabel,
     tmplSvgSymbolCircle, tmplSvgSymbolDimond, tmplSvgSymbolDimondLarge,
     tmplSvgSymbolSquare, tmplSvgSymbolTriangle, tmplFetchFilteredData,
-    colormap
+    colormap, viresFilters
 ) {
     'use strict';
 
@@ -127,8 +128,9 @@ define([
         this.filters = _.map(
             _.pick(globals.swarm.get('filters') || {}, variables),
             function (filter, variable) {
+                var filterFunction = viresFilters.getFilterFunction(filter);
                 return function (record) {
-                    return filter(record[variable]);
+                    return filterFunction(record[variable]);
                 };
             }
         );

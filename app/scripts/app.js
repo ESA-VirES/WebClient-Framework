@@ -1129,14 +1129,7 @@ var RELATED_VARIABLES = {
                 // Load possible available filter selection
                 if (localStorage.getItem('filterSelection') !== null) {
                     var filters = JSON.parse(localStorage.getItem('filterSelection'));
-                    var filterFunctions = {};
-                    _.each(filters, function (filter, key) {
-                        var filterFunction = viresFilters.getFilterFunction(filter);
-                        if (filterFunction) {
-                            filterFunctions[key] = filterFunction;
-                        }
-                    });
-                    globals.swarm.set('filters', filterFunctions);
+                    globals.swarm.set('filters', filters);
                     Communicator.mediator.trigger('analytics:set:filter', filters);
                 }
             },
