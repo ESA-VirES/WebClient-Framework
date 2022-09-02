@@ -1,4 +1,4 @@
-/* global $ _ jQuery d3 require showMessage defaultFor */
+/* global $ _ jQuery d3 require showMessage defaultFor BitwiseInt */
 /* global has get pop pick */
 
 // model residual parameters
@@ -24,17 +24,22 @@ var SPACECRAFT_TO_ID = {
 
 var TIMESTAMP = 'Timestamp';
 
+// parameters displayed by Cesium as scalars
 var SCALAR_PARAM = [
-    "F", "Ne", "Te", "Vs", "U_orbit", "Bubble_Index", "Bubble_Probability",
-    "IRC", "FAC", "EEF",
+    "F", "Flags_F", "Flags_B", "Ne", "Te", "Vs", "U_orbit",
+    "Bubble_Index", "Bubble_Probability", "Flags_Bubble", "IRC", "FAC", "EEF",
     "Background_Ne", "Foreground_Ne", "PCP_flag", "Grad_Ne_at_100km", "Grad_Ne_at_50km",
     "Grad_Ne_at_20km", "Grad_Ne_at_PCP_edge", "ROD", "RODI10s", "RODI20s", "delta_Ne10s",
     "delta_Ne20s", "delta_Ne40s", "Num_GPS_satellites", "mVTEC", "mROT", "mROTI10s",
     "mROTI20s", "IBI_flag", "Ionosphere_region_flag", "IPIR_index", "Ne_quality_flag",
     "TEC_STD",
     "J_QD", "J_R", "J_CF_SemiQD", "J_DF_SemiQD", "Boundary_Flag", "Pair_Indicator",
+    "Tn_msis", "Ti_meas_drift", "Ti_model_drift", "Flag_ti_meas", "Flag_ti_model"
 ];
 
+// parameters displayed by Cesium as vectors by Cesium (note that some of them
+// are actually scalars and the vector orientation is taken from another
+// parameter)
 var VECTOR_PARAM = [
     "B_NEC", "B_NEC_resAC", "B_NEC_res_Model", "GPS_Position", "LEO_Position",
     "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle",
@@ -42,6 +47,7 @@ var VECTOR_PARAM = [
     'J_NE', 'J_T_NE', 'J_CF_NE', 'J_DF_NE',
 ];
 
+// breakdown of vector parameters to their components
 var VECTOR_BREAKDOWN = {
     'B_NEC': ['B_N', 'B_E', 'B_C'],
     'B_NEC_resAC': ['B_N_resAC', 'B_E_resAC', 'B_C_resAC'],
@@ -59,11 +65,19 @@ var VECTOR_BREAKDOWN = {
     'J_DF_NE': ['J_DF_N', 'J_DF_E'],
 };
 
+var REVERSE_VECTOR_BREAKDOWN = {};
+_.each(VECTOR_BREAKDOWN, function (components, source) {
+    _.each(components, function (component, index) {
+        REVERSE_VECTOR_BREAKDOWN[component] = {source: source, index: index};
+    });
+});
+
 // Ordered from highest resolution to lowest with the exception of FAC that
 // needs to be first as the master product needs to be the same
 var MASTER_PRIORITY = [
     'SW_OPER_FACATMS_2F', 'SW_OPER_FACBTMS_2F', 'SW_OPER_FACCTMS_2F', 'SW_OPER_FAC_TMS_2F', 'SW_OPER_FACUTMS_2F',
     'SW_OPER_EFIA_LP_1B', 'SW_OPER_EFIB_LP_1B', 'SW_OPER_EFIC_LP_1B', 'SW_OPER_EFIU_LP_1B',
+    'SW_OPER_EFIATIE_2_', 'SW_OPER_EFIBTIE_2_', 'SW_OPER_EFICTIE_2_', 'SW_OPER_EFIUTIE_2_',
     'SW_OPER_MAGA_LR_1B', 'SW_OPER_MAGB_LR_1B', 'SW_OPER_MAGC_LR_1B', 'SW_OPER_MAGU_LR_1B',
     'SW_OPER_TECATMS_2F', 'SW_OPER_TECBTMS_2F', 'SW_OPER_TECCTMS_2F', 'SW_OPER_TECUTMS_2F',
     'SW_OPER_IBIATMS_2F', 'SW_OPER_IBIBTMS_2F', 'SW_OPER_IBICTMS_2F', 'SW_OPER_IBIUTMS_2F',
@@ -183,6 +197,7 @@ var RELATED_VARIABLES = {
         'layouts/OptionsLayout',
         'core/SplitView/WindowView',
         'communicator',
+        'viresFilters',
         'jquery',
         'backbone.marionette',
         'controller/ContentController',
@@ -192,12 +207,15 @@ var RELATED_VARIABLES = {
         'controller/LoadingController',
         'controller/LayerController',
         'controller/SelectionController',
-        'controller/DataController'
+        'controller/DataController',
+        'd3',
+        'graphly',
     ],
 
     function (
         Backbone, globals, DialogRegion, UIRegion, LayerControlLayout,
-        ToolControlLayout, OptionsLayout, WindowView, Communicator
+        ToolControlLayout, OptionsLayout, WindowView, Communicator,
+        viresFilters
     ) {
 
         var Application = Backbone.Marionette.Application.extend({
@@ -297,9 +315,18 @@ var RELATED_VARIABLES = {
 
                 var translateKeys = function (object, translation_table) {
                     _.each(object, function (value, key) {
-                        if (translation_table.hasOwnProperty(key)) {
+                        if (has(translation_table, key)) {
                             object[translation_table[key]] = object[key];
                             delete object[key];
+                        }
+                    });
+                    return object;
+                };
+
+                var convertRangeFilters = function (object) {
+                    _.each(object, function (value, key) {
+                        if (Array.isArray(value)) {
+                            object[key] = viresFilters.createRangeFilter(value[0], value[1]);
                         }
                     });
                     return object;
@@ -336,9 +363,11 @@ var RELATED_VARIABLES = {
 
                 if (JSON.parse(localStorage.getItem('filterSelection')) !== null) {
                     localStorage.setItem('filterSelection', JSON.stringify(
-                        translateKeys(
-                            JSON.parse(localStorage.getItem('filterSelection')),
-                            REPLACED_SCALAR_VARIABLES
+                        convertRangeFilters(
+                            translateKeys(
+                                JSON.parse(localStorage.getItem('filterSelection')),
+                                REPLACED_SCALAR_VARIABLES
+                            )
                         )
                     ));
                 }
@@ -434,6 +463,18 @@ var RELATED_VARIABLES = {
 
                 // Remove three first colors as they are used by the products
                 autoColor.getColor();autoColor.getColor();autoColor.getColor();
+
+                // Fill the shared paremeters from the product type configuration.
+                var productTypes = get(config, "productTypes", {});
+                config.mapConfig.products = _.map(
+                    config.mapConfig.products,
+                    function (product) {
+                        if (has(product, "type") && has(productTypes, product.type)) {
+                            product = _.extend({}, productTypes[product.type], product);
+                        }
+                        return product;
+                    }
+                );
 
                 // If there are already saved product config in the local
                 // storage use that instead
@@ -623,6 +664,9 @@ var RELATED_VARIABLES = {
                     console.log("Added overlay " + overlay.name);
                 }, this);
 
+                // configure download parameters
+                globals.download.set(config.download);
+
                 // fetch user data info
                 _.extend(globals.userData, config.userData);
 
@@ -720,6 +764,12 @@ var RELATED_VARIABLES = {
                         "Charlie": "SW_OPER_EFIC_LP_1B",
                         "Upload": "SW_OPER_EFIU_LP_1B",
                     },
+                    "EFI_TIE": {
+                        "Alpha": "SW_OPER_EFIATIE_2_",
+                        "Bravo": "SW_OPER_EFIBTIE_2_",
+                        "Charlie": "SW_OPER_EFICTIE_2_",
+                        "Upload": "SW_OPER_EFIUTIE_2_",
+                    },
                     "IBI": {
                         "Alpha": "SW_OPER_IBIATMS_2F",
                         "Bravo": "SW_OPER_IBIBTMS_2F",
@@ -815,6 +865,7 @@ var RELATED_VARIABLES = {
                 var containerSelection = {
                     'MAG': false,
                     'EFI': false,
+                    'EFI_TIE': false,
                     'IBI': false,
                     'TEC': false,
                     'FAC': false,
@@ -826,7 +877,7 @@ var RELATED_VARIABLES = {
 
                 var clickEvent = "require(['communicator'], function(Communicator){Communicator.mediator.trigger('application:reset');});";
 
-                // Derive what container need to be active from products
+                // Derive from product what container needs to be active
                 globals.products.forEach(function (product) {
                     var productType = get(collection2type, product.get('download').id);
                     if (productType && product.get('visible')) {
@@ -922,12 +973,20 @@ var RELATED_VARIABLES = {
                     id: "TEC"
                 }, {at: 0});
                 filtered_collection.add({
-                    name: "Bubble Index data (IBI)",
+                    name: "Bubble index data (IBI)",
                     visible: containerSelection['IBI'],
                     color: "#2ca02c",
                     protocol: null,
                     containerproduct: true,
                     id: "IBI"
+                }, {at: 0});
+                filtered_collection.add({
+                    name: "Ion temperature (EFI TIE)",
+                    visible: containerSelection['EFI_TIE'],
+                    color: "#ff7f0e",
+                    protocol: null,
+                    containerproduct: true,
+                    id: "EFI_TIE"
                 }, {at: 0});
                 filtered_collection.add({
                     name: "Plasma data (EFI LP)",
@@ -947,9 +1006,9 @@ var RELATED_VARIABLES = {
                 }, {at: 0});
 
                 // Load possible additional tooltip information from config
-                filtered_collection.forEach(function(item) {
-                    if(config.hasOwnProperty("additionalInformation")
-                        && config.additionalInformation.hasOwnProperty(item.get("id"))) {
+                filtered_collection.forEach(function (item) {
+                    if (has(config, "additionalInformation")
+                        && has(config.additionalInformation, item.get("id"))) {
                         item.set("info", config.additionalInformation[item.get("id")].join(''));
                     }
                 });
@@ -1067,21 +1126,11 @@ var RELATED_VARIABLES = {
                 // Instance timeslider view
                 this.timeSliderView = new v.TimeSliderView(config.timeSlider);
 
-                var compare = function (val) {
-                    return val <= this[1] && val >= this[0];
-                };
-
                 // Load possible available filter selection
                 if (localStorage.getItem('filterSelection') !== null) {
                     var filters = JSON.parse(localStorage.getItem('filterSelection'));
-                    var filterfunc = {};
-                    for (var f in filters) {
-                        var ext = filters[f];
-                        filterfunc[f] = compare.bind(ext);
-                    }
-                    globals.swarm.set('filters', filterfunc);
+                    globals.swarm.set('filters', filters);
                     Communicator.mediator.trigger('analytics:set:filter', filters);
-                    //globals.swarm.set('filters', JSON.parse(localStorage.getItem('filterSelection')));
                 }
             },
 

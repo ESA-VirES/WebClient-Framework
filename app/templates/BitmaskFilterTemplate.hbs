@@ -1,0 +1,32 @@
+  <span class="form-control">
+    {{{name}}}
+    <input type="hidden" id="type" name="type" value="{{type}}">
+    <table style="float:right;margin-right:1em">
+    <tr style="line-height:0.8">
+        <td style="text-align:right">bit number:</td>
+        {{#each bits}}<td style="text-align:center"><span title="{{this.info}}">{{this.index}}</span></td>{{/each}}
+        <td></td>
+        <td style="text-align:right">value</td>
+        <td>/</td>
+        <td style="text-align:left">mask</td>
+    </tr>
+    <tr style="line-height:0.8;vertical-align:baseline">
+        <td style="text-align:right;">selection:</td>
+        {{#each bits}}<td>
+          <div style="display:inline-block; position:relative;">
+            <input id="cb{{this.index}}" data-bit-index="{{this.index}}" {{this.tabIndex}}" type="checkbox"{{#if this.selected}} checked{{/if}}{{#unless this.enabled}} disabled{{/unless}} style="margin-top:0px">
+            <div data-bit-index="{{this.index}}" data-checkbox-id="cb{{this.index}}" class="checkbox-overlay" style="position:absolute; left:0; right:0; top:0; bottom:0;" title="{{#if this.enabled}}matched records require {{this.label}} flag to be set to {{#if this.selected}}1{{else}}0{{/if}}{{else}}{{this.label}} flag is ignored{{/if}}"></div>
+          </div>
+        </td>{{/each}}
+        <td>&nbsp;=&nbsp;</td>
+        <td style="text-align:right;">{{selection}}</td>
+        <td>/</td>
+        <td style="text-align:left;">{{mask}}</td>
+    </tr>
+    </table>
+  </span>
+  <span class="input-group-btn">
+    <button tabindex="{{index3}}" rows="1" class="btn btn-danger delete-filter" type="button">
+      <i class="fa fa-minus-circle"></i>
+    </button>
+  </span>

@@ -6,7 +6,7 @@ var mountFolder = function (connect, dir) {
     return connect.static(require('path').resolve(dir));
 };
 
-var proxySnippet = require('grunt-connect-proxy/lib/utils').proxyRequest;
+var proxySnippet = require('grunt-connect-proxy2/lib/utils').proxyRequest;
 
 // # Globbing
 // for performance reasons we're only matching one level down:
@@ -18,7 +18,7 @@ var proxySnippet = require('grunt-connect-proxy/lib/utils').proxyRequest;
 module.exports = function (grunt) {
     // load all grunt tasks
     require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
-    grunt.loadNpmTasks('grunt-connect-proxy');
+    grunt.loadNpmTasks('grunt-connect-proxy2');
     // configurable paths
     var yeomanConfig = {
         app: 'app',
@@ -75,28 +75,31 @@ module.exports = function (grunt) {
             },
             proxies: [{
                 context: '/vires00',
-                //host: 'staging.vires.services',
-                host: 'localhost',
-                port: 8300,
+                host: 'testing.vires.services',
+                // host: 'localhost',
+                // port: 8300,
                 rewrite: {
                     '^/vires00': '/'
                 },
-                /*portocol: 'https',
-                https: true,*/
+                portocol: 'https',
+                https: true,
                 changeOrigin: true,
                 xforward: false
             },{
                 context: '/ows',
-                host: 'localhost',
-                port: 8300
+                host: 'testing.vires.services',
+                // host: 'localhost',
+                // port: 8300
             },{
                 context: '/wps',
-                host: 'localhost',
-                port: 8300
+                host: 'testing.vires.services',
+                // host: 'localhost',
+                // port: 8300
             },{
                 context: '/custom_data',
-                host: 'localhost',
-                port: 8300
+                host: 'testing.vires.services',
+                // host: 'localhost',
+                // port: 8300
             }],
             livereload: {
                 options: {
