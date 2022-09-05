@@ -28,8 +28,13 @@
             "<a href='https://notebooks.vires.services/notebooks/03b__demo-efix_lp_1b' target='notebooks'>Example VRE notebook</a>"
         ],
         "EFI_TIE": [
-            "<p>Swarm Ion Temperature Estimate</p>",
+            "<p>Ion temperature estimate</p>",
             "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#EFIxTIE_2_' target='_blank'>Product specification</a><br>",
+            "<a target='_blank' href='https://viresclient.readthedocs.io/en/latest/available_parameters.html#collections'>Python API</a>"
+        ],
+        "EFI_IDM": [
+            "<p>Ion drift, density and effective mass data</p>",
+            "<a href='https://earth.esa.int/eogateway/documents/20142/2860886/SLIDEM_Product_Definition.pdf' target='_blank'>Product specification</a><br>",
             "<a target='_blank' href='https://viresclient.readthedocs.io/en/latest/available_parameters.html#collections'>Python API</a>"
         ],
         "IBI": [
@@ -261,11 +266,12 @@
                     "uom": null,
                     "colorscale": "plasma",
                     "name": "Flags characterizing the magnetic field intensity measurement (F)",
+                    "hidden": true,
                     "bitmask": {
                         "flags": [
-                            ["bit 0", "Set if ASM is running in vector mode."],
+                            ["bit 0", "Set when ASM is running in vector mode."],
                             ["bit 1", "Set for outlier detected, gap, or not enough ASM frequency calibration data for filtering."],
-                            ["bit 2", "Set if at least one of 4 nearest ASM samples is suspicious."],
+                            ["bit 2", "Set when at least one of 4 nearest ASM samples is suspicious."],
                             ["bit 3", "Set for loss of magnetic field lock or telemetry within 8 seconds after ASM restart."],
                             ["bit 4", "Set for discrepancy between ASM and VFM measurements – at least one of the 4 nearest ASM samples differ from VFM measurements."],
                             ["bit 5", "Set for gap in 4 nearest ASM samples."],
@@ -279,9 +285,10 @@
                     "uom": null,
                     "colorscale": "plasma",
                     "name": "Flags characterizing the magnetic field vector measurement (B_VFM, B_NEC)",
+                    "hidden": true,
                     "bitmask": {
                         "flags": [
-                            ["bit 0", "Set if ASM instrument is turned off."],
+                            ["bit 0", "Set when ASM instrument is turned off."],
                             ["bit 1", "Set for outlier detected, gap, or not enough VFM temperature data for filtering."],
                             ["bit 2", "Set for suspiciuos VFM sample."],
                             ["bit 3", "Set for more than 5 suspiciuos VFM samples in 2 seconds surrounding record time."],
@@ -598,6 +605,7 @@
                     "uom": null,
                     "colorscale": "plasma",
                     "name": "Flags (TII-based)",
+                    "hidden": true,
                     "bitmask": {
                         "flags": [
                             ["bit 0", "High-latitude frictional heating included/omitted"],
@@ -611,6 +619,7 @@
                     "uom": null,
                     "colorscale": "plasma",
                     "name": "Flags (model-based)",
+                    "hidden": true,
                     "bitmask": {
                         "flags": [
                             ["bit 0", "High-latitude frictional heating included/omitted"],
@@ -672,6 +681,264 @@
                 "Flag_ti_model": {
                     "uom": null,
                     "name": "Flags (Weimer 2005)"
+                }
+            }
+        },
+        "SW_EFIxIDM_2_": {
+            "satellite": "Swarm",
+            "parameters": {
+                "M_i_eff": {
+                    "range": [0, 20],
+                    "colorscale": "ylgnbu",
+                    "uom": "a.m.u.",
+                    "name": "Ion effective mass.",
+                    "selected": true,
+                    "errorParameter": "M_i_eff_err"
+                },
+                "M_i_eff_tbt_model": {
+                    "range": [0, 20],
+                    "colorscale": "ylgnbu",
+                    "uom": "a.m.u.",
+                    "name": "Ion effective mass from Truhlik et al. (2015) topside empirical model."
+                },
+                "M_i_eff_err": {
+                    "range": [0.0, 5.0],
+                    "colorscale": "jet",
+                    "uom": "a.m.u.",
+                    "name": "Ion effective mass uncertainty."
+                },
+                "M_i_eff_Flags": {
+                    "range": [0, 262144],
+                    "colorscale": "plasma",
+                    "uom": null,
+                    "name": "Ion effective mass validity flag.",
+                    "hidden": true,
+                    "bitmask": {
+                        "flags": [
+                            ["bit 0", "Set when faceplate current is unavailable"],
+                            ["bit 1", "Set when IDM product calculation did not converge"],
+                            ["bit 2", "Set when IDM product estimate is not finite and real"],
+                            ["bit 3", "Set when IDM uncertainty estimate is not finite and real"],
+                            ["bit 4", "Set when modified OML faceplate area is not finite and real"],
+                            ["bit 5", "Set when modified OML LP probe radius is not finite and real"],
+                            ["bit 6", "Set when QD-latitude is not within region of validity"],
+                            ["bit 7", "Set when modified OML faceplate area estimate is not valid"],
+                            ["bit 8", "Set when modified OML LP probe radius estimate is not valid"],
+                            ["bit 9", "Set when IDM product estimate is large. Interpret with caution"],
+                            ["bit 10", "Set when IDM product estimate is small. Interpret with caution"],
+                            ["bit 11", "Set when extended LP dataset inputs are invalid"],
+                            ["bit 12", "Set when LP probe potentials differ by more than 0.3 V"],
+                            ["bit 13", "Set when spacecraft potential is too negative"],
+                            ["bit 14", "Set when spacecraft potential is too positive"],
+                            ["bit 15", "Set when spacecraft velocity unavailable"],
+                            ["bit 16", "Set for post processing error / post-processing not done"],
+                            ["bit 17", "Set for invalid magnetic field input"]
+                        ]
+                    }
+                },
+                "V_i": {
+                    "range": [-150000, 150000],
+                    "colorscale": "diverging_1",
+                    "uom": "m/s",
+                    "name": "Ion along-track drift.",
+                    "errorParameter": "V_i_err"
+                },
+                "V_i_raw": {
+                    "range": [-150000, 150000],
+                    "colorscale": "diverging_1",
+                    "uom": "m/s",
+                    "name": "Ion along-track drift without high-latitude detrending."
+                },
+                "V_i_err": {
+                    "range": [0, 100000],
+                    "colorscale": "jet",
+                    "uom": "m/s",
+                    "name": "Ion along-track drift uncertainty."
+                },
+                "V_i_Flags": {
+                    "range": [0, 262144],
+                    "colorscale": "plasma",
+                    "uom": null,
+                    "name": "Ion along-track drift validity flag.",
+                    "hidden": true,
+                    "bitmask": {
+                        "flags": [
+                            ["bit 0", "Set when faceplate current is unavailable"],
+                            ["bit 1", "Set when IDM product calculation did not converge"],
+                            ["bit 2", "Set when IDM product estimate is not finite and real"],
+                            ["bit 3", "Set when IDM uncertainty estimate is not finite and real"],
+                            ["bit 4", "Set when modified OML faceplate area is not finite and real"],
+                            ["bit 5", "Set when modified OML LP probe radius is not finite and real"],
+                            ["bit 6", "Set when QD-latitude is not within region of validity"],
+                            ["bit 7", "Set when modified OML faceplate area estimate is not valid"],
+                            ["bit 8", "Set when modified OML LP probe radius estimate is not valid"],
+                            ["bit 9", "Set when IDM product estimate is large. Interpret with caution"],
+                            ["bit 10", "Set when IDM product estimate is small. Interpret with caution"],
+                            ["bit 11", "Set when extended LP dataset inputs are invalid"],
+                            ["bit 12", "Set when LP probe potentials differ by more than 0.3 V"],
+                            ["bit 13", "Set when spacecraft potential is too negative"],
+                            ["bit 14", "Set when spacecraft potential is too positive"],
+                            ["bit 15", "Set when spacecraft velocity unavailable"],
+                            ["bit 16", "Set for post processing error / post-processing not done"],
+                            ["bit 17", "Set for invalid magnetic field input"]
+                        ]
+                    }
+                },
+                "N_i": {
+                    "range": [0, 1e6],
+                    "colorscale": "plasma",
+                    "uom": "cm-3",
+                    "name": "Ion density.",
+                    "errorParameter": "N_i_err"
+                },
+                "N_i_err": {
+                    "range": [0, 1e3],
+                    "colorscale": "plasma",
+                    "uom": "cm-3",
+                    "name": "Ion density uncertainty."
+                },
+                "N_i_Flags": {
+                    "range": [0, 262144],
+                    "colorscale": "plasma",
+                    "uom": null,
+                    "name": "Ion density validity flag.",
+                    "hidden": true,
+                    "bitmask": {
+                        "flags": [
+                            ["bit 0", "Set when faceplate current is unavailable"],
+                            ["bit 1", "Set when IDM product calculation did not converge"],
+                            ["bit 2", "Set when IDM product estimate is not finite and real"],
+                            ["bit 3", "Set when IDM uncertainty estimate is not finite and real"],
+                            ["bit 4", "Set when modified OML faceplate area is not finite and real"],
+                            ["bit 5", "Set when modified OML LP probe radius is not finite and real"],
+                            ["bit 6", "Set when QD-latitude is not within region of validity"],
+                            ["bit 7", "Set when modified OML faceplate area estimate is not valid"],
+                            ["bit 8", "Set when modified OML LP probe radius estimate is not valid"],
+                            ["bit 9", "Set when IDM product estimate is large. Interpret with caution"],
+                            ["bit 10", "Set when IDM product estimate is small. Interpret with caution"],
+                            ["bit 11", "Set when extended LP dataset inputs are invalid"],
+                            ["bit 12", "Set when LP probe potentials differ by more than 0.3 V"],
+                            ["bit 13", "Set when spacecraft potential is too negative"],
+                            ["bit 14", "Set when spacecraft potential is too positive"],
+                            ["bit 15", "Set when spacecraft velocity unavailable"],
+                            ["bit 16", "Set for post processing error / post-processing not done"],
+                            ["bit 17", "Set for invalid magnetic field input"]
+                        ]
+                    }
+                },
+                "T_e": {
+                    "range": [1000, 5000],
+                    "colorscale": "portland",
+                    "uom": "K",
+                    "name": "Electron temperature."
+                },
+                "Phi_sc": {
+                    "range": [-3, 0],
+                    "colorscale": "jet",
+                    "uom": "V",
+                    "name": "Spacecraft floating potential with respect to plasma potential far from satellite."
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "Latitude_GD": {
+                    "uom": "deg",
+                    "name": "WGS84 geodetic latitude"
+                },
+                "Height_GD": {
+                    "uom": "m",
+                    "name": "Height above WGS84 reference ellipsoid"
+                },
+                "QDLat": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude"
+                },
+                "QDLon": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude"
+                },
+                "MLT": {
+                    "uom": null,
+                    "name": "Magnetic local time"
+                },
+                "V_sat_nec": {
+                    "uom": "m/s",
+                    "name": "Satellite velocity in north, east, centre (NEC) reference frame."
+                },
+                "M_i_eff": {
+                    "uom": "a.m.u.",
+                    "name": "Ion effective mass."
+                },
+                "M_i_eff_err": {
+                    "uom": "a.m.u.",
+                    "name": "Ion effective mass uncertainty."
+                },
+                "M_i_eff_Flags": {
+                    "uom": null,
+                    "name": "Ion effective mass validity flag."
+                },
+                "M_i_eff_tbt_model": {
+                    "uom": "a.m.u.",
+                    "name": "Ion effective mass from Truhlik et al. (2015) topside empirical model."
+                },
+                "V_i": {
+                    "uom": "m/s",
+                    "name": "Ion along-track drift."
+                },
+                "V_i_err": {
+                    "uom": "m/s",
+                    "name": "Ion along-track drift uncertainty."
+                },
+                "V_i_Flags": {
+                    "uom": null,
+                    "name": "Ion along-track drift validity flag."
+                },
+                "V_i_raw": {
+                    "uom": "m/s",
+                    "name": "Ion along-track drift without high-latitude detrending."
+                },
+                "N_i": {
+                    "uom": "cm-3",
+                    "name": "Ion density."
+                },
+                "N_i_err": {
+                    "uom": "cm-3",
+                    "name": "Ion density uncertainty."
+                },
+                "N_i_Flags": {
+                    "uom": null,
+                    "name": "Ion density validity flag."
+                },
+                "A_fp": {
+                    "uom": "m2",
+                    "name": "Modified-OML EFI faceplate area."
+                },
+                "R_p": {
+                    "uom": "m",
+                    "name": "Modified-OML Langmuir spherical probe radius."
+                },
+                "T_e": {
+                    "uom": "K",
+                    "name": "Electron temperature."
+                },
+                "Phi_sc": {
+                    "uom": "V",
+                    "name": "Spacecraft floating potential with respect to plasma potential far from satellite."
                 }
             }
         },
@@ -1021,6 +1288,7 @@
                     "uom": null,
                     "colorscale": "plasma",
                     "name": "Flags related to the plasma bubble index",
+                    "hidden": true,
                     "bitmask": {
                         "flags": [
                             ["bit 0", "Set for confirmed plasma bubble."],
@@ -1995,6 +2263,116 @@
             }],
             "download": {
                 "id": "SW_OPER_EFIUTIE_2_"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "download_parameters": {},
+            "outlines": false,
+            "satellite": "Upload"
+        }, {
+            "name": "EFI A IDM 2",
+            "type": "SW_EFIxIDM_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#ff7f0e",
+            "views": [{
+                "id": "SW_PREL_EFIAIDM_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_PREL_EFIAIDM_2_",
+                "protocol": "EOWCS",
+                "url": "/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_PREL_EFIAIDM_2_"
+                }
+            ],
+            "outlines": false,
+            "satellite": "Swarm"
+
+        }, {
+            "name": "EFI B IDM 2",
+            "type": "SW_EFIxIDM_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#ff7f0e",
+            "views": [{
+                "id": "SW_PREL_EFIBIDM_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_PREL_EFIBIDM_2_",
+                "protocol": "EOWCS",
+                "url": "/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_PREL_EFIBIDM_2_"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "EFI C IDM 2",
+            "type": "SW_EFIxIDM_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#ff7f0e",
+            "views": [{
+                "id": "SW_PREL_EFICIDM_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_PREL_EFICIDM_2_",
+                "protocol": "EOWCS",
+                "url": "/vires00/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_PREL_EFICIDM_2_"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "EFI U IDM 2",
+            "type": "SW_EFIxIDM_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#ff7f0e",
+            "views": [{
+                "id": "SW_PREL_EFIUIDM_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_PREL_EFIUIDM_2_"
             },
             "processes" : [
                 {
