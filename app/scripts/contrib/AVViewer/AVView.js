@@ -1,17 +1,22 @@
-/* global $ _ define w2popup w2utils showMessage graphly plotty FilterManager */
+/* global $ _ define w2popup w2utils showMessage */
+/* global plotty graphly FilterManager BitwiseInt */
 /* global savePrameterStatus VECTOR_BREAKDOWN */
-/* global get setDefault */
+/* global get has setDefault */
 
 define(['backbone.marionette',
     'communicator',
     'app',
     'models/AVModel',
     'globals',
+    'viresFilters',
     'd3',
     'graphly',
     'analytics'
-], function (Marionette, Communicator, App, AVModel, globals) {
+], function (Marionette, Communicator, App, AVModel, globals, viresFilters) {
     'use strict';
+
+    // variables not not offered as filters
+    var EXCLUDED_FILTERS = ['QDLatitude_periodic', 'Latitude_periodic'];
 
     // parameters not visible in the AV panel
     var EXCLUDED_PARAMETERS = [
@@ -272,67 +277,86 @@ define(['backbone.marionette',
             }
 
 
-            // Clone object
-            var filtersGlobal = _.clone(globals.swarm.get('uom_set'));
-            //filter out periodic latitudes from initial filters
-            var filtersNotUsed = ['QDLatitude_periodic', 'Latitude_periodic'];
-            for (var i = 0; i < filtersNotUsed.length; i++) {
-                if (filtersGlobal.hasOwnProperty(filtersNotUsed[i])) {
-                    delete filtersGlobal[filtersNotUsed[i]];
-                }
-            }
-            /*
-            var filtersGlobalFiltered = _.filter(filtersGlobal, function (obj, key) {
-                if (!filtersNotUsed.some(function (filter) {return key.indexOf(filter) >= 0;})) {
-                    // Filter not found in list of not to be used ones
-                    return true;
-                } else {
-                    return false;
-                }
-            });*/
-            this.filterManager = new FilterManager({
-                el: '#analyticsFilters',
-                filterSettings: {
-                    visibleFilters: this.selectedFilterList,
-                    dataSettings: filtersGlobal,
-                    parameterMatrix: {},
-                    maskParameter: {
-                        'Flag_ti_meas': {
-                            values: [
-                                ['Bit 0', 'High-latitude frictional heating included/omitted'],
-                                ['Bit 1', 'Electron temperature from low/high-gain probe'],
-                                ['Bit 2', 'Ion temperature data available/data value is set to NaN'],
-                            ]
-                        },
-                        'Flag_ti_model': {
-                            values: [
-                                ['Bit 0', 'High-latitude frictional heating included/omitted'],
-                                ['Bit 1', 'Electron temperature from low/high-gain probe'],
-                                ['Bit 2', 'Ion temperature data available/data value is set to NaN'],
-                            ]
-                        },
-                        'Quality_flags': {
-                            values: [
-                                ['Bit 0', 'Vixh calibration successful(1)/unsuccessful(0)'],
-                                ['Bit 1', 'Vixv calibration successful(1)/unsuccessful(0)'],
-                                ['Bit 2', 'Viy calibration successful(1)/unsuccessful(0)'],
-                                ['Bit 3', 'Viz calibration successful(1)/unsuccessful(0)'],
-                            ]
-                        },
-                        'Calibration_flags': {
-                            values: [
-                                ['Bit 0', '1 indicates that a background linear model offset was not removed'],
-                                ['Bit 1', '1 indicates that this was an incomplete fit region, and therefore no background subtraction was performed.'],
-                                ['Bit 2', '1 indicates that the GNU Scientific Library reported a fit error'],
-                                ['Bit 3', '1 indicates that the mid-latitude median absolute deviation threshold was exceeded'],
-                                ['Bit 4', '1 indicates that the 16 Hz ion flow magnitude exceeded 8 km/s'],
-                            ]
-                        },
+            // Initialize graphly filter manager
+            this.filterManager = (function (selectedFilterList) {
+
+                var filtersGlobal = _.omit(globals.swarm.get('uom_set'), EXCLUDED_FILTERS);
+
+                var maskParameters = {};
+                _.each(filtersGlobal, function (item, name) {
+                    if (has(item, "bitmask")) {
+                        maskParameters[name] = {values: item.bitmask.flags};
                     }
-                },
-                showCloseButtons: true,
-                ignoreParameters: EXCLUDED_PARAMETERS,
+                });
+
+                var manager = new FilterManager({
+                    el: '#analyticsFilters',
+                    filterSettings: {
+                        visibleFilters: selectedFilterList,
+                        dataSettings: filtersGlobal,
+                        parameterMatrix: {},
+                        maskParameter: maskParameters,
+                    },
+                    showCloseButtons: true,
+                    ignoreParameters: EXCLUDED_PARAMETERS,
+                });
+
+
+                _.each(
+                    globals.swarm.get('filters') || {},
+                    function (filter, name) {
+                        switch (filter.type) {
+                            case "RangeFilter":
+                                manager._setFilter(name, filter.lowerBound, filter.upperBound);
+                                break;
+                            case "BitmaskFilter":
+                                manager._setMaskFilter(name, filter.mask, filter.selection);
+                                break;
+                        }
+                    }
+                );
+
+                return manager;
+
+            })(this.selectedFilterList);
+
+            this.filterManager.on('filterChange', function (filters) {
+                var names = _.intersection(this.visibleFilters, _.keys(filters));
+                var appliedFilters = {};
+
+                _.each(_.pick(this.brushes, names), function (range, name) {
+                    appliedFilters[name] = viresFilters.createRangeFilter(range[0], range[1]);
+                });
+
+                _.each(_.pick(this.maskParameter, names), function (data, name) {
+                    appliedFilters[name] = viresFilters.createBitmaskFilter(
+                        data.enabled.length,
+                        BitwiseInt.fromBoolArray(data.enabled).toNumber(),
+                        BitwiseInt.fromBoolArray(data.selection).toNumber()
+                    );
+                });
+
+                localStorage.setItem('filterSelection', JSON.stringify(appliedFilters));
+                globals.swarm.set({filters: appliedFilters});
+                Communicator.mediator.trigger('analytics:set:filter', appliedFilters);
+
+                // Make sure any open tooltips are cleared
+                $('.ui-tooltip').remove();
             });
+
+            this.filterManager.on('removeFilter', _.bind(function (filterName) {
+                var manager = this.graph.filterManager;
+
+                manager.visibleFilters = _.without(manager.visibleFilters, filterName);
+                manager._removeFilter(filterName);
+                manager._filtersChanged();
+
+                this.selectedFilterList = manager.visibleFilters;
+                localStorage.setItem('selectedFilterList', JSON.stringify(this.selectedFilterList));
+
+                // I can modify options of w2field, but not aUOM, thus rerendering everything in list
+                that.renderFilterList();
+            }, this));
 
 
             var identifiers = [];
@@ -552,13 +576,6 @@ define(['backbone.marionette',
                 allowLockingAxisScale: true,
             });
 
-            if (localStorage.getItem('filterSelection') !== null) {
-                var filters = JSON.parse(localStorage.getItem('filterSelection'));
-                this.filterManager.brushes = filters;
-                this.graph.filters = globals.swarm.get('filters');
-                this.filterManager.filters = globals.swarm.get('filters');
-            }
-
             this.graph.on('colorScaleChange', function (parameter) {
                 globals.swarm.set('uom_set', this.dataSettings);
             });
@@ -641,34 +658,6 @@ define(['backbone.marionette',
                     );
                 } else {
                     Communicator.mediator.trigger('cesium:highlight:removeAll');
-                }
-            });
-
-            this.filterManager.on('filterChange', function (filters) {
-                localStorage.setItem('filterSelection', JSON.stringify(this.brushes));
-                Communicator.mediator.trigger('analytics:set:filter', this.brushes);
-                globals.swarm.set({filters: filters});
-                // Make sure any open tooltips are cleared
-                $('.ui-tooltip').remove();
-
-            });
-
-            this.filterManager.on('removeFilter', function (filter) {
-                var index = that.selectedFilterList.indexOf(filter);
-                if (index !== -1) {
-                    that.selectedFilterList.splice(index, 1);
-                    // Check if filter was set
-                    if (that.graph.filterManager.filters.hasOwnProperty(filter)) {
-                        delete that.graph.filterManager.filters[filter];
-                        delete that.graph.filterManager.brushes[filter];
-                    }
-                    that.graph.filterManager._filtersChanged();
-                    localStorage.setItem(
-                        'selectedFilterList',
-                        JSON.stringify(that.selectedFilterList)
-                    );
-                    // I can modify options of w2field, but not aUOM, thus rerendering everything in list
-                    that.renderFilterList();
                 }
             });
 
@@ -912,11 +901,23 @@ define(['backbone.marionette',
 
             // extract parameters from the product configuration
             globals.products.each(function (product) {
-                var parameters = product.get('download_parameters') || {};
-                _.extend(availableParameters, parameters);
-                if (product.get('visible')) {
-                    _.extend(activeParameters, parameters);
-                }
+                var isVisible = product.get('visible');
+                // extract parameters
+                _.each(product.get('download_parameters') || {}, function (item, name) {
+                    if (get(item, "ignore")) return;
+                    var item_copy = _.clone(item);
+                    availableParameters[name] = item_copy;
+                    if (isVisible) {
+                        activeParameters[name] = item_copy;
+                    }
+                });
+
+                // extract bitmask configuration
+                _.each(product.get('parameters') || {}, function (item, name) {
+                    if (has(item, "bitmask")) {
+                        availableParameters[name].bitmask = item.bitmask;
+                    }
+                });
             });
 
             // update parameters
@@ -965,13 +966,9 @@ define(['backbone.marionette',
             var selected = $('#inputAnalyticsAddfilter').val();
             if (selected !== '') {
                 this.selectedFilterList.push(selected);
-                var setts = this.graph.filterManager.filterSettings;
-                setts.visibleFilters = this.selectedFilterList;
-                this.graph.filterManager.updateFilterSettings(setts);
-                localStorage.setItem(
-                    'selectedFilterList',
-                    JSON.stringify(this.selectedFilterList)
-                );
+                this.graph.filterManager.visibleFilters = this.selectedFilterList;
+                this.graph.filterManager._filtersChanged();
+                localStorage.setItem('selectedFilterList', JSON.stringify(this.selectedFilterList));
                 this.renderFilterList();
             }
         },
@@ -1061,41 +1058,20 @@ define(['backbone.marionette',
 
             filCon.find('.w2ui-field').remove();
 
-            var filtersNotUsed = ['QDLatitude_periodic', 'Latitude_periodic'];
-            var aUOM = {};
-            // Clone object
-            _.each(globals.swarm.get('uom_set'), function (obj, key) {
-                if (!filtersNotUsed.some(function (filter) {return key.indexOf(filter) >= 0;})) {
-                    // Filter not found in list of not to be used ones
-                    aUOM[key] = obj;
-                }
-            });
+            // Show only filters for currently available data, ...
+            var aUOM = _.pick(globals.swarm.get('uom_set'), this.currentKeys);
 
-            // Remove currently visible filters from list
-            for (var i = 0; i < this.selectedFilterList.length; i++) {
-                if (aUOM.hasOwnProperty(this.selectedFilterList[i])) {
-                    delete aUOM[this.selectedFilterList[i]];
-                }
-            }
-
-            // Show only filters for currently available data
-            for (var key in aUOM) {
-                if (this.currentKeys && this.currentKeys.indexOf(key) === -1) {
-                    delete aUOM[key];
-                }
-            }
-
-            // Remove unwanted parameters
-            if (aUOM.hasOwnProperty('Timestamp')) {delete aUOM.Timestamp;}
-            if (aUOM.hasOwnProperty('timestamp')) {delete aUOM.timestamp;}
-            if (aUOM.hasOwnProperty('q_NEC_CRF')) {delete aUOM.q_NEC_CRF;}
-            if (aUOM.hasOwnProperty('GPS_Position')) {delete aUOM.GPS_Position;}
-            if (aUOM.hasOwnProperty('LEO_Position')) {delete aUOM.LEO_Position;}
-            if (aUOM.hasOwnProperty('Spacecraft')) {delete aUOM.Spacecraft;}
-            if (aUOM.hasOwnProperty('id')) {delete aUOM.id;}
-            _.each(EXCLUDED_PARAMETERS, function (parameter) {
-                if (aUOM.hasOwnProperty(parameter)) {delete aUOM[parameter];}
-            });
+            // ... do not show currently visible filters,
+            // and remove other excluded parameters
+            aUOM = _.omit(aUOM, _.flatten([
+                this.selectedFilterList,
+                EXCLUDED_FILTERS,
+                EXCLUDED_PARAMETERS,
+                [
+                    'Timestamp', 'timestamp', 'q_NEC_CRF', 'GPS_Position',
+                    'LEO_Position', 'Spacecraft', 'id',
+                ]
+            ]));
 
             $('#filterSelectDrop').prepend(
                 '<div class="w2ui-field"> <button id="analyticsAddFilter" type="button" class="btn btn-success darkbutton dropdown-toggle">Add filter <span class="caret"></span></button> <input type="list" id="inputAnalyticsAddfilter"></div>'
@@ -1173,7 +1149,7 @@ define(['backbone.marionette',
                 return;
             }
 
-            var idKeys = Object.keys(data.data);
+            var idKeys = _.keys(data.data);
             this.currentKeys = idKeys;
 
             $('#nodataavailable').hide();
@@ -1227,70 +1203,41 @@ define(['backbone.marionette',
             // config from last time should be loaded
             if (!_.isEqual(this.prevParams, idKeys)) {
                 // Define which parameters should be selected defaultwise as filtering
-                var filterstouse = [
-                    'Ne', 'Te', 'Bubble_Probability',
+                var requiredFilters = [
+                    'Flags_F', 'Flags_B',
+                    'Ne', 'Te', 'Bubble_Probability', 'Flags_Bubble',
                     'Relative_STEC_RMS', 'Relative_STEC', 'Absolute_STEC',
                     'Absolute_VTEC', 'Elevation_Angle',
                     'IRC', 'FAC',
                     'EEF',
                     'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
+                    'Ti_meas_drift', 'Tn_msis', 'Flag_ti_meas',
+                    'M_i_eff_Flags', 'M_i_eff', 'N_i', 'T_e',
                     'Pair_Indicator', 'Boundary_Flag',
-                    'Ti_meas_drift', 'Ti_model_drift', 'Tn_msis',
-                    'Flag_ti_meas', 'Flag_ti_model',
-                    "Viz", "Viz_error", "Quality_flags", "Calibration_flags",
+                    'Viz', 'Viz_error', 'Quality_flags', 'Calibration_flags',
                 ];
 
-                filterstouse = filterstouse.concat(['MLT']);
                 var residuals = _.filter(idKeys, function (item) {
-                    return item.indexOf('_res_') !== -1;
+                    return item.includes('_res_');
                 });
                 // If new datasets contains residuals add those instead of normal components
                 if (residuals.length > 0) {
-                    filterstouse = filterstouse.concat(residuals);
+                    requiredFilters = requiredFilters.concat(residuals);
                 } else {
-                    if (filterstouse.indexOf('F') === -1) {
-                        filterstouse.push('F');
-                    }
-                    if (filterstouse.indexOf('F_error') === -1) {
-                        filterstouse.push('F_error');
-                    }
+                    requiredFilters = requiredFilters.concat(['F', 'F_error']);
                 }
 
-                // Check if configured filters apply to new data
-                for (var fKey in this.graph.filterManager.brushes) {
-                    if (idKeys.indexOf(fKey) === -1) {
-                        delete this.graph.filterManager.brushes[fKey];
-                    }
-                }
+                // Strip non-available parameters from the required filters
+                requiredFilters = _.intersection(requiredFilters, idKeys);
 
-                for (var filKey in this.graph.filterManager.filters) {
-                    if (idKeys.indexOf(filKey) === -1) {
-                        delete this.graph.filterManager.filters[fKey];
-                    }
-                }
+                // Add the required filters
+                this.selectedFilterList = _.union(this.selectedFilterList, requiredFilters);
+                localStorage.setItem('selectedFilterList', JSON.stringify(this.selectedFilterList));
 
-                for (var filgraphKey in this.graph.filters) {
-                    if (idKeys.indexOf(filgraphKey) === -1) {
-                        delete this.graph.filters[fKey];
-                    }
-                }
-
-                for (var i = filterstouse.length - 1; i >= 0; i--) {
-                    if (this.selectedFilterList.indexOf(filterstouse[i]) === -1) {
-                        this.selectedFilterList.push(filterstouse[i]);
-                    }
-                }
-                var setts = this.graph.filterManager.filterSettings;
-                setts.visibleFilters = this.selectedFilterList;
-
-
-                this.graph.filterManager.updateFilterSettings(setts);
-                localStorage.setItem(
-                    'selectedFilterList',
-                    JSON.stringify(this.selectedFilterList)
-                );
-                this.renderFilterList();
-                //localStorage.setItem('selectedFilterList', JSON.stringify(filterstouse));
+                // Update filters
+                var manager = this.graph.filterManager;
+                _.each(_.difference(manager.visibleFilters, idKeys), manager._removeFilter, manager);
+                manager.visibleFilters = this.selectedFilterList;
 
                 // Check if we want to change the y-selection
                 // If previous does not contain key data and new one
@@ -1300,6 +1247,7 @@ define(['backbone.marionette',
                     'FAC', 'EEF', 'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
                     'Pair_Indicator',
                     'Ti_meas_drift', 'Ti_model_drift',
+                    'Ti_meas_drift', 'M_i_eff', 'N_i', 'T_e',
                     'Viz',
                 ];
 
@@ -1496,15 +1444,6 @@ define(['backbone.marionette',
                 // TODO: We should not need to do anything here but we
                 // could introduce some sanity checks if strange data
                 // is loaded for some reason
-            }
-
-            // This should only happen here if there has been
-            // some issue with the saved filter configuration
-            // Check if current brushes are valid for current data
-            for (var fKey in this.graph.filterManager.brushes) {
-                if (idKeys.indexOf(fKey) === -1) {
-                    delete this.graph.filterManager.brushes[fKey];
-                }
             }
 
             this.$('#filterSelectDrop').remove();
