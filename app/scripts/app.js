@@ -752,7 +752,7 @@ var RELATED_VARIABLES = {
                 var filtered = globals.products.filter(function (product) {
                     var id = product.get("download").id;
                     return !(id && id.match(
-                        /^SW_OPER_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ)[ABCU_]/
+                        /^SW_(OPER|PREL)_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ)[ABCU_]/
                     ));
                 });
 
