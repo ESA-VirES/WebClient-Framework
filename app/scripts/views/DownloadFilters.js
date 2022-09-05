@@ -192,7 +192,7 @@
         return this.model.get('size');
       },
       events: {
-        "click div.checkbox-overlay": "onCheckboxOverlayClick"
+        "click .checkbox-control": "onCheckboxOverlayClick"
       },
       render: function () {
         var keys = ["index", "enabled", "selected", "label", "info", "tabIndex"];
