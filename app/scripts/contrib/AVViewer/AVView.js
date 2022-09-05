@@ -1204,16 +1204,15 @@ define(['backbone.marionette',
             if (!_.isEqual(this.prevParams, idKeys)) {
                 // Define which parameters should be selected defaultwise as filtering
                 var requiredFilters = [
-                    'Ne', 'Te', 'Bubble_Probability',
+                    'Flags_F', 'Flags_B',
+                    'Ne', 'Te', 'Bubble_Probability', 'Flags_Bubble',
                     'Relative_STEC_RMS', 'Relative_STEC', 'Absolute_STEC',
                     'Absolute_VTEC', 'Elevation_Angle',
                     'IRC', 'FAC',
                     'EEF',
                     'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
                     'Pair_Indicator', 'Boundary_Flag',
-                    'Ti_meas_drift', 'Ti_model_drift', 'Tn_msis',
-                    'Flags_F', 'Flags_B', 'Flags_Bubble',
-                    'Flag_ti_meas', 'Flag_ti_model',
+                    'Ti_meas_drift', 'Tn_msis', 'Flag_ti_meas',
                     'M_i_eff_Flags', 'M_i_eff', 'N_i', 'T_e',
                 ];
 
@@ -1246,8 +1245,7 @@ define(['backbone.marionette',
                     'Ne', 'F', 'Bubble_Probability', 'Absolute_STEC',
                     'FAC', 'EEF', 'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
                     'Pair_Indicator',
-                    'Ti_meas_drift', 'Ti_model_drift',
-                    'M_i_eff', 'N_i', 'T_e'
+                    'Ti_meas_drift', 'M_i_eff', 'N_i', 'T_e'
                 ];
 
                 // Go trough all plots and see if they need to be removed

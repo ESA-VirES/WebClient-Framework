@@ -582,20 +582,20 @@
             "satellite": "Swarm",
             "parameters": {
                 "Ti_meas_drift": {
-                    "range": [1000, 2000],
+                    "range": [700, 1600],
                     "uom":"K",
                     "colorscale": "plasma",
                     "selected": true,
                     "name": "Ion temperature (TII drift)"
                 },
                 "Ti_model_drift": {
-                    "range": [1000, 2000],
+                    "range": [700, 1600],
                     "uom":"K",
                     "colorscale": "plasma",
                     "name": "Ion temperature (model)"
                 },
                 "Tn_msis": {
-                    "range": [700, 1300],
+                    "range": [700, 1200],
                     "uom":"K",
                     "colorscale": "plasma",
                     "name": "Neutral temperature"
@@ -608,9 +608,9 @@
                     "hidden": true,
                     "bitmask": {
                         "flags": [
-                            ["bit 0", "High-latitude frictional heating included/omitted"],
-                            ["bit 1", "Electron temperature from low/high-gain probe"],
-                            ["bit 2", "Ion temperature data available/data value is set to NaN"]
+                            ["bit 0", "Set when high-latitude frictional heating is included"],
+                            ["bit 1", "Set for electron temperature from low-gain probe"],
+                            ["bit 2", "Set when ion temperature data is not available"]
                         ]
                     }
                 },
@@ -622,9 +622,9 @@
                     "hidden": true,
                     "bitmask": {
                         "flags": [
-                            ["bit 0", "High-latitude frictional heating included/omitted"],
-                            ["bit 1", "Electron temperature from low/high-gain probe"],
-                            ["bit 2", "Ion temperature data available/data value is set to NaN"]
+                            ["bit 0", "Set when high-latitude frictional heating is included"],
+                            ["bit 1", "Set for electron temperature from low-gain probe"],
+                            ["bit 2", "Set when ion temperature data is not available"]
                         ]
                     }
                 }
