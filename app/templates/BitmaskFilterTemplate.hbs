@@ -4,7 +4,7 @@
     <table style="float:right;margin-right:1em">
     <tr style="line-height:0.8">
         <td style="text-align:right">bit number:</td>
-        {{#each bits}}<td style="text-align:center"><span data-bit-index="{{this.index}}" class="checkbox-control" title="{{this.info}}" style="cursor:pointer{{#unless this.enabled}};color:#aaa{{/unless}}">{{this.index}}</span></td>{{/each}}
+        {{#each bits}}{{#if this.insertSeparator}}<td style="color:#aaa">|</td>{{/if}}{{#if this.rendered}}<td style="text-align:center"><span data-bit-index="{{this.index}}" class="checkbox-control" title="{{this.info}}" style="cursor:pointer{{#unless this.enabled}};color:#aaa{{/unless}}">{{this.index}}</span></td>{{/if}}{{/each}}
         <td></td>
         <td style="text-align:right">value</td>
         <td>/</td>
@@ -12,12 +12,12 @@
     </tr>
     <tr style="line-height:0.8;vertical-align:baseline">
         <td style="text-align:right;">selection:</td>
-        {{#each bits}}<td>
+        {{#each bits}}{{#if this.insertSeparator}}<td></td>{{/if}}{{#if this.rendered}}<td style="text-align:center">
           <div style="display:inline-block; position:relative;">
             <input id="cb{{this.index}}" data-bit-index="{{this.index}}" {{this.tabIndex}}" type="checkbox"{{#if this.selected}} checked{{/if}}{{#unless this.enabled}} disabled{{/unless}} style="margin-top:0px">
             <div data-bit-index="{{this.index}}" data-checkbox-id="cb{{this.index}}" class="checkbox-control" style="position:absolute; left:0;right:0;top:0;bottom:0;cursor:pointer" title="{{#if this.enabled}}Records with the {{this.label}} flag {{#if this.selected}}set{{else}}unset{{/if}} are selected.{{else}}The {{this.label}} flag is ignored.{{/if}}"></div>
           </div>
-        </td>{{/each}}
+        </td>{{/if}}{{/each}}
         <td>&nbsp;=&nbsp;</td>
         <td style="text-align:right;">{{selection}}</td>
         <td>/</td>

@@ -1034,11 +1034,38 @@
                     "hidden": true,
                     "bitmask": {
                         "flags": [
-                            ["bit 0", "Set when a background linear model offset was not removed"],
-                            ["bit 1", "Set for an incomplete fit region (no background subtraction performed)"],
-                            ["bit 2", "Set for a fit error reported by the GNU Scientific Library"],
-                            ["bit 3", "Set when the mid-latitude median absolute deviation threshold was exceeded"],
-                            ["bit 4", "Set for the 16 Hz ion flow magnitude exceeding 8 km/s"]
+                            ["Vixh-bit0", "Set when a background linear model offset was not removed"],
+                            ["Vixh-bit1", "Set for an incomplete fit region (no background subtraction performed)"],
+                            ["Vixh-bit2", "Set for a fit error reported by the GNU Scientific Library"],
+                            ["Vixh-bit3", "Set when the mid-latitude median absolute deviation threshold was exceeded"],
+                            ["Vixh-bit4", "Set for the 16 Hz ion flow magnitude exceeding 8 km/s"],
+                            [null, "reserved"],
+                            [null, "reserved"],
+                            [null, "reserved"],
+                            ["Vixv-bit0", "Set when a background linear model offset was not removed"],
+                            ["Vixv-bit1", "Set for an incomplete fit region (no background subtraction performed)"],
+                            ["Vixv-bit2", "Set for a fit error reported by the GNU Scientific Library"],
+                            ["Vixv-bit3", "Set when the mid-latitude median absolute deviation threshold was exceeded"],
+                            ["Vixv-bit4", "Set for the 16 Hz ion flow magnitude exceeding 8 km/s"],
+                            [null, "reserved"],
+                            [null, "reserved"],
+                            [null, "reserved"],
+                            ["Viy-bit0", "Set when a background linear model offset was not removed"],
+                            ["Viy-bit1", "Set for an incomplete fit region (no background subtraction performed)"],
+                            ["Viy-bit2", "Set for a fit error reported by the GNU Scientific Library"],
+                            ["Viy-bit3", "Set when the mid-latitude median absolute deviation threshold was exceeded"],
+                            ["Viy-bit4", "Set for the 16 Hz ion flow magnitude exceeding 8 km/s"],
+                            [null, "reserved"],
+                            [null, "reserved"],
+                            [null, "reserved"],
+                            ["Viz-bit0", "Set when a background linear model offset was not removed"],
+                            ["Viz-bit1", "Set for an incomplete fit region (no background subtraction performed)"],
+                            ["Viz-bit2", "Set for a fit error reported by the GNU Scientific Library"],
+                            ["Viz-bit3", "Set when the mid-latitude median absolute deviation threshold was exceeded"],
+                            ["Viz-bit4", "Set for the 16 Hz ion flow magnitude exceeding 8 km/s"],
+                            [null, "reserved"],
+                            [null, "reserved"],
+                            [null, "reserved"]
                         ]
                     }
                 }

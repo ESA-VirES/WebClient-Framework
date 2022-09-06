@@ -195,8 +195,19 @@
         "click .checkbox-control": "onCheckboxOverlayClick"
       },
       render: function () {
-        var keys = ["index", "enabled", "selected", "label", "info", "tabIndex"];
+        var keys = [
+          "index", "rendered", "enabled", "selected", "label", "info",
+          "tabIndex", "insertSeparator"
+        ];
         var attr = this.model.attributes;
+
+        var gapBefore = [];
+        for (var i = 0, lastNotGap = -1; i < attr.size; ++i) {
+          var isNotGap = attr.parameters.bitmask.flags[i][0] != null;
+          gapBefore.push(isNotGap && i - lastNotGap > 1);
+          if (isNotGap) lastNotGap = i;
+        }
+
         this.$el.html(this.template({
           id: attr.id,
           name: getFancyName(attr.id),
@@ -206,11 +217,13 @@
           bits: _.map(
             _.zip(
               _.range(attr.size),
+              _.map(attr.parameters.bitmask.flags, function (item) {return item[0] != null;}),
               BitwiseInt.fromNumber(attr.mask).toBoolArray(attr.size),
               BitwiseInt.fromNumber(attr.selection).toBoolArray(attr.size),
               _.map(attr.parameters.bitmask.flags, function (item) {return item[0];}),
               _.map(attr.parameters.bitmask.flags, function (item) {return item[1];}),
-              _.range(attr.tabIndex, attr.tabIndex + attr.size)
+              _.range(attr.tabIndex, attr.tabIndex + attr.size),
+              gapBefore
             ),
             function (item) {return _.object(keys, item);}
           ),
