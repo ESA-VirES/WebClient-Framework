@@ -38,7 +38,9 @@
             "<a target='_blank' href='https://viresclient.readthedocs.io/en/latest/available_parameters.html#collections'>Python API</a>"
         ],
         "EFI_TCT": [
-            "<p>University of Calgary EFI TII cross-satellite-track ion flow dataset</p>"
+            "<p>Thermal ion imager cross track flow data (2Hz)</p>",
+            "<a href='https://earth.esa.int/eogateway/documents/20142/37627/swarm-EFI-TII-cross-track-flow-dataset-release-notes.pdf' target='_blank'>Product specification</a><br>",
+            "<a target='_blank' href='https://viresclient.readthedocs.io/en/latest/available_parameters.html#collections'>Python API</a>"
         ],
         "IBI": [
             "<p>Ionospheric bubble index data</p>",
