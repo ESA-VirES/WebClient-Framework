@@ -696,7 +696,8 @@
                     "uom": "a.m.u.",
                     "name": "Ion effective mass.",
                     "selected": true,
-                    "errorParameter": "M_i_eff_err"
+                    "errorParameter": "M_i_eff_err",
+                    "errorDisplayed": false
                 },
                 "M_i_eff_tbt_model": {
                     "range": [0, 20],
@@ -744,7 +745,8 @@
                     "colorscale": "diverging_1",
                     "uom": "m/s",
                     "name": "Ion along-track drift.",
-                    "errorParameter": "V_i_err"
+                    "errorParameter": "V_i_err",
+                    "errorDisplayed": false
                 },
                 "V_i_raw": {
                     "range": [-150000, 150000],
@@ -792,7 +794,8 @@
                     "colorscale": "plasma",
                     "uom": "cm-3",
                     "name": "Ion density.",
-                    "errorParameter": "N_i_err"
+                    "errorParameter": "N_i_err",
+                    "errorDisplayed": false
                 },
                 "N_i_err": {
                     "range": [0, 1e3],
@@ -948,34 +951,96 @@
         "SW_EXPT_EFIx_TCTyy": {
             "satellite": "Swarm",
             "parameters": {
-                "Vixh": {
-                    "selected": true,
-                    "range": [-2000, 2000],
-                    "colorscale": "plasma",
-                    "name": "Along-track ion drift (horizontal TII)",
-                    "description": "Along-track ion drift from horizontal TII sensor in satellite-track coordinates.",
-                    "uom": "m/s"
-                },
-                "Vixv": {
-                    "range": [-2000, 2000],
-                    "colorscale": "plasma",
-                    "name": "Along-track ion drift (vertical TII)",
-                    "description": "Along-track ion drift from vertical TII sensor in satellite-track coordinates.",
-                    "uom": "m/s"
-                },
                 "Viy": {
                     "range": [-2000, 2000],
-                    "colorscale": "plasma",
-                    "name": "Cross-track vertical ion drift (horizontal TII)",
-                    "description": "Cross-track vertical ion drift from horizontal TII sensor in satellite-track coordinates.",
-                    "uom": "m/s"
+                    "colorscale": "diverging_1",
+                    "name": "Cross-track horizontal ion drift (horizontal TII)",
+                    "description": "Cross-track horizontal ion drift from horizontal TII sensor in satellite-track coordinates.",
+                    "uom": "m/s",
+                    "errorParameter": "Viy_error",
+                    "errorDisplayed": false
                 },
                 "Viz": {
                     "range": [-2000, 2000],
-                    "colorscale": "plasma",
+                    "colorscale": "diverging_1",
                     "name": "Cross-track vertical ion drift (vertival TII)",
                     "description": "Cross-track vertical ion drift from vertical TII sensor in satellite-track coordinates.",
+                    "uom": "m/s",
+                    "errorParameter": "Viz_error",
+                    "errorDisplayed": false
+                },
+                "Vixh": {
+                    "selected": true,
+                    "range": [-2000, 2000],
+                    "colorscale": "diverging_1",
+                    "name": "Along-track ion drift (horizontal TII)",
+                    "description": "Along-track ion drift from horizontal TII sensor in satellite-track coordinates.",
+                    "uom": "m/s",
+                    "errorParameter": "Vixh_error",
+                    "errorDisplayed": false
+                },
+                "Vixv": {
+                    "range": [-2000, 2000],
+                    "colorscale": "diverging_1",
+                    "name": "Along-track ion drift (vertical TII)",
+                    "description": "Along-track ion drift from vertical TII sensor in satellite-track coordinates.",
+                    "uom": "m/s",
+                    "errorParameter": "Vixv_error",
+                    "errorDisplayed": false
+                },
+                "Viy_error": {
+                    "range": [0, 500],
+                    "name": "Error estimate for cross-track horizontal ion drift (horizontal TII)",
+                    "description": "Random error estimate for cross-track horizontal ion drift from horizontal TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
                     "uom": "m/s"
+                },
+                "Viz_error": {
+                    "range": [0, 500],
+                    "name": "Error estimate for cross-track vertical ion drift (vertical TII)",
+                    "description": "Random error estimate for cross-track vertical ion drift from vertical TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
+                    "uom": "m/s"
+                },
+                "Vixh_error": {
+                    "range": [0, 500],
+                    "name": "Error estimate for along-track ion drift (horizontal TII)",
+                    "description": "Random error estimate for along-track ion drift from horizontal TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
+                    "uom": "m/s"
+                },
+                "Vixv_error": {
+                    "range": [0, 500],
+                    "name": "Error estimate for along-track ion drift (vertical TII)",
+                    "description": "Random error estimate for along-track ion drift from vertical TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
+                    "uom": "m/s"
+                },
+                "Quality_flags": {
+                    "range": [0, 15],
+                    "name": "Bitwise flag for each velocity component",
+                    "description": "Bitwise flag for each velocity component, where a value of 1 for a particular component signifies that calibration was successful, and that the baseline 1-sigma noise level is less than or equal to 100 m/s at 2 Hz. Electric field quality can be assessed from these flags according to -vxB.",
+                    "uom": null,
+                    "bitmask": {
+                        "flags": [
+                            ["Vixh-cal", "Set for successful Vixh calibration"],
+                            ["Vixv-cal", "Set for successful Vixv calibration"],
+                            ["Viy-cal", "Set for successful Viy calibration"],
+                            ["Viz-cal", "Set for successful Viz calibration"]
+                        ]
+                    }
+                },
+                "Calibration_flags": {
+                    "range": [0, 31],
+                    "name": "Information about the calibration process",
+                    "description": "Information about the calibration process.",
+                    "uom": null,
+                    "hidden": true,
+                    "bitmask": {
+                        "flags": [
+                            ["bit 0", "Set when a background linear model offset was not removed"],
+                            ["bit 1", "Set for an incomplete fit region (no background subtraction performed)"],
+                            ["bit 2", "Set for a fit error reported by the GNU Scientific Library"],
+                            ["bit 3", "Set when the mid-latitude median absolute deviation threshold was exceeded"],
+                            ["bit 4", "Set for the 16 Hz ion flow magnitude exceeding 8 km/s"]
+                        ]
+                    }
                 }
             },
             "download_parameters": {
@@ -1009,43 +1074,34 @@
                 },
                 "Vixh": {
                     "name": "Along-track ion drift (horizontal TII)",
-                    "description": "Along-track ion drift from horizontal TII sensor in satellite-track coordinates.",
                     "uom": "m/s"
                 },
                 "Vixh_error": {
                     "name": "Random error estimate for along-track ion drift (horizontal TII)",
-                    "description": "Random error estimate for along-track ion drift from horizontal TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
                     "uom": "m/s"
                 },
                 "Vixv": {
                     "name": "Along-track ion drift (vertical TII)",
-                    "description": "Along-track ion drift from vertical TII sensor in satellite-track coordinates.",
                     "uom": "m/s"
                 },
                 "Vixv_error": {
                     "name": "Random error estimate for along-track ion drift (vertical TII)",
-                    "description": "Random error estimate for along-track ion drift from vertical TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
                     "uom": "m/s"
                 },
                 "Viy": {
                     "name": "Cross-track vertical ion drift (horizontal TII)",
-                    "description": "Cross-track vertical ion drift from horizontal TII sensor in satellite-track coordinates.",
                     "uom": "m/s"
                 },
                 "Viy_error": {
                     "name": "Random error estimate for cross-track vertical ion drift (horizontal TII)",
-                    "description": "Random error estimate for cross-track vertical ion drift from horizontal TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
                     "uom": "m/s"
                 },
                 "Viz": {
                     "name": "Cross-track vertical ion drift (vertival TII)",
-                    "description": "Cross-track vertical ion drift from vertical TII sensor in satellite-track coordinates.",
-                    "uom": "m/s",
-                    "errorParameter": "Viz_error"
+                    "uom": "m/s"
                 },
                 "Viz_error": {
                     "name": "Random error estimate for cross-track vertical ion drift (vertical TII)",
-                    "description": "Random error estimate for cross-track vertical ion drift from vertical TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
                     "uom": "m/s"
                 },
                 "VsatN": {
@@ -1125,13 +1181,11 @@
                 },
                 "Quality_flags": {
                     "name": "Bitwise flag for each velocity component",
-                    "description": "Bitwise flag for each velocity component, where a value of 1 for a particular component signifies that calibration was successful, and that the baseline 1-sigma noise level is less than or equal to 100 m/s at 2 Hz. Electric field quality can be assessed from these flags according to -vxB. Bit0 (least significant) = Vixh, bit1 = Vixv, bit2 = Viy, bit3 = Viz. Refer to the release notes for details.",
-                    "uom": "-"
+                    "uom": null
                 },
                 "Calibration_flags": {
                     "name": "Information about the calibration process",
-                    "description": "Information about the calibration process. Refer to the release notes for details.",
-                    "uom": "-"
+                    "uom": null
                 }
             }
         },

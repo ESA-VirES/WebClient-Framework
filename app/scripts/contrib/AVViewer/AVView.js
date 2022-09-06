@@ -902,7 +902,8 @@ define(['backbone.marionette',
             // extract parameters from the product configuration
             globals.products.each(function (product) {
                 var isVisible = product.get('visible');
-                // extract parameters
+
+                // extract all available parameters
                 _.each(product.get('download_parameters') || {}, function (item, name) {
                     if (get(item, "ignore")) return;
                     var item_copy = _.clone(item);
@@ -912,17 +913,17 @@ define(['backbone.marionette',
                     }
                 });
 
-                // extract bitmask configuration
+                // extract addition options from the client parameters
                 _.each(product.get('parameters') || {}, function (item, name) {
-                    if (has(item, "bitmask")) {
-                        availableParameters[name].bitmask = item.bitmask;
-                    }
+                    _.extend(availableParameters[name], _.pick(item, [
+                        "bitmask", "errorParameter", "errorDisplayed",
+                    ]));
                 });
             });
 
             // update parameters
             _.each(UPDATED_PARAMETERS, function (values, name) {
-                if (availableParameters.hasOwnProperty(name)) {
+                if (has(availableParameters, name)) {
                     _.extend(availableParameters[name], values);
                 }
             });
@@ -934,7 +935,7 @@ define(['backbone.marionette',
 
             // split vectors into their components
             var _splitVector = function (object, vector, components, remove) {
-                if (!object.hasOwnProperty(vector)) {return;}
+                if (!has(object, vector)) {return;}
                 _.each(components, function (component) {
                     object[component] = _.clone(object[vector]);
                     object[component].name = 'Component of ' + object[vector].name;
@@ -951,7 +952,7 @@ define(['backbone.marionette',
             var parameterSettings = JSON.parse(localStorage.getItem('parameterConfiguration'));
             if (parameterSettings !== null) {
                 _.each(parameterSettings, function (values, name) {
-                    if (availableParameters.hasOwnProperty(name)) {
+                    if (has(availableParameters, name)) {
                         _.extend(availableParameters[name], values);
                     }
                 });
@@ -1214,7 +1215,7 @@ define(['backbone.marionette',
                     'Ti_meas_drift', 'Tn_msis', 'Flag_ti_meas',
                     'M_i_eff_Flags', 'M_i_eff', 'N_i', 'T_e',
                     'Pair_Indicator', 'Boundary_Flag',
-                    'Viz', 'Viz_error', 'Quality_flags', 'Calibration_flags',
+                    'Viy', 'Viz', 'Vixh', 'Vixv', 'Quality_flags', 'Calibration_flags',
                 ];
 
                 var residuals = _.filter(idKeys, function (item) {
@@ -1248,7 +1249,7 @@ define(['backbone.marionette',
                     'Pair_Indicator',
                     'Ti_meas_drift', 'Ti_model_drift',
                     'Ti_meas_drift', 'M_i_eff', 'N_i', 'T_e',
-                    'Viz',
+                    'Viy', 'Viz',
                 ];
 
                 // Go trough all plots and see if they need to be removed
