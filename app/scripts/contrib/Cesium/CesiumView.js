@@ -2309,7 +2309,7 @@ define([
 
                     _.each(settings[id], function (item, name) {
                         if (!get(item, "isVector", false) && !get(item, "isScalar", false)) {
-                            throw `Neither SCALAR_PARAM nor VECTOR_PARAM list contain the ${name} parameter!`;
+                            throw "Neither SCALAR_PARAM nor VECTOR_PARAM list contains the " + name + " parameter!";
                         }
                     });
                 });
