@@ -1,5 +1,6 @@
 /* global _ */
-/* global VECTOR_BREAKDOWN TIMESTAMP SPACECRAFT_TO_ID */
+/* global TIMESTAMP SPACECRAFT_TO_ID */
+/* global VECTOR_BREAKDOWN VECTOR_COMPOSITION REVERSE_VECTOR_COMPOSITION */
 /* global get has pop Timer */
 
 
@@ -232,7 +233,7 @@
         data.registerNewVariable(dstLatitude, [srcOrbitDirection, srcLatitude]);
       };
 
-      var decomposeVector = function (components, vector) {
+      var decomposeVector = function (vector, components) {
         var src = pop(data.data, vector);
         if (!src) {return;}
         var ndim = components.length;
@@ -248,6 +249,21 @@
         data.registerNewVector(vector, components);
       };
 
+      var composeVector = function (vector, components) {
+        if (has(data.vectors, vector)) {
+          return; // already registered
+        }
+        var ndim = components.length;
+        for (var i = 0, component ; i < ndim; ++i) {
+          component = components[i];
+          if (!has(data.data, component)) {
+            return; // there is a missing vector component
+          }
+        }
+        data.registerNewVector(vector, components);
+      };
+
+      //var composeVector = function (
       var addTwoVectors2 = function (dstVariable, srcVariable1, srcVariable2) {
         var src1 = get(data.data, srcVariable1);
         var src2 = get(data.data, srcVariable2);
@@ -271,11 +287,21 @@
       calculatePeriodicLatitudes('Latitude_periodic', 'Latitude', 'OrbitDirection');
       calculatePeriodicLatitudes('QDLatitude_periodic', 'QDLat', 'QDOrbitDirection');
 
-      // Break down standard vector variables.
-      _.each(VECTOR_BREAKDOWN, decomposeVector);
+      // Break down vector variables
+      var vector_breakdown = _.extend(
+        {}, VECTOR_BREAKDOWN, globals.userData.getVectorBreakdown()
+      );
 
-      // Break down custom user vector variables.
-      _.each(globals.userData.getVectorBreakdown(), decomposeVector);
+      _.each(_.keys(data.data), function (variable) {
+        if (has(vector_breakdown, variable)) {
+          decomposeVector(variable, vector_breakdown[variable]);
+        } else if (has(REVERSE_VECTOR_COMPOSITION, variable)) {
+          _.each(REVERSE_VECTOR_COMPOSITION[variable], function (item) {
+            composeVector(item.source, VECTOR_COMPOSITION[item.source]);
+          });
+        }
+      });
+
     }
 
 

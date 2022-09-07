@@ -251,7 +251,8 @@
                     "range": [15000, 55000],
                     "uom":"nT",
                     "colorscale": "jet",
-                    "name": "Magnetic field vector"
+                    "name": "Magnetic field vector",
+                    "breakInto": ["B_N", "B_E", "B_C"]
                 },
                 "F": {
                     "range": [15000, 55000],
@@ -264,7 +265,8 @@
                     "range": [-600, 600],
                     "uom":"nT",
                     "colorscale": "jet",
-                    "name": "Magnetic field vector A - C difference"
+                    "name": "Magnetic field vector A - C difference",
+                    "breakInto": ["B_N_resAC", "B_E_resAC", "B_C_resAC"]
                 },
                 "Flags_F": {
                     "range": [0, 255],
@@ -343,31 +345,38 @@
                 },
                 "B_VFM": {
                     "uom": "nT",
-                    "name": "Magnetic field vector, VFM frame"
+                    "name": "Magnetic field vector, VFM frame",
+                    "breakInto": ["B_VFM_X", "B_VFM_Y", "B_VFM_Z"]
                 },
                 "B_NEC": {
                     "uom":"nT",
-                    "name": "Magnetic field vector, NEC frame"
+                    "name": "Magnetic field vector, NEC frame",
+                    "breakInto": ["B_N", "B_E", "B_C"]
                 },
                 "B_NEC_resAC": {
                     "uom":"nT",
-                    "name": "Magnetic field vector A - C difference, NEC frame"
+                    "name": "Magnetic field vector A - C difference, NEC frame",
+                    "breakInto": ["B_N_resAC", "B_E_resAC", "B_C_resAC"]
                 },
                 "dB_Sun": {
                     "uom": "nT",
-                    "name": "Magnetic stray field correction vector of Sun induced stray field, VFM frame"
+                    "name": "Magnetic stray field correction vector of Sun induced stray field, VFM frame",
+                    "breakInto": ["dB_Sun_X", "dB_Sun_Y", "dB_Sun_Z"]
                 },
                 "dB_AOCS": {
                     "uom": "nT",
-                    "name": "Magnetic stray field correction vector of AOCS magneto-torquer coils, VFM frame"
+                    "name": "Magnetic stray field correction vector of AOCS magneto-torquer coils, VFM frame",
+                    "breakInto": ["dB_AOCS_X", "dB_AOCS_Y", "dB_AOCS_Z"]
                 },
                 "dB_other": {
                     "uom": "nT",
-                    "name": "Magnetic stray field correction vector of all other sources, VFM frame"
+                    "name": "Magnetic stray field correction vector of all other sources, VFM frame",
+                    "breakInto": ["dB_other_X", "dB_other_Y", "dB_other_Z"]
                 },
                 "B_error": {
                     "uom": "nT",
-                    "name": "Error estimates on magnetic field, VFM frame"
+                    "name": "Error estimates on magnetic field, VFM frame",
+                    "breakInto": ["B_error_X", "B_error_Y", "B_error_Z"]
                 },
                 "q_NEC_CRF": {
                     "uom": null,
@@ -886,7 +895,8 @@
                 },
                 "V_sat_nec": {
                     "uom": "m/s",
-                    "name": "Satellite velocity in north, east, centre (NEC) reference frame."
+                    "name": "Satellite velocity in north, east, centre (NEC) reference frame.",
+                    "breakInto": ["V_sat_n", "V_sat_e", "V_sat_c"]
                 },
                 "M_i_eff": {
                     "uom": "a.m.u.",
@@ -960,7 +970,8 @@
                     "description": "Cross-track horizontal ion drift from horizontal TII sensor in satellite-track coordinates.",
                     "uom": "m/s",
                     "errorParameter": "Viy_error",
-                    "errorDisplayed": false
+                    "errorDisplayed": false,
+                    "selected": true
                 },
                 "Viz": {
                     "range": [-2000, 2000],
@@ -970,6 +981,32 @@
                     "uom": "m/s",
                     "errorParameter": "Viz_error",
                     "errorDisplayed": false
+                },
+                "Viyz": {
+                    "selected": true,
+                    "range": [0, 2000],
+                    "colorscale": "jet",
+                    "name": "Cross-track ion drift vector (combined horizontal and vertical TII)",
+                    "description": "Ion drift from vertical TII sensor in satellite-track coordinates.",
+                    "uom": "m/s",
+                    "composeFrom": ["Viy", "Viz"]
+                },
+                "Vixy": {
+                    "selected": true,
+                    "range": [0, 2000],
+                    "colorscale": "jet",
+                    "name": "Ion drift vector (horizontal TII)",
+                    "description": "Ion drift from horizontal TII sensor in satellite-track coordinates.",
+                    "uom": "m/s",
+                    "composeFrom": ["Vixh", "Viy"]
+                },
+                "Vixz": {
+                    "range": [0, 2000],
+                    "colorscale": "jet",
+                    "name": "Ion drift vector (vertical TII)",
+                    "description": "Ion drift from vertical TII sensor in satellite-track coordinates.",
+                    "uom": "m/s",
+                    "composeFrom": ["Vixv", "Viz"]
                 },
                 "Vixh": {
                     "selected": true,
@@ -990,35 +1027,28 @@
                     "errorParameter": "Vixv_error",
                     "errorDisplayed": false
                 },
-                "Viy_error": {
+                "Eh": {
                     "range": [0, 500],
-                    "name": "Error estimate for cross-track horizontal ion drift (horizontal TII)",
-                    "description": "Random error estimate for cross-track horizontal ion drift from horizontal TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
-                    "uom": "m/s"
+                    "colorscale": "viridis",
+                    "name": "Electric field vector (horizontal TII)",
+                    "description": "Electric field vector in satellite-track coordinates, derived from -VxB with along-track ion drift from horizontal sensor.",
+                    "uom": "mV/m",
+                    "composeFrom": ["Ehx", "Ehy", "Ehz"]
                 },
-                "Viz_error": {
+                "Ev": {
                     "range": [0, 500],
-                    "name": "Error estimate for cross-track vertical ion drift (vertical TII)",
-                    "description": "Random error estimate for cross-track vertical ion drift from vertical TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
-                    "uom": "m/s"
-                },
-                "Vixh_error": {
-                    "range": [0, 500],
-                    "name": "Error estimate for along-track ion drift (horizontal TII)",
-                    "description": "Random error estimate for along-track ion drift from horizontal TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
-                    "uom": "m/s"
-                },
-                "Vixv_error": {
-                    "range": [0, 500],
-                    "name": "Error estimate for along-track ion drift (vertical TII)",
-                    "description": "Random error estimate for along-track ion drift from vertical TII sensor in satellite-track coordinates. Negative value indicates no estimate available.",
-                    "uom": "m/s"
+                    "colorscale": "viridis",
+                    "name": "Electric field vector (vertical TII)",
+                    "description": "Electric field vector in satellite-track coordinates, derived from -VxB with along-track ion drift from vertical sensor.",
+                    "uom": "mV/m",
+                    "composeFrom": ["Evx", "Evy", "Evz"]
                 },
                 "Quality_flags": {
                     "range": [0, 15],
                     "name": "Bitwise flag for each velocity component",
                     "description": "Bitwise flag for each velocity component, where a value of 1 for a particular component signifies that calibration was successful, and that the baseline 1-sigma noise level is less than or equal to 100 m/s at 2 Hz. Electric field quality can be assessed from these flags according to -vxB.",
                     "uom": null,
+                    "hidden": true,
                     "bitmask": {
                         "flags": [
                             ["Vixh-cal", "Set for successful Vixh calibration"],
@@ -1272,11 +1302,13 @@
                 },
                 "GPS_Position": {
                     "uom": "m",
-                    "name": "X-,Y-,Z-coordinates (WGS84) of the GPS satellite"
+                    "name": "X-,Y-,Z-coordinates (WGS84) of the GPS satellite",
+                    "breakInto": ["GPS_Position_X", "GPS_Position_Y", "GPS_Position_Z"]
                 },
                 "LEO_Position": {
                     "uom": "m",
-                    "name": "X-,Y-,Z-coordinates (WGS84) of the LEO satellite"
+                    "name": "X-,Y-,Z-coordinates (WGS84) of the LEO satellite",
+                    "breakInto": ["LEO_Position_X", "LEO_Position_Y", "LEO_Position_Z"]
                 },
                 "PRN": {
                     "uom": null,
@@ -2017,7 +2049,8 @@
                 },
                 "J_NE": {
                     "uom": "A/km",
-                    "name": "Horizontal sheet current density vector"
+                    "name": "Horizontal sheet current density vector",
+                    "breakInto": ["J_N", "J_E"]
                 },
                 "J_QD": {
                     "uom": "A/km",
@@ -2050,6 +2083,7 @@
                     "colorscale": "viridis",
                     "uom": "A/km",
                     "name": "Total horizontal sheet current density at 110km (J_T = J_DF + J_CF)",
+                    "breakInto": ["J_T_N", "J_T_E"],
                     "referencedParameters": ["J_T_NE", "J_R"]
                 },
                 "J_R": {
@@ -2059,7 +2093,7 @@
                     "pixelSize": 4,
                     "uom": "A/km^2",
                     "name": "Radial ionospheric current density at 110km"
-                 }
+                }
             },
             "download_parameters": {
                 "Timestamp": {
@@ -2082,13 +2116,17 @@
                     "uom": "A/km^2",
                     "name": "Radial ionospheric current density (SemiQD frame at 110km)"
                 },
-                "J_CF": {
+                "J_CF_NE": {
                     "uom": "A/km",
-                    "name": "Curl-free horizontal sheet current density vector"
+                    "name": "Curl-free horizontal sheet current density vector (NE frame).",
+                    "ignore": true,
+                    "breakInto": ["J_CF_N", "J_CF_E"]
                 },
-                "J_DF": {
+                "J_DF_NE": {
                     "uom": "A/km",
-                    "name": "Divergence-free horizontal sheet current density vector"
+                    "name": "Divergence-free horizontal sheet current density vector (NE frame).",
+                    "ignore": true,
+                    "breakInto": ["J_DF_N", "J_DF_E"]
                 },
                 "J_CF_SemiQD": {
                     "uom": "A/km",
@@ -3659,7 +3697,8 @@
             "download_parameters": {
                 "B_NEC_res_Model": {
                     "uom":"nT",
-                    "name": "Residuals to magnetic model coefficients of Magnetic field vector, NEC frame"
+                    "name": "Residuals to magnetic model coefficients of Magnetic field vector, NEC frame",
+                    "breakInto": ["B_N_res_Model", "B_E_res_Model", "B_C_res_Model"]
                 },
                 "F_res_Model": {
                     "uom":"nT",
