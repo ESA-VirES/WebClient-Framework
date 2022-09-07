@@ -2698,7 +2698,7 @@
             "outlines": false,
             "satellite": "Upload"
         },{
-            "name": "EFI A TCT02",
+            "name": "EFI A TCT",
             "type": "SW_EXPT_EFIx_TCTyy",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
@@ -2725,7 +2725,7 @@
             ],
             "outlines": false
         },{
-            "name": "EFI B TCT02",
+            "name": "EFI B TCT",
             "type": "SW_EXPT_EFIx_TCTyy",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
@@ -2752,7 +2752,7 @@
             ],
             "outlines": false
         },{
-            "name": "EFI C TCT02",
+            "name": "EFI C TCT",
             "type": "SW_EXPT_EFIx_TCTyy",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
@@ -2779,7 +2779,7 @@
             ],
             "outlines": false
         }, {
-            "name": "EFI U TCT02",
+            "name": "EFI U TCT",
             "type": "SW_EXPT_EFIx_TCTyy",
             "timeSlider": true,
             "timeSliderProtocol": "USER_DATA",
