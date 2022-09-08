@@ -306,6 +306,10 @@
             "M_i_eff", "M_i_eff_err", "M_i_eff_Flags", "M_i_eff_tbt_model",
             "V_i", "V_i_err", "V_i_Flags", "V_i_raw", "N_i", "N_i_err", "N_i_Flags",
             "T_e", "Phi_sc",
+            "Vixh", "Vixh_error", "Vixv", "Vixv_error", "Viy", "Viy_error",
+            "Viz", "Viz_error", "VsatN", "VsatE", "VsatC", "Ehx", "Ehy", "Ehz",
+            "Evx", "Evy", "Evz", "Bx", "By", "Bz", "Vicrx", "Vicry", "Vicrz",
+            "Quality_flags", "Calibration_flags",
           ];
 
           var collectionList = _.chain(collections)

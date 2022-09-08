@@ -38,6 +38,7 @@ var SCALAR_PARAM = [
     "M_i_eff", "M_i_eff_err", "M_i_eff_Flags", "M_i_eff_tbt_model",
     "V_i", "V_i_err", "V_i_Flags", "V_i_raw", "N_i", "N_i_err", "N_i_Flags",
     "T_e", "Phi_sc",
+    "Vixh", "Vixv",
 ];
 
 // parameters displayed by Cesium as vectors by Cesium (note that some of them
@@ -46,36 +47,24 @@ var SCALAR_PARAM = [
 var VECTOR_PARAM = [
     "B_NEC", "B_NEC_resAC", "B_NEC_res_Model", "GPS_Position", "LEO_Position",
     "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle",
-    'dB_other', 'dB_AOCS', 'dB_Sun',
-    'J_NE', 'J_T_NE', 'J_CF_NE', 'J_DF_NE',
-    'V_sat_nec',
+    "dB_other", "dB_AOCS", "dB_Sun",
+    "J_NE", "J_T_NE", "J_CF_NE", "J_DF_NE",
+    "V_sat_nec",
+    "VsatNEC",
+    "Viy", "Viz", "Vixy", "Vixz", "Viyz", "Eh", "Ev",
 ];
 
-// breakdown of vector parameters to their components
-var VECTOR_BREAKDOWN = {
-    'B_NEC': ['B_N', 'B_E', 'B_C'],
-    'B_NEC_resAC': ['B_N_resAC', 'B_E_resAC', 'B_C_resAC'],
-    'B_NEC_res_Model': ['B_N_res_Model', 'B_E_res_Model', 'B_C_res_Model'],
-    'B_error': ['B_error_X', 'B_error_Y', 'B_error_Z'],
-    'B_VFM': ['B_VFM_X', 'B_VFM_Y', 'B_VFM_Z'],
-    'GPS_Position': ['GPS_Position_X', 'GPS_Position_Y', 'GPS_Position_Z'],
-    'LEO_Position': ['LEO_Position_X', 'LEO_Position_Y', 'LEO_Position_Z'],
-    'dB_other': ['dB_other_X', 'dB_other_Y', 'dB_other_Z'],
-    'dB_AOCS': ['dB_AOCS_X', 'dB_AOCS_Y', 'dB_AOCS_Z'],
-    'dB_Sun': ['dB_Sun_X', 'dB_Sun_Y', 'dB_Sun_Z'],
-    'J_NE': ['J_N', 'J_E'],
-    'J_T_NE': ['J_T_N', 'J_T_E'],
-    'J_CF_NE': ['J_CF_N', 'J_CF_E'],
-    'J_DF_NE': ['J_DF_N', 'J_DF_E'],
-    'V_sat_nec': ['V_sat_n', 'V_sat_e', 'V_sat_c'],
-};
-
+// breakdown of source vector parameters to their components
+// (The data comes as vector from the server and it needs to be split into
+// components by the client.)
+var VECTOR_BREAKDOWN = {};
 var REVERSE_VECTOR_BREAKDOWN = {};
-_.each(VECTOR_BREAKDOWN, function (components, source) {
-    _.each(components, function (component, index) {
-        REVERSE_VECTOR_BREAKDOWN[component] = {source: source, index: index};
-    });
-});
+
+// composition of source scalars to vectors
+// (The data comes as set of separate scalar components which needs to be
+// composed to a vector in the client.)
+var VECTOR_COMPOSITION = {};
+var REVERSE_VECTOR_COMPOSITION = {};
 
 // Ordered from highest resolution to lowest with the exception of FAC that
 // needs to be first as the master product needs to be the same
@@ -84,6 +73,7 @@ var MASTER_PRIORITY = [
     'SW_OPER_EFIA_LP_1B', 'SW_OPER_EFIB_LP_1B', 'SW_OPER_EFIC_LP_1B', 'SW_OPER_EFIU_LP_1B',
     'SW_OPER_EFIATIE_2_', 'SW_OPER_EFIBTIE_2_', 'SW_OPER_EFICTIE_2_', 'SW_OPER_EFIUTIE_2_',
     'SW_PREL_EFIAIDM_2_', 'SW_PREL_EFIBIDM_2_', 'SW_PREL_EFICIDM_2_', 'SW_PREL_EFIUIDM_2_',
+    'SW_EXPT_EFIA_TCT02', 'SW_EXPT_EFIB_TCT02', 'SW_EXPT_EFIC_TCT02', 'SW_EXPT_EFIC_TCT02',
     'SW_OPER_MAGA_LR_1B', 'SW_OPER_MAGB_LR_1B', 'SW_OPER_MAGC_LR_1B', 'SW_OPER_MAGU_LR_1B',
     'SW_OPER_TECATMS_2F', 'SW_OPER_TECBTMS_2F', 'SW_OPER_TECCTMS_2F', 'SW_OPER_TECUTMS_2F',
     'SW_OPER_IBIATMS_2F', 'SW_OPER_IBIBTMS_2F', 'SW_OPER_IBICTMS_2F', 'SW_OPER_IBIUTMS_2F',
@@ -409,6 +399,45 @@ var RELATED_VARIABLES = {
 
                 localStorage.setItem('serviceVersion', JSON.stringify(globals.version));
 
+                // Fill the shared paremeters from the product type configuration.
+                var productTypes = get(config, "productTypes", {});
+                config.mapConfig.products = _.map(config.mapConfig.products, function (product) {
+                    if (has(product, "type") && has(productTypes, product.type)) {
+                        product = _.extend({}, productTypes[product.type], product);
+                    }
+                    return product;
+                });
+
+                // extract vector breakdown and composition from the parameters configuration
+                var updateVectorBreakdown = function (target, reverse, name, components) {
+                    if (!components || has(target, name)) return;
+                    target[name] = components;
+                    for (var i = 0 ; i < components.length; ++i) {
+                        reverse[components[i]] = {source: name, index: i};
+                    }
+                };
+
+                var updateVectorComposition = function (target, reverse, name, components) {
+                    if (!components || has(target, name)) return;
+                    target[name] = components;
+                    for (var i = 0 ; i < components.length; ++i) {
+                        if (!has(reverse, components[i])) {
+                            reverse[components[i]] = [];
+                        }
+                        reverse[components[i]].push({source: name, index: i});
+                    }
+                };
+
+                var extractVectorBreakdown = function (parameter, name) {
+                    updateVectorComposition(VECTOR_COMPOSITION, REVERSE_VECTOR_COMPOSITION, name, get(parameter, "composeFrom"));
+                    updateVectorBreakdown(VECTOR_BREAKDOWN, REVERSE_VECTOR_BREAKDOWN, name, get(parameter, "breakInto"));
+                };
+
+                _.each(config.mapConfig.products, function (product) {
+                    _.each(product.parameters || {}, extractVectorBreakdown);
+                    _.each(product.download_parameters || {}, extractVectorBreakdown);
+                });
+
                 //Base Layers are loaded and added to the global collection
                 // If there are already saved baselayer config in the local
                 // storage use that instead
@@ -469,18 +498,6 @@ var RELATED_VARIABLES = {
 
                 // Remove three first colors as they are used by the products
                 autoColor.getColor();autoColor.getColor();autoColor.getColor();
-
-                // Fill the shared paremeters from the product type configuration.
-                var productTypes = get(config, "productTypes", {});
-                config.mapConfig.products = _.map(
-                    config.mapConfig.products,
-                    function (product) {
-                        if (has(product, "type") && has(productTypes, product.type)) {
-                            product = _.extend({}, productTypes[product.type], product);
-                        }
-                        return product;
-                    }
-                );
 
                 // If there are already saved product config in the local
                 // storage use that instead
@@ -752,7 +769,7 @@ var RELATED_VARIABLES = {
                 var filtered = globals.products.filter(function (product) {
                     var id = product.get("download").id;
                     return !(id && id.match(
-                        /^SW_(OPER|PREL)_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ)[ABCU_]/
+                        /^SW_(OPER|PREL|EXPT)_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ)[ABCU_]/
                     ));
                 });
 
@@ -781,6 +798,12 @@ var RELATED_VARIABLES = {
                         "Bravo": "SW_PREL_EFIBIDM_2_",
                         "Charlie": "SW_PREL_EFICIDM_2_",
                         "Upload": "SW_PREL_EFIUIDM_2_",
+                    },
+                    "EFI_TCT": {
+                        "Alpha": "SW_EXPT_EFIA_TCT02",
+                        "Bravo": "SW_EXPT_EFIB_TCT02",
+                        "Charlie": "SW_EXPT_EFIC_TCT02",
+                        "Upload": "SW_EXPT_EFIU_TCT02",
                     },
                     "IBI": {
                         "Alpha": "SW_OPER_IBIATMS_2F",
@@ -879,6 +902,7 @@ var RELATED_VARIABLES = {
                     'EFI': false,
                     'EFI_TIE': false,
                     'EFI_IDM': false,
+                    'EFI_TCT': false,
                     'IBI': false,
                     'TEC': false,
                     'FAC': false,
@@ -994,6 +1018,14 @@ var RELATED_VARIABLES = {
                     id: "IBI"
                 }, {at: 0});
                 filtered_collection.add({
+                    name: " Cross-satellite-track Ion Flow (EFI TII)",
+                    visible: containerSelection['EFI_TCT'],
+                    color: "#ec0b0b",
+                    protocol: null,
+                    containerproduct: true,
+                    id: "EFI_TCT"
+                }, {at: 0});
+                filtered_collection.add({
                     name: "Ion drift, density and effective mass (EFI IDM)",
                     visible: containerSelection['EFI_IDM'],
                     color: "#ff7f0e",
@@ -1004,7 +1036,7 @@ var RELATED_VARIABLES = {
                 filtered_collection.add({
                     name: "Ion temperature (EFI TIE)",
                     visible: containerSelection['EFI_TIE'],
-                    color: "#ff7f0e",
+                    color: "#ef8ede",
                     protocol: null,
                     containerproduct: true,
                     id: "EFI_TIE"
