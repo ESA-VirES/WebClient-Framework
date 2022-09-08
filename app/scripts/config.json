@@ -705,7 +705,7 @@
                     "range": [0, 20],
                     "colorscale": "ylgnbu",
                     "uom": "a.m.u.",
-                    "name": "Ion effective mass.",
+                    "name": "Ion effective mass",
                     "selected": true,
                     "errorParameter": "M_i_eff_err",
                     "errorDisplayed": false
@@ -714,42 +714,27 @@
                     "range": [0, 20],
                     "colorscale": "ylgnbu",
                     "uom": "a.m.u.",
-                    "name": "Ion effective mass from Truhlik et al. (2015) topside empirical model."
+                    "name": "Ion effective mass (model)"
                 },
-                "M_i_eff_Flags": {
-                    "range": [0, 262144],
+                "N_i": {
+                    "range": [0, 1e6],
                     "colorscale": "plasma",
-                    "uom": null,
-                    "name": "Ion effective mass validity flag.",
-                    "hidden": true,
-                    "bitmask": {
-                        "flags": [
-                            ["bit 0", "Set when faceplate current is unavailable"],
-                            ["bit 1", "Set when IDM product calculation did not converge"],
-                            ["bit 2", "Set when IDM product estimate is not finite and real"],
-                            ["bit 3", "Set when IDM uncertainty estimate is not finite and real"],
-                            ["bit 4", "Set when modified OML faceplate area is not finite and real"],
-                            ["bit 5", "Set when modified OML LP probe radius is not finite and real"],
-                            ["bit 6", "Set when QD-latitude is not within region of validity"],
-                            ["bit 7", "Set when modified OML faceplate area estimate is not valid"],
-                            ["bit 8", "Set when modified OML LP probe radius estimate is not valid"],
-                            ["bit 9", "Set when IDM product estimate is large. Interpret with caution"],
-                            ["bit 10", "Set when IDM product estimate is small. Interpret with caution"],
-                            ["bit 11", "Set when extended LP dataset inputs are invalid"],
-                            ["bit 12", "Set when LP probe potentials differ by more than 0.3 V"],
-                            ["bit 13", "Set when spacecraft potential is too negative"],
-                            ["bit 14", "Set when spacecraft potential is too positive"],
-                            ["bit 15", "Set when spacecraft velocity unavailable"],
-                            ["bit 16", "Set for post processing error / post-processing not done"],
-                            ["bit 17", "Set for invalid magnetic field input"]
-                        ]
-                    }
+                    "uom": "cm-3",
+                    "name": "Ion density",
+                    "errorParameter": "N_i_err",
+                    "errorDisplayed": false
+                },
+                "T_e": {
+                    "range": [1000, 5000],
+                    "colorscale": "portland",
+                    "uom": "K",
+                    "name": "Electron temperature"
                 },
                 "V_i": {
                     "range": [-150000, 150000],
                     "colorscale": "diverging_1",
                     "uom": "m/s",
-                    "name": "Ion along-track drift.",
+                    "name": "Ion along-track drift",
                     "errorParameter": "V_i_err",
                     "errorDisplayed": false
                 },
@@ -757,13 +742,42 @@
                     "range": [-150000, 150000],
                     "colorscale": "diverging_1",
                     "uom": "m/s",
-                    "name": "Ion along-track drift without high-latitude detrending."
+                    "name": "Ion along-track drift (without high-latitude detrending)"
+                },
+                "M_i_eff_Flags": {
+                    "range": [0, 262144],
+                    "colorscale": "plasma",
+                    "uom": null,
+                    "name": "Ion effective mass validity flag",
+                    "hidden": true,
+                    "bitmask": {
+                        "flags": [
+                            ["bit 0", "Set when faceplate current is unavailable"],
+                            ["bit 1", "Set when IDM product calculation did not converge"],
+                            ["bit 2", "Set when IDM product estimate is not finite and real"],
+                            ["bit 3", "Set when IDM uncertainty estimate is not finite and real"],
+                            ["bit 4", "Set when modified OML faceplate area is not finite and real"],
+                            ["bit 5", "Set when modified OML LP probe radius is not finite and real"],
+                            ["bit 6", "Set when QD-latitude is not within region of validity"],
+                            ["bit 7", "Set when modified OML faceplate area estimate is not valid"],
+                            ["bit 8", "Set when modified OML LP probe radius estimate is not valid"],
+                            ["bit 9", "Set when IDM product estimate is large. Interpret with caution"],
+                            ["bit 10", "Set when IDM product estimate is small. Interpret with caution"],
+                            ["bit 11", "Set when extended LP dataset inputs are invalid"],
+                            ["bit 12", "Set when LP probe potentials differ by more than 0.3 V"],
+                            ["bit 13", "Set when spacecraft potential is too negative"],
+                            ["bit 14", "Set when spacecraft potential is too positive"],
+                            ["bit 15", "Set when spacecraft velocity unavailable"],
+                            ["bit 16", "Set for post processing error / post-processing not done"],
+                            ["bit 17", "Set for invalid magnetic field input"]
+                        ]
+                    }
                 },
                 "V_i_Flags": {
                     "range": [0, 262144],
                     "colorscale": "plasma",
                     "uom": null,
-                    "name": "Ion along-track drift validity flag.",
+                    "name": "Ion along-track drift validity flag",
                     "hidden": true,
                     "bitmask": {
                         "flags": [
@@ -787,20 +801,12 @@
                             ["bit 17", "Set for invalid magnetic field input"]
                         ]
                     }
-                },
-                "N_i": {
-                    "range": [0, 1e6],
-                    "colorscale": "plasma",
-                    "uom": "cm-3",
-                    "name": "Ion density.",
-                    "errorParameter": "N_i_err",
-                    "errorDisplayed": false
                 },
                 "N_i_Flags": {
                     "range": [0, 262144],
                     "colorscale": "plasma",
                     "uom": null,
-                    "name": "Ion density validity flag.",
+                    "name": "Ion density validity flag",
                     "hidden": true,
                     "bitmask": {
                         "flags": [
@@ -824,12 +830,6 @@
                             ["bit 17", "Set for invalid magnetic field input"]
                         ]
                     }
-                },
-                "T_e": {
-                    "range": [1000, 5000],
-                    "colorscale": "portland",
-                    "uom": "K",
-                    "name": "Electron temperature."
                 }
             },
             "download_parameters": {
@@ -871,68 +871,68 @@
                 },
                 "V_sat_nec": {
                     "uom": "m/s",
-                    "name": "Satellite velocity in north, east, centre (NEC) reference frame.",
+                    "name": "Satellite velocity in north, east, centre (NEC) reference frame",
                     "breakInto": ["V_sat_n", "V_sat_e", "V_sat_c"]
                 },
                 "M_i_eff": {
                     "uom": "a.m.u.",
-                    "name": "Ion effective mass."
+                    "name": "Ion effective mass"
                 },
                 "M_i_eff_err": {
                     "uom": "a.m.u.",
-                    "name": "Ion effective mass uncertainty."
+                    "name": "Ion effective mass uncertainty"
                 },
                 "M_i_eff_Flags": {
                     "uom": null,
-                    "name": "Ion effective mass validity flag."
+                    "name": "Ion effective mass validity flag"
                 },
                 "M_i_eff_tbt_model": {
                     "uom": "a.m.u.",
-                    "name": "Ion effective mass from Truhlik et al. (2015) topside empirical model."
+                    "name": "Ion effective mass from Truhlik et al. (2015) topside empirical model"
                 },
                 "V_i": {
                     "uom": "m/s",
-                    "name": "Ion along-track drift."
+                    "name": "Ion along-track drift"
                 },
                 "V_i_err": {
                     "uom": "m/s",
-                    "name": "Ion along-track drift uncertainty."
+                    "name": "Ion along-track drift uncertainty"
                 },
                 "V_i_Flags": {
                     "uom": null,
-                    "name": "Ion along-track drift validity flag."
+                    "name": "Ion along-track drift validity flag"
                 },
                 "V_i_raw": {
                     "uom": "m/s",
-                    "name": "Ion along-track drift without high-latitude detrending."
+                    "name": "Ion along-track drift without high-latitude detrending"
                 },
                 "N_i": {
                     "uom": "cm-3",
-                    "name": "Ion density."
+                    "name": "Ion density"
                 },
                 "N_i_err": {
                     "uom": "cm-3",
-                    "name": "Ion density uncertainty."
+                    "name": "Ion density uncertainty"
                 },
                 "N_i_Flags": {
                     "uom": null,
-                    "name": "Ion density validity flag."
+                    "name": "Ion density validity flag"
                 },
                 "A_fp": {
                     "uom": "m2",
-                    "name": "Modified-OML EFI faceplate area."
+                    "name": "Modified-OML EFI faceplate area"
                 },
                 "R_p": {
                     "uom": "m",
-                    "name": "Modified-OML Langmuir spherical probe radius."
+                    "name": "Modified-OML Langmuir spherical probe radius"
                 },
                 "T_e": {
                     "uom": "K",
-                    "name": "Electron temperature."
+                    "name": "Electron temperature"
                 },
                 "Phi_sc": {
                     "uom": "V",
-                    "name": "Spacecraft floating potential with respect to plasma potential far from satellite."
+                    "name": "Spacecraft floating potential with respect to plasma potential far from satellite"
                 }
             }
         },
