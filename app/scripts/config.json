@@ -716,12 +716,6 @@
                     "uom": "a.m.u.",
                     "name": "Ion effective mass from Truhlik et al. (2015) topside empirical model."
                 },
-                "M_i_eff_err": {
-                    "range": [0.0, 5.0],
-                    "colorscale": "jet",
-                    "uom": "a.m.u.",
-                    "name": "Ion effective mass uncertainty."
-                },
                 "M_i_eff_Flags": {
                     "range": [0, 262144],
                     "colorscale": "plasma",
@@ -765,12 +759,6 @@
                     "uom": "m/s",
                     "name": "Ion along-track drift without high-latitude detrending."
                 },
-                "V_i_err": {
-                    "range": [0, 100000],
-                    "colorscale": "jet",
-                    "uom": "m/s",
-                    "name": "Ion along-track drift uncertainty."
-                },
                 "V_i_Flags": {
                     "range": [0, 262144],
                     "colorscale": "plasma",
@@ -808,12 +796,6 @@
                     "errorParameter": "N_i_err",
                     "errorDisplayed": false
                 },
-                "N_i_err": {
-                    "range": [0, 1e3],
-                    "colorscale": "plasma",
-                    "uom": "cm-3",
-                    "name": "Ion density uncertainty."
-                },
                 "N_i_Flags": {
                     "range": [0, 262144],
                     "colorscale": "plasma",
@@ -848,12 +830,6 @@
                     "colorscale": "portland",
                     "uom": "K",
                     "name": "Electron temperature."
-                },
-                "Phi_sc": {
-                    "range": [-3, 0],
-                    "colorscale": "jet",
-                    "uom": "V",
-                    "name": "Spacecraft floating potential with respect to plasma potential far from satellite."
                 }
             },
             "download_parameters": {
