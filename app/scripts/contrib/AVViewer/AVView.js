@@ -1247,9 +1247,9 @@ define(['backbone.marionette',
                     'Ne', 'F', 'Bubble_Probability', 'Absolute_STEC',
                     'FAC', 'EEF', 'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
                     'Pair_Indicator',
-                    'Ti_meas_drift', 'Ti_model_drift',
-                    'Ti_meas_drift', 'M_i_eff', 'N_i', 'T_e',
-                    'Viy', 'Viz',
+                    'Ti_meas_drift', // EFIxTIE default
+                    'M_i_eff', 'N_i', // EFIxIDM defaults
+                    'Viy', 'Viz', // EFIxTCT defaults
                 ];
 
                 // Go trough all plots and see if they need to be removed

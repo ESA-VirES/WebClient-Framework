@@ -964,14 +964,14 @@
             "satellite": "Swarm",
             "parameters": {
                 "Viy": {
+                    "selected": true,
                     "range": [-2000, 2000],
                     "colorscale": "diverging_1",
                     "name": "Cross-track horizontal ion drift (horizontal TII)",
                     "description": "Cross-track horizontal ion drift from horizontal TII sensor in satellite-track coordinates.",
                     "uom": "m/s",
                     "errorParameter": "Viy_error",
-                    "errorDisplayed": false,
-                    "selected": true
+                    "errorDisplayed": false
                 },
                 "Viz": {
                     "range": [-2000, 2000],
@@ -983,7 +983,6 @@
                     "errorDisplayed": false
                 },
                 "Viyz": {
-                    "selected": true,
                     "range": [0, 2000],
                     "colorscale": "jet",
                     "name": "Cross-track ion drift vector (combined horizontal and vertical TII)",
@@ -992,7 +991,6 @@
                     "composeFrom": ["Viy", "Viz"]
                 },
                 "Vixy": {
-                    "selected": true,
                     "range": [0, 2000],
                     "colorscale": "jet",
                     "name": "Ion drift vector (horizontal TII)",
@@ -1009,7 +1007,6 @@
                     "composeFrom": ["Vixv", "Viz"]
                 },
                 "Vixh": {
-                    "selected": true,
                     "range": [-2000, 2000],
                     "colorscale": "diverging_1",
                     "name": "Along-track ion drift (horizontal TII)",
