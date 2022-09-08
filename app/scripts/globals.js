@@ -15,6 +15,7 @@ define(
         data: null,
         relatedData: new Backbone.Model(),
         sources: [],
+        filters: {},
       },
       clearSources: function () {
         this.set('sources', []);
@@ -27,9 +28,9 @@ define(
     });
 
     return {
-      version: "3.9.0",
+      version: "3.10.0",
       supportedVersions: [
-        "3.9.0", "3.8.0", "3.7.0", "3.6.0",
+        "3.10.0", "3.9.0", "3.8.0", "3.7.0", "3.6.0",
         "3.5.0", "3.4.0", "3.3.0", "3.2.0", "3.1.3", "3.1.2", "3.1.1", "3.1.0"
       ],
       objects: new ObjectStore(),
@@ -40,6 +41,7 @@ define(
       swarm: new SwarmModel(),
       models: new MagneticModel.MagneticModelCollection(),
       userData: new UserDataModel.UserDataCollection(),
+      download: new Backbone.Model(),
     };
   }
 );

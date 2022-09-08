@@ -170,7 +170,15 @@
                     handle: '.panel-heading'
                 });
 
-                var options = this.current_model.get("parameters");
+                var options = _.clone(this.current_model.get("parameters"));
+
+                // filter out hidden parameters
+                _.each(options, function (value, key) {
+                    if (get(value, 'hidden', false)) {
+                        delete options[key];
+                    }
+                });
+
                 //var height = this.current_model.get("height");
                 var outlines = this.current_model.get("outlines");
                 var showColorscale = this.current_model.get("showColorscale");

@@ -22,6 +22,7 @@ define([
     'hbs!tmpl/SvgSymbolTriangle',
     'hbs!tmpl/wps_fetchFilteredData',
     'colormap',
+    'viresFilters',
     'cesium/Cesium',
     'drawhelper',
     'FileSaver',
@@ -30,7 +31,7 @@ define([
     DataUtil, tmplEvalModel, tmplFieldLinesLabel,
     tmplSvgSymbolCircle, tmplSvgSymbolDimond, tmplSvgSymbolDimondLarge,
     tmplSvgSymbolSquare, tmplSvgSymbolTriangle, tmplFetchFilteredData,
-    colormap
+    colormap, viresFilters
 ) {
     'use strict';
 
@@ -111,6 +112,7 @@ define([
     var MAX_VECTOR_LENGTH = 600000; // m - length of the longest regular vector
     var JNE_VECTOR_SAMPLING = 5000; // ms
     var NEC_VECTOR_SAMPLING = 5000; // ms
+    var TII_VECTOR_SAMPLING = 500; // ms
 
     var BUBLE_PROBABILITY_THRESHOLD = 0.1;
 
@@ -127,8 +129,9 @@ define([
         this.filters = _.map(
             _.pick(globals.swarm.get('filters') || {}, variables),
             function (filter, variable) {
+                var filterFunction = viresFilters.getFilterFunction(filter);
                 return function (record) {
-                    return filter(record[variable]);
+                    return filterFunction(record[variable]);
                 };
             }
         );
@@ -194,31 +197,42 @@ define([
         }
     };
 
-    // vector norms cache preventing repeated calculation
-    var CachedVectorNorms = function () {
+    // norms cache preventing repeated calculation
+    var NormsCache = function () {
         this._cache = {};
     };
 
-    CachedVectorNorms.prototype = {
+    NormsCache.prototype = {
 
-        getVectorNorms: function (parameter, data) {
-            var vnorms = get(this._cache, parameter);
-            if (!vnorms) {
-                vnorms = this._calculateVectorNorms(data);
-                this._cache[parameter] = vnorms;
+        getNorms: function (parameter, data) {
+            var norms = get(this._cache, parameter);
+            if (!norms) {
+                norms = this._calculateNorms(data);
+                this._cache[parameter] = norms;
             }
-            return vnorms;
+            return norms;
         },
 
-        _calculateVectorNorms: function (data) {
+        _calculateNorms: function (data) {
             switch (data.length) {
-                case 2:
-                    return this._calculateV2Norms(data[0], data[1]);
                 case 3:
                     return this._calculateV3Norms(data[0], data[1], data[2]);
+                case 2:
+                    return this._calculateV2Norms(data[0], data[1]);
+                case 1:
+                    return this._calculateSNorms(data[0]);
                 default:
                     throw "Unsupported vector lenght " + data.lenght + "!";
             }
+        },
+
+        _calculateSNorms: function (x) {
+            var norm1 = Math.abs;
+            var norms = new VectorNorms();
+            for (var i = 0, size = x.length; i < size; i++) {
+                norms.push(norm1(x[i]));
+            }
+            return norms;
         },
 
         _calculateV2Norms: function (x, y) {
@@ -1909,6 +1923,9 @@ define([
                     );
                 };
 
+
+                // ------------------------------------------------------------
+
                 // TEC GPS-pointing vectors
                 var _createVectorTEC = function (record, settings) {
                     var value = record[parameter];
@@ -1988,6 +2005,114 @@ define([
                     );
                 };
 
+                // ------------------------------------------------------------
+
+                // 3D vector in the S/C frame - comon low-level part
+                // since we don't not the exact S/C orintation we assume
+                // the X and Y are in the NE plane and Z is alligned with C
+                // the X orientation is given by the S/C velocity
+                var __createVectorInSCFrame = function (record, settings, value, vector) {
+                    var scale = MAX_VECTOR_LENGTH;
+                    var v_n = record.VsatN;
+                    var v_e = record.VsatE;
+                    var v_scale = 1.0 / vnorm2(v_e, v_n);
+
+
+                    var position = convertSpherical2Cartesian(
+                        record.Latitude, record.Longitude,
+                        record.Radius + get(settings, 'index', 0) * HEIGHT_OFFSET
+                    );
+
+                    vector = rotateHorizontal2Cartesian(
+                        record.Latitude, record.Longitude,
+                        scale * (v_n * vector.x + v_e * vector.y) * v_scale,
+                        scale * (v_e * vector.x - v_n * vector.y) * v_scale,
+                        scale * vector.z
+                    );
+
+                    __createVector(
+                        position.x, position.y, position.z,
+                        vector.x, vector.y, vector.z,
+                        settings.colormap.getColor(value), settings
+                    );
+                };
+
+                // 3D vector in the S/C frame
+                var _createVectorSC = function (record, settings) {
+                    var value = settings.norms[record.__index__];
+                    if (isNaN(value)) {return;}
+                    var scale = 1.0 / settings.maxNorm;
+                    var components = settings.components;
+                    __createVectorInSCFrame(record, settings, value, {
+                        x: scale * record[components[0]],
+                        y: scale * record[components[1]],
+                        z: scale * record[components[2]]
+                    });
+                };
+
+                // 2D vector in the S/C along-track horizontal plane
+                var _createVectorSCHP = function (record, settings) {
+                    var value = settings.norms[record.__index__];
+                    if (isNaN(value)) {return;}
+                    var scale = 1.0 / settings.maxNorm;
+                    var components = settings.components;
+                    __createVectorInSCFrame(record, settings, value, {
+                        x: scale * record[components[0]],
+                        y: scale * record[components[1]],
+                        z: 0.0
+                    });
+                };
+
+                // 2D vector in the S/C along-track verticlal plane
+                var _createVectorSCVP = function (record, settings) {
+                    var value = settings.norms[record.__index__];
+                    var scale = 1.0 / settings.maxNorm;
+                    var components = settings.components;
+                    if (isNaN(value)) {return;}
+                    __createVectorInSCFrame(record, settings, value, {
+                        x: scale * record[components[0]],
+                        y: 0.0,
+                        z: scale * record[components[1]]
+                    });
+                };
+
+                // 2D vector in the S/C cros-track plane
+                var _createVectorSCCP = function (record, settings) {
+                    var value = settings.norms[record.__index__];
+                    if (isNaN(value)) {return;}
+                    var scale = 1.0 / settings.maxNorm;
+                    var components = settings.components;
+                    __createVectorInSCFrame(record, settings, value, {
+                        x: 0.0,
+                        y: scale * record[components[0]],
+                        z: scale * record[components[1]]
+                    });
+                };
+
+                // scalar value displayed as cross-track horizontal vector
+                var _createVectorCTH = function (record, settings) {
+                    var value = get(record, parameter);
+                    if (isNaN(value)) {return;}
+                    __createVectorInSCFrame(record, settings, value, {
+                        x: 0.0,
+                        y: value / settings.maxNorm,
+                        z: 0.0
+                    });
+                };
+
+                // scalar value displayed as cross-track vertical vector
+                var _createVectorCTV = function (record, settings) {
+                    var value = get(record, parameter);
+                    if (isNaN(value)) {return;}
+                    __createVectorInSCFrame(record, settings, value, {
+                        x: 0.0,
+                        y: 0.0,
+                        z: value / settings.maxNorm
+                    });
+                };
+
+                // ------------------------------------------------------------
+
                 switch (parameter) {
                     case 'Absolute_STEC':
                     case 'Absolute_VTEC':
@@ -1997,7 +2122,7 @@ define([
                         var sampler = new Subsampler(TEC_VECTOR_SAMPLING);
                         return function (row, settings, index) {
                             if (sampler.testSample(row[TIMESTAMP].getTime())) {
-                                _createVectorTEC(row, settings, index);
+                                _createVectorTEC(row, settings);
                             }
                         };
 
@@ -2011,14 +2136,66 @@ define([
                         var sampler = new Subsampler(JNE_VECTOR_SAMPLING);
                         return function (row, settings, index) {
                             if (sampler.testSample(row[TIMESTAMP].getTime())) {
-                                _createVectorJNE(row, settings, index);
+                                _createVectorJNE(row, settings);
                             }
                         };
+
+                    case 'Viy':
+                        var sampler = new Subsampler(TII_VECTOR_SAMPLING);
+                        return function (row, settings, index) {
+                            if (sampler.testSample(row[TIMESTAMP].getTime())) {
+                                _createVectorCTH(row, settings);
+                            }
+                        };
+
+                    case 'Viz':
+                        var sampler = new Subsampler(TII_VECTOR_SAMPLING);
+                        return function (row, settings, index) {
+                            if (sampler.testSample(row[TIMESTAMP].getTime())) {
+                                _createVectorCTV(row, settings);
+                            }
+                        };
+
+                    case 'Vixy':
+                        var sampler = new Subsampler(TII_VECTOR_SAMPLING);
+                        return function (row, settings, index) {
+                            if (sampler.testSample(row[TIMESTAMP].getTime())) {
+                                _createVectorSCHP(row, settings);
+                            }
+                        };
+
+                    case 'Vixz':
+                        var sampler = new Subsampler(TII_VECTOR_SAMPLING);
+                        return function (row, settings, index) {
+                            if (sampler.testSample(row[TIMESTAMP].getTime())) {
+                                _createVectorSCVP(row, settings);
+                            }
+                        };
+
+                    case 'Viyz':
+                        var sampler = new Subsampler(TII_VECTOR_SAMPLING);
+                        return function (row, settings, index) {
+                            if (sampler.testSample(row[TIMESTAMP].getTime())) {
+                                _createVectorSCCP(row, settings);
+                            }
+                        };
+
+                    case 'Eh':
+                    case 'Ev':
+                    case 'B_TII':
+                    case 'Vicr':
+                        var sampler = new Subsampler(TII_VECTOR_SAMPLING);
+                        return function (row, settings, index) {
+                            if (sampler.testSample(row[TIMESTAMP].getTime())) {
+                                _createVectorSC(row, settings);
+                            }
+                        };
+
                     default:
                         var sampler = new Subsampler(NEC_VECTOR_SAMPLING);
                         return function (row, settings, index) {
                             if (sampler.testSample(row[TIMESTAMP].getTime())) {
-                                _createVectorNEC(row, settings, index);
+                                _createVectorNEC(row, settings);
                             }
                         };
                 }
@@ -2072,15 +2249,15 @@ define([
                 }
 
                 // initialize Cesium feature collection and collect additional attributes
-                var _vectorNormsCache = new CachedVectorNorms();
+                var _normsCache = new NormsCache();
 
                 _.uniq(data.data.id).forEach(function (id) {
                     var _parameterIsMissing = function (key) {
-                        return !_.has(data.data, key);
+                        return !has(data.data, key);
                     };
 
                     var _settingsHaveParameter = function (key) {
-                        return _.has(settings[id], key);
+                        return has(settings[id], key);
                     };
 
                     var _addPointCollection = function (parameter) {
@@ -2107,13 +2284,17 @@ define([
                         });
                         if (components) {
                             _settings.components = components;
-                            _.extend(_settings, _vectorNormsCache.getVectorNorms(
+                            _.extend(_settings, _normsCache.getNorms(
                                 parameter, _.values(_.pick(data.data, components))
+                            ));
+                        } else {
+                            _.extend(_settings, _normsCache.getNorms(
+                                parameter, [data.data[parameter]]
                             ));
                         }
                     };
 
-                    _.filter(SCALAR_PARAM, _settingsHaveParameter).map(function (parameter) {
+                    _.filter(SCALAR_PARAM, _settingsHaveParameter).forEach(function (parameter) {
                         var relatedVector = get(settings[id][parameter], 'relatedVector');
                         if (relatedVector && !_parameterIsMissing(parameter)) {
                             _addVectorCollection(parameter, get(data.vectors, relatedVector));
@@ -2122,8 +2303,14 @@ define([
                         }
                     });
 
-                    _.filter(VECTOR_PARAM, _settingsHaveParameter).map(function (parameter) {
+                    _.filter(VECTOR_PARAM, _settingsHaveParameter).forEach(function (parameter) {
                         _addVectorCollection(parameter, get(data.vectors, parameter));
+                    });
+
+                    _.each(settings[id], function (item, name) {
+                        if (!get(item, "isVector", false) && !get(item, "isScalar", false)) {
+                            throw "Neither SCALAR_PARAM nor VECTOR_PARAM list contains the " + name + " parameter!";
+                        }
                     });
                 });
 
@@ -2241,10 +2428,7 @@ define([
             }
         },
 
-        onAnalyticsFilterChanged: function (filter) {
-            console.log(filter);
-        },
-
+        onAnalyticsFilterChanged: function (filter) {},
 
         onExportGeoJSON: function () {
             var geojsonstring = this.geojson.write(this.vectorLayer.features, true);
@@ -2689,18 +2873,18 @@ define([
 
             // Color based on satellite
             var color;
-            switch(name) {
-              case 'Alpha':
-                color = new Cesium.Color(0.2, 0.2, 0.8, 1.0);
-                break;
-              case 'Bravo':
-                color = new Cesium.Color(0.8, 0.2, 0.2, 1.0);
-                break;
-              case 'Charlie':
-                color = new Cesium.Color(0.2, 0.8, 0.2, 1.0);
-                break;
-              default:
-                color = new Cesium.Color(0.0, 0.0, 0.0, 1.0);
+            switch (name) {
+                case 'Alpha':
+                    color = new Cesium.Color(0.2, 0.2, 0.8, 1.0);
+                    break;
+                case 'Bravo':
+                    color = new Cesium.Color(0.8, 0.2, 0.2, 1.0);
+                    break;
+                case 'Charlie':
+                    color = new Cesium.Color(0.2, 0.8, 0.2, 1.0);
+                    break;
+                default:
+                    color = new Cesium.Color(0.0, 0.0, 0.0, 1.0);
             }
             lineCollection.add({
                 positions: positions,
