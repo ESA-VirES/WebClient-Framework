@@ -734,7 +734,7 @@
                     "range": [-150000, 150000],
                     "colorscale": "diverging_1",
                     "uom": "m/s",
-                    "name": "Ion along-track drift",
+                    "name": "Along-track ion drift",
                     "errorParameter": "V_i_err",
                     "errorDisplayed": false
                 },
@@ -742,7 +742,7 @@
                     "range": [-150000, 150000],
                     "colorscale": "diverging_1",
                     "uom": "m/s",
-                    "name": "Ion along-track drift (without high-latitude detrending)"
+                    "name": "Along-track ion drift (without high-latitude detrending)"
                 },
                 "M_i_eff_Flags": {
                     "range": [0, 262144],
