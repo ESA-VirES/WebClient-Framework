@@ -66,6 +66,10 @@ var REVERSE_VECTOR_BREAKDOWN = {};
 var VECTOR_COMPOSITION = {};
 var REVERSE_VECTOR_COMPOSITION = {};
 
+// derived parameters
+var DERIVED_PARAMETERS = {}
+var REVERSE_DERIVED_PARAMETERS = {}
+
 // Ordered from highest resolution to lowest with the exception of FAC that
 // needs to be first as the master product needs to be the same
 var MASTER_PRIORITY = [
@@ -428,9 +432,23 @@ var RELATED_VARIABLES = {
                     }
                 };
 
+                var updateDerivedParameters = function (target, reverse, name, sources) {
+                    if (!sources || has(target, name)) return;
+                    target[name] = sources;
+                    var sourceNames = _.keys(sources)
+                    for (var i = 0, sourceName ; i < sourceNames.length; ++i) {
+                        sourceName = sourceNames[i];
+                        if (!has(reverse, sourceName)) {
+                            reverse[sourceName] = [];
+                        }
+                        reverse[sourceName].push(name);
+                    }
+                };
+
                 var extractVectorBreakdown = function (parameter, name) {
                     updateVectorComposition(VECTOR_COMPOSITION, REVERSE_VECTOR_COMPOSITION, name, get(parameter, "composeFrom"));
                     updateVectorBreakdown(VECTOR_BREAKDOWN, REVERSE_VECTOR_BREAKDOWN, name, get(parameter, "breakInto"));
+                    updateDerivedParameters(DERIVED_PARAMETERS, REVERSE_DERIVED_PARAMETERS, name, get(parameter, "derivedFrom"));
                 };
 
                 _.each(config.mapConfig.products, function (product) {

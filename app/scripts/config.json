@@ -641,6 +641,20 @@
                             ["bit 2", "Set when ion temperature data is not available"]
                         ]
                     }
+                },
+                "Flag_ti_meas_high_gain_probe": {
+                    "range": [0, 1],
+                    "uom": null,
+                    "name": "High-gain LP mode boolean flag.",
+                    "hidden": true,
+                    "derivedFrom": {
+                        "Flag_ti_meas": {
+                            "type": "BitmaskFilter",
+                            "size": 3,
+                            "mask": 2,
+                            "selection": 0
+                        }
+                    }
                 }
             },
             "download_parameters": {

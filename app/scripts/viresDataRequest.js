@@ -1,6 +1,7 @@
 /* global _ */
 /* global TIMESTAMP SPACECRAFT_TO_ID */
 /* global VECTOR_BREAKDOWN VECTOR_COMPOSITION REVERSE_VECTOR_COMPOSITION */
+/* global DERIVED_PARAMETERS REVERSE_DERIVED_PARAMETERS */
 /* global get has pop Timer */
 
 
@@ -13,10 +14,14 @@
     'httpRequest',
     'hbs!tmpl/wps_fetchData',
     'hbs!tmpl/wps_fetchFieldlines',
+    'viresFilters',
     'underscore'
   ];
 
-  function init(globals, msgpack, httpRequest, wps_fetchDataTmpl, wps_fetchFieldlinesTmpl) {
+  function init(
+    globals, msgpack, httpRequest, wps_fetchDataTmpl, wps_fetchFieldlinesTmpl,
+    viresFilters
+  ) {
 
     //var ORBIT_DIRECTION_ASCENDING = +1;
     var ORBIT_DIRECTION_DESCENDING = -1;
@@ -253,14 +258,40 @@
         if (has(data.vectors, vector)) {
           return; // already registered
         }
-        var ndim = components.length;
-        for (var i = 0, component ; i < ndim; ++i) {
-          component = components[i];
-          if (!has(data.data, component)) {
+        for (var i = 0, ndim = components.length; i < ndim; ++i) {
+          if (!has(data.data, components[i])) {
             return; // there is a missing vector component
           }
         }
         data.registerNewVector(vector, components);
+      };
+
+      var createDerivedParameter = function (name, sources) {
+        if (has(data.data, name)) {
+          return; // already created
+        }
+        var sourceNames = _.keys(sources);
+        for (var i = 0, size = sourceNames.length; i < size; ++i) {
+          if (!has(data.data, sourceNames[i])) {
+            return; // there is a missing source parameter
+          }
+        }
+        var dst = null;
+        _.each(sources, function (filter, sourceName) {
+          var filterFunction = viresFilters.getFilterFunction(filter);
+          var src = data.data[sourceName];
+          if (dst == null) {
+            dst = new Array(data.size);
+            for (var i = 0, size = data.size; i < size; i++) {
+              dst[i] = filterFunction(src[i]);
+            }
+          } else {
+            for (var i = 0, size = data.size; i < size; i++) {
+              dst[i] = dst[i] && filterFunction(src[i]);
+            }
+          }
+        });
+        data.data[name] = dst;
       };
 
       //var composeVector = function (
@@ -298,6 +329,10 @@
         } else if (has(REVERSE_VECTOR_COMPOSITION, variable)) {
           _.each(REVERSE_VECTOR_COMPOSITION[variable], function (item) {
             composeVector(item.source, VECTOR_COMPOSITION[item.source]);
+          });
+        } else if (has(REVERSE_DERIVED_PARAMETERS, variable)) {
+          _.each(REVERSE_DERIVED_PARAMETERS[variable], function (item) {
+            createDerivedParameter(item, DERIVED_PARAMETERS[item]);
           });
         }
       });
