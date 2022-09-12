@@ -2,6 +2,8 @@
 
 define(['plotty'], function (plotty) {
 
+  var colorscaleDefinitions = plotty.colorscales;
+
   // linear range normalizer
   var LinearNorm = function (minValue, maxValue) {
     var base = minValue;
@@ -34,7 +36,7 @@ define(['plotty'], function (plotty) {
 
     this.canvas = get(this._colormapCanvases, name);
     if (!this.canvas) {
-      if (!has(plotty.colorscales, name)) {
+      if (!has(colorscaleDefinitions, name)) {
         throw new Error("No such color scale '" + name + "'");
       }
       this.canvas = document.createElement('canvas');
@@ -81,6 +83,7 @@ define(['plotty'], function (plotty) {
   };
 
   return {
+    colorscaleDefinitions: colorscaleDefinitions,
     LinearNorm: LinearNorm,
     LogNorm: LogNorm,
     ColorMap: ColorMap
