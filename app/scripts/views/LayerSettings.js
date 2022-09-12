@@ -1,4 +1,4 @@
-/*global _ $ * d3 plotty showMessage getISODateTimeString */
+/*global _ $ * d3 showMessage getISODateTimeString */
 /*global get */
 
 (function () {
@@ -11,13 +11,13 @@
         'communicator',
         'globals',
         'choices',
-        'plotty',
+        'colormap',
         'hbs!tmpl/LayerSettings',
         'hbs!tmpl/wps_eval_composed_model',
         'underscore'
     ],
 
-    function (Backbone, Communicator, globals, Choices, plotty, LayerSettingsTmpl, evalModelTmplComposed_POST) {
+    function (Backbone, Communicator, globals, Choices, colormap, LayerSettingsTmpl, evalModelTmplComposed_POST) {
 
         var ModelComponentParameters = function (model, source) {
             var sources = [];
@@ -122,27 +122,12 @@
 
             template: {type: 'handlebars', template: LayerSettingsTmpl},
             className: "panel panel-default optionscontrol not-selectable",
-            colorscaletypes: [
-                'coolwarm', 'rainbow', 'jet', 'diverging_1', 'diverging_2',
-                'blackwhite', 'viridis', 'inferno', 'hsv', 'hot', 'cool',
-                'spring', 'summer', 'autumn', 'winter', 'bone', 'copper', 'ylgnbu',
-                'greens', 'ylorrd', 'bluered', 'portland', 'blackbody', 'earth',
-                'electric', 'magma', 'plasma'
-            ],
 
             initialize: function (options) {
+                this.colorscales = _.sortBy(_.keys(colormap.colorscaleDefinitions));
+
                 this.selected = null;
-                this.plot = new plotty.plot({
-                    colorScale: 'jet',
-                    domain: [0, 1]
-                });
                 this.selected_satellite = "Alpha";
-
-                if (plotty.hasOwnProperty('colorscales')) {
-                    this.colorscaletypes = Object.keys(plotty.colorscales);
-                }
-
-                this.colorscaletypes = _.sortBy(this.colorscaletypes, function (c) {return c;});
             },
 
             renderView: function () {
@@ -240,7 +225,7 @@
                         this.$("#style").unbind();
                         this.$("#style").empty();
                         this.$("#style").append(
-                            _.map(this.colorscaletypes, function (colorscale) {
+                            _.map(this.colorscales, function (colorscale) {
                                 var selected = "";
                                 if (selectedOption.colorscale == colorscale) {
                                     selected = " selected";
@@ -457,7 +442,7 @@
                     $("#opacitysilder").parent().show();
 
                     this.$("#style").append(
-                        _.map(this.colorscaletypes, function (colorscale) {
+                        _.map(this.colorscales, function (colorscale) {
                             var selected = "";
                             if (selectedOption.colorscale == colorscale) {
                                 selected = " selected";
@@ -759,13 +744,9 @@
                     '<div id="gradient" style="width:' + scalewidth + 'px;margin-left:' + margin + 'px"></div>'
                 );
                 /*'<div class="'+style+'" style="width:'+scalewidth+'px; height:20px; margin-left:'+margin+'px"></div>'*/
-                if (this.plot) {
-                    // plotty might not be initialized yet
-                    this.plot.setColorScale(style);
-                }
-                var base64_string = this.plot.colorScaleImage.toDataURL();
-                $('#gradient').css('background-image', 'url(' + base64_string + ')');
 
+                var data_url = (new colormap.ColorMap(style)).getCanvas().toDataURL('image/png');
+                $('#gradient').css('background-image', 'url(' + data_url + ')');
 
                 var svgContainer = d3.select("#setting_colorscale").append("svg")
                     .attr("width", width)

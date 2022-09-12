@@ -1,5 +1,5 @@
 /* global $ _ define w2popup w2utils showMessage */
-/* global plotty graphly FilterManager BitwiseInt */
+/* global graphly FilterManager BitwiseInt */
 /* global savePrameterStatus VECTOR_BREAKDOWN */
 /* global get has setDefault */
 
@@ -9,10 +9,11 @@ define(['backbone.marionette',
     'models/AVModel',
     'globals',
     'viresFilters',
+    'colormap',
     'd3',
     'graphly',
     'analytics'
-], function (Marionette, Communicator, App, AVModel, globals, viresFilters) {
+], function (Marionette, Communicator, App, AVModel, globals, viresFilters, colormap) {
     'use strict';
 
     // variables not not offered as filters
@@ -558,20 +559,6 @@ define(['backbone.marionette',
             }
 
 
-            var cols = [
-                'coolwarm', 'rainbow', 'jet', 'diverging_1', 'diverging_2',
-                'blackwhite', 'viridis', 'inferno', 'hsv', 'hot', 'cool',
-                'spring', 'summer', 'autumn', 'winter', 'bone', 'copper', 'ylgnbu',
-                'greens', 'ylorrd', 'bluered', 'portland', 'blackbody', 'earth',
-                'electric', 'magma', 'plasma'
-            ];
-
-            if (plotty.hasOwnProperty('colorscales')) {
-                cols = Object.keys(plotty.colorscales);
-            }
-
-            cols = _.sortBy(cols, function (c) {return c;});
-
             this.graph = new graphly.graphly({
                 el: '#graph',
                 dataSettings: globals.swarm.get('uom_set'),
@@ -584,7 +571,8 @@ define(['backbone.marionette',
                 enableSubYAxis: false,
                 colorscaleOptionLabel: 'Add third variable',
                 ignoreParameters: EXCLUDED_PARAMETERS,
-                colorscales: cols,
+                colorscaleDefinitions: colormap.colorscaleDefinitions,
+                colorscale: _.sortBy(_.keys(colormap.colorscaleDefinitions)),
                 allowLockingAxisScale: true,
             });
 
