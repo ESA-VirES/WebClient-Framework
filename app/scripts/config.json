@@ -2124,6 +2124,193 @@
                     "name": "Divergence-free horizontal sheet current density (SemiQD frame, east component)"
                 }
             }
+        },
+        "SW_MITxTEC_2F": {
+            "satellite": "Swarm",
+            "parameters": {
+                "L_value": {
+                    "selected": true,
+                    "range": [0, 8],
+                    "colorscale": "viridis",
+                    "uom": null,
+                    "name": "L-value in earth radii of the MIT minimum"
+                },
+                "DR": {
+                    "range": [40, 100],
+                    "colorscale": "viridis",
+                    "uom": "%",
+                    "name": "Relative change in density within the MIT"
+                },
+                "Width": {
+                    "range": [0, 40],
+                    "colorscale": "viridis",
+                    "uom": "deg",
+                    "name": "Scalar  width of the MIT calculated from QD latitudes"
+                },
+                "dL": {
+                    "range": [0, 15],
+                    "colorscale": "viridis",
+                    "uom": "deg",
+                    "name": "Scalar  width of the MIT calculated from L-values"
+                }
+            },
+            "download_parameters": {
+                "Counter": {
+                    "uom": null,
+                    "name": "Swarm orbit and quarter orbit counters"
+                },
+                "Timestamp": {
+                    "uom": null,
+                    "name": "UTC time of the MIT minimum"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "ITRF geocentric latitude of the MIT minimum"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "ITRF geocentric longitude of the MIT minimum"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "ITRF geocentric radius of the MIT minimum"
+                },
+                "Latitude_QD": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude of the MIT minimum"
+                },
+                "Longitude_QD": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude of the MIT minimum"
+                },
+                "MLT_QD": {
+                    "uom": "hour",
+                    "name": "Magnetic local time (QD) of the MIT minimum"
+                },
+                "L_value": {
+                    "uom": null,
+                    "name": "L-value in earth radii of the MIT minimum"
+                },
+                "SZA": {
+                    "uom": "deg",
+                    "name": "Solar zenith angle of the MIT minimum"
+                },
+                "TEC": {
+                    "uom": "TECU",
+                    "name": "Total electron content at the MIT minimum"
+                },
+                "Depth": {
+                    "uom": "cm^-3",
+                    "name": "Scalar  depth of the MIT"
+                },
+                "DR": {
+                    "uom": "%",
+                    "name": "Relative change in density within the MIT"
+                },
+                "Width": {
+                    "uom": "deg",
+                    "name": "Scalar  width of the MIT calculated from QD latitudes"
+                },
+                "dL": {
+                    "uom": "deg",
+                    "name": "Scalar  width of the MIT calculated from L-values"
+                },
+                "PW_Gradient": {
+                    "uom": "TECU deg^-1",
+                    "name": "Scalar  change in log electron density at the poleward wall of the MIT divided by QD latitude difference"
+                },
+                "EW_Gradient": {
+                    "uom": "TECU deg^-1",
+                    "name": "Scalar  change in log electron density at the equatorward wall of the MIT divided by QD latitude difference"
+                },
+                "Quality": {
+                    "uom": null,
+                    "name": "Characterises the detection quality of the MIT as a whole"
+                }
+            }
+        },
+        "SW_PPIxFAC_2F": {
+            "satellite": "Swarm",
+            "parameters": {
+                "Sigma": {
+                    "range": [0, 1],
+                    "uom": null,
+                    "colorscale": "viridis",
+                    "name": "Standard deviation of the linear fit of S at the boundary"
+                },
+                "PPI": {
+                    "range": [0, 10],
+                    "selected": true,
+                    "colorscale": "viridis",
+                    "uom": "R_E",
+                    "name": "Midnight plasmapause index"
+                },
+                "Fieldlines":{
+                    "range": [0, 0],
+                    "uom":"nT",
+                    "name": "Fieldlines",
+                    "description": "Fieldlines are be calculated from the PP footprint",
+                    "colorscale": "blackwhite"
+                }
+            },
+            "download_parameters": {
+                "Counter": {
+                    "uom": null,
+                    "name": "Swarm orbit and quarter orbit counters"
+                },
+                "Timestamp": {
+                    "uom": null,
+                    "name": "UTC time of the SSFAC boundary"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "ITRF geocentric latitude of the SSFAC boundary"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "ITRF geocentric longitude of the SSFAC boundary"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "ITRF geocentric radius of the SSFAC boundary"
+                },
+                "Latitude_QD": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude of the SSFAC boundary"
+                },
+                "Longitude_QD": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude of the SSFAC boundary"
+                },
+                "MLT_QD": {
+                    "uom": "hour",
+                    "name": "Magnetic local time (QD) of the SSFAC boundary"
+                },
+                "L_value": {
+                    "uom": null,
+                    "name": "L-value in earth radii of the SSFAC boundary"
+                },
+                "SZA": {
+                    "uom": "deg",
+                    "name": "Solar zenith angle of the SSFAC boundary"
+                },
+                "Sigma": {
+                    "uom": null,
+                    "name": "Standard deviation of the linear fit of S at the boundary"
+                },
+                "PPI": {
+                    "uom": "R_E",
+                    "name": "Midnight plasmapause index"
+                },
+                "dL": {
+                    "uom": "deg",
+                    "name": "Boundary width in Earth radii"
+                },
+                "Quality": {
+                    "uom": null,
+                    "name": "Quality indicators of SSFAC boundary detection"
+                }
+            }
         }
     },
 
@@ -3591,6 +3778,7 @@
             "satellite": "Upload"
         }, {
             "name": "MIT A TEC 2F",
+            "type": "SW_MITxTEC_2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#645600",
@@ -3614,111 +3802,10 @@
                     "layer_id": "SW_OPER_MITATEC_2F"
                 }
             ],
-            "parameters": {
-                "L_value": {
-                    "selected": true,
-                    "range": [0, 8],
-                    "colorscale": "viridis",
-                    "uom": null,
-                    "name": "L-value in earth radii of the MIT minimum"
-                },
-                "DR": {
-                    "range": [40, 100],
-                    "colorscale": "viridis",
-                    "uom": "%",
-                    "name": "Relative change in density within the MIT"
-                },
-                "Width": {
-                    "range": [0, 40],
-                    "colorscale": "viridis",
-                    "uom": "deg",
-                    "name": "Scalar  width of the MIT calculated from QD latitudes"
-                },
-                "dL": {
-                    "range": [0, 15],
-                    "colorscale": "viridis",
-                    "uom": "deg",
-                    "name": "Scalar  width of the MIT calculated from L-values"
-                }
-            },
-            "download_parameters": {
-                "Counter": {
-                    "uom": null,
-                    "name": "Swarm orbit and quarter orbit counters"
-                },
-                "Timestamp": {
-                    "uom": null,
-                    "name": "UTC time of the MIT minimum"
-                },
-                "Latitude": {
-                    "uom": "deg",
-                    "name": "ITRF geocentric latitude of the MIT minimum"
-                },
-                "Longitude": {
-                    "uom": "deg",
-                    "name": "ITRF geocentric longitude of the MIT minimum"
-                },
-                "Radius": {
-                    "uom": "m",
-                    "name": "ITRF geocentric radius of the MIT minimum"
-                },
-                "Latitude_QD": {
-                    "uom": "deg",
-                    "name": "Quasi-dipole latitude of the MIT minimum"
-                },
-                "Longitude_QD": {
-                    "uom": "deg",
-                    "name": "Quasi-dipole longitude of the MIT minimum"
-                },
-                "MLT_QD": {
-                    "uom": "hour",
-                    "name": "Magnetic local time (QD) of the MIT minimum"
-                },
-                "L_value": {
-                    "uom": null,
-                    "name": "L-value in earth radii of the MIT minimum"
-                },
-                "SZA": {
-                    "uom": "deg",
-                    "name": "Solar zenith angle of the MIT minimum"
-                },
-                "TEC": {
-                    "uom": "TECU",
-                    "name": "Total electron content at the MIT minimum"
-                },
-                "Depth": {
-                    "uom": "cm^-3",
-                    "name": "Scalar  depth of the MIT"
-                },
-                "DR": {
-                    "uom": "%",
-                    "name": "Relative change in density within the MIT"
-                },
-                "Width": {
-                    "uom": "deg",
-                    "name": "Scalar  width of the MIT calculated from QD latitudes"
-                },
-                "dL": {
-                    "uom": "deg",
-                    "name": "Scalar  width of the MIT calculated from L-values"
-                },
-                "PW_Gradient": {
-                    "uom": "TECU deg^-1",
-                    "name": "Scalar  change in log electron density at the poleward wall of the MIT divided by QD latitude difference"
-                },
-                "EW_Gradient": {
-                    "uom": "TECU deg^-1",
-                    "name": "Scalar  change in log electron density at the equatorward wall of the MIT divided by QD latitude difference"
-                },
-                "Quality": {
-                    "uom": null,
-                    "name": "Characterises the detection quality of the MIT as a whole"
-                }
-            },
-            "outlines": false,
-            "satellite": "Swarm"
+            "outlines": false
         },{
             "name": "MIT B TEC 2F",
+            "type": "SW_MITxTEC_2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#645600",
@@ -3742,111 +3829,10 @@
                     "layer_id": "SW_OPER_MITBTEC_2F"
                 }
             ],
-            "parameters": {
-                "L_value": {
-                    "selected": true,
-                    "range": [0, 8],
-                    "colorscale": "viridis",
-                    "uom": null,
-                    "name": "L-value in earth radii of the MIT minimum"
-                },
-                "DR": {
-                    "range": [40, 100],
-                    "colorscale": "viridis",
-                    "uom": "%",
-                    "name": "Relative change in density within the MIT"
-                },
-                "Width": {
-                    "range": [0, 40],
-                    "colorscale": "viridis",
-                    "uom": "deg",
-                    "name": "Scalar  width of the MIT calculated from QD latitudes"
-                },
-                "dL": {
-                    "range": [0, 15],
-                    "colorscale": "viridis",
-                    "uom": "deg",
-                    "name": "Scalar  width of the MIT calculated from L-values"
-                }
-            },
-            "download_parameters": {
-                "Counter": {
-                    "uom": null,
-                    "name": "Swarm orbit and quarter orbit counters"
-                },
-                "Timestamp": {
-                    "uom": null,
-                    "name": "UTC time of the MIT minimum"
-                },
-                "Latitude": {
-                    "uom": "deg",
-                    "name": "ITRF geocentric latitude of the MIT minimum"
-                },
-                "Longitude": {
-                    "uom": "deg",
-                    "name": "ITRF geocentric longitude of the MIT minimum"
-                },
-                "Radius": {
-                    "uom": "m",
-                    "name": "ITRF geocentric radius of the MIT minimum"
-                },
-                "Latitude_QD": {
-                    "uom": "deg",
-                    "name": "Quasi-dipole latitude of the MIT minimum"
-                },
-                "Longitude_QD": {
-                    "uom": "deg",
-                    "name": "Quasi-dipole longitude of the MIT minimum"
-                },
-                "MLT_QD": {
-                    "uom": "hour",
-                    "name": "Magnetic local time (QD) of the MIT minimum"
-                },
-                "L_value": {
-                    "uom": null,
-                    "name": "L-value in earth radii of the MIT minimum"
-                },
-                "SZA": {
-                    "uom": "deg",
-                    "name": "Solar zenith angle of the MIT minimum"
-                },
-                "TEC": {
-                    "uom": "TECU",
-                    "name": "Total electron content at the MIT minimum"
-                },
-                "Depth": {
-                    "uom": "cm^-3",
-                    "name": "Scalar  depth of the MIT"
-                },
-                "DR": {
-                    "uom": "%",
-                    "name": "Relative change in density within the MIT"
-                },
-                "Width": {
-                    "uom": "deg",
-                    "name": "Scalar  width of the MIT calculated from QD latitudes"
-                },
-                "dL": {
-                    "uom": "deg",
-                    "name": "Scalar  width of the MIT calculated from L-values"
-                },
-                "PW_Gradient": {
-                    "uom": "TECU deg^-1",
-                    "name": "Scalar  change in log electron density at the poleward wall of the MIT divided by QD latitude difference"
-                },
-                "EW_Gradient": {
-                    "uom": "TECU deg^-1",
-                    "name": "Scalar  change in log electron density at the equatorward wall of the MIT divided by QD latitude difference"
-                },
-                "Quality": {
-                    "uom": null,
-                    "name": "Characterises the detection quality of the MIT as a whole"
-                }
-            },
-            "outlines": false,
-            "satellite": "Swarm"
+            "outlines": false
         },{
             "name": "MIT C TEC 2F",
+            "type": "SW_MITxTEC_2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#645600",
@@ -3870,111 +3856,37 @@
                     "layer_id": "SW_OPER_MITCTEC_2F"
                 }
             ],
-            "parameters": {
-                "L_value": {
-                    "selected": true,
-                    "range": [0, 8],
-                    "colorscale": "viridis",
-                    "uom": null,
-                    "name": "L-value in earth radii of the MIT minimum"
-                },
-                "DR": {
-                    "range": [40, 100],
-                    "colorscale": "viridis",
-                    "uom": "%",
-                    "name": "Relative change in density within the MIT"
-                },
-                "Width": {
-                    "range": [0, 40],
-                    "colorscale": "viridis",
-                    "uom": "deg",
-                    "name": "Scalar  width of the MIT calculated from QD latitudes"
-                },
-                "dL": {
-                    "range": [0, 15],
-                    "colorscale": "viridis",
-                    "uom": "deg",
-                    "name": "Scalar  width of the MIT calculated from L-values"
-                }
+            "outlines": false
+        }, {
+            "name": "MIT U TEC 2F",
+            "type": "SW_MITxTEC_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#145600",
+            "views": [{
+                "id": "SW_OPER_MITUTEC_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_MITUTEC_2F"
             },
-            "download_parameters": {
-                "Counter": {
-                    "uom": null,
-                    "name": "Swarm orbit and quarter orbit counters"
-                },
-                "Timestamp": {
-                    "uom": null,
-                    "name": "UTC time of the MIT minimum"
-                },
-                "Latitude": {
-                    "uom": "deg",
-                    "name": "ITRF geocentric latitude of the MIT minimum"
-                },
-                "Longitude": {
-                    "uom": "deg",
-                    "name": "ITRF geocentric longitude of the MIT minimum"
-                },
-                "Radius": {
-                    "uom": "m",
-                    "name": "ITRF geocentric radius of the MIT minimum"
-                },
-                "Latitude_QD": {
-                    "uom": "deg",
-                    "name": "Quasi-dipole latitude of the MIT minimum"
-                },
-                "Longitude_QD": {
-                    "uom": "deg",
-                    "name": "Quasi-dipole longitude of the MIT minimum"
-                },
-                "MLT_QD": {
-                    "uom": "hour",
-                    "name": "Magnetic local time (QD) of the MIT minimum"
-                },
-                "L_value": {
-                    "uom": null,
-                    "name": "L-value in earth radii of the MIT minimum"
-                },
-                "SZA": {
-                    "uom": "deg",
-                    "name": "Solar zenith angle of the MIT minimum"
-                },
-                "TEC": {
-                    "uom": "TECU",
-                    "name": "Total electron content at the MIT minimum"
-                },
-                "Depth": {
-                    "uom": "cm^-3",
-                    "name": "Scalar  depth of the MIT"
-                },
-                "DR": {
-                    "uom": "%",
-                    "name": "Relative change in density within the MIT"
-                },
-                "Width": {
-                    "uom": "deg",
-                    "name": "Scalar  width of the MIT calculated from QD latitudes"
-                },
-                "dL": {
-                    "uom": "deg",
-                    "name": "Scalar  width of the MIT calculated from L-values"
-                },
-                "PW_Gradient": {
-                    "uom": "TECU deg^-1",
-                    "name": "Scalar  change in log electron density at the poleward wall of the MIT divided by QD latitude difference"
-                },
-                "EW_Gradient": {
-                    "uom": "TECU deg^-1",
-                    "name": "Scalar  change in log electron density at the equatorward wall of the MIT divided by QD latitude difference"
-                },
-                "Quality": {
-                    "uom": null,
-                    "name": "Characterises the detection quality of the MIT as a whole"
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
                 }
-            },
+            ],
+            "download_parameters": {},
             "outlines": false,
-            "satellite": "Swarm"
+            "satellite": "Upload"
         },{
             "name": "PPI A FAC 2F",
+            "type": "SW_PPIxFAC_2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#241620",
@@ -3998,90 +3910,10 @@
                     "layer_id": "SW_OPER_PPIAFAC_2F"
                 }
             ],
-            "parameters": {
-                "Sigma": {
-                    "range": [0, 1],
-                    "uom": null,
-                    "colorscale": "viridis",
-                    "name": "Standard deviation of the linear fit of S at the boundary"
-                },
-                "PPI": {
-                    "range": [0, 10],
-                    "selected": true,
-                    "colorscale": "viridis",
-                    "uom": "R_E",
-                    "name": "Midnight plasmapause index"
-                },
-                "Fieldlines":{
-                    "range": [0, 0],
-                    "uom":"nT",
-                    "name": "Fieldlines",
-                    "description": "Fieldlines are be calculated from the PP footprint",
-                    "colorscale": "blackwhite"
-                }
-            },
-            "download_parameters": {
-                "Counter": {
-                    "uom": null,
-                    "name": "Swarm orbit and quarter orbit counters"
-                },
-                "Timestamp": {
-                    "uom": null,
-                    "name": "UTC time of the SSFAC boundary"
-                },
-                "Latitude": {
-                    "uom": "deg",
-                    "name": "ITRF geocentric latitude of the SSFAC boundary"
-                },
-                "Longitude": {
-                    "uom": "deg",
-                    "name": "ITRF geocentric longitude of the SSFAC boundary"
-                },
-                "Radius": {
-                    "uom": "m",
-                    "name": "ITRF geocentric radius of the SSFAC boundary"
-                },
-                "Latitude_QD": {
-                    "uom": "deg",
-                    "name": "Quasi-dipole latitude of the SSFAC boundary"
-                },
-                "Longitude_QD": {
-                    "uom": "deg",
-                    "name": "Quasi-dipole longitude of the SSFAC boundary"
-                },
-                "MLT_QD": {
-                    "uom": "hour",
-                    "name": "Magnetic local time (QD) of the SSFAC boundary"
-                },
-                "L_value": {
-                    "uom": null,
-                    "name": "L-value in earth radii of the SSFAC boundary"
-                },
-                "SZA": {
-                    "uom": "deg",
-                    "name": "Solar zenith angle of the SSFAC boundary"
-                },
-                "Sigma": {
-                    "uom": null,
-                    "name": "Standard deviation of the linear fit of S at the boundary"
-                },
-                "PPI": {
-                    "uom": "R_E",
-                    "name": "Midnight plasmapause index"
-                },
-                "dL": {
-                    "uom": "deg",
-                    "name": "Boundary width in Earth radii"
-                },
-                "Quality": {
-                    "uom": null,
-                    "name": "Quality indicators of SSFAC boundary detection"
-                }
-            },
-            "outlines": false,
-            "satellite": "Swarm"
+            "outlines": false
         },{
             "name": "PPI B FAC 2F",
+            "type": "SW_PPIxFAC_2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#241620",
@@ -4105,90 +3937,10 @@
                     "layer_id": "SW_OPER_PPIBFAC_2F"
                 }
             ],
-            "parameters": {
-                "Sigma": {
-                    "range": [0, 1],
-                    "uom": null,
-                    "colorscale": "viridis",
-                    "name": "Standard deviation of the linear fit of S at the boundary"
-                },
-                "PPI": {
-                    "range": [0, 10],
-                    "selected": true,
-                    "colorscale": "viridis",
-                    "uom": "R_E",
-                    "name": "Midnight plasmapause index"
-                },
-                "Fieldlines":{
-                    "range": [0, 0],
-                    "uom":"nT",
-                    "name": "Fieldlines",
-                    "description": "Fieldlines are be calculated from the PP footprint",
-                    "colorscale": "blackwhite"
-                }
-            },
-            "download_parameters": {
-                "Counter": {
-                    "uom": null,
-                    "name": "Swarm orbit and quarter orbit counters"
-                },
-                "Timestamp": {
-                    "uom": null,
-                    "name": "UTC time of the SSFAC boundary"
-                },
-                "Latitude": {
-                    "uom": "deg",
-                    "name": "ITRF geocentric latitude of the SSFAC boundary"
-                },
-                "Longitude": {
-                    "uom": "deg",
-                    "name": "ITRF geocentric longitude of the SSFAC boundary"
-                },
-                "Radius": {
-                    "uom": "m",
-                    "name": "ITRF geocentric radius of the SSFAC boundary"
-                },
-                "Latitude_QD": {
-                    "uom": "deg",
-                    "name": "Quasi-dipole latitude of the SSFAC boundary"
-                },
-                "Longitude_QD": {
-                    "uom": "deg",
-                    "name": "Quasi-dipole longitude of the SSFAC boundary"
-                },
-                "MLT_QD": {
-                    "uom": "hour",
-                    "name": "Magnetic local time (QD) of the SSFAC boundary"
-                },
-                "L_value": {
-                    "uom": null,
-                    "name": "L-value in earth radii of the SSFAC boundary"
-                },
-                "SZA": {
-                    "uom": "deg",
-                    "name": "Solar zenith angle of the SSFAC boundary"
-                },
-                "Sigma": {
-                    "uom": null,
-                    "name": "Standard deviation of the linear fit of S at the boundary"
-                },
-                "PPI": {
-                    "uom": "R_E",
-                    "name": "Midnight plasmapause index"
-                },
-                "dL": {
-                    "uom": "deg",
-                    "name": "Boundary width in Earth radii"
-                },
-                "Quality": {
-                    "uom": null,
-                    "name": "Quality indicators of SSFAC boundary detection"
-                }
-            },
-            "outlines": false,
-            "satellite": "Swarm"
+            "outlines": false
         },{
             "name": "PPI C FAC 2F",
+            "type": "SW_PPIxFAC_2F",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#241620",
@@ -4212,88 +3964,34 @@
                     "layer_id": "SW_OPER_PPICFAC_2F"
                 }
             ],
-            "parameters": {
-                "Sigma": {
-                    "range": [0, 1],
-                    "uom": null,
-                    "colorscale": "viridis",
-                    "name": "Standard deviation of the linear fit of S at the boundary"
-                },
-                "PPI": {
-                    "range": [0, 10],
-                    "selected": true,
-                    "colorscale": "viridis",
-                    "uom": "R_E",
-                    "name": "Midnight plasmapause index"
-                },
-                "Fieldlines":{
-                    "range": [0, 0],
-                    "uom":"nT",
-                    "name": "Fieldlines",
-                    "description": "Fieldlines are be calculated from the PP footprint",
-                    "colorscale": "blackwhite"
-                }
+            "outlines": false
+        }, {
+            "name": "PPI U FAC 2F",
+            "type": "SW_PPIxFAC_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#145600",
+            "views": [{
+                "id": "SW_OPER_PPIUFAC_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/vires00/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_PPIUFAC_2F"
             },
-            "download_parameters": {
-                "Counter": {
-                    "uom": null,
-                    "name": "Swarm orbit and quarter orbit counters"
-                },
-                "Timestamp": {
-                    "uom": null,
-                    "name": "UTC time of the SSFAC boundary"
-                },
-                "Latitude": {
-                    "uom": "deg",
-                    "name": "ITRF geocentric latitude of the SSFAC boundary"
-                },
-                "Longitude": {
-                    "uom": "deg",
-                    "name": "ITRF geocentric longitude of the SSFAC boundary"
-                },
-                "Radius": {
-                    "uom": "m",
-                    "name": "ITRF geocentric radius of the SSFAC boundary"
-                },
-                "Latitude_QD": {
-                    "uom": "deg",
-                    "name": "Quasi-dipole latitude of the SSFAC boundary"
-                },
-                "Longitude_QD": {
-                    "uom": "deg",
-                    "name": "Quasi-dipole longitude of the SSFAC boundary"
-                },
-                "MLT_QD": {
-                    "uom": "hour",
-                    "name": "Magnetic local time (QD) of the SSFAC boundary"
-                },
-                "L_value": {
-                    "uom": null,
-                    "name": "L-value in earth radii of the SSFAC boundary"
-                },
-                "SZA": {
-                    "uom": "deg",
-                    "name": "Solar zenith angle of the SSFAC boundary"
-                },
-                "Sigma": {
-                    "uom": null,
-                    "name": "Standard deviation of the linear fit of S at the boundary"
-                },
-                "PPI": {
-                    "uom": "R_E",
-                    "name": "Midnight plasmapause index"
-                },
-                "dL": {
-                    "uom": "deg",
-                    "name": "Boundary width in Earth radii"
-                },
-                "Quality": {
-                    "uom": null,
-                    "name": "Quality indicators of SSFAC boundary detection"
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
                 }
-            },
+            ],
+            "download_parameters": {},
             "outlines": false,
-            "satellite": "Swarm"
+            "satellite": "Upload"
         }, {
             "name": "Magnetic Model",
             "visible": false,
