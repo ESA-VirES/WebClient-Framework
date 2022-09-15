@@ -10,10 +10,11 @@
 
   <div class="input-group" id="date" style="margin:7px">
     <span class="form-control">
-      Date ( <input type="checkbox" style="vertical-align:top;" value="" id="custom_time_cb"> specify time <i style="cursor: help;" class="fa fa-info-circle" title="As default 00:00:00 and 23:59:59 is selected for start and end dates"></i>) 
+      Date (&nbsp;<input type="checkbox" style="vertical-align:top;" value="" id="custom_time_cb">&nbsp;specify time)&nbsp;<i style="cursor: help;" class="fa fa-info-circle" title="By default, the data requests are rounded to whole days. Check 'specify time' to allow finer time selection."></i> 
       <div style="float:right; margin-right:27px;">
-      <input type="text" id="starttime" style="width: 11em; margin-left:6px;">
-      <input type="text" id="endtime" style="margin-left:29px;width: 11em;">
+      <input type="hidden" id="type" name="type" value="DateRangeFilter">
+      <input type="text" id="startDate" style="width: 11em; margin-left:6px;">
+      <input type="text" id="endDate" style="margin-left:29px;width: 11em;">
       </div>
     </span>
     <span class="input-group-btn">

@@ -8,7 +8,6 @@
             ToI:{},         // Time of interes
             AoI:[],         // Area of Interest
             products: {}    // Selected products
-        
         });
         return {'DownloadModel':DownloadModel};
     });

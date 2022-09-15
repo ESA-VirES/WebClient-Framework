@@ -7,6 +7,7 @@ var mountFolder = function (connect, dir) {
 };
 
 var proxySnippet = require('grunt-connect-proxy2/lib/utils').proxyRequest;
+
 // # Globbing
 // for performance reasons we're only matching one level down:
 // 'test/spec/{,*/}*.js'
@@ -69,34 +70,36 @@ module.exports = function (grunt) {
         connect: {
             options: {
                 port: 9000,
+                // change this to '0.0.0.0' to access the server from outside
                 hostname: '0.0.0.0'
             },
             proxies: [{
                 context: '/vires00',
-                // change to testing or staging server
-                // host: 'staging.viresdisc.vires.services',
-                // port: 443,
-                // headers: {"Authorization": "Bearer xxx"}
-                host: 'localhost',
-                port: 8300,
+                host: 'testing.vires.services',
+                // host: 'localhost',
+                // port: 8300,
                 rewrite: {
                     '^/vires00': '/'
                 },
+                portocol: 'https',
                 https: true,
                 changeOrigin: true,
-                xforward: false,
+                xforward: false
             },{
                 context: '/ows',
-                host: 'localhost',
-                port: 8300
+                host: 'testing.vires.services',
+                // host: 'localhost',
+                // port: 8300
             },{
                 context: '/wps',
-                host: 'localhost',
-                port: 8300
+                host: 'testing.vires.services',
+                // host: 'localhost',
+                // port: 8300
             },{
                 context: '/custom_data',
-                host: 'localhost',
-                port: 8300
+                host: 'testing.vires.services',
+                // host: 'localhost',
+                // port: 8300
             }],
             livereload: {
                 options: {
