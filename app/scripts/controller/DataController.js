@@ -205,9 +205,7 @@
 
       },
 
-      onAnalyticsFilterChanged: function (filters) {
-        //globals.swarm.set({filters: filters});
-      },
+      onAnalyticsFilterChanged: function (filters) {},
 
       checkSelections: function () {
         if (this.selected_time == null)
@@ -290,8 +288,9 @@
 
 
           var variables = [
-            "F", "F_error", "B_NEC_resAC", "B_VFM", "B_error", "B_NEC", "Ne", "Te", "Vs",
-            "U_orbit", "Bubble_Probability", "Kp", "Dst", "dDst", "F107", "QDLat", "QDLon", "MLT",
+            "F", "F_error", "B_NEC_resAC", "B_VFM", "B_error", "B_NEC",
+            "Flags_F", "Flags_B", "Ne", "Te", "Vs",
+            "U_orbit", "Bubble_Probability", "Flags_Bubble", "Kp", "Dst", "dDst", "F107", "QDLat", "QDLon", "MLT",
             "Relative_STEC_RMS", "Relative_STEC", "Absolute_STEC", "Absolute_VTEC", "Elevation_Angle", "GPS_Position", "LEO_Position",
             "IRC", "IRC_Error", "FAC", "FAC_Error",
             "EEF", "RelErr", "OrbitNumber", "OrbitDirection", "QDOrbitDirection",
@@ -303,6 +302,14 @@
             "B_NEC_Model", "B_NEC_res_Model", "F_Model", "F_res_Model",
             "J_NE", "J_QD", "J_CF_NE", "J_CF_SemiQD", "J_DF_NE", "J_DF_SemiQD", "J_R",
             "Boundary_Flag", "Pair_Indicator",
+            "Tn_msis", "Ti_meas_drift", "Ti_model_drift", "Flag_ti_meas", "Flag_ti_model",
+            "M_i_eff", "M_i_eff_err", "M_i_eff_Flags", "M_i_eff_tbt_model",
+            "V_i", "V_i_err", "V_i_Flags", "V_i_raw", "N_i", "N_i_err", "N_i_Flags",
+            "T_e", "Phi_sc",
+            "Vixh", "Vixh_error", "Vixv", "Vixv_error", "Viy", "Viy_error",
+            "Viz", "Viz_error", "VsatN", "VsatE", "VsatC", "Ehx", "Ehy", "Ehz",
+            "Evx", "Evy", "Evz", "Bx", "By", "Bz", "Vicrx", "Vicry", "Vicrz",
+            "Quality_flags", "Calibration_flags",
           ];
 
           var collectionList = _.chain(collections)
@@ -439,21 +446,16 @@
         // some issue with the saved filter configuration
         // Check if current brushes are valid for current data
         var availableVariables = _.keys(data.data);
-        var filters = globals.swarm.get('filters');
-        var filtersSelec = JSON.parse(localStorage.getItem('filterSelection'));
         var filtersModified = false;
-        if (filters) {
-          for (var filterName in filters) {
-            if (!availableVariables.includes(filterName)) {
-              delete filters[filterName];
-              delete filtersSelec[filterName];
-              filtersModified = true;
-            }
-          }
-          if (filtersModified) {
-            globals.swarm.set('filters', filters);
-            localStorage.setItem('filterSelection', JSON.stringify(filtersSelec));
-          }
+        var filters = globals.swarm.get('filters') || {};
+
+        var removedFilters = _.difference(_.keys(filters), availableVariables);
+
+        if (removedFilters.length > 0) {
+          filters = _.omit(filters, removedFilters);
+          localStorage.setItem('filterSelection', JSON.stringify(filters));
+          globals.swarm.set('filters', filters);
+          Communicator.mediator.trigger('analytics:set:filter', filters);
         }
 
         globals.swarm.appendSources(data.info.sources)

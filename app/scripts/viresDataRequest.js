@@ -1,5 +1,7 @@
 /* global _ */
-/* global VECTOR_BREAKDOWN TIMESTAMP SPACECRAFT_TO_ID */
+/* global TIMESTAMP SPACECRAFT_TO_ID */
+/* global VECTOR_BREAKDOWN VECTOR_COMPOSITION REVERSE_VECTOR_COMPOSITION */
+/* global DERIVED_PARAMETERS REVERSE_DERIVED_PARAMETERS */
 /* global get has pop Timer */
 
 
@@ -12,10 +14,14 @@
     'httpRequest',
     'hbs!tmpl/wps_fetchData',
     'hbs!tmpl/wps_fetchFieldlines',
+    'viresFilters',
     'underscore'
   ];
 
-  function init(globals, msgpack, httpRequest, wps_fetchDataTmpl, wps_fetchFieldlinesTmpl) {
+  function init(
+    globals, msgpack, httpRequest, wps_fetchDataTmpl, wps_fetchFieldlinesTmpl,
+    viresFilters
+  ) {
 
     //var ORBIT_DIRECTION_ASCENDING = +1;
     var ORBIT_DIRECTION_DESCENDING = -1;
@@ -232,7 +238,7 @@
         data.registerNewVariable(dstLatitude, [srcOrbitDirection, srcLatitude]);
       };
 
-      var decomposeVector = function (components, vector) {
+      var decomposeVector = function (vector, components) {
         var src = pop(data.data, vector);
         if (!src) {return;}
         var ndim = components.length;
@@ -248,6 +254,47 @@
         data.registerNewVector(vector, components);
       };
 
+      var composeVector = function (vector, components) {
+        if (has(data.vectors, vector)) {
+          return; // already registered
+        }
+        for (var i = 0, ndim = components.length; i < ndim; ++i) {
+          if (!has(data.data, components[i])) {
+            return; // there is a missing vector component
+          }
+        }
+        data.registerNewVector(vector, components);
+      };
+
+      var createDerivedParameter = function (name, sources) {
+        if (has(data.data, name)) {
+          return; // already created
+        }
+        var sourceNames = _.keys(sources);
+        for (var i = 0, size = sourceNames.length; i < size; ++i) {
+          if (!has(data.data, sourceNames[i])) {
+            return; // there is a missing source parameter
+          }
+        }
+        var dst = null;
+        _.each(sources, function (filter, sourceName) {
+          var filterFunction = viresFilters.getFilterFunction(filter);
+          var src = data.data[sourceName];
+          if (dst == null) {
+            dst = new Array(data.size);
+            for (var i = 0, size = data.size; i < size; i++) {
+              dst[i] = filterFunction(src[i]);
+            }
+          } else {
+            for (var i = 0, size = data.size; i < size; i++) {
+              dst[i] = dst[i] && filterFunction(src[i]);
+            }
+          }
+        });
+        data.data[name] = dst;
+      };
+
+      //var composeVector = function (
       var addTwoVectors2 = function (dstVariable, srcVariable1, srcVariable2) {
         var src1 = get(data.data, srcVariable1);
         var src2 = get(data.data, srcVariable2);
@@ -271,11 +318,25 @@
       calculatePeriodicLatitudes('Latitude_periodic', 'Latitude', 'OrbitDirection');
       calculatePeriodicLatitudes('QDLatitude_periodic', 'QDLat', 'QDOrbitDirection');
 
-      // Break down standard vector variables.
-      _.each(VECTOR_BREAKDOWN, decomposeVector);
+      // Break down vector variables
+      var vector_breakdown = _.extend(
+        {}, VECTOR_BREAKDOWN, globals.userData.getVectorBreakdown()
+      );
 
-      // Break down custom user vector variables.
-      _.each(globals.userData.getVectorBreakdown(), decomposeVector);
+      _.each(_.keys(data.data), function (variable) {
+        if (has(vector_breakdown, variable)) {
+          decomposeVector(variable, vector_breakdown[variable]);
+        } else if (has(REVERSE_VECTOR_COMPOSITION, variable)) {
+          _.each(REVERSE_VECTOR_COMPOSITION[variable], function (item) {
+            composeVector(item.source, VECTOR_COMPOSITION[item.source]);
+          });
+        } else if (has(REVERSE_DERIVED_PARAMETERS, variable)) {
+          _.each(REVERSE_DERIVED_PARAMETERS[variable], function (item) {
+            createDerivedParameter(item, DERIVED_PARAMETERS[item]);
+          });
+        }
+      });
+
     }
 
 
