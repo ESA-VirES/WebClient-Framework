@@ -331,6 +331,10 @@
                     "uom":"nT",
                     "name": "Magnetic field intensity"
                 },
+                "dF_Sun": {
+                    "uom": "nT",
+                    "name": "Magnetic stray field correction intensity of Sun ASM frame"
+                },
                 "dF_AOCS": {
                     "uom": "nT",
                     "name": "Magnetic stray field correction intensity of AOCS magneto-torquer coils"
