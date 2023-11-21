@@ -67,18 +67,18 @@ var VECTOR_COMPOSITION = {};
 var REVERSE_VECTOR_COMPOSITION = {};
 
 // derived parameters
-var DERIVED_PARAMETERS = {}
-var REVERSE_DERIVED_PARAMETERS = {}
+var DERIVED_PARAMETERS = {};
+var REVERSE_DERIVED_PARAMETERS = {};
 
 // Ordered from highest resolution to lowest with the exception of FAC that
 // needs to be first as the master product needs to be the same
 var MASTER_PRIORITY = [
     'SW_OPER_FACATMS_2F', 'SW_OPER_FACBTMS_2F', 'SW_OPER_FACCTMS_2F', 'SW_OPER_FAC_TMS_2F', 'SW_OPER_FACUTMS_2F',
-    'SW_OPER_EFIA_LP_1B', 'SW_OPER_EFIB_LP_1B', 'SW_OPER_EFIC_LP_1B', 'SW_OPER_EFIU_LP_1B',
+    'SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B', 'SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B', 'SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B', 'SW_OPER_EFIU_LP_1B',
     'SW_OPER_EFIATIE_2_', 'SW_OPER_EFIBTIE_2_', 'SW_OPER_EFICTIE_2_', 'SW_OPER_EFIUTIE_2_',
     'SW_PREL_EFIAIDM_2_', 'SW_PREL_EFIBIDM_2_', 'SW_PREL_EFICIDM_2_', 'SW_PREL_EFIUIDM_2_',
     'SW_EXPT_EFIA_TCT02', 'SW_EXPT_EFIB_TCT02', 'SW_EXPT_EFIC_TCT02', 'SW_EXPT_EFIC_TCT02',
-    'SW_OPER_MAGA_LR_1B', 'SW_OPER_MAGB_LR_1B', 'SW_OPER_MAGC_LR_1B', 'SW_OPER_MAGU_LR_1B',
+    'SW_OPER_MAGA_LR_1B+SW_FAST_MAGA_LR_1B', 'SW_OPER_MAGB_LR_1B+SW_FAST_MAGB_LR_1B', 'SW_OPER_MAGC_LR_1B+SW_FAST_MAGC_LR_1B', 'SW_OPER_MAGU_LR_1B',
     'SW_OPER_TECATMS_2F', 'SW_OPER_TECBTMS_2F', 'SW_OPER_TECCTMS_2F', 'SW_OPER_TECUTMS_2F',
     'SW_OPER_IBIATMS_2F', 'SW_OPER_IBIBTMS_2F', 'SW_OPER_IBICTMS_2F', 'SW_OPER_IBIUTMS_2F',
     'SW_OPER_EEFATMS_2F', 'SW_OPER_EEFBTMS_2F', 'SW_OPER_EEFCTMS_2F', 'SW_OPER_EEFUTMS_2F',
@@ -435,7 +435,7 @@ var RELATED_VARIABLES = {
                 var updateDerivedParameters = function (target, reverse, name, sources) {
                     if (!sources || has(target, name)) return;
                     target[name] = sources;
-                    var sourceNames = _.keys(sources)
+                    var sourceNames = _.keys(sources);
                     for (var i = 0, sourceName ; i < sourceNames.length; ++i) {
                         sourceName = sourceNames[i];
                         if (!has(reverse, sourceName)) {
@@ -524,6 +524,24 @@ var RELATED_VARIABLES = {
 
                     var productConfiguration = JSON.parse(
                         localStorage.getItem('productsConfiguration')
+                    );
+
+                    // replace products names
+                    _.each(
+                        {
+                            "SW_OPER_MAGA_LR_1B": "SW_OPER_MAGA_LR_1B+SW_FAST_MAGA_LR_1B",
+                            "SW_OPER_MAGB_LR_1B": "SW_OPER_MAGB_LR_1B+SW_FAST_MAGB_LR_1B",
+                            "SW_OPER_MAGC_LR_1B": "SW_OPER_MAGC_LR_1B+SW_FAST_MAGC_LR_1B",
+                            "SW_OPER_EFIA_LP_1B": "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B",
+                            "SW_OPER_EFIB_LP_1B": "SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B",
+                            "SW_OPER_EFIC_LP_1B": "SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B",
+                        },
+                        function (dstName, srcName) {
+                            if (has(productConfiguration, srcName)) {
+                                productConfiguration[dstName] = productConfiguration[srcName];
+                                delete productConfiguration[srcName];
+                            }
+                        }
                     );
 
                     _.each(config.mapConfig.products, function (dst) {
@@ -787,22 +805,22 @@ var RELATED_VARIABLES = {
                 var filtered = globals.products.filter(function (product) {
                     var id = product.get("download").id;
                     return !(id && id.match(
-                        /^SW_(OPER|PREL|EXPT)_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ)[ABCU_]/
+                        /^SW_(OPER|FAST|PREL|EXPT)_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ)[ABCU_]/
                     ));
                 });
 
 
                 globals.swarm.products = {
                     "MAG": {
-                        "Alpha": "SW_OPER_MAGA_LR_1B",
-                        "Bravo": "SW_OPER_MAGB_LR_1B",
-                        "Charlie": "SW_OPER_MAGC_LR_1B",
+                        "Alpha": "SW_OPER_MAGA_LR_1B+SW_FAST_MAGA_LR_1B",
+                        "Bravo": "SW_OPER_MAGB_LR_1B+SW_FAST_MAGB_LR_1B",
+                        "Charlie": "SW_OPER_MAGC_LR_1B+SW_FAST_MAGC_LR_1B",
                         "Upload": "SW_OPER_MAGU_LR_1B",
                     },
                     "EFI": {
-                        "Alpha": "SW_OPER_EFIA_LP_1B",
-                        "Bravo": "SW_OPER_EFIB_LP_1B",
-                        "Charlie": "SW_OPER_EFIC_LP_1B",
+                        "Alpha": "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B",
+                        "Bravo": "SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B",
+                        "Charlie": "SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B",
                         "Upload": "SW_OPER_EFIU_LP_1B",
                     },
                     "EFI_TIE": {
