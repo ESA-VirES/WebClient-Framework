@@ -304,6 +304,18 @@
                             ["no-data", "Set for not enough VFM samples to generate B_VFM and B_NEC."]
                         ]
                     }
+                },
+                "CollectionIndex": {
+                    "range": [0, 255],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "Source collection index.",
+                    "hidden": true,
+                    "bitmask": {
+                        "flags": [
+                            ["FAST", "Set for Swarm FAST data."]
+                        ]
+                    }
                 }
             },
             "download_parameters": {
@@ -453,6 +465,10 @@
                 "QDOrbitDirection": {
                     "uom": null,
                     "name": "Orbit direction in quasi-dipole coordinates."
+                },
+                "CollectionIndex": {
+                    "uom": null,
+                    "name": "Source collection index (0 - OPER, 1 - FAST)."
                 }
             }
         },
@@ -483,6 +499,18 @@
                     "uom": "m/s",
                     "colorscale": "jet",
                     "name": "Spacecraft velocity in the ITRF"
+                },
+                "CollectionIndex": {
+                    "range": [0, 255],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "Source collection index.",
+                    "hidden": true,
+                    "bitmask": {
+                        "flags": [
+                            ["FAST", "Set for Swarm FAST data."]
+                        ]
+                    }
                 }
             },
             "download_parameters": {
@@ -593,6 +621,10 @@
                 "QDOrbitDirection": {
                     "uom": null,
                     "name": "Orbit direction in quasi-dipole coordinates."
+                },
+                "CollectionIndex": {
+                    "uom": null,
+                    "name": "Source collection index (0 - OPER, 1 - FAST)."
                 }
             }
         },
@@ -2259,7 +2291,7 @@
             "timeSliderProtocol": "WPS",
             "visible": true,
             "views": [{
-                "id": "SW_OPER_MAGA_LR_1B",
+                "id": "SW_OPER_MAGA_LR_1B+SW_FAST_MAGA_LR_1B",
                 "protocol": "CZML",
                 "urls": [
                     "/vires00/ows"
@@ -2268,14 +2300,14 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_MAGA_LR_1B",
+                "id": "SW_OPER_MAGA_LR_1B+SW_FAST_MAGA_LR_1B",
                 "protocol": "EOWCS",
                 "url": "/vires00/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_MAGA_LR_1B"
+                    "layer_id": "SW_OPER_MAGA_LR_1B+SW_FAST_MAGA_LR_1B"
                 }
             ],
             "outlines": false
@@ -2286,7 +2318,7 @@
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "views": [{
-                "id": "SW_OPER_MAGB_LR_1B",
+                "id": "SW_OPER_MAGB_LR_1B+SW_FAST_MAGB_LR_1B",
                 "protocol": "CZML",
                 "urls": [
                     "/vires00/ows"
@@ -2295,14 +2327,14 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_MAGB_LR_1B",
+                "id": "SW_OPER_MAGB_LR_1B+SW_FAST_MAGB_LR_1B",
                 "protocol": "EOWCS",
                 "url": "/vires00/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_MAGB_LR_1B"
+                    "layer_id": "SW_OPER_MAGB_LR_1B+SW_FAST_MAGB_LR_1B"
                 }
             ],
             "outlines": false
@@ -2313,7 +2345,7 @@
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "views": [{
-                "id": "SW_OPER_MAGC_LR_1B",
+                "id": "SW_OPER_MAGC_LR_1B+SW_FAST_MAGC_LR_1B",
                 "protocol": "CZML",
                 "urls": [
                     "/vires00/ows"
@@ -2322,14 +2354,14 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_MAGC_LR_1B",
+                "id": "SW_OPER_MAGC_LR_1B+SW_FAST_MAGC_LR_1B",
                 "protocol": "EOWCS",
                 "url": "/vires00/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_MAGC_LR_1B"
+                    "layer_id": "SW_OPER_MAGC_LR_1B+SW_FAST_MAGC_LR_1B"
                 }
             ],
             "outlines": false
@@ -2367,7 +2399,7 @@
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
             "views": [{
-                "id": "SW_OPER_EFIA_LP_1B",
+                "id": "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B",
                 "protocol": "CZML",
                 "urls": [
                     "/vires00/ows"
@@ -2376,14 +2408,14 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_EFIA_LP_1B",
+                "id": "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B",
                 "protocol": "EOWCS",
                 "url": "/vires00/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_EFIA_LP_1B"
+                    "layer_id": "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B"
                 }
             ],
             "outlines": false
@@ -2394,7 +2426,7 @@
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
             "views": [{
-                "id": "SW_OPER_EFIB_LP_1B",
+                "id": "SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B",
                 "protocol": "CZML",
                 "urls": [
                     "/vires00/ows"
@@ -2403,14 +2435,14 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_EFIB_LP_1B",
+                "id": "SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B",
                 "protocol": "EOWCS",
                 "url": "/vires00/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_EFIB_LP_1B"
+                    "layer_id": "SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B"
                 }
             ],
             "outlines": false
@@ -2421,7 +2453,7 @@
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
             "views": [{
-                "id": "SW_OPER_EFIC_LP_1B",
+                "id": "SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B",
                 "protocol": "CZML",
                 "urls": [
                     "/vires00/ows"
@@ -2430,14 +2462,14 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_EFIC_LP_1B",
+                "id": "SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B",
                 "protocol": "EOWCS",
                 "url": "/vires00/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_EFIC_LP_1B"
+                    "layer_id": "SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B"
                 }
             ],
             "outlines": false
