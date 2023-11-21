@@ -432,7 +432,7 @@
 
                                     attrs = {
                                         wpsProcessName: product.get('timeSliderWpsProcessName') || "getTimeData",
-                                        id: product.get('download').id,
+                                        id: encodeURIComponent(product.get('download').id),
                                         url: product.get('download').url
                                     };
 
