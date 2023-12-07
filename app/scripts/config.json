@@ -307,15 +307,15 @@
                         ]
                     }
                 },
-                "CollectionIndex": {
-                    "range": [0, 255],
+                "DataSource": {
+                    "range": [0, 1],
                     "uom": null,
                     "colorscale": "plasma",
-                    "name": "Source collection index.",
+                    "name": "Data source flag",
                     "hidden": true,
                     "bitmask": {
                         "flags": [
-                            ["FAST", "Set for Swarm FAST data."]
+                            ["FAST", "Set for Swarm FAST data / unset for Swarm OPER data"]
                         ]
                     }
                 }
@@ -468,9 +468,9 @@
                     "uom": null,
                     "name": "Orbit direction in quasi-dipole coordinates."
                 },
-                "CollectionIndex": {
+                "DataSource": {
                     "uom": null,
-                    "name": "Source collection index (0 - OPER, 1 - FAST)."
+                    "name": "Data source flag (0 - OPER, 1 - FAST)."
                 }
             }
         },
@@ -502,15 +502,15 @@
                     "colorscale": "jet",
                     "name": "Spacecraft velocity in the ITRF"
                 },
-                "CollectionIndex": {
-                    "range": [0, 255],
+                "DataSource": {
+                    "range": [0, 1],
                     "uom": null,
                     "colorscale": "plasma",
-                    "name": "Source collection index.",
+                    "name": "Data source flag",
                     "hidden": true,
                     "bitmask": {
                         "flags": [
-                            ["FAST", "Set for Swarm FAST data."]
+                            ["FAST", "Set for Swarm FAST data / unset for Swarm OPER data"]
                         ]
                     }
                 }
@@ -624,9 +624,9 @@
                     "uom": null,
                     "name": "Orbit direction in quasi-dipole coordinates."
                 },
-                "CollectionIndex": {
+                "DataSource": {
                     "uom": null,
-                    "name": "Source collection index (0 - OPER, 1 - FAST)."
+                    "name": "Data source flag (0 - OPER, 1 - FAST)."
                 }
             }
         },

@@ -1193,7 +1193,7 @@ define(['backbone.marionette',
             if (!_.isEqual(this.prevParams, idKeys)) {
                 // Define which parameters should be selected defaultwise as filtering
                 var requiredFilters = [
-                    'CollectionIndex', 'Flags_F', 'Flags_B',
+                    'DataSource', 'Flags_F', 'Flags_B',
                     'Ne', 'Te', 'Bubble_Probability', 'Flags_Bubble',
                     'Relative_STEC_RMS', 'Relative_STEC', 'Absolute_STEC',
                     'Absolute_VTEC', 'Elevation_Angle',
