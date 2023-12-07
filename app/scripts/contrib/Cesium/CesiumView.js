@@ -103,7 +103,7 @@ define([
     };
     var FIXED_HEIGHT_PRODUCT = [
         "SW_OPER_AEJALPS_2F", "SW_OPER_AEJBLPS_2F", "SW_OPER_AEJCLPS_2F", "SW_OPER_AEJULPS_2F",
-        "SW_OPER_MAGA_LR_2F", "SW_OPER_MAGB_LR_2F", "SW_OPER_MAGC_LR_2F", "SW_OPER_MAGU_LR_2F",
+        //"SW_OPER_MAGA_LR_1B+SW_FAST_MAGA_LR_1B", "SW_OPER_MAGB_LR_1B+SW_FAST_MAGB_LR_1B", "SW_OPER_MAGC_LR_1B+SW_FAST_MAGC_LR_1B", "SW_OPER_MAGU_LR_1B",
     ];
 
 
@@ -2832,9 +2832,9 @@ define([
 
                                 request.url = overlay.get("view").url;
                                 var colls = {
-                                    'Alpha': '{"Alpha":["SW_OPER_MODA_SC_1B"]}',
-                                    'Bravo': '{"Bravo":["SW_OPER_MODB_SC_1B"]}',
-                                    'Charlie': '{"Charlie":["SW_OPER_MODC_SC_1B"]}',
+                                    'Alpha': '{"Alpha":["SW_OPER_MODA_SC_1B+SW_FAST_MODA_SC_1B"]}',
+                                    'Bravo': '{"Bravo":["SW_OPER_MODB_SC_1B+SW_FAST_MODB_SC_1B"]}',
+                                    'Charlie': '{"Charlie":["SW_OPER_MODC_SC_1B+SW_FAST_MODC_SC_1B"]}',
                                 };
                                 request.fetch({
                                     collections_ids: colls[sat],
