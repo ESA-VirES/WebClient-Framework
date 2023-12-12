@@ -9,82 +9,84 @@
 
     "storyTemplate": "UseCaseTestTemplate",
     "userData": {
-        "url": "/vires00/custom_data/",
+        "url": "/custom_data/",
         "color": "#8be4e5",
         "views": [{
             "id": "USER_DATA",
-            "url": "/vires00/ows"
+            "url": "/ows"
         }]
     },
     "additionalInformation": {
         "MAG": [
             "<p>Magnetic VFM vector and ASM scalar data (1Hz)</p>",
-            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-1b-product-definitions#MAGX_LR_1B_Product' target='_blank'>Product specification</a><br>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_MAGx_LR_1B' target='_blank'>Product specification</a><br>",
             "<a href='https://notebooks.vires.services/notebooks/03a1_demo-magx_lr_1b' target='notebooks'>Example VRE notebook</a>"
         ],
         "EFI": [
             "<p>Plasma data from the Langmuir probe including electron temperature and plasma density (2Hz)</p>",
-            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-1b-product-definitions#EFIX_LP_1B_Product' target='_blank'>Product specification</a><br>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_EFIx_LP_1B' target='_blank'>Product specification</a><br>",
             "<a href='https://notebooks.vires.services/notebooks/03b__demo-efix_lp_1b' target='notebooks'>Example VRE notebook</a>"
         ],
         "EFI_TIE": [
             "<p>Ion temperature estimate</p>",
-            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#EFIxTIE_2_' target='_blank'>Product specification</a><br>",
-            "<a target='_blank' href='https://viresclient.readthedocs.io/en/latest/available_parameters.html#collections'>Python API</a>"
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_EFIxTIE_2_' target='_blank'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03k1_demo-efixtie' target='notebooks'>Example VRE notebook</a>"
         ],
         "EFI_IDM": [
             "<p>Ion drift, density and effective mass data</p>",
-            "<a href='https://earth.esa.int/eogateway/documents/20142/2860886/SLIDEM_Product_Definition.pdf' target='_blank'>Product specification</a><br>",
-            "<a target='_blank' href='https://viresclient.readthedocs.io/en/latest/available_parameters.html#collections'>Python API</a>"
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_EFIxIDM_2_' target='_blank'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03k3_demo-efixidm' target='notebooks'>Example VRE notebook</a>"
         ],
         "EFI_TCT": [
             "<p>Thermal ion imager cross track flow data (2Hz)</p>",
-            "<a href='https://earth.esa.int/eogateway/documents/20142/37627/swarm-EFI-TII-cross-track-flow-dataset-release-notes.pdf' target='_blank'>Product specification</a><br>",
-            "<a target='_blank' href='https://viresclient.readthedocs.io/en/latest/available_parameters.html#collections'>Python API</a>"
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_EFIX_TCT02' target='_blank'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03k2_demo-efixtct' target='notebooks'>Example VRE notebook</a>"
         ],
         "IBI": [
             "<p>Ionospheric bubble index data</p>",
-            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#IBIxTMS_2F' target='_blank'>Product specification</a><br>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_IBIxTMS_2F' target='_blank'>Product specification</a><br>",
             "<a href='https://notebooks.vires.services/notebooks/03g__demo-ibixtms_2f' target='notebooks'>Example VRE notebook</a>"
         ],
         "TEC": [
             "<p>Ionospheric total electron content data</p>",
-            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#TECxTMS_2F' target='_blank'>Product specification</a><br>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_TECxTMS_2F' target='_blank'>Product specification</a><br>",
             "<a href='https://notebooks.vires.services/notebooks/03d__demo-tecxtms_2f' target='notebooks'>Example VRE notebook</a>"
         ],
         "FAC": [
             "<p>Field aligned current (single and dual S/C) and auroral oval boundaries determined from FAC</p>",
-            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#FACxTMS_2F' target='_blank'>Single S/C FAC product specification</a><br>",
-            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#FAC_TMS_2F' target='_blank'>Dual S/C FAC product specification</a><br>",
-            "<a href='https://earth.esa.int/eogateway/documents/20142/37627/Swarm-AEBS-product-definition.pdf' target='aebs_spec'>AOB product specification</a><br>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_FACxTMS_2F' target='_blank'>Single S/C FAC product specification</a><br>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_FAC_TMS_2F' target='_blank'>Dual S/C FAC product specification</a><br>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_AOBxFAC_2F' target='_blank'>AOB product specification</a><br>",
             "<a href='https://notebooks.vires.services/notebooks/03e1_demo-facxtms_2f' target='notebooks'>Single S/C FAC example VRE notebook</a><br>",
             "<a href='https://notebooks.vires.services/notebooks/03e2_demo-fac_tms_2f' target='notebooks'>Dual S/C FAC example VRE notebook</a><br>",
             "<a href='https://notebooks.vires.services/notebooks/03h3_demo-aebs-aobxfac' target='notebooks'>AOB example VRE notebook</a>"
         ],
         "EEF": [
             "<p>Dayside equatorial electric field data</p>",
-            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#EEFxTMS_2F' target='_blank'>Product specification</a><br>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_EEFxTMS_2F' target='_blank'>Product specification</a><br>",
             "<a href='https://notebooks.vires.services/notebooks/03f__demo-eefxtms_2f' target='notebooks'>Example VRE notebook</a>"
         ],
         "IPD": [
             "<p>Ionospheric plasma densities</p>",
-            "<a href='https://earth.esa.int/web/guest/missions/esa-eo-missions/swarm/data-handbook/level-2-product-definitions#IPDxIRR_2F' target='_blank'>Product specification</a><br>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_IPDxIRR_2F' target='_blank'>Product specification</a><br>",
             "<a href='https://notebooks.vires.services/notebooks/03c__demo-ipdxirr_2f' target='notebooks'>Example VRE notebook</a>"
         ],
         "AEJ_LPL": [
-            "<p>Auroral electrojets calculated by the Line Current method</p>",
-            "<a href='https://earth.esa.int/eogateway/documents/20142/37627/Swarm-AEBS-product-definition.pdf' target='aebs_spec'>Product specification</a><br>",
+            "<p>Auroral electrojets calculated by the Line Current (LC) method</p>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_AEJxLPL_2F' target='_blank'>Sheet current density profile product specification</a><br>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_AEJxPBL_2F' target='_blank'>Peaks and boundaries product specification</a><br>",
             "<a href='https://notebooks.vires.services/notebooks/03h1_demo-aebs-aejxlpl' target='notebooks'>Example VRE notebook</a>"
         ],
         "AEJ_LPS": [
-            "<p>Auroral electrojets calculated by the Spherical Elementary Current Systems method</p>",
-            "<a href='https://earth.esa.int/eogateway/documents/20142/37627/Swarm-AEBS-product-definition.pdf' target='aebs_spec'>Product specification</a><br>",
+            "<p>Auroral electrojets calculated by the Spherical Elementary Current Systems (SECS) method</p>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_AEJxLPS_2F' target='_blank'>Sheet current density profile product specification</a><br>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_AEJxPBS_2F' target='_blank'>Peaks and boundaries product specification</a><br>",
             "<a href='https://notebooks.vires.services/notebooks/03h2_demo-aebs-aejxlps' target='notebooks'>Example VRE notebook</a>"
         ]
     },
 
     "magneticModels": {
-        "infoUrl": "/vires00/ows",
+        "infoUrl": "/ows",
         "models": [
             {
                 "id": "AMPS",
@@ -304,6 +306,18 @@
                             ["no-data", "Set for not enough VFM samples to generate B_VFM and B_NEC."]
                         ]
                     }
+                },
+                "DataSource": {
+                    "range": [0, 1],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "Data source flag",
+                    "hidden": true,
+                    "bitmask": {
+                        "flags": [
+                            ["FAST", "Set for Swarm FAST data / unset for Swarm OPER data"]
+                        ]
+                    }
                 }
             },
             "download_parameters": {
@@ -453,6 +467,10 @@
                 "QDOrbitDirection": {
                     "uom": null,
                     "name": "Orbit direction in quasi-dipole coordinates."
+                },
+                "DataSource": {
+                    "uom": null,
+                    "name": "Data source flag (0 - OPER, 1 - FAST)."
                 }
             }
         },
@@ -483,6 +501,18 @@
                     "uom": "m/s",
                     "colorscale": "jet",
                     "name": "Spacecraft velocity in the ITRF"
+                },
+                "DataSource": {
+                    "range": [0, 1],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "Data source flag",
+                    "hidden": true,
+                    "bitmask": {
+                        "flags": [
+                            ["FAST", "Set for Swarm FAST data / unset for Swarm OPER data"]
+                        ]
+                    }
                 }
             },
             "download_parameters": {
@@ -593,6 +623,10 @@
                 "QDOrbitDirection": {
                     "uom": null,
                     "name": "Orbit direction in quasi-dipole coordinates."
+                },
+                "DataSource": {
+                    "uom": null,
+                    "name": "Data source flag (0 - OPER, 1 - FAST)."
                 }
             }
         },
@@ -2259,23 +2293,23 @@
             "timeSliderProtocol": "WPS",
             "visible": true,
             "views": [{
-                "id": "SW_OPER_MAGA_LR_1B",
+                "id": "SW_OPER_MAGA_LR_1B+SW_FAST_MAGA_LR_1B",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_MAGA_LR_1B",
+                "id": "SW_OPER_MAGA_LR_1B+SW_FAST_MAGA_LR_1B",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_MAGA_LR_1B"
+                    "layer_id": "SW_OPER_MAGA_LR_1B+SW_FAST_MAGA_LR_1B"
                 }
             ],
             "outlines": false
@@ -2286,23 +2320,23 @@
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "views": [{
-                "id": "SW_OPER_MAGB_LR_1B",
+                "id": "SW_OPER_MAGB_LR_1B+SW_FAST_MAGB_LR_1B",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_MAGB_LR_1B",
+                "id": "SW_OPER_MAGB_LR_1B+SW_FAST_MAGB_LR_1B",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_MAGB_LR_1B"
+                    "layer_id": "SW_OPER_MAGB_LR_1B+SW_FAST_MAGB_LR_1B"
                 }
             ],
             "outlines": false
@@ -2313,23 +2347,23 @@
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "views": [{
-                "id": "SW_OPER_MAGC_LR_1B",
+                "id": "SW_OPER_MAGC_LR_1B+SW_FAST_MAGC_LR_1B",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_MAGC_LR_1B",
+                "id": "SW_OPER_MAGC_LR_1B+SW_FAST_MAGC_LR_1B",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_MAGC_LR_1B"
+                    "layer_id": "SW_OPER_MAGC_LR_1B+SW_FAST_MAGC_LR_1B"
                 }
             ],
             "outlines": false
@@ -2343,7 +2377,7 @@
                 "id": "SW_OPER_MAGU_LR_1B",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2367,23 +2401,23 @@
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
             "views": [{
-                "id": "SW_OPER_EFIA_LP_1B",
+                "id": "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_EFIA_LP_1B",
+                "id": "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_EFIA_LP_1B"
+                    "layer_id": "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B"
                 }
             ],
             "outlines": false
@@ -2394,23 +2428,23 @@
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
             "views": [{
-                "id": "SW_OPER_EFIB_LP_1B",
+                "id": "SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_EFIB_LP_1B",
+                "id": "SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_EFIB_LP_1B"
+                    "layer_id": "SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B"
                 }
             ],
             "outlines": false
@@ -2421,23 +2455,23 @@
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
             "views": [{
-                "id": "SW_OPER_EFIC_LP_1B",
+                "id": "SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_EFIC_LP_1B",
+                "id": "SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_EFIC_LP_1B"
+                    "layer_id": "SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B"
                 }
             ],
             "outlines": false
@@ -2451,7 +2485,7 @@
                 "id": "SW_OPER_EFIU_LP_1B",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2478,7 +2512,7 @@
                 "id": "SW_OPER_EFIATIE_2_",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2486,7 +2520,7 @@
             "download": {
                 "id": "SW_OPER_EFIATIE_2_",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -2507,7 +2541,7 @@
                 "id": "SW_OPER_EFIBTIE_2_",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2515,7 +2549,7 @@
             "download": {
                 "id": "SW_OPER_EFIBTIE_2_",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -2534,7 +2568,7 @@
                 "id": "SW_OPER_EFICTIE_2_",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2542,7 +2576,7 @@
             "download": {
                 "id": "SW_OPER_EFICTIE_2_",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -2561,7 +2595,7 @@
                 "id": "SW_OPER_EFIUTIE_2_",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2588,7 +2622,7 @@
                 "id": "SW_PREL_EFIAIDM_2_",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2596,7 +2630,7 @@
             "download": {
                 "id": "SW_PREL_EFIAIDM_2_",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -2617,7 +2651,7 @@
                 "id": "SW_PREL_EFIBIDM_2_",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2625,7 +2659,7 @@
             "download": {
                 "id": "SW_PREL_EFIBIDM_2_",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -2644,7 +2678,7 @@
                 "id": "SW_PREL_EFICIDM_2_",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2652,7 +2686,7 @@
             "download": {
                 "id": "SW_PREL_EFICIDM_2_",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -2671,7 +2705,7 @@
                 "id": "SW_PREL_EFIUIDM_2_",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2698,7 +2732,7 @@
                 "id": "SW_EXPT_EFIA_TCT02",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2706,7 +2740,7 @@
             "download": {
                 "id": "SW_EXPT_EFIA_TCT02",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -2725,7 +2759,7 @@
                 "id": "SW_EXPT_EFIB_TCT02",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2733,7 +2767,7 @@
             "download": {
                 "id": "SW_EXPT_EFIB_TCT02",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -2752,7 +2786,7 @@
                 "id": "SW_EXPT_EFIC_TCT02",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2760,7 +2794,7 @@
             "download": {
                 "id": "SW_EXPT_EFIC_TCT02",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -2779,7 +2813,7 @@
                 "id": "SW_PREL_EFIUIDM_2_",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2806,7 +2840,7 @@
                 "id": "SW_OPER_TECATMS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2814,7 +2848,7 @@
             "download": {
                 "id": "SW_OPER_TECATMS_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -2833,7 +2867,7 @@
                 "id": "SW_OPER_TECBTMS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2841,7 +2875,7 @@
             "download": {
                 "id": "SW_OPER_TECBTMS_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -2860,7 +2894,7 @@
                 "id": "SW_OPER_TECCTMS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2868,7 +2902,7 @@
             "download": {
                 "id": "SW_OPER_TECCTMS_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -2887,7 +2921,7 @@
                 "id": "SW_OPER_TECUTMS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2914,7 +2948,7 @@
                 "id": "SW_OPER_FACATMS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2922,7 +2956,7 @@
             "download": {
                 "id": "SW_OPER_FACATMS_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -2942,7 +2976,7 @@
                 "id": "SW_OPER_FACBTMS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2950,7 +2984,7 @@
             "download": {
                 "id": "SW_OPER_FACBTMS_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -2969,7 +3003,7 @@
                 "id": "SW_OPER_FACCTMS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -2977,7 +3011,7 @@
             "download": {
                 "id": "SW_OPER_FACCTMS_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -2996,7 +3030,7 @@
                 "id": "SW_OPER_FAC_TMS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3004,7 +3038,7 @@
             "download": {
                 "id": "SW_OPER_FAC_TMS_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3023,7 +3057,7 @@
                 "id": "SW_OPER_FACUTMS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3050,7 +3084,7 @@
                 "id": "SW_OPER_EEFATMS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3058,7 +3092,7 @@
             "download": {
                 "id": "SW_OPER_EEFATMS_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3077,7 +3111,7 @@
                 "id": "SW_OPER_EEFBTMS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3085,7 +3119,7 @@
             "download": {
                 "id": "SW_OPER_EEFBTMS_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3104,7 +3138,7 @@
                 "id": "SW_OPER_EEFCTMS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3112,7 +3146,7 @@
             "download": {
                 "id": "SW_OPER_EEFCTMS_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3131,7 +3165,7 @@
                 "id": "SW_OPER_EEFUTMS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3160,7 +3194,7 @@
                 "id": "SW_OPER_IBIATMS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3168,7 +3202,7 @@
             "download": {
                 "id": "SW_OPER_IBIATMS_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3189,7 +3223,7 @@
                 "id": "SW_OPER_IBIBTMS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3197,7 +3231,7 @@
             "download": {
                 "id": "SW_OPER_IBIBTMS_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3218,7 +3252,7 @@
                 "id": "SW_OPER_IBICTMS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3226,7 +3260,7 @@
             "download": {
                 "id": "SW_OPER_IBICTMS_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3246,7 +3280,7 @@
                 "id": "SW_OPER_IBIUTMS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3273,7 +3307,7 @@
                 "id": "SW_OPER_IPDAIRR_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3281,7 +3315,7 @@
             "download": {
                 "id": "SW_OPER_IPDAIRR_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3300,7 +3334,7 @@
                 "id": "SW_OPER_IPDBIRR_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3308,7 +3342,7 @@
             "download": {
                 "id": "SW_OPER_IPDBIRR_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3327,7 +3361,7 @@
                 "id": "SW_OPER_IPDCIRR_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3335,7 +3369,7 @@
             "download": {
                 "id": "SW_OPER_IPDCIRR_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3354,7 +3388,7 @@
                 "id": "SW_OPER_IPDUIRR_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3382,7 +3416,7 @@
                 "id": "SW_OPER_AEJALPL_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3390,7 +3424,7 @@
             "download": {
                 "id": "SW_OPER_AEJALPL_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3410,7 +3444,7 @@
                 "id": "SW_OPER_AEJBLPL_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3418,7 +3452,7 @@
             "download": {
                 "id": "SW_OPER_AEJBLPL_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3438,7 +3472,7 @@
                 "id": "SW_OPER_AEJCLPL_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3446,7 +3480,7 @@
             "download": {
                 "id": "SW_OPER_AEJCLPL_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3465,7 +3499,7 @@
                 "id": "SW_OPER_AEJULPL_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3493,7 +3527,7 @@
                 "id": "SW_OPER_AEJALPS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3501,7 +3535,7 @@
             "download": {
                 "id": "SW_OPER_AEJALPS_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3521,7 +3555,7 @@
                 "id": "SW_OPER_AEJBLPS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3529,7 +3563,7 @@
             "download": {
                 "id": "SW_OPER_AEJBLPS_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3549,7 +3583,7 @@
                 "id": "SW_OPER_AEJCLPS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3557,7 +3591,7 @@
             "download": {
                 "id": "SW_OPER_AEJCLPS_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3576,7 +3610,7 @@
                 "id": "SW_OPER_AEJULPS_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3604,7 +3638,7 @@
                 "id": "Model",
                 "protocol": "WMS",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3612,7 +3646,7 @@
             "download": {
                 "id": "Model",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "parameters": {
                 "F": {
@@ -3714,13 +3748,13 @@
                 "id": "dst",
                 "protocol": "INDEX",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ]
             }],
             "download": {
                 "id": "dst",
                 "protocol": "INDEX",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "download_parameters": {},
             "index": true
@@ -3733,13 +3767,13 @@
                 "id": "ddst",
                 "protocol": "INDEX",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ]
             }],
             "download": {
                 "id": "ddst",
                 "protocol": "INDEX",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "download_parameters": {},
             "index": true
@@ -3753,13 +3787,13 @@
                 "id": "kp",
                 "protocol": "INDEX",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ]
             }],
             "download": {
                 "id": "kp",
                 "protocol": "INDEX",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "download_parameters": {},
             "index": true
@@ -3772,13 +3806,13 @@
                 "id": "f107",
                 "protocol": "INDEX",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ]
             }],
             "download": {
                 "id": "f107",
                 "protocol": "INDEX",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "download_parameters": {},
             "index": true
@@ -3884,7 +3918,7 @@
             "view":{
                 "id": "satellite_orbit",
                 "protocol": "WPS",
-                "url": "/vires00/ows",
+                "url": "/ows",
                 "style": "default",
                 "format": "image/png"
             }
@@ -4000,7 +4034,7 @@
     },
 
     "download": {
-        "url": "/vires00/ows"
+        "url": "/ows"
     },
 
     "views": [

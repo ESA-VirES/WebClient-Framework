@@ -73,33 +73,47 @@ module.exports = function (grunt) {
                 // change this to '0.0.0.0' to access the server from outside
                 hostname: '0.0.0.0'
             },
+            //
+            // Proxy to a local development server:
+            //   - set the right localhost:<port> target
+            //   - set plain HTTP protocol
+            //   - set the access token
+            //
+            // Proxy to a remote server:
+            //   - enable the right remote host (e.g, testing.vires.services) target
+            //   - set HTTPS protocol
+            //   - set the access token
+            //   - note that older Node.js versions may have problems to
+            //     verify the server certificate. Setting secure to false may
+            //     help.
+            //
             proxies: [{
-                context: '/vires00',
-                host: 'testing.vires.services',
-                // host: 'localhost',
-                // port: 8300,
-                rewrite: {
-                    '^/vires00': '/'
-                },
-                portocol: 'https',
-                https: true,
-                changeOrigin: true,
-                xforward: false
-            },{
-                context: '/ows',
-                host: 'testing.vires.services',
-                // host: 'localhost',
-                // port: 8300
-            },{
                 context: '/wps',
                 host: 'testing.vires.services',
-                // host: 'localhost',
-                // port: 8300
-            },{
+                //host: 'localhost',
+                //port: 8300
+                https: true,
+                //secure: false,
+            }, {
+                context: '/ows',
+                host: 'testing.vires.services',
+                //host: 'localhost',
+                //port: 8300,
+                headers: {
+                    "Authorization": "Bearer <put-your-access-token-here>"
+                },
+                https: true,
+                //secure: false,
+            }, {
                 context: '/custom_data',
                 host: 'testing.vires.services',
-                // host: 'localhost',
-                // port: 8300
+                //host: 'localhost',
+                //port: 8300,
+                headers: {
+                    "Authorization": "Bearer <put-your-access-token-here>"
+                },
+                https: true,
+                //secure: false,
             }],
             livereload: {
                 options: {
