@@ -181,9 +181,6 @@ define([
 
     // vector norm calculation
 
-    var vnorm2 = function (x, y) {return Math.sqrt(x * x + y * y);};
-    var vnorm3 = function (x, y, z) {return Math.sqrt(x * x + y * y + z * z);};
-
     var VectorNorms = function () {
         this.maxNorm = 0;
         this.norms = [];
@@ -236,6 +233,7 @@ define([
         },
 
         _calculateV2Norms: function (x, y) {
+            var vnorm2 = Math.hypot;
             var norms = new VectorNorms();
             for (var i = 0, size = x.length; i < size; i++) {
                 norms.push(vnorm2(x[i], y[i]));
@@ -244,6 +242,7 @@ define([
         },
 
         _calculateV3Norms: function (x, y, z) {
+            var vnorm3 = Math.hypot;
             var norms = new VectorNorms();
             for (var i = 0, size = x.length; i < size; i++) {
                 norms.push(vnorm3(x[i], y[i], z[i]));
@@ -259,30 +258,82 @@ define([
         var sin_lon = Math.sin(DEG2RAD * longitude);
         var cos_lon = Math.cos(DEG2RAD * longitude);
 
-        return {
-            x: r_cos_lat * cos_lon,
-            y: r_cos_lat * sin_lon,
-            z: r_sin_lat
-        };
+        return new Vector3D(
+            r_cos_lat * cos_lon,
+            r_cos_lat * sin_lon,
+            r_sin_lat
+        );
     };
 
-    var rotateHorizontal2Cartesian = function (latitude, longitude, vN, vE, vR) {
-        // rotate vector from a local horizontal North, East, Radius frame
-        // defined by the latitude and longitude to the global geocentric
-        // Cartesian frame
-        var sin_lat = Math.sin(DEG2RAD * latitude);
-        var cos_lat = Math.cos(DEG2RAD * latitude);
-        var sin_lon = Math.sin(DEG2RAD * longitude);
-        var cos_lon = Math.cos(DEG2RAD * longitude);
-
-        var vXY = cos_lat * vR - sin_lat * vN;
-        return {
-            x: cos_lon * vXY - sin_lon * vE,
-            y: sin_lon * vXY + cos_lon * vE,
-            z: cos_lat * vN + sin_lat * vR,
-        };
+    // 3D vector helper class
+    var Vector3D = function (x, y, z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
     };
 
+    Vector3D.prototype = {
+        norm: function () {return Math.hypot(this.x, this.y, this.z);},
+        normalize: function () {
+            var norm = this.norm();
+            return this.multScalar(norm > 0.0 ? 1.0 / norm : 0.0);
+        },
+        multScalar: function (scalar) {
+            return new Vector3D(this.x * scalar, this.y * scalar, this.z * scalar);
+        },
+        addVector: function (vector) {
+            return new Vector3D(this.x + vector.x, this.y + vector.y, this.z + vector.z);
+        },
+        subVector: function (vector) {
+            return new Vector3D(this.x - vector.x, this.y - vector.y, this.z - vector.z);
+        },
+        project: function (baseX, baseY, baseZ) {
+            var x = baseX.multScalar(this.x);
+            var y = baseY.multScalar(this.y);
+            var z = baseZ.multScalar(this.z);
+            return new Vector3D(
+                x.x + y.x + z.x,
+                x.y + y.y + z.y,
+                x.z + y.z + z.z
+            );
+        },
+        projectNEC2GCCart: function (latitude, longitude) {
+            // project vector from a local horizontal NEC frame
+            // defined by the latitude and longitude to the global geocentric
+            // Cartesian frame
+            // latitude and longitude are in degrees
+            var sin_lat = Math.sin(DEG2RAD * latitude);
+            var cos_lat = Math.cos(DEG2RAD * latitude);
+            var sin_lon = Math.sin(DEG2RAD * longitude);
+            var cos_lon = Math.cos(DEG2RAD * longitude);
+
+            var xy = - cos_lat * this.z - sin_lat * this.x;
+            return new Vector3D(
+                cos_lon * xy - sin_lon * this.y,
+                sin_lon * xy + cos_lon * this.y,
+                cos_lat * this.x - sin_lat * this.z
+            );
+        },
+        convertSpherical2Cartesian: function () {
+            // convert point from geocentric spherical to
+            // geocentric Cartesian coordinates
+            // latitude and longitude are in degrees
+            var latitude = DEG2RAD * this.x;
+            var longitude = DEG2RAD * this.y;
+            var radius = this.z;
+            var r_sin_lat = Math.sin(latitude) * radius;
+            var r_cos_lat = Math.cos(latitude) * radius;
+            var sin_lon = Math.sin(longitude);
+            var cos_lon = Math.cos(longitude);
+
+            return new Vector3D(
+                r_cos_lat * cos_lon,
+                r_cos_lat * sin_lon,
+                r_sin_lat
+            );
+
+        },
+    };
 
     // Feature collection manager encapsulates details of the handling
     // of the active feature collections.
@@ -1899,13 +1950,13 @@ define([
 
                 var lineCounter = 0;
 
-                var __createVector = function (x, y, z, dx, dy, dz, color, settings) {
+                var __createVector = function (position, vector, color, settings) {
                     settings.featureCollection.geometryInstances.push(
                         new Cesium.GeometryInstance({
                             geometry: new Cesium.PolylineGeometry({
                                 positions: [
-                                    new Cesium.Cartesian3(x, y, z),
-                                    new Cesium.Cartesian3(x + dx, y + dy, z + dz),
+                                    Cesium.Cartesian3.clone(position),
+                                    Cesium.Cartesian3.clone(position.addVector(vector)),
                                 ],
                                 followSurface: false,
                                 width: 1.7,
@@ -1931,18 +1982,24 @@ define([
                     var value = record[parameter];
                     if (isNaN(value)) {return;}
 
-                    var x = record.LEO_Position_X;
-                    var y = record.LEO_Position_Y;
-                    var z = record.LEO_Position_Z;
+                    // vector base point in the geocentric Cartesian frame
+                    var position = new Vector3D(
+                        record.LEO_Position_X,
+                        record.LEO_Position_Y,
+                        record.LEO_Position_Z
+                    );
 
-                    var dx = record.GPS_Position_X - x;
-                    var dy = record.GPS_Position_Y - y;
-                    var dz = record.GPS_Position_Z - z;
-
-                    var scale = TEC_VECTOR_LENGTH / vnorm3(dx, dy, dz);
+                    var vector = new Vector3D(
+                        record.GPS_Position_X,
+                        record.GPS_Position_Y,
+                        record.GPS_Position_Z
+                    )
+                        .subVector(position)
+                        .normalize()
+                        .multScalar(TEC_VECTOR_LENGTH);
 
                     __createVector(
-                        x, y, z, scale * dx, scale * dy, scale * dz,
+                        position, vector,
                         settings.colormap.getColor(value), settings
                     );
                 };
@@ -1952,26 +2009,26 @@ define([
                     var value = settings.norms[record.__index__];
                     if (isNaN(value)) {return;}
 
-                    var scale = MAX_VECTOR_LENGTH / settings.maxNorm;
-
-                    var position = convertSpherical2Cartesian(
+                    // vector base point in the geocentric Cartesian frame
+                    var position = new Vector3D(
                         record.Latitude,
                         record.Longitude,
                         record.Radius + get(settings, 'index', 0) * HEIGHT_OFFSET
-                    );
+                    )
+                        .convertSpherical2Cartesian();
 
+                    // project scaled vector from NEC to geocentric Cartesian frame
                     var components = settings.components;
-                    var vector = rotateHorizontal2Cartesian(
-                        record.Latitude,
-                        record.Longitude,
-                        +scale * record[components[0]],
-                        +scale * record[components[1]],
-                        -scale * record[components[2]]
-                    );
+                    var vector = new Vector3D(
+                        record[components[0]],
+                        record[components[1]],
+                        record[components[2]]
+                    )
+                        .multScalar(MAX_VECTOR_LENGTH / settings.maxNorm)
+                        .projectNEC2GCCart(record.Latitude, record.Longitude);
 
                     __createVector(
-                        position.x, position.y, position.z,
-                        vector.x, vector.y, vector.z,
+                        position, vector,
                         settings.colormap.getColor(value), settings
                     );
                 };
@@ -1981,134 +2038,141 @@ define([
                     var value = get(record, parameter) || settings.norms[record.__index__];
                     if (isNaN(value)) {return;}
 
-                    var scale = MAX_VECTOR_LENGTH / settings.maxNorm;
-
-                    var position = convertSpherical2Cartesian(
+                    // vector base point in the geocentric Cartesian frame
+                    var position = new Vector3D(
                         record.Latitude,
                         record.Longitude,
                         get(NOMINAL_RADIUS, parameter, DEFAULT_NOMINAL_RADIUS) + get(settings, 'index', 0) * HEIGHT_OFFSET
-                    );
+                    )
+                        .convertSpherical2Cartesian();
 
                     var components = settings.components;
-                    var vector = rotateHorizontal2Cartesian(
-                        record.Latitude,
-                        record.Longitude,
-                        scale * record[components[0]],
-                        scale * record[components[1]],
+
+                    // project scaled vector from NEC to geocentric Cartesian frame
+                    var vector = new Vector3D(
+                        record[components[0]],
+                        record[components[1]],
                         0.0
-                    );
+                    )
+                        .multScalar(MAX_VECTOR_LENGTH / settings.maxNorm)
+                        .projectNEC2GCCart(record.Latitude, record.Longitude);
 
                     __createVector(
-                        position.x, position.y, position.z,
-                        vector.x, vector.y, vector.z,
+                        position, vector,
                         settings.colormap.getColor(value), settings
                     );
                 };
 
                 // ------------------------------------------------------------
+                // 3D vector in the Satellite-Velocity-Aligned (SVA) frame:
+                //   x coordinate (forward) is parallel to the S/C velocity
+                //   y coordinate (right) is oriented in the direction
+                //     of the cross product of the position and velocity vectors
+                //   z coordinate (down) is oriented in the opposite direction
+                //     of the position vector
+                //
+                // See Burchill, J.K., Knudsen, D.J. Swarm Thermal Ion Imager
+                // measurement performance. Earth Planets Space 74, 181 (2022)
+                // Appendinx B: https://earth-planets-space.springeropen.com/articles/10.1186/s40623-022-01736-w#appendices,
+                //
 
-                // 3D vector in the S/C frame - comon low-level part
-                // since we don't not the exact S/C orintation we assume
-                // the X and Y are in the NE plane and Z is alligned with C
-                // the X orientation is given by the S/C velocity
-                var __createVectorInSCFrame = function (record, settings, value, vector) {
+                var __createVectorInSVAFrame = function (record, settings, value, vector) {
                     var scale = MAX_VECTOR_LENGTH;
-                    var v_n = record.VsatN;
-                    var v_e = record.VsatE;
-                    var v_scale = 1.0 / vnorm2(v_e, v_n);
 
-
-                    var position = convertSpherical2Cartesian(
-                        record.Latitude, record.Longitude,
+                    // vector base point in the geocentric Cartesian frame
+                    var position = new Vector3D(
+                        record.Latitude,
+                        record.Longitude,
                         record.Radius + get(settings, 'index', 0) * HEIGHT_OFFSET
+                    ).convertSpherical2Cartesian();
+
+                    // SVA XYZ base vectors in the NEC frame
+                    var baseX = new Vector3D(record.VsatN, record.VsatE, record.VsatC).normalize();
+                    var baseY = new Vector3D(-baseX.y, baseX.x, 0).normalize();
+                    var baseZ = new Vector3D(
+                        - baseX.z * baseY.y,
+                        baseX.z * baseY.x,
+                        baseX.x * baseY.y - baseX.y * baseY.x
                     );
 
-                    vector = rotateHorizontal2Cartesian(
-                        record.Latitude, record.Longitude,
-                        scale * (v_n * vector.x + v_e * vector.y) * v_scale,
-                        scale * (v_e * vector.x - v_n * vector.y) * v_scale,
-                        scale * vector.z
-                    );
+                    // project scaled vector from SVA to NEC and then to
+                    // geocentric Cartesian frame
+                    vector = vector.multScalar(scale)
+                        .project(baseX, baseY, baseZ)
+                        .projectNEC2GCCart(record.Latitude, record.Longitude);
 
                     __createVector(
-                        position.x, position.y, position.z,
-                        vector.x, vector.y, vector.z,
+                        position, vector,
                         settings.colormap.getColor(value), settings
                     );
                 };
 
-                // 3D vector in the S/C frame
-                var _createVectorSC = function (record, settings) {
+                // 3D vector in the SVA frame
+                var _createVectorSVA = function (record, settings) {
                     var value = settings.norms[record.__index__];
                     if (isNaN(value)) {return;}
-                    var scale = 1.0 / settings.maxNorm;
                     var components = settings.components;
-                    __createVectorInSCFrame(record, settings, value, {
-                        x: scale * record[components[0]],
-                        y: scale * record[components[1]],
-                        z: scale * record[components[2]]
-                    });
+                    var vector = new Vector3D(
+                        record[components[0]],
+                        record[components[1]],
+                        record[components[2]]
+                    ).multScalar(1.0 / settings.maxNorm);
+                    __createVectorInSVAFrame(record, settings, value, vector);
                 };
 
-                // 2D vector in the S/C along-track horizontal plane
-                var _createVectorSCHP = function (record, settings) {
+                // 2D vector in the SVA along-track horizontal plane
+                var _createVectorSVAHP = function (record, settings) {
                     var value = settings.norms[record.__index__];
                     if (isNaN(value)) {return;}
-                    var scale = 1.0 / settings.maxNorm;
                     var components = settings.components;
-                    __createVectorInSCFrame(record, settings, value, {
-                        x: scale * record[components[0]],
-                        y: scale * record[components[1]],
-                        z: 0.0
-                    });
+                    var vector = new Vector3D(
+                        record[components[0]],
+                        record[components[1]],
+                        0.0
+                    ).multScalar(1.0 / settings.maxNorm);
+                    __createVectorInSVAFrame(record, settings, value, vector);
                 };
 
-                // 2D vector in the S/C along-track verticlal plane
-                var _createVectorSCVP = function (record, settings) {
+                // 2D vector in the SVA along-track verticlal plane
+                var _createVectorSVAVP = function (record, settings) {
                     var value = settings.norms[record.__index__];
-                    var scale = 1.0 / settings.maxNorm;
-                    var components = settings.components;
                     if (isNaN(value)) {return;}
-                    __createVectorInSCFrame(record, settings, value, {
-                        x: scale * record[components[0]],
-                        y: 0.0,
-                        z: scale * record[components[1]]
-                    });
+                    var components = settings.components;
+                    var vector = new Vector3D(
+                        record[components[0]],
+                        0.0,
+                        record[components[1]]
+                    ).multScalar(1.0 / settings.maxNorm);
+                    __createVectorInSVAFrame(record, settings, value, vector);
                 };
 
-                // 2D vector in the S/C cros-track plane
-                var _createVectorSCCP = function (record, settings) {
+                // 2D vector in the SVA cross-track plane
+                var _createVectorSVACP = function (record, settings) {
                     var value = settings.norms[record.__index__];
                     if (isNaN(value)) {return;}
                     var scale = 1.0 / settings.maxNorm;
                     var components = settings.components;
-                    __createVectorInSCFrame(record, settings, value, {
-                        x: 0.0,
-                        y: scale * record[components[0]],
-                        z: scale * record[components[1]]
-                    });
+                    __createVectorInSVAFrame(record, settings, value, new Vector3D(
+                        0.0,
+                        scale * record[components[0]],
+                        scale * record[components[1]]
+                    ));
                 };
 
                 // scalar value displayed as cross-track horizontal vector
                 var _createVectorCTH = function (record, settings) {
                     var value = get(record, parameter);
                     if (isNaN(value)) {return;}
-                    __createVectorInSCFrame(record, settings, value, {
-                        x: 0.0,
-                        y: value / settings.maxNorm,
-                        z: 0.0
-                    });
+                    var vector = new Vector3D(0.0, value / settings.maxNorm, 0.0);
+                    __createVectorInSVAFrame(record, settings, value, vector);
                 };
 
                 // scalar value displayed as cross-track vertical vector
                 var _createVectorCTV = function (record, settings) {
                     var value = get(record, parameter);
                     if (isNaN(value)) {return;}
-                    __createVectorInSCFrame(record, settings, value, {
-                        x: 0.0,
-                        y: 0.0,
-                        z: value / settings.maxNorm
-                    });
+                    var vector = new Vector3D(0.0, 0.0, value / settings.maxNorm);
+                    __createVectorInSVAFrame(record, settings, value, vector);
                 };
 
                 // ------------------------------------------------------------
@@ -2160,7 +2224,7 @@ define([
                         var sampler = new Subsampler(TII_VECTOR_SAMPLING);
                         return function (row, settings, index) {
                             if (sampler.testSample(row[TIMESTAMP].getTime())) {
-                                _createVectorSCHP(row, settings);
+                                _createVectorSVAHP(row, settings);
                             }
                         };
 
@@ -2168,7 +2232,7 @@ define([
                         var sampler = new Subsampler(TII_VECTOR_SAMPLING);
                         return function (row, settings, index) {
                             if (sampler.testSample(row[TIMESTAMP].getTime())) {
-                                _createVectorSCVP(row, settings);
+                                _createVectorSVAVP(row, settings);
                             }
                         };
 
@@ -2176,7 +2240,7 @@ define([
                         var sampler = new Subsampler(TII_VECTOR_SAMPLING);
                         return function (row, settings, index) {
                             if (sampler.testSample(row[TIMESTAMP].getTime())) {
-                                _createVectorSCCP(row, settings);
+                                _createVectorSVACP(row, settings);
                             }
                         };
 
@@ -2187,7 +2251,7 @@ define([
                         var sampler = new Subsampler(TII_VECTOR_SAMPLING);
                         return function (row, settings, index) {
                             if (sampler.testSample(row[TIMESTAMP].getTime())) {
-                                _createVectorSC(row, settings);
+                                _createVectorSVA(row, settings);
                             }
                         };
 
