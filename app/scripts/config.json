@@ -1004,7 +1004,7 @@
                 "Viz": {
                     "range": [-2000, 2000],
                     "colorscale": "diverging_1",
-                    "name": "Cross-track vertical ion drift (vertival TII)",
+                    "name": "Cross-track vertical ion drift (vertical TII)",
                     "description": "Cross-track vertical ion drift from vertical TII sensor in satellite-track coordinates.",
                     "uom": "m/s",
                     "errorParameter": "Viz_error",
@@ -1181,7 +1181,7 @@
                     "uom": "m/s"
                 },
                 "Viz": {
-                    "name": "Cross-track vertical ion drift (vertival TII)",
+                    "name": "Cross-track vertical ion drift (vertical TII)",
                     "uom": "m/s"
                 },
                 "Viz_error": {
