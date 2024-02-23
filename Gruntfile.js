@@ -1,5 +1,9 @@
 // Generated on 2013-07-09 using generator-webapp 0.2.6
+// to lift off deprecation warnings from newer node
 'use strict';
+var os = require('os');
+os.tmpDir = os.tmpdir;
+
 var LIVERELOAD_PORT = 35729;
 var lrSnippet = require('connect-livereload')({port: LIVERELOAD_PORT});
 var mountFolder = function (connect, dir) {
@@ -57,16 +61,17 @@ module.exports = function (grunt) {
                 ]
             }
         },
-        docco: {
-            docs: {
-                src: ['readme.md','<%= yeoman.app %>/scripts/{,*/}*.js', '!<%= yeoman.app %>/scripts/vendor/{,*/}*.js'],
-                options: {
-                    layout: 'linear',
-                    css: 'docco.css',
-                    output: 'docs/'
-                }
-            }
-        },
+        // commented out docco because grunt-docco2 has been removed from npm and not worth the hassle to integrate the newer grunt-docco
+        // docco: {
+        //     docs: {
+        //         src: ['readme.md','<%= yeoman.app %>/scripts/{,*/}*.js', '!<%= yeoman.app %>/scripts/vendor/{,*/}*.js'],
+        //         options: {
+        //             layout: 'linear',
+        //             css: 'docco.css',
+        //             output: 'docs/'
+        //         }
+        //     }
+        // },
         connect: {
             options: {
                 port: 9000,
