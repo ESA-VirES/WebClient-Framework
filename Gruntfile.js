@@ -12,13 +12,6 @@ var mountFolder = function (connect, dir) {
 
 var proxySnippet = require('grunt-connect-proxy2/lib/utils').proxyRequest;
 
-// # Globbing
-// for performance reasons we're only matching one level down:
-// 'test/spec/{,*/}*.js'
-// use this if you want to recursively match all subfolders:
-// 'test/spec/**/*.js'
-
-
 module.exports = function (grunt) {
     // load all grunt tasks
     require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
@@ -36,10 +29,6 @@ module.exports = function (grunt) {
             coffee: {
                 files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee'],
                 tasks: ['coffee:dist']
-            },
-            coffeeTest: {
-                files: ['test/spec/{,*/}*.coffee'],
-                tasks: ['coffee:test']
             },
             compass: {
                 files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
@@ -61,17 +50,6 @@ module.exports = function (grunt) {
                 ]
             }
         },
-        // commented out docco because grunt-docco2 has been removed from npm and not worth the hassle to integrate the newer grunt-docco
-        // docco: {
-        //     docs: {
-        //         src: ['readme.md','<%= yeoman.app %>/scripts/{,*/}*.js', '!<%= yeoman.app %>/scripts/vendor/{,*/}*.js'],
-        //         options: {
-        //             layout: 'linear',
-        //             css: 'docco.css',
-        //             output: 'docs/'
-        //         }
-        //     }
-        // },
         connect: {
             options: {
                 port: 9000,
@@ -132,16 +110,6 @@ module.exports = function (grunt) {
                     }
                 }
             },
-            test: {
-                options: {
-                    middleware: function (connect) {
-                        return [
-                            mountFolder(connect, '.tmp'),
-                            mountFolder(connect, 'test')
-                        ];
-                    }
-                }
-            },
             dist: {
                 options: {
                     middleware: function (connect) {
@@ -170,25 +138,6 @@ module.exports = function (grunt) {
             },
             server: '.tmp'
         },
-        jshint: {
-            options: {
-                jshintrc: '.jshintrc'
-            },
-            all: [
-                'Gruntfile.js',
-                '<%= yeoman.app %>/scripts/{,*/}*.js',
-                '!<%= yeoman.app %>/scripts/vendor/*',
-                'test/spec/{,*/}*.js'
-            ]
-        },
-        mocha: {
-            all: {
-                options: {
-                    run: true,
-                    urls: ['http://localhost:<%= connect.options.port %>/index.html']
-                }
-            }
-        },
         coffee: {
             dist: {
                 files: [{
@@ -196,15 +145,6 @@ module.exports = function (grunt) {
                     cwd: '<%= yeoman.app %>/scripts',
                     src: '{,*/}*.coffee',
                     dest: '.tmp/scripts',
-                    ext: '.js'
-                }]
-            },
-            test: {
-                files: [{
-                    expand: true,
-                    cwd: 'test/spec',
-                    src: '{,*/}*.coffee',
-                    dest: '.tmp/spec',
                     ext: '.js'
                 }]
             }
@@ -230,27 +170,15 @@ module.exports = function (grunt) {
                 }
             }
         },
-        // not used since Uglify task does concat,
-        // but still available if needed
-        /*concat: {
-            dist: {}
-        },*/
         requirejs: {
             dist: {
-                // Options: https://github.com/jrburke/r.js/blob/master/build/example.build.js
                 options: {
                     // `name` and `out` is set by grunt-usemin
                     baseUrl: yeomanConfig.app + '/scripts',
                     optimize: 'none',
-                    // TODO: Figure out how to make sourcemaps work with grunt-usemin
-                    // https://github.com/yeoman/grunt-usemin/issues/30
-                    //generateSourceMaps: true,
-                    // required to support SourceMaps
-                    // http://requirejs.org/docs/errors.html#sourcemapcomments
                     preserveLicenseComments: false,
                     useStrict: true,
                     wrap: true
-                    //uglify2: {} // https://github.com/mishoo/UglifyJS2
                 }
             }
         },
@@ -300,33 +228,10 @@ module.exports = function (grunt) {
             }
         },
         cssmin: {
-            // This task is pre-configured if you do not wish to use Usemin
-            // blocks for your CSS. By default, the Usemin block from your
-            // `index.html` will take care of minification, e.g.
-            //
-            //     <!-- build:css({.tmp,app}) styles/main.css -->
-            //
-            // dist: {
-            //     files: {
-            //         '<%= yeoman.dist %>/styles/main.css': [
-            //             '.tmp/styles/{,*/}*.css',
-            //             '<%= yeoman.app %>/styles/{,*/}*.css'
-            //         ]
-            //     }
-            // }
         },
         htmlmin: {
             dist: {
                 options: {
-                    /*removeCommentsFromCDATA: true,
-                    // https://github.com/yeoman/grunt-usemin/issues/44
-                    //collapseWhitespace: true,
-                    collapseBooleanAttributes: true,
-                    removeAttributeQuotes: true,
-                    removeRedundantAttributes: true,
-                    useShortDoctype: true,
-                    removeEmptyAttributes: true,
-                    removeOptionalTags: true*/
                 },
                 files: [{
                     expand: true,
@@ -496,9 +401,6 @@ module.exports = function (grunt) {
                 'compass',
                 'coffee:dist'
             ],
-            test: [
-                'coffee'
-            ],
             dist: [
                 'coffee',
                 'compass',
@@ -506,38 +408,16 @@ module.exports = function (grunt) {
                 'svgmin',
                 'htmlmin'
             ]
-        },
-        bower: {
-            options: {
-                exclude: ['modernizr']
-            },
-            all: {
-                //rjsConfig: '<%= yeoman.app %>/scripts/main.js'
-                rjsConfig: '<%= yeoman.app %>/scripts/init.js'
-            }
         }
     });
 
-    grunt.registerTask('server', function (target) {
-        if (target === 'dist') {
-            return grunt.task.run(['build', 'open', 'connect:dist:keepalive']);
-        }
-
-        grunt.task.run([
+    grunt.registerTask('server', [
             'clean:server',
             'concurrent:server',
             'configureProxies',
             'connect:livereload',
             'open',
             'watch'
-        ]);
-    });
-
-    grunt.registerTask('test', [
-        'clean:server',
-        'concurrent:test',
-        'connect:test',
-        'mocha'
     ]);
 
     grunt.registerTask('build', [
@@ -551,11 +431,5 @@ module.exports = function (grunt) {
         'copy:dist',
         'replace',
         'usemin'
-    ]);
-
-    grunt.registerTask('default', [
-        'jshint',
-        'test',
-        'build'
     ]);
 };

@@ -3,7 +3,6 @@ dist
 .tmp
 .sass-cache
 app/bower_components
-*.sublime-workspace
 Gruntfile.js*
 .npm
 .tmp
