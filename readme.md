@@ -26,53 +26,43 @@ The application uses [Yeoman](http://yeoman.io/) which integrates:
     git clone git@github.com:ESA-VirES/WebClient-Framework.git
     ```
 
-0.  Install development enviroment: 
+0.  Install development environment and client dependencies:
 
     Make sure [Node.js](http://nodejs.org) and [NPM](https://npmjs.org) are installed
     on your machine and run:
 
     ```
     cd ./EOxClient
-    sudo npm install -g grunt-cli
-    sudo npm install -g bower 
-    npm install 
+    npm install
     ```
 
-    These commands install the needed Node.js packages. In case of any trouble try to use 
-    reasonable recent version of Node.js. Also note that newer versions of Node.js contain 
-    the NPM already bundled in the baseline installation. 
-
-0.  Install client dependencies:  
-
-    The required JavaScript librabries can be installed by: 
-
-    ```
-    bower install
-    ```
+    These commands install the needed Node.js packages. In case of any trouble try to use
+    reasonable recent version of Node.js. Also note that newer versions of Node.js contain
+    the NPM already bundled in the baseline installation.
 
 0.  Start the [Grunt](http://gruntjs.com/) development server:
 
     ```
-    grunt server 
+    npm run server
     ```
 
-    this should automatically open a the client on your default web browser, if not point your browser to localhost:9000. 
+    this should automatically open a the client on your default web browser, if not point your browser to localhost:9000.
 
-If you managed to reach this the last step you can start to hack the code. 
+If you managed to reach this the last step you can start to hack the code.
 The development server by grunt watches for saved changes in the code and will update the page automatically.
 
 
-## How to deploy the code on a the server 
+## How to deploy the code on a server
 
-0.  Create deployment package: 
+0.  Create deployment package:
 
     ```
-    grunt build
+    npm run build
     ```
 
-    This command creates `dist` directory containing the produced deployment 
+    This command creates `dist` directory containing the produced deployment
     version. This directory should be then packed by some archiving tool (`zip`, `tar`, `cpio` ... etc.)
     creating the deployment package.
 
 0.  Put the content of the deployment package to your server and make sure
-    the web server can access the `index.html` file. 
+    the web server can access the `index.html` file.
