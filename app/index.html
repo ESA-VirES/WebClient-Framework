@@ -12,11 +12,11 @@
         <meta name="viewport" content="width=device-width">
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
         <!-- build:css({.tmp,app}) styles/main.css -->
-            <link rel="stylesheet" href="w2ui/dist/w2ui.min.css">
+            <link rel="stylesheet" href="w2ui/dist/w2ui-1.5.min.css">
             <link rel="stylesheet" href="styles/main.css" />
             <link rel="stylesheet" href="styles/bootstrap.icon-large.min.css" />
-            <link rel="stylesheet" href="jquery-ui/themes/smoothness/jquery-ui.min.css" />
-            <link rel="stylesheet" href="d3.TimeSlider/d3.timeslider.min.css" />
+            <link rel="stylesheet" href="jquery-ui/dist/themes/smoothness/jquery-ui.min.css" />
+            <link rel="stylesheet" href="D3.TimeSlider/build/d3.timeslider.css" />
             <link rel="stylesheet" href="bootstrap/dist/css/bootstrap.min.css" />
             <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css" />
             <link rel="stylesheet" href="sumoselect/sumoselect.css" />
@@ -65,15 +65,8 @@
 
         </script>
 
-        <!-- build:js scripts/vendor/modernizr.js -->
-        <script src="modernizr/modernizr.js"></script>
-        <!-- endbuild -->
-
         <script type="text/javascript" src="scripts/vendor/vmanip-core/vmanip-core-deps.debug.js"></script>
         <script type="text/javascript" src="scripts/vendor/vmanip-core/vmanip-core.debug.js"></script>
-        <!--<script type="text/javascript" src="scripts/vendor/K3D.js"></script>
-        <script type="text/javascript" src="scripts/vendor/rectangularboxviewer/RectangularBoxViewer-deps.debug.js"></script>
-        <script type="text/javascript" src="scripts/vendor/rectangularboxviewer/RectangularBoxViewer.debug.js"></script>-->
     </head>
     <body>
 
@@ -88,8 +81,6 @@
         </div>
 
         <div id="storyView" style="z-index: 0;"></div>
-
-        <!--<div id="loadscreen" class="modal-backdrop"> <i class="fa fa-spinner fa-spin fa-4x"></i> </div>-->
         <div id="loadscreen" class="modal-backdrop">
             <div id="loading-spacer">
                 <div class="project-title">VirES for Swarm</div>

@@ -25,15 +25,6 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         yeoman: yeomanConfig,
-        // handlebars: {
-        //     compile: {
-        //         options: {
-        //             amd: true
-        //         },
-        //         src: ["templates/**/*.html"],
-        //         dest: "js/precompiled.handlebars.js"
-        //     }
-        // },
         watch: {
             coffee: {
                 files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee'],
@@ -114,7 +105,8 @@ module.exports = function (grunt) {
                             lrSnippet,
                             proxySnippet,
                             mountFolder(connect, '.tmp'),
-                            mountFolder(connect, yeomanConfig.app)
+                            mountFolder(connect, yeomanConfig.app),
+                            mountFolder(connect, yeomanConfig.node_modules)
                         ];
                     }
                 }
@@ -277,23 +269,18 @@ module.exports = function (grunt) {
                     // If new bower components are installed they have to be added to this list
                     src: [
                         'requirejs/require.js',
-                        'jquery/jquery.min.js',
-                        'jquery-ui/ui/minified/jquery-ui.min.js',
-                        "jquery-ui/themes/smoothness/jquery-ui.min.css",
-                        'jquery-ui/ui/minified/jquery-ui.slider.min.js',
-                        'jqueryui-touch-punch/jquery.ui.touch-punch.min.js',
+                        'jquery/dist/jquery.min.js',
+                        "jquery-ui/dist/themes/smoothness/jquery-ui.min.css",
+                        // 'jquery-ui/ui/minified/jquery-ui.slider.min.js',
+                        'jqueryui-touch-punch/jquery.ui.touch-punch.js',
                         'backbone-amd/backbone-min.js',
                         'underscore-amd/underscore-min.js',
                         'd3/d3.min.js',
-                        'nvd3/nv.d3.min.js',
-                        'd3.TimeSlider/d3.timeslider.min.js',
-                        'libcoverage/libcoverage.min.js',
-                        'FileSaver.js/FileSaver.js',
-                        'canvas-toBlob.js/canvas-toBlob.js',
-                        'Blob.js/Blob.js',
+                        'D3.TimeSlider/build/d3.timeslider.js',
+                        'FileSaver.js/dist/FileSaver.min.js',
                         'backbone.marionette/lib/core/amd/backbone.marionette.min.js',
                         'backbone.wreqr/lib/amd/backbone.wreqr.min.js',
-                        'backbone.babysitter/lib/amd/backbone.babysitter.min.js',
+                        'backbone.babysitter/lib/backbone.babysitter.min.js',
                         'requirejs-text/text.js',
                         'require-handlebars-plugin/hbs/handlebars.js',
                         'require-handlebars-plugin/hbs/i18nprecompile.js',
@@ -303,7 +290,6 @@ module.exports = function (grunt) {
                         'backbone.marionette.handlebars/backbone.marionette.handlebars.min.js',
                         'bootstrap/dist/*/*',
                         'font-awesome/css/*',
-                        'lm.js/lm.js',
                         'd3.Graphs/lib/scripts/av.min.js',
                         'cesium/Build/Cesium/**',
                         'papaparse/papaparse.min.js',
@@ -316,6 +302,14 @@ module.exports = function (grunt) {
                         'filepond/dist/filepond.min.js',
                         'graphly/dist/graphly.min.js',
                         'choices.js/assets/scripts/dist/choices.min.js',
+                    ]
+                },{
+                    expand: true,
+                    flatten: true,
+                    cwd: '<%= yeoman.node_modules %>',
+                    dest: '<%= yeoman.dist %>/scripts',
+                    src: [
+                        'jquery-ui/dist/jquery-ui.js',
                     ]
                 },{
                     expand: true,
@@ -379,7 +373,7 @@ module.exports = function (grunt) {
                     cwd: '<%= yeoman.node_modules %>',
                     dest: '<%= yeoman.dist %>/styles/images',
                     src: [
-                        'jquery-ui/themes/smoothness/images/*'
+                        'jquery-ui/dist/themes/smoothness/images/*'
                     ]
                 }]
             }
@@ -387,7 +381,7 @@ module.exports = function (grunt) {
         replace: {
           dist: {
             src: [
-                '<%= yeoman.dist %>/jquery/jquery.min.js',
+                '<%= yeoman.dist %>/jquery/dist/jquery.min.js',
                 '<%= yeoman.dist %>/backbone-amd/backbone-min.js',
                 '<%= yeoman.dist %>/require-handlebars-plugin/hbs.js',
                 '<%= yeoman.dist %>/cesium/Build/Cesium/Cesium.js'

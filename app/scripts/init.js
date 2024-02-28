@@ -40,7 +40,6 @@
                 exports: 'WCS'*/
             },
             FileSaver: {
-                deps: ['canvas-toBlob', 'Blob'],
                 exports: 'saveAs'
             },
             timeslider: {
@@ -80,22 +79,22 @@
             contrib: 'contrib',
             core: 'core',
             requirejs: '../requirejs/require',
-            jquery: '../jquery/jquery.min',
-            jqueryui: '../jquery-ui/ui/minified/jquery-ui.min',
-            jqueryuitouch: '../jqueryui-touch-punch/jquery.ui.touch-punch.min',
+            jquery: '../jquery/dist/jquery.min',
+            jqueryui: '../scripts/jquery-ui',
+            jqueryuitouch: '../jqueryui-touch-punch/jquery.ui.touch-punch',
             backbone: '../backbone-amd/backbone-min',
             underscore: '../underscore-amd/underscore-min',
             choices: '../choices.js/assets/scripts/dist/choices.min',
             d3: '../d3/d3.min',
-            timeslider: '../d3.TimeSlider/d3.timeslider.min',
-            libcoverage: '../libcoverage/libcoverage.min',
+            timeslider: '../D3.TimeSlider/build/d3.timeslider',
+            libcoverage: '../scripts/vendor/libcoverage/libcoverage.min',
 
-            'FileSaver': '../FileSaver.js/FileSaver',
+            'FileSaver': '../FileSaver.js/dist/FileSaver',
 
             /* alias all marionette libs */
             'backbone.marionette': '../backbone.marionette/lib/core/amd/backbone.marionette.min',
             'backbone.wreqr': '../backbone.wreqr/lib/amd/backbone.wreqr.min',
-            'backbone.babysitter': '../backbone.babysitter/lib/amd/backbone.babysitter.min',
+            'backbone.babysitter': '../backbone.babysitter/lib/backbone.babysitter.min',
 
             /* alias the bootstrap js lib */
             bootstrap: '../bootstrap/dist/js/bootstrap.min',
@@ -121,7 +120,7 @@
 
             sumoselect: '../sumoselect/jquery.sumoselect.min',
 
-            w2ui: '../w2ui/dist/w2ui-fields.min',
+            w2ui: '../scripts/vendor/w2ui-fields.min',
             w2popup: '../w2ui/src/w2popup',
             w2utils: '../w2ui/src/w2utils',
             graphly: '../graphly/dist/graphly.min'

@@ -3,37 +3,43 @@
   "version": "3.1.3",
   "scripts": {
     "build": "grunt build",
-    "postinstall": "echo true",
     "lint": "eslint",
     "start": "grunt server"
   },
   "dependencies": {
-    "modernizr": "~3.12.0",
-    "msgpack-lite": "~0.1.26",
-    "papaparse": "~4.1.0",
-    "requirejs": "~2.1.5",
-    "require-handlebars-plugin": "~0.11.0",
-    "requirejs-text": "~2.0.5",
-    "jquery": "~1.12.4",
-    "jquery-ui": "~1.13.0",
+    "D3.TimeSlider": "1.2.0",
+    "backbone.babysitter": "~0.1.0",
+    "backbone.marionette": "~1.6.0",
+    "backbone.wreqr": "1.2.0",
+    "bootstrap": "~3.3.6",
+    "cesium": "~1.20.0",
+    "choices.js": "~3.0.4",
+    "d3": "~3.5.3",
     "filepond": "~2.3.0",
     "font-awesome": "~4.5.0",
-    "choices.js": "~3.0.4",
-    "bootstrap": "~3.3.6",
-    "d3": "~3.5.3",
-    "backbone.babysitter": "~0.1.12",
+    "jquery": "~1.12.4",
+    "jquery-ui": "~1.13.0",
+    "jqueryui-touch-punch": "github:RWAP/jquery-ui-touch-punch#970cab8db60884db070bb9e1b044041aa347c375",
+    "msgpack-lite": "~0.1.26",
+    "papaparse": "~4.1.0",
     "plotty": "~0.3.2",
-    "cesium": "~1.20.0",
-    "backbone.marionette": "~1.8.8",
-    "backbone.wreqr": "~1.4.0",
-    "libcoverage": "~0.1.5",
-    "D3.TimeSlider": "1.2.0"
+    "require-handlebars-plugin": "~0.11.0",
+    "requirejs": "~2.1.5",
+    "requirejs-text": "~2.0.5",
+    "graphly": "github:EOX-A/graphly#1badbf25e2848b3233bcb28f0cc61976f80b5c23",
+    "d3.Graphs": "github:ESA-VirES/AnalyticsViewer#8560652b0c3746656edb2a2a7f66950c6c1c0de2",
+    "backbone-amd": "github:amdjs/backbone#47e136947fc97c2f21f24aa339271194c6143dc4",
+    "underscore-amd": "github:amdjs/underscore#80c8e5ab4027278a13e8ecc0cc68c5d115b08dd8",
+    "backbone.marionette.handlebars": "github:asciidisco/Backbone.Marionette.Handlebars#c2aad626b3631560120ac95235b85178a415b14d",
+    "FileSaver.js": "github:eligrey/FileSaver.js#cea522bc41bfadc364837293d0c4dc585a65ac46",
+    "w2ui": "github:vitmalina/w2ui#9821c19bd54861dd52504efe34e9d4256fdd4cce",
+    "sumoselect": "github:HemantNegi/jquery.sumoselect#9f75647fa51939e5a5804822005341fd524fec97"
   },
   "devDependencies": {
     "connect-livereload": "~0.2.0",
     "eslint": "~7.32.0",
     "grunt": "~0.4.1",
-    "grunt-cli": "~0.1.13",
+    "grunt-cli": "^0.1.13",
     "grunt-concurrent": "~0.1.0",
     "grunt-connect-proxy2": "~2.0.0",
     "grunt-contrib-clean": "~0.4.0",
@@ -58,5 +64,10 @@
   },
   "engines": {
     "node": ">=10.0.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ESA-VirES/WebClient-Framework.git"
   }
 }
