@@ -516,3 +516,23 @@ button[active=active] {
 .w2ui-list ul li{
   font-family: "Helvetica Neue",Helvetica,Arial,sans-serif !important;
 }
+
+// original bootstrap 3.1. rendering of radios and checkboxes override
+.radio, .checkbox {
+  display: block;
+  min-height: 20px;
+  vertical-align: middle;
+}
+
+.checkbox label, .radio label {
+  padding-left: 0px!important;
+}
+
+.radio-inline input[type=radio] {
+  float: left;
+  position: relative!important;
+}
+
+.input-group .form-control {
+  float: none!important;
+}
