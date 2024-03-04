@@ -89,7 +89,7 @@
             timeslider: '../D3.TimeSlider/build/d3.timeslider',
             libcoverage: '../scripts/vendor/libcoverage/libcoverage.min',
 
-            'FileSaver': '../FileSaver.js/dist/FileSaver',
+            'FileSaver': '../FileSaver.js/dist/FileSaver.min',
 
             /* alias all marionette libs */
             'backbone.marionette': '../backbone.marionette/lib/core/amd/backbone.marionette.min',
@@ -102,9 +102,9 @@
             /* Alias text.js for template loading and shortcut the templates dir to tmpl */
             text: '../requirejs-text/text',
             tmpl: "../templates",
-
+            // TODO DIFFERENCE
             /* handlebars from the require handlerbars plugin below */
-            handlebars: '../require-handlebars-plugin/Handlebars',
+            handlebars: '../require-handlebars-plugin/hbs/handlebars',
 
             /* require handlebars plugin - Alex Sexton */
             i18nprecompile: '../require-handlebars-plugin/hbs/i18nprecompile',
@@ -113,8 +113,6 @@
 
             /* marionette and handlebars plugin */
             'marionette.handlebars': '../backbone.marionette.handlebars/backbone.marionette.handlebars.min',
-
-            papaparse: '../papaparse/papaparse.min',
 
             plotty: '../plotty/dist/plotty.min',
 
