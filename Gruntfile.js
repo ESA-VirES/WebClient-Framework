@@ -4,7 +4,7 @@
 var os = require('os');
 os.tmpDir = os.tmpdir;
 var serveStatic = require('serve-static');
-
+var micromatch = require('micromatch');
 var LIVERELOAD_PORT = 35729;
 var lrSnippet = require('connect-livereload')({port: LIVERELOAD_PORT});
 var mountFolder = function (dir) {
@@ -15,8 +15,11 @@ var proxySnippet = require('grunt-connect-proxy2/lib/utils').proxyRequest;
 
 module.exports = function (grunt) {
     // load all grunt tasks
-    require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
-    grunt.loadNpmTasks('grunt-connect-proxy2');
+    var packageJson = require('./package.json');
+    var devDependencies = Object.keys(packageJson.devDependencies || {});
+    var gruntDevDependencies = micromatch(devDependencies, 'grunt-*');
+    gruntDevDependencies.forEach(dep => grunt.loadNpmTasks(dep));
+
     // configurable paths
     var yeomanConfig = {
         app: 'app',
