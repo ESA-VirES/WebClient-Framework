@@ -93,7 +93,7 @@
 
             /* alias all marionette libs */
             'backbone.marionette': '../backbone.marionette/lib/core/amd/backbone.marionette.min',
-            'backbone.wreqr': '../backbone.wreqr/lib/amd/backbone.wreqr.min',
+            'backbone.wreqr': '../backbone.wreqr/lib/backbone.wreqr.min',
             'backbone.babysitter': '../backbone.babysitter/lib/backbone.babysitter.min',
 
             /* alias the bootstrap js lib */
