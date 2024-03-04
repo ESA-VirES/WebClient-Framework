@@ -3,11 +3,12 @@
 'use strict';
 var os = require('os');
 os.tmpDir = os.tmpdir;
+var serveStatic = require('serve-static');
 
 var LIVERELOAD_PORT = 35729;
 var lrSnippet = require('connect-livereload')({port: LIVERELOAD_PORT});
-var mountFolder = function (connect, dir) {
-    return connect.static(require('path').resolve(dir));
+var mountFolder = function (dir) {
+    return serveStatic(require('path').resolve(dir));
 };
 
 var proxySnippet = require('grunt-connect-proxy2/lib/utils').proxyRequest;
@@ -104,18 +105,18 @@ module.exports = function (grunt) {
                         return [
                             lrSnippet,
                             proxySnippet,
-                            mountFolder(connect, '.tmp'),
-                            mountFolder(connect, yeomanConfig.app),
-                            mountFolder(connect, yeomanConfig.node_modules)
+                            mountFolder('.tmp'),
+                            mountFolder(yeomanConfig.app),
+                            mountFolder(yeomanConfig.node_modules)
                         ];
                     }
                 }
             },
             dist: {
                 options: {
-                    middleware: function (connect) {
+                    middleware: function () {
                         return [
-                            mountFolder(connect, yeomanConfig.dist)
+                            mountFolder(yeomanConfig.dist)
                         ];
                     }
                 }
