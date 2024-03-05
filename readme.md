@@ -47,13 +47,13 @@ The application uses [Yeoman](http://yeoman.io/) which integrates:
 0.  Start the [Grunt](http://gruntjs.com/) development server:
 
     ```
-    npm run server
+    npm run start
     ```
 
     this should automatically open a the client on your default web browser, if not point your browser to localhost:9000.
 
-If you managed to reach this the last step you can start to hack the code.
-The development server by grunt watches for saved changes in the code and will update the page automatically.
+    If you managed to reach this the last step you can start to hack the code.
+    The development server by grunt watches for saved changes in the code and will update the page automatically.
 
 
 ## How to deploy the code on a server
