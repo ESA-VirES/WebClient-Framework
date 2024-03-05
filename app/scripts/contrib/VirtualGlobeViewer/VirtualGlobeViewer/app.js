@@ -31,7 +31,7 @@ define([
             tileErrorTreshold: 3,
             continuousRendering: false,
             backgroundColor: [0.2, 0.2, 0.2, 1],
-            shadersPath: "/bower_components/virtualglobeviewer/shaders/"
+            shadersPath: "/virtualglobeviewer/shaders/"
         });
 
         this.aoiLayer = new GlobWeb.VectorLayer({

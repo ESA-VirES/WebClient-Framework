@@ -8,8 +8,7 @@
         'communicator',
         'hbs!tmpl/SelectionManager',
         'hbs!tmpl/SelectionTemplate',
-        'underscore',
-        'lm'
+        'underscore'
     ],
 
     function( Backbone, Communicator, SelectionManagerTmpl, SelectionTemplate ) {

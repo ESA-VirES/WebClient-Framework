@@ -12,17 +12,17 @@
         <meta name="viewport" content="width=device-width">
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
         <!-- build:css({.tmp,app}) styles/main.css -->
-            <link rel="stylesheet" href="bower_components/w2ui/dist/w2ui.min.css">
+            <link rel="stylesheet" href="w2ui/dist/w2ui.min.css">
             <link rel="stylesheet" href="styles/main.css" />
             <link rel="stylesheet" href="styles/bootstrap.icon-large.min.css" />
-            <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/jquery-ui.min.css" />
-            <link rel="stylesheet" href="bower_components/d3.TimeSlider/d3.timeslider.min.css" />
-            <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
-            <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css" />
-            <link rel="stylesheet" href="bower_components/sumoselect/sumoselect.css" />
-            <link rel="stylesheet" href="bower_components/cesium/Build/Cesium/Widgets/widgets.css" />
+            <link rel="stylesheet" href="jquery-ui/themes/smoothness/jquery-ui.min.css" />
+            <link rel="stylesheet" href="d3.TimeSlider/d3.timeslider.min.css" />
+            <link rel="stylesheet" href="bootstrap/dist/css/bootstrap.min.css" />
+            <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css" />
+            <link rel="stylesheet" href="sumoselect/sumoselect.css" />
+            <link rel="stylesheet" href="cesium/Build/Cesium/Widgets/widgets.css" />
             <link rel="stylesheet" href="scripts/vendor/cesium_DrawHelper.css" />
-            <link rel="stylesheet" href="bower_components/filepond/dist/filepond.min.css" />
+            <link rel="stylesheet" href="filepond/dist/filepond.min.css" />
             <style type="text/css">
               /*Overwrite default collapse size on localhost.*/
               @media (max-width: 1100px) {
@@ -58,7 +58,7 @@
         <script type="text/javascript">
 
             var CONFIG_URL = "scripts/config.json";
-            CESIUM_BASE_URL = "bower_components/cesium/Build/Cesium/";
+            CESIUM_BASE_URL = "cesium/Build/Cesium/";
             var require = {
                 baseUrl : "scripts/"
             };
@@ -66,7 +66,7 @@
         </script>
 
         <!-- build:js scripts/vendor/modernizr.js -->
-        <script src="bower_components/modernizr/modernizr.js"></script>
+        <script src="modernizr/modernizr.js"></script>
         <!-- endbuild -->
 
         <script type="text/javascript" src="scripts/vendor/vmanip-core/vmanip-core-deps.debug.js"></script>
@@ -151,7 +151,7 @@
         </script>
 
         <!-- build:js init.js -->
-        <script data-main="init" src="bower_components/requirejs/require.js"></script>     
+        <script data-main="init" src="requirejs/require.js"></script>     
         <!-- endbuild -->
 
         <!-- Piwik -->

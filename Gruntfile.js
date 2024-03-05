@@ -19,12 +19,21 @@ module.exports = function (grunt) {
     // configurable paths
     var yeomanConfig = {
         app: 'app',
-        dist: 'dist'
+        dist: 'dist',
+        node_modules: 'node_modules'
     };
-
 
     grunt.initConfig({
         yeoman: yeomanConfig,
+        // handlebars: {
+        //     compile: {
+        //         options: {
+        //             amd: true
+        //         },
+        //         src: ["templates/**/*.html"],
+        //         dest: "js/precompiled.handlebars.js"
+        //     }
+        // },
         watch: {
             coffee: {
                 files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee'],
@@ -157,7 +166,7 @@ module.exports = function (grunt) {
                 imagesDir: '<%= yeoman.app %>/images',
                 javascriptsDir: '<%= yeoman.app %>/scripts',
                 fontsDir: '<%= yeoman.app %>/fonts',
-                importPath: '<%= yeoman.app %>/bower_components',
+                importPath: '<%= yeoman.node_modules %>',
                 httpImagesPath: '/images',
                 httpGeneratedImagesPath: '/images/generated',
                 httpFontsPath: '/fonts',
@@ -263,70 +272,74 @@ module.exports = function (grunt) {
                 files: [
                 {
                     expand: true,
-                    cwd: '<%= yeoman.app %>',
+                    cwd: '<%= yeoman.node_modules %>',
                     dest: '<%= yeoman.dist %>',
                     // If new bower components are installed they have to be added to this list
                     src: [
-                        'bower_components/requirejs/require.js',
-                        'bower_components/jquery/jquery.min.js',
-                        'bower_components/jquery/jquery.min.map',
-                        'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
-                        "bower_components/jquery-ui/themes/smoothness/jquery-ui.min.css",
-                        'bower_components/jquery-ui/ui/minified/jquery-ui.slider.min.js',
-                        'bower_components/jqueryui-touch-punch/jquery.ui.touch-punch.min.js',
-                        'bower_components/backbone-amd/backbone-min.js',
-                        'bower_components/backbone-amd/backbone-min.map',
-                        'bower_components/underscore-amd/underscore-min.js',
-                        'bower_components/d3/d3.min.js',
-                        'bower_components/nvd3/nv.d3.min.js',
-                        'bower_components/d3.TimeSlider/d3.timeslider.min.js',
-                        'bower_components/libcoverage/libcoverage.min.js',
-                        'bower_components/FileSaver.js/FileSaver.js',
-                        'bower_components/canvas-toBlob.js/canvas-toBlob.js',
-                        'bower_components/Blob.js/Blob.js',
-                        'bower_components/backbone.marionette/lib/core/amd/backbone.marionette.min.js',
-                        'bower_components/backbone.wreqr/lib/amd/backbone.wreqr.min.js',
-                        'bower_components/backbone.babysitter/lib/amd/backbone.babysitter.min.js',
-                        'bower_components/requirejs-text/text.js',
-                        'bower_components/require-handlebars-plugin/hbs/handlebars.js',
-                        'bower_components/require-handlebars-plugin/hbs/i18nprecompile.js',
-                        'bower_components/require-handlebars-plugin/hbs/json2.js',
-                        'bower_components/require-handlebars-plugin/hbs/underscore.js',
-                        'bower_components/require-handlebars-plugin/hbs.js',
-                        'bower_components/backbone.marionette.handlebars/backbone.marionette.handlebars.min.js',
-                        'bower_components/bootstrap/dist/*/*',
-                        'bower_components/font-awesome/css/*',
-                        'bower_components/lm.js/lm.js',
-                        'bower_components/d3.Graphs/lib/scripts/av.min.js',
-                        'bower_components/cesium/Build/Cesium/**',
-                        'bower_components/papaparse/papaparse.min.js',
-                        'bower_components/plotty/dist/plotty.min.js',
-                        'bower_components/sumoselect/jquery.sumoselect.min.js',
-                        'bower_components/w2ui/dist/w2ui-fields.min.js',
-                        'bower_components/w2ui/src/w2popup.js',
-                        'bower_components/w2ui/src/w2utils.js',
-                        'bower_components/msgpack-lite/dist/msgpack.min.js',
-                        'bower_components/filepond/dist/filepond.min.js',
-                        'bower_components/graphly/dist/graphly.min.js',
-                        'bower_components/choices.js/assets/scripts/dist/choices.min.js',
+                        'requirejs/require.js',
+                        'jquery/jquery.min.js',
+                        'jquery-ui/ui/minified/jquery-ui.min.js',
+                        "jquery-ui/themes/smoothness/jquery-ui.min.css",
+                        'jquery-ui/ui/minified/jquery-ui.slider.min.js',
+                        'jqueryui-touch-punch/jquery.ui.touch-punch.min.js',
+                        'backbone-amd/backbone-min.js',
+                        'underscore-amd/underscore-min.js',
+                        'd3/d3.min.js',
+                        'nvd3/nv.d3.min.js',
+                        'd3.TimeSlider/d3.timeslider.min.js',
+                        'libcoverage/libcoverage.min.js',
+                        'FileSaver.js/FileSaver.js',
+                        'canvas-toBlob.js/canvas-toBlob.js',
+                        'Blob.js/Blob.js',
+                        'backbone.marionette/lib/core/amd/backbone.marionette.min.js',
+                        'backbone.wreqr/lib/amd/backbone.wreqr.min.js',
+                        'backbone.babysitter/lib/amd/backbone.babysitter.min.js',
+                        'requirejs-text/text.js',
+                        'require-handlebars-plugin/hbs/handlebars.js',
+                        'require-handlebars-plugin/hbs/i18nprecompile.js',
+                        'require-handlebars-plugin/hbs/json2.js',
+                        'require-handlebars-plugin/hbs/underscore.js',
+                        'require-handlebars-plugin/hbs.js',
+                        'backbone.marionette.handlebars/backbone.marionette.handlebars.min.js',
+                        'bootstrap/dist/*/*',
+                        'font-awesome/css/*',
+                        'lm.js/lm.js',
+                        'd3.Graphs/lib/scripts/av.min.js',
+                        'cesium/Build/Cesium/**',
+                        'papaparse/papaparse.min.js',
+                        'plotty/dist/plotty.min.js',
+                        'sumoselect/jquery.sumoselect.min.js',
+                        'w2ui/dist/w2ui-fields.min.js',
+                        'w2ui/src/w2popup.js',
+                        'w2ui/src/w2utils.js',
+                        'msgpack-lite/dist/msgpack.min.js',
+                        'filepond/dist/filepond.min.js',
+                        'graphly/dist/graphly.min.js',
+                        'choices.js/assets/scripts/dist/choices.min.js',
+                    ]
+                },{
+                    expand: true,
+                    cwd: '<%= yeoman.app %>',
+                    dest: '<%= yeoman.dist %>',
+                    src: [
                         'scripts/vendor/**',
                     ]
                 },{
                     expand: true,
                     flatten: true,
-                    cwd: '<%= yeoman.app %>',
+                    cwd: '<%= yeoman.node_modules %>',
                     dest: '<%= yeoman.dist %>/fonts/',
                     src: [
-                        'bower_components/*/fonts/*',
+                        '*/fonts/*',
                     ]
                 },{
                     expand: true,
                     flatten: true,
-                    cwd: '<%= yeoman.app %>',
+                    cwd: '<%= yeoman.node_modules %>',
                     dest: '<%= yeoman.dist %>/images/',
                     src: [
-                        'bower_components/*/images/*',
-                        'bower_components/*/img/*',
+                        '*/images/*',
+                        '*/img/*',
                     ]
                 },{
                     expand: true,
@@ -363,10 +376,10 @@ module.exports = function (grunt) {
                 }, {
                     expand: true,
                     flatten: true,
-                    cwd: '<%= yeoman.app %>',
+                    cwd: '<%= yeoman.node_modules %>',
                     dest: '<%= yeoman.dist %>/styles/images',
                     src: [
-                        'bower_components/jquery-ui/themes/smoothness/images/*'
+                        'jquery-ui/themes/smoothness/images/*'
                     ]
                 }]
             }
@@ -374,10 +387,10 @@ module.exports = function (grunt) {
         replace: {
           dist: {
             src: [
-                '<%= yeoman.dist %>/bower_components/jquery/jquery.min.js',
-                '<%= yeoman.dist %>/bower_components/backbone-amd/backbone-min.js',
-                '<%= yeoman.dist %>/bower_components/require-handlebars-plugin/hbs.js',
-                '<%= yeoman.dist %>/bower_components/cesium/Build/Cesium/Cesium.js'
+                '<%= yeoman.dist %>/jquery/jquery.min.js',
+                '<%= yeoman.dist %>/backbone-amd/backbone-min.js',
+                '<%= yeoman.dist %>/require-handlebars-plugin/hbs.js',
+                '<%= yeoman.dist %>/cesium/Build/Cesium/Cesium.js'
             ],
             overwrite: true,
             replacements: [
