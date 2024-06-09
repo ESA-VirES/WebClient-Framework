@@ -1,29 +1,29 @@
 
 
-(function() {
-    'use strict';
+(function () {
+  'use strict';
 
-    var root = this;
+  var root = this;
 
-    root.define([
-        'backbone',
-        'communicator'
-    ],
+  root.define([
+    'backbone',
+    'communicator'
+  ],
 
-    function( Backbone, Communicator ) {
+  function (Backbone, Communicator) {
 
-        var MapModel = Backbone.Model.extend({
-            visualizationLibs : [],
-            center: [],
-            zoom: 0,
-            moon: true,
-            sun: true,
-            skyBox: true,
-            backgroundColor: "#000"
-        });
-
-        return {"MapModel":MapModel};
-
+    var MapModel = Backbone.Model.extend({
+      visualizationLibs: [],
+      center: [],
+      zoom: 0,
+      moon: true,
+      sun: true,
+      skyBox: true,
+      backgroundColor: "#000"
     });
 
-}).call( this );
+    return {"MapModel": MapModel};
+
+  });
+
+}).call(this);

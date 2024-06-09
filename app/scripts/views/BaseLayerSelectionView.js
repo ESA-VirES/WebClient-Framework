@@ -1,31 +1,31 @@
-(function() {
-    'use strict';
+(function () {
+  'use strict';
 
-    var root = this;
+  var root = this;
 
-    root.define([
-        'backbone',
-        'communicator',
-        'underscore'
-    ],
+  root.define([
+    'backbone',
+    'communicator',
+    'underscore'
+  ],
 
-    function( Backbone, Communicator, UIElementTmpl ) {
+  function (Backbone, Communicator, UIElementTmpl) {
 
-        var BaseLayerSelectionView = Backbone.Marionette.CollectionView.extend({
+    var BaseLayerSelectionView = Backbone.Marionette.CollectionView.extend({
 
-            tagName: "ul",
-            className: "baselayerList",
+      tagName: "ul",
+      className: "baselayerList",
 
-            initialize: function(options) {
-            },
-            
-            onShow: function(view){
-            }
+      initialize: function (options) {
+      },
 
-        });
-
-        return {'BaseLayerSelectionView':BaseLayerSelectionView};
+      onShow: function (view) {
+      }
 
     });
 
-}).call( this );
+    return {'BaseLayerSelectionView': BaseLayerSelectionView};
+
+  });
+
+}).call(this);

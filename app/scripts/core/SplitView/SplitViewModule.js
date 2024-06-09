@@ -1,41 +1,41 @@
 define([
-	'backbone.marionette',
-	'app',
-	'communicator',
-	'./SplitViewController'
-], function(Marionette, App, Communicator, SplitViewController) {
+  'backbone.marionette',
+  'app',
+  'communicator',
+  './SplitViewController'
+], function (Marionette, App, Communicator, SplitViewController) {
 
-	'use strict';
+  'use strict';
 
-	App.module('SplitView', function(Module) {
+  App.module('SplitView', function (Module) {
 
-		this.startsWithParent = true;
+    this.startsWithParent = true;
 
-		this.on('start', function(options) {
-			
-			this.instances = {};
-			this.idx = 0;
+    this.on('start', function (options) {
 
-			console.log('[SplitView] Finished module initialization');
-		});
+      this.instances = {};
+      this.idx = 0;
 
-		this.createController = function(opts) {
-			var id = undefined;
-			if (typeof opts !== 'undefined') {
-				id = opts.id;
-			}
+      console.log('[SplitView] Finished module initialization');
+    });
 
-			if (typeof id === 'undefined') {
-				id = 'SplitView.' + this.idx++;
-			}
+    this.createController = function (opts) {
+      var id = undefined;
+      if (typeof opts !== 'undefined') {
+        id = opts.id;
+      }
 
-			var controller = new SplitViewController();
+      if (typeof id === 'undefined') {
+        id = 'SplitView.' + this.idx++;
+      }
 
-			// Keep track of the created SplitView controllers. Not used at the moment,
-			// but maybe in future releases to switch between view setups.
-			this.instances[id] = controller;
+      var controller = new SplitViewController();
 
-			return controller;
-		};
-	});
+      // Keep track of the created SplitView controllers. Not used at the moment,
+      // but maybe in future releases to switch between view setups.
+      this.instances[id] = controller;
+
+      return controller;
+    };
+  });
 });

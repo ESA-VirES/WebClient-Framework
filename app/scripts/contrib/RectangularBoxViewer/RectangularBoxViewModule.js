@@ -1,50 +1,50 @@
 define([
-	'backbone.marionette',
-	'app',
-	'communicator',
-	'./RectangularBoxViewController',
-	'./RectangularBoxViewRouter'
-], function(Marionette, App, Communicator, RectangularBoxViewController, RectangularBoxViewRouter) {
+  'backbone.marionette',
+  'app',
+  'communicator',
+  './RectangularBoxViewController',
+  './RectangularBoxViewRouter'
+], function (Marionette, App, Communicator, RectangularBoxViewController, RectangularBoxViewRouter) {
 
-	'use strict';
+  'use strict';
 
-	App.module('RectangularBoxViewer', function(Module) {
+  App.module('RectangularBoxViewer', function (Module) {
 
-		// Disabled module for now as it is not needed
-        this.startsWithParent = false;
+    // Disabled module for now as it is not needed
+    this.startsWithParent = false;
 
-		this.on('start', function(options) {
-            this.instances = {};
-            this.idx = 0;
+    this.on('start', function (options) {
+      this.instances = {};
+      this.idx = 0;
 
-            console.log('[VirtualGlobeViewer] Finished module initialization');
-        });			
+      console.log('[VirtualGlobeViewer] Finished module initialization');
+    });
 
-        this.createController = function(opts) {
-            console.log("Entered create Controller");
-            var id = undefined;
+    this.createController = function (opts) {
+      console.log("Entered create Controller");
+      var id = undefined;
 
-            if (typeof opts !== 'undefined') {
-                id = opts.id;
-            }
+      if (typeof opts !== 'undefined') {
+        id = opts.id;
+      }
 
-            // Go through instances and return first free one
-            for (var contr in this.instances) {
-                if (!this.instances[contr].isActive()) {
-                    console.log("Free RB viewer returned " + contr);
-                    return this.instances[contr];
-                }
-            };
+      // Go through instances and return first free one
+      for (var contr in this.instances) {
+        if (!this.instances[contr].isActive()) {
+          console.log("Free RB viewer returned " + contr);
+          return this.instances[contr];
+        }
+      }
 
-            // If there are no free insances create a new one
-            if (typeof id === 'undefined') {
-                id = 'RectangularBoxViewer.' + this.idx++;
-            }
+      // If there are no free insances create a new one
+      if (typeof id === 'undefined') {
+        id = 'RectangularBoxViewer.' + this.idx++;
+      }
 
-            var controller = new RectangularBoxViewController();
-            this.instances[id] = controller;
+      var controller = new RectangularBoxViewController();
+      this.instances[id] = controller;
 
-            return controller;	
-        };
-	});
+      return controller;
+    };
+  });
 });

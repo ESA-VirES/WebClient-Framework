@@ -1,47 +1,47 @@
-(function() {
-    'use strict';
+(function () {
+  'use strict';
 
-    var root = this;
+  var root = this;
 
-    root.define([
-        'backbone',
-        'communicator',
-        'hbs!tmpl/ToolControl',
-        'underscore'
-    ],
+  root.define([
+    'backbone',
+    'communicator',
+    'hbs!tmpl/ToolControl',
+    'underscore'
+  ],
 
-    function( Backbone, Communicator, ToolControlTmpl ) {
+  function (Backbone, Communicator, ToolControlTmpl) {
 
-        var ToolControlLayout = Backbone.Marionette.Layout.extend({
+    var ToolControlLayout = Backbone.Marionette.Layout.extend({
 
-            template: {type: 'handlebars', template: ToolControlTmpl},
-            regions: {
-                selection: "#selection",
-                visualization: "#visualization",
-                mapmode: "#mapmode"
-            },
-            className: "panel panel-default toolcontrol not-selectable",
+      template: {type: 'handlebars', template: ToolControlTmpl},
+      regions: {
+        selection: "#selection",
+        visualization: "#visualization",
+        mapmode: "#mapmode"
+      },
+      className: "panel panel-default toolcontrol not-selectable",
 
-            initialize: function(options) {
-            },
+      initialize: function (options) {
+      },
 
-            onShow: function(view){
-                this.$('.close').on("click", _.bind(this.onClose, this));
-                this.$el.draggable({ 
-                    containment: "#main",
-                    scroll: false,
-                    handle: '.panel-heading'
-                });
-            },
-
-            onClose: function() {
-                this.close();
-            }
-
+      onShow: function (view) {
+        this.$('.close').on("click", _.bind(this.onClose, this));
+        this.$el.draggable({
+          containment: "#main",
+          scroll: false,
+          handle: '.panel-heading'
         });
+      },
 
-        return ToolControlLayout;
+      onClose: function () {
+        this.close();
+      }
 
     });
 
-}).call( this );
+    return ToolControlLayout;
+
+  });
+
+}).call(this);

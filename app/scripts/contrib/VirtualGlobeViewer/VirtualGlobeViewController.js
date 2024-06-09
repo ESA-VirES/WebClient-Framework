@@ -1,67 +1,67 @@
 define([
-    'backbone.marionette',
-    'app',
-    'communicator',
-    'globals',
-    './VirtualGlobeView'
-], function(Marionette, App, Communicator, globals, VirtualGlobeView) {
+  'backbone.marionette',
+  'app',
+  'communicator',
+  'globals',
+  './VirtualGlobeView'
+], function (Marionette, App, Communicator, globals, VirtualGlobeView) {
 
-    'use strict';
+  'use strict';
 
-    var VirtualGlobeViewController = Marionette.Controller.extend({
+  var VirtualGlobeViewController = Marionette.Controller.extend({
 
-        initialize: function(opts) {
-            this.id = opts.id;
-            this.startPosition = opts.startPosition;
+    initialize: function (opts) {
+      this.id = opts.id;
+      this.startPosition = opts.startPosition;
 
-            this.position = {
-                center: [74, 15],
-                distance: 10000000,
-                duration: 1000,
-                tilt: 45
-            };
+      this.position = {
+        center: [74, 15],
+        distance: 10000000,
+        duration: 1000,
+        tilt: 45
+      };
 
-            if (!opts.startPosition) {
-                this.globeView = new VirtualGlobeView({
-                    context: Communicator.mediator,
-                    startPosition: this.position
-                });
-            } else {
-                this.globeView = new VirtualGlobeView({
-                    context: Communicator.mediator,
-                    startPosition: opts.startPosition
-                });
-            }
-        },
+      if (!opts.startPosition) {
+        this.globeView = new VirtualGlobeView({
+          context: Communicator.mediator,
+          startPosition: this.position
+        });
+      } else {
+        this.globeView = new VirtualGlobeView({
+          context: Communicator.mediator,
+          startPosition: opts.startPosition
+        });
+      }
+    },
 
-        getView: function(id) {
-            return this.globeView;
-        },
+    getView: function (id) {
+      return this.globeView;
+    },
 
-        show: function() {
-            this.region.show(this.globeView);
-        },
+    show: function () {
+      this.region.show(this.globeView);
+    },
 
-        getStartPosition: function() {
-            return this.startPosition;
-        },
+    getStartPosition: function () {
+      return this.startPosition;
+    },
 
-        isActive: function() {
-            return !this.globeView.isClosed;
-        },
+    isActive: function () {
+      return !this.globeView.isClosed;
+    },
 
-        dumpLayerConfig: function() {
-            this.globeView.dumpLayerConfig();
-        },
+    dumpLayerConfig: function () {
+      this.globeView.dumpLayerConfig();
+    },
 
-        zoomTo: function(opts) {
-            this.globeView.zoomTo(opts);
-        },
+    zoomTo: function (opts) {
+      this.globeView.zoomTo(opts);
+    },
 
-        setTilt: function(value, duration) {
-            this.globeView.setTilt(value, duration);
-        }
-    });
+    setTilt: function (value, duration) {
+      this.globeView.setTilt(value, duration);
+    }
+  });
 
-    return VirtualGlobeViewController;
+  return VirtualGlobeViewController;
 });
