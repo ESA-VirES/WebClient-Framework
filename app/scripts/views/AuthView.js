@@ -1,7 +1,7 @@
-(function() {
+(function () {
   'use strict';
 
- 
+
   var root = this;
   root.define([
     'backbone',
@@ -10,7 +10,7 @@
     'hbs!tmpl/iFrame',
     'underscore'
   ],
-  function( Backbone, Communicator, globals, iFrameTmpl) {
+  function (Backbone, Communicator, globals, iFrameTmpl) {
 
     var AuthView = Backbone.Marionette.ItemView.extend({
 
@@ -20,13 +20,13 @@
         "load": "onLoadiFrame",
       },*/
 
-      initialize: function(options) {
+      initialize: function (options) {
         this.layerprop = options.layerprop;
       },
-      onShow: function(view){
+      onShow: function (view) {
 
         this.$('.close').on("click", _.bind(this.onClose, this));
-        this.$el.draggable({ 
+        this.$el.draggable({
           containment: "#content",
           scroll: false,
           handle: '.panel-heading'
@@ -34,10 +34,10 @@
 
         //this.loadcounter = 0;
 
-        $('#authiframe').load(function(){
+        $('#authiframe').load(function () {
 
-          var layer = globals.products.find(function(model) { return model.get('name') == this.layerprop.name; }.bind(this));
-          var url = layer.get('views')[0].urls[0]+"?";
+          var layer = globals.products.find(function (model) {return model.get('name') == this.layerprop.name;}.bind(this));
+          var url = layer.get('views')[0].urls[0] + "?";
           layer = layer.get('views')[0].id;
 
           var req = "LAYERS=" + layer + "&TRANSPARENT=true&FORMAT=image%2Fpng&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&SRS=EPSG%3A4326";
@@ -47,28 +47,28 @@
           var that = this;
 
           $.ajax({
-              url: req,
-              type: "GET",
-              suppressErrors: true,
-              xhrFields: {
-                withCredentials: true
-             },
-              success: function(xml, textStatus, xhr) {
+            url: req,
+            type: "GET",
+            suppressErrors: true,
+            xhrFields: {
+              withCredentials: true
+            },
+            success: function (xml, textStatus, xhr) {
 
-                Communicator.mediator.trigger('map:layer:change', that.layerprop);
-                that.close();
-              },
-              error: function(jqXHR, textStatus, errorThrown) {
-                  if (jqXHR.status == 403){
-                    $("#error-messages").append(
-                      '<div class="alert alert-warning alert-danger">'+
-                        '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'+
+              Communicator.mediator.trigger('map:layer:change', that.layerprop);
+              that.close();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              if (jqXHR.status == 403) {
+                $("#error-messages").append(
+                  '<div class="alert alert-warning alert-danger">' +
+                        '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' +
                         '<strong>Warning!</strong> You are not authorized to access this product' +
                       '</div>'
-                    );
-                    that.close();
-                  }
+                );
+                that.close();
               }
+            }
           });
 
 
@@ -84,19 +84,19 @@
 
         }.bind(this));
 
-        
+
       },
 
-      onClose: function() {
-        
+      onClose: function () {
+
         this.close();
       },
 
-      onLoadiFrame: function(){
+      onLoadiFrame: function () {
         console.log("iframe loaded");
       }
 
     });
-    return {'AuthView':AuthView};
+    return {'AuthView': AuthView};
   });
-}).call( this );
+}).call(this);

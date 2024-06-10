@@ -1,0 +1,71 @@
+env:
+  browser: true
+  es6: true
+extends: 'eslint:recommended'
+globals:
+  Atomics: readonly
+  SharedArrayBuffer: readonly
+parserOptions:
+  ecmaVersion: 2015
+rules:
+  linebreak-style:
+    - error
+    - unix
+  indent:
+    - warn
+    - 2
+    - ArrayExpression: 1
+      ObjectExpression: 1
+      CallExpression:
+        arguments: 1
+      MemberExpression: 1
+      SwitchCase: 1
+  quotes:
+    - off
+    - single
+  semi:
+    - warn
+    - always
+  no-redeclare:
+    - off
+  no-undef:
+    - warn
+  no-unused-vars:
+    - warn
+    - args: none
+      vars: local
+  keyword-spacing:
+    - warn
+  space-before-blocks:
+    - warn
+  space-before-function-paren:
+    - warn
+    - anonymous: always
+      named: never
+      asyncArrow: never
+  comma-spacing:
+    - warn
+  no-multi-spaces:
+    - warn
+  key-spacing:
+    - warn
+  space-in-parens:
+    - warn
+  block-spacing:
+    - warn
+    - never
+  object-curly-spacing:
+    - warn
+    - never
+  array-bracket-spacing:
+    - warn
+    - never
+  computed-property-spacing:
+    - warn
+    - never
+  no-trailing-spaces:
+    - warn
+  no-console:
+    - off #warn
+  space-infix-ops:
+    - warn

@@ -3,32 +3,29 @@
 'use strict';
 var os = require('os');
 os.tmpDir = os.tmpdir;
-
+var serveStatic = require('serve-static');
+var micromatch = require('micromatch');
 var LIVERELOAD_PORT = 35729;
 var lrSnippet = require('connect-livereload')({port: LIVERELOAD_PORT});
-var mountFolder = function (connect, dir) {
-    return connect.static(require('path').resolve(dir));
+var mountFolder = function (dir) {
+    return serveStatic(require('path').resolve(dir));
 };
 
 var proxySnippet = require('grunt-connect-proxy2/lib/utils').proxyRequest;
 
-// # Globbing
-// for performance reasons we're only matching one level down:
-// 'test/spec/{,*/}*.js'
-// use this if you want to recursively match all subfolders:
-// 'test/spec/**/*.js'
-
-
 module.exports = function (grunt) {
     // load all grunt tasks
-    require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
-    grunt.loadNpmTasks('grunt-connect-proxy2');
+    var packageJson = require('./package.json');
+    var devDependencies = Object.keys(packageJson.devDependencies || {});
+    var gruntDevDependencies = micromatch(devDependencies, 'grunt-*');
+    gruntDevDependencies.forEach(dep => grunt.loadNpmTasks(dep));
+
     // configurable paths
     var yeomanConfig = {
         app: 'app',
-        dist: 'dist'
+        dist: 'dist',
+        node_modules: 'node_modules'
     };
-
 
     grunt.initConfig({
         yeoman: yeomanConfig,
@@ -36,10 +33,6 @@ module.exports = function (grunt) {
             coffee: {
                 files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee'],
                 tasks: ['coffee:dist']
-            },
-            coffeeTest: {
-                files: ['test/spec/{,*/}*.coffee'],
-                tasks: ['coffee:test']
             },
             compass: {
                 files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
@@ -61,17 +54,6 @@ module.exports = function (grunt) {
                 ]
             }
         },
-        // commented out docco because grunt-docco2 has been removed from npm and not worth the hassle to integrate the newer grunt-docco
-        // docco: {
-        //     docs: {
-        //         src: ['readme.md','<%= yeoman.app %>/scripts/{,*/}*.js', '!<%= yeoman.app %>/scripts/vendor/{,*/}*.js'],
-        //         options: {
-        //             layout: 'linear',
-        //             css: 'docco.css',
-        //             output: 'docs/'
-        //         }
-        //     }
-        // },
         connect: {
             options: {
                 port: 9000,
@@ -126,27 +108,18 @@ module.exports = function (grunt) {
                         return [
                             lrSnippet,
                             proxySnippet,
-                            mountFolder(connect, '.tmp'),
-                            mountFolder(connect, yeomanConfig.app)
-                        ];
-                    }
-                }
-            },
-            test: {
-                options: {
-                    middleware: function (connect) {
-                        return [
-                            mountFolder(connect, '.tmp'),
-                            mountFolder(connect, 'test')
+                            mountFolder('.tmp'),
+                            mountFolder(yeomanConfig.app),
+                            mountFolder(yeomanConfig.node_modules)
                         ];
                     }
                 }
             },
             dist: {
                 options: {
-                    middleware: function (connect) {
+                    middleware: function () {
                         return [
-                            mountFolder(connect, yeomanConfig.dist)
+                            mountFolder(yeomanConfig.dist)
                         ];
                     }
                 }
@@ -170,25 +143,6 @@ module.exports = function (grunt) {
             },
             server: '.tmp'
         },
-        jshint: {
-            options: {
-                jshintrc: '.jshintrc'
-            },
-            all: [
-                'Gruntfile.js',
-                '<%= yeoman.app %>/scripts/{,*/}*.js',
-                '!<%= yeoman.app %>/scripts/vendor/*',
-                'test/spec/{,*/}*.js'
-            ]
-        },
-        mocha: {
-            all: {
-                options: {
-                    run: true,
-                    urls: ['http://localhost:<%= connect.options.port %>/index.html']
-                }
-            }
-        },
         coffee: {
             dist: {
                 files: [{
@@ -196,15 +150,6 @@ module.exports = function (grunt) {
                     cwd: '<%= yeoman.app %>/scripts',
                     src: '{,*/}*.coffee',
                     dest: '.tmp/scripts',
-                    ext: '.js'
-                }]
-            },
-            test: {
-                files: [{
-                    expand: true,
-                    cwd: 'test/spec',
-                    src: '{,*/}*.coffee',
-                    dest: '.tmp/spec',
                     ext: '.js'
                 }]
             }
@@ -217,7 +162,7 @@ module.exports = function (grunt) {
                 imagesDir: '<%= yeoman.app %>/images',
                 javascriptsDir: '<%= yeoman.app %>/scripts',
                 fontsDir: '<%= yeoman.app %>/fonts',
-                importPath: '<%= yeoman.app %>/bower_components',
+                importPath: '<%= yeoman.node_modules %>',
                 httpImagesPath: '/images',
                 httpGeneratedImagesPath: '/images/generated',
                 httpFontsPath: '/fonts',
@@ -230,27 +175,15 @@ module.exports = function (grunt) {
                 }
             }
         },
-        // not used since Uglify task does concat,
-        // but still available if needed
-        /*concat: {
-            dist: {}
-        },*/
         requirejs: {
             dist: {
-                // Options: https://github.com/jrburke/r.js/blob/master/build/example.build.js
                 options: {
                     // `name` and `out` is set by grunt-usemin
                     baseUrl: yeomanConfig.app + '/scripts',
                     optimize: 'none',
-                    // TODO: Figure out how to make sourcemaps work with grunt-usemin
-                    // https://github.com/yeoman/grunt-usemin/issues/30
-                    //generateSourceMaps: true,
-                    // required to support SourceMaps
-                    // http://requirejs.org/docs/errors.html#sourcemapcomments
                     preserveLicenseComments: false,
                     useStrict: true,
                     wrap: true
-                    //uglify2: {} // https://github.com/mishoo/UglifyJS2
                 }
             }
         },
@@ -300,33 +233,10 @@ module.exports = function (grunt) {
             }
         },
         cssmin: {
-            // This task is pre-configured if you do not wish to use Usemin
-            // blocks for your CSS. By default, the Usemin block from your
-            // `index.html` will take care of minification, e.g.
-            //
-            //     <!-- build:css({.tmp,app}) styles/main.css -->
-            //
-            // dist: {
-            //     files: {
-            //         '<%= yeoman.dist %>/styles/main.css': [
-            //             '.tmp/styles/{,*/}*.css',
-            //             '<%= yeoman.app %>/styles/{,*/}*.css'
-            //         ]
-            //     }
-            // }
         },
         htmlmin: {
             dist: {
                 options: {
-                    /*removeCommentsFromCDATA: true,
-                    // https://github.com/yeoman/grunt-usemin/issues/44
-                    //collapseWhitespace: true,
-                    collapseBooleanAttributes: true,
-                    removeAttributeQuotes: true,
-                    removeRedundantAttributes: true,
-                    useShortDoctype: true,
-                    removeEmptyAttributes: true,
-                    removeOptionalTags: true*/
                 },
                 files: [{
                     expand: true,
@@ -337,18 +247,18 @@ module.exports = function (grunt) {
             }
         },
 
-        uglify : {
-            dist : {
+        uglify: {
+            dist: {
                 files: [
-                {
-                  expand: true,     // Enable dynamic expansion.
-                  cwd: '<%= yeoman.app %>/scripts',      // Src matches are relative to this path.
-                  src: ['**/*.js'], // Actual pattern(s) to match.
-                  dest: '<%= yeoman.dist %>/scripts/',   // Destination path prefix.
-                  //ext: '.js',   // Dest filepaths will have this extension.
-                  //ext modifies file names if there is a point in them
-                },
-              ]
+                    {
+                        expand: true, // Enable dynamic expansion.
+                        cwd: '<%= yeoman.app %>/scripts', // Src matches are relative to this path.
+                        src: ['**/*.js'], // Actual pattern(s) to match.
+                        dest: '<%= yeoman.dist %>/scripts/', // Destination path prefix.
+                        //ext: '.js',   // Dest filepaths will have this extension.
+                        //ext modifies file names if there is a point in them
+                    },
+                ]
             }
         },
 
@@ -356,148 +266,149 @@ module.exports = function (grunt) {
         copy: {
             dist: {
                 files: [
-                {
-                    expand: true,
-                    cwd: '<%= yeoman.app %>',
-                    dest: '<%= yeoman.dist %>',
-                    // If new bower components are installed they have to be added to this list
-                    src: [
-                        'bower_components/requirejs/require.js',
-                        'bower_components/jquery/jquery.min.js',
-                        'bower_components/jquery/jquery.min.map',
-                        'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
-                        "bower_components/jquery-ui/themes/smoothness/jquery-ui.min.css",
-                        'bower_components/jquery-ui/ui/minified/jquery-ui.slider.min.js',
-                        'bower_components/jqueryui-touch-punch/jquery.ui.touch-punch.min.js',
-                        'bower_components/backbone-amd/backbone-min.js',
-                        'bower_components/backbone-amd/backbone-min.map',
-                        'bower_components/underscore-amd/underscore-min.js',
-                        'bower_components/d3/d3.min.js',
-                        'bower_components/nvd3/nv.d3.min.js',
-                        'bower_components/d3.TimeSlider/d3.timeslider.min.js',
-                        'bower_components/libcoverage/libcoverage.min.js',
-                        'bower_components/FileSaver.js/FileSaver.js',
-                        'bower_components/canvas-toBlob.js/canvas-toBlob.js',
-                        'bower_components/Blob.js/Blob.js',
-                        'bower_components/backbone.marionette/lib/core/amd/backbone.marionette.min.js',
-                        'bower_components/backbone.wreqr/lib/amd/backbone.wreqr.min.js',
-                        'bower_components/backbone.babysitter/lib/amd/backbone.babysitter.min.js',
-                        'bower_components/requirejs-text/text.js',
-                        'bower_components/require-handlebars-plugin/hbs/handlebars.js',
-                        'bower_components/require-handlebars-plugin/hbs/i18nprecompile.js',
-                        'bower_components/require-handlebars-plugin/hbs/json2.js',
-                        'bower_components/require-handlebars-plugin/hbs/underscore.js',
-                        'bower_components/require-handlebars-plugin/hbs.js',
-                        'bower_components/backbone.marionette.handlebars/backbone.marionette.handlebars.min.js',
-                        'bower_components/bootstrap/dist/*/*',
-                        'bower_components/font-awesome/css/*',
-                        'bower_components/lm.js/lm.js',
-                        'bower_components/d3.Graphs/lib/scripts/av.min.js',
-                        'bower_components/cesium/Build/Cesium/**',
-                        'bower_components/papaparse/papaparse.min.js',
-                        'bower_components/plotty/dist/plotty.min.js',
-                        'bower_components/sumoselect/jquery.sumoselect.min.js',
-                        'bower_components/w2ui/dist/w2ui-fields.min.js',
-                        'bower_components/w2ui/src/w2popup.js',
-                        'bower_components/w2ui/src/w2utils.js',
-                        'bower_components/msgpack-lite/dist/msgpack.min.js',
-                        'bower_components/filepond/dist/filepond.min.js',
-                        'bower_components/graphly/dist/graphly.min.js',
-                        'bower_components/choices.js/assets/scripts/dist/choices.min.js',
-                        'scripts/vendor/**',
-                    ]
-                },{
-                    expand: true,
-                    flatten: true,
-                    cwd: '<%= yeoman.app %>',
-                    dest: '<%= yeoman.dist %>/fonts/',
-                    src: [
-                        'bower_components/*/fonts/*',
-                    ]
-                },{
-                    expand: true,
-                    flatten: true,
-                    cwd: '<%= yeoman.app %>',
-                    dest: '<%= yeoman.dist %>/images/',
-                    src: [
-                        'bower_components/*/images/*',
-                        'bower_components/*/img/*',
-                    ]
-                },{
-                    expand: true,
-                    cwd: '<%= yeoman.app %>',
-                    dest: '<%= yeoman.dist %>',
-                    src: [
-                        'scripts/*.json'
-                    ]
-                },{
-                    expand: true,
-                    cwd: '<%= yeoman.app %>',
-                    dest: '<%= yeoman.dist %>',
-                    src: [
-                        'templates/**'
-                    ]
-                }, {
-                    expand: true,
-                    dot: true,
-                    cwd: '<%= yeoman.app %>',
-                    dest: '<%= yeoman.dist %>',
-                    src: [
-                        '*.{ico,png,txt}',
-                        '.htaccess',
-                        'images/{,*/}*.{webp,gif}',
-                        'styles/fonts/*'
-                    ]
-                }, {
-                    expand: true,
-                    cwd: '.tmp/images',
-                    dest: '<%= yeoman.dist %>/images',
-                    src: [
-                        'generated/*'
-                    ]
-                }, {
-                    expand: true,
-                    flatten: true,
-                    cwd: '<%= yeoman.app %>',
-                    dest: '<%= yeoman.dist %>/styles/images',
-                    src: [
-                        'bower_components/jquery-ui/themes/smoothness/images/*'
-                    ]
-                }]
+                    {
+                        expand: true,
+                        cwd: '<%= yeoman.node_modules %>',
+                        dest: '<%= yeoman.dist %>',
+                        // If new bower components are installed they have to be added to this list
+                        src: [
+                            'requirejs/require.js',
+                            'jquery/dist/jquery.min.js',
+                            "jquery-ui/dist/themes/smoothness/jquery-ui.min.css",
+                            // 'jquery-ui/ui/minified/jquery-ui.slider.min.js',
+                            'jqueryui-touch-punch/jquery.ui.touch-punch.js',
+                            'backbone-amd/backbone-min.js',
+                            'underscore-amd/underscore-min.js',
+                            'd3/d3.min.js',
+                            'D3.TimeSlider/build/d3.timeslider.js',
+                            'FileSaver.js/dist/FileSaver.min.js',
+                            'backbone.marionette/lib/core/amd/backbone.marionette.min.js',
+                            'backbone.wreqr/lib/backbone.wreqr.min.js',
+                            'backbone.babysitter/lib/backbone.babysitter.min.js',
+                            'requirejs-text/text.js',
+                            'require-handlebars-plugin/hbs/handlebars.js',
+                            'require-handlebars-plugin/hbs/i18nprecompile.js',
+                            'require-handlebars-plugin/hbs/json2.js',
+                            'require-handlebars-plugin/hbs/underscore.js',
+                            'require-handlebars-plugin/hbs.js',
+                            'backbone.marionette.handlebars/backbone.marionette.handlebars.min.js',
+                            'bootstrap/dist/*/*',
+                            'font-awesome/css/font-awesome.min.css',
+                            'd3.Graphs/lib/scripts/av.min.js',
+                            'cesium/Build/Cesium/**',
+                            'plotty/dist/plotty.min.js',
+                            'sumoselect/jquery.sumoselect.min.js',
+                            'w2ui/src/w2popup.js',
+                            'w2ui/src/w2utils.js',
+                            'msgpack-lite/dist/msgpack.min.js',
+                            'filepond/dist/filepond.min.js',
+                            'graphly/dist/graphly.min.js',
+                            'choices.js/assets/scripts/dist/choices.min.js',
+                        ]
+                    }, {
+                        expand: true,
+                        flatten: true,
+                        cwd: '<%= yeoman.node_modules %>',
+                        dest: '<%= yeoman.dist %>/scripts',
+                        src: [
+                            'jquery-ui/dist/jquery-ui.js',
+                        ]
+                    }, {
+                        expand: true,
+                        cwd: '<%= yeoman.app %>',
+                        dest: '<%= yeoman.dist %>',
+                        src: [
+                            'scripts/vendor/**',
+                        ]
+                    }, {
+                        expand: true,
+                        flatten: true,
+                        cwd: '<%= yeoman.node_modules %>',
+                        dest: '<%= yeoman.dist %>/fonts/',
+                        src: [
+                            '*/fonts/*',
+                        ]
+                    }, {
+                        expand: true,
+                        flatten: true,
+                        cwd: '<%= yeoman.node_modules %>',
+                        dest: '<%= yeoman.dist %>/images/',
+                        src: [
+                            '*/images/*',
+                            '*/img/*',
+                        ]
+                    }, {
+                        expand: true,
+                        cwd: '<%= yeoman.app %>',
+                        dest: '<%= yeoman.dist %>',
+                        src: [
+                            'scripts/*.json'
+                        ]
+                    }, {
+                        expand: true,
+                        cwd: '<%= yeoman.app %>',
+                        dest: '<%= yeoman.dist %>',
+                        src: [
+                            'templates/**'
+                        ]
+                    }, {
+                        expand: true,
+                        dot: true,
+                        cwd: '<%= yeoman.app %>',
+                        dest: '<%= yeoman.dist %>',
+                        src: [
+                            '*.{ico,png,txt}',
+                            '.htaccess',
+                            'images/{,*/}*.{webp,gif}',
+                            'styles/fonts/*'
+                        ]
+                    }, {
+                        expand: true,
+                        cwd: '.tmp/images',
+                        dest: '<%= yeoman.dist %>/images',
+                        src: [
+                            'generated/*'
+                        ]
+                    }, {
+                        expand: true,
+                        flatten: true,
+                        cwd: '<%= yeoman.node_modules %>',
+                        dest: '<%= yeoman.dist %>/styles/images',
+                        src: [
+                            'jquery-ui/dist/themes/smoothness/images/*'
+                        ]
+                    }]
             }
         },
         replace: {
-          dist: {
-            src: [
-                '<%= yeoman.dist %>/bower_components/jquery/jquery.min.js',
-                '<%= yeoman.dist %>/bower_components/backbone-amd/backbone-min.js',
-                '<%= yeoman.dist %>/bower_components/require-handlebars-plugin/hbs.js',
-                '<%= yeoman.dist %>/bower_components/cesium/Build/Cesium/Cesium.js'
-            ],
-            overwrite: true,
-            replacements: [
-                {
-                  from: '//@',
-                  to: '//#'
-                },
-                {
-                  from: /r\(\"Shaders\/PointPrimitiveCollectionFS\"\,\[\]\,function\(\).*\}\)/g ,
-                  to: 'r("Shaders/PointPrimitiveCollectionFS",[],function(){"use strict";return"#ifdef GL_EXT_frag_depth\\n#extension GL_EXT_frag_depth : enable\\n#endif\\nvarying vec4 v_color;\\nvarying vec4 v_outlineColor;\\nvarying float v_innerPercent;\\nvarying float v_pixelDistance;\\n#ifdef RENDER_FOR_PICK\\nvarying vec4 v_pickColor;\\n#endif\\nvoid main()\\n{\\nfloat distanceToCenter = length(gl_PointCoord - vec2(0.5));\\nfloat maxDistance = max(0.0, 0.5 - v_pixelDistance);\\nfloat wholeAlpha = 1.0 - smoothstep(maxDistance, 0.5, distanceToCenter);\\nfloat innerAlpha = 1.0 - smoothstep(maxDistance * v_innerPercent, 0.5 * v_innerPercent, distanceToCenter);\\nvec4 color = mix(v_outlineColor, v_color, innerAlpha);\\ncolor.a *= wholeAlpha;\\nif (color.a < 0.005)\\n{\\ndiscard;\\n}\\n#ifdef GL_EXT_frag_depth\\nfloat z = gl_FragCoord.z;\\ngl_FragDepthEXT = z + ((1.0 - z) * (1.0 - wholeAlpha));\\n#endif\\n#ifdef RENDER_FOR_PICK\\ngl_FragColor = v_pickColor;\\n#else\\ngl_FragColor = color;\\n#endif\\n}"})'
+            dist: {
+                src: [
+                    '<%= yeoman.dist %>/jquery/dist/jquery.min.js',
+                    '<%= yeoman.dist %>/backbone-amd/backbone-min.js',
+                    '<%= yeoman.dist %>/require-handlebars-plugin/hbs.js',
+                    '<%= yeoman.dist %>/cesium/Build/Cesium/Cesium.js'
+                ],
+                overwrite: true,
+                replacements: [
+                    {
+                        from: '//@',
+                        to: '//#'
+                    },
+                    {
+                        from: /r\(\"Shaders\/PointPrimitiveCollectionFS\"\,\[\]\,function\(\).*\}\)/g,
+                        to: 'r("Shaders/PointPrimitiveCollectionFS",[],function(){"use strict";return"#ifdef GL_EXT_frag_depth\\n#extension GL_EXT_frag_depth : enable\\n#endif\\nvarying vec4 v_color;\\nvarying vec4 v_outlineColor;\\nvarying float v_innerPercent;\\nvarying float v_pixelDistance;\\n#ifdef RENDER_FOR_PICK\\nvarying vec4 v_pickColor;\\n#endif\\nvoid main()\\n{\\nfloat distanceToCenter = length(gl_PointCoord - vec2(0.5));\\nfloat maxDistance = max(0.0, 0.5 - v_pixelDistance);\\nfloat wholeAlpha = 1.0 - smoothstep(maxDistance, 0.5, distanceToCenter);\\nfloat innerAlpha = 1.0 - smoothstep(maxDistance * v_innerPercent, 0.5 * v_innerPercent, distanceToCenter);\\nvec4 color = mix(v_outlineColor, v_color, innerAlpha);\\ncolor.a *= wholeAlpha;\\nif (color.a < 0.005)\\n{\\ndiscard;\\n}\\n#ifdef GL_EXT_frag_depth\\nfloat z = gl_FragCoord.z;\\ngl_FragDepthEXT = z + ((1.0 - z) * (1.0 - wholeAlpha));\\n#endif\\n#ifdef RENDER_FOR_PICK\\ngl_FragColor = v_pickColor;\\n#else\\ngl_FragColor = color;\\n#endif\\n}"})'
+                    }
+                ],
+                variables: {
+
                 }
-            ],
-            variables:{
 
             }
-
-          }
         },
         concurrent: {
             server: [
                 'compass',
                 'coffee:dist'
-            ],
-            test: [
-                'coffee'
             ],
             dist: [
                 'coffee',
@@ -506,38 +417,16 @@ module.exports = function (grunt) {
                 'svgmin',
                 'htmlmin'
             ]
-        },
-        bower: {
-            options: {
-                exclude: ['modernizr']
-            },
-            all: {
-                //rjsConfig: '<%= yeoman.app %>/scripts/main.js'
-                rjsConfig: '<%= yeoman.app %>/scripts/init.js'
-            }
         }
     });
 
-    grunt.registerTask('server', function (target) {
-        if (target === 'dist') {
-            return grunt.task.run(['build', 'open', 'connect:dist:keepalive']);
-        }
-
-        grunt.task.run([
-            'clean:server',
-            'concurrent:server',
-            'configureProxies',
-            'connect:livereload',
-            'open',
-            'watch'
-        ]);
-    });
-
-    grunt.registerTask('test', [
+    grunt.registerTask('server', [
         'clean:server',
-        'concurrent:test',
-        'connect:test',
-        'mocha'
+        'concurrent:server',
+        'configureProxies',
+        'connect:livereload',
+        'open',
+        'watch'
     ]);
 
     grunt.registerTask('build', [
@@ -551,11 +440,5 @@ module.exports = function (grunt) {
         'copy:dist',
         'replace',
         'usemin'
-    ]);
-
-    grunt.registerTask('default', [
-        'jshint',
-        'test',
-        'build'
     ]);
 };
