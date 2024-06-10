@@ -1,31 +1,31 @@
-(function() {
-    'use strict';
+(function () {
+  'use strict';
 
-    var root = this;
+  var root = this;
 
-    root.define([
-        'backbone',
-        'communicator',
-        'backbone.marionette'
-    ],
+  root.define([
+    'backbone',
+    'communicator',
+    'backbone.marionette'
+  ],
 
-    function( Backbone, Communicator ) {
+  function (Backbone, Communicator) {
 
-        var UIRegion = Backbone.Marionette.Region.extend({
+    var UIRegion = Backbone.Marionette.Region.extend({
 
-            constructor: function(){
-            },
-         
-            onShow: function(view){
-                view.$('.close').on("click", _.bind(this.onClose, this));
-            },
+      constructor: function () {
+      },
 
-            onClose: function(){
-                this.close();
-            }
+      onShow: function (view) {
+        view.$('.close').on("click", _.bind(this.onClose, this));
+      },
 
-        });
-        return UIRegion;
+      onClose: function () {
+        this.close();
+      }
+
     });
+    return UIRegion;
+  });
 
-}).call( this );
+}).call(this);

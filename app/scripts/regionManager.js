@@ -1,43 +1,43 @@
-(function() {
-    'use strict';
+(function () {
+  'use strict';
 
-    var root = this;
+  var root = this;
 
-    root.define([
-        'backbone',
-        'communicator'
-    ],
-    function( Backbone, Communicator ) {
+  root.define([
+    'backbone',
+    'communicator'
+  ],
+  function (Backbone, Communicator) {
 
-        var RegionManager = Backbone.Marionette.Controller.extend({
-        
-            initialize: function( options ) {
+    var RegionManager = Backbone.Marionette.Controller.extend({
 
-                /* internal region manager */
-                this._regionManager = new Backbone.Marionette.RegionManager();
+      initialize: function (options) {
 
-                /* event API */
-                Communicator.reqres.setHandler("RM:addRegion", this.addRegion, this);
-                Communicator.reqres.setHandler("RM:removeRegion", this.removeRegion, this);
-                Communicator.reqres.setHandler("RM:getRegion", this.getRegion, this);
-            },
+        /* internal region manager */
+        this._regionManager = new Backbone.Marionette.RegionManager();
 
-            /* add region facade */
-            addRegion: function( regionName, regionId ) {
-                return this._regionManager.addRegion( regionName, regionId );
-            },
+        /* event API */
+        Communicator.reqres.setHandler("RM:addRegion", this.addRegion, this);
+        Communicator.reqres.setHandler("RM:removeRegion", this.removeRegion, this);
+        Communicator.reqres.setHandler("RM:getRegion", this.getRegion, this);
+      },
 
-            /* remove region facade */
-            removeRegion: function( regionName ) {
-                this._regionManager.removeRegion( regionName );
-            },
+      /* add region facade */
+      addRegion: function (regionName, regionId) {
+        return this._regionManager.addRegion(regionName, regionId);
+      },
 
-            /* get region facade */
-            getRegion: function( regionName ) {
-                return this._regionManager.get( regionName );
-            }
-        });
+      /* remove region facade */
+      removeRegion: function (regionName) {
+        this._regionManager.removeRegion(regionName);
+      },
 
-        return new RegionManager();
+      /* get region facade */
+      getRegion: function (regionName) {
+        return this._regionManager.get(regionName);
+      }
     });
-}).call( this );
+
+    return new RegionManager();
+  });
+}).call(this);

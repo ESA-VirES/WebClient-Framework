@@ -562,7 +562,7 @@
         this.$el.find("#custom_download").empty();
         this.$el.find("#custom_download").html(
           '<div class="w2ui-field">' +
-              '<div class="checkbox" style="margin-left:20px;"><label><input type="checkbox" value="" id="custom_parameter_cb">Custom download parameters</label></div>' +
+              '<div class="checkbox" style="margin-left:-3px;"><label><input type="checkbox" value="" id="custom_parameter_cb">Custom download parameters</label></div>' +
               '<div style="margin-left:0px;"> <input id="param_enum" style="width:100%;"> </div>' +
           '</div>'
         );

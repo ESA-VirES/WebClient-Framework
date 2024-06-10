@@ -1,22 +1,22 @@
-(function() {
-    'use strict';
+(function () {
+  'use strict';
 
-    var root = this;
+  var root = this;
 
-    root.define([
-        'backbone',
-        'communicator',
-        'views/NavBarItemView'
-    ],
+  root.define([
+    'backbone',
+    'communicator',
+    'views/NavBarItemView'
+  ],
 
-    function( Backbone, Communicator, NavBarItemView ) {
+  function (Backbone, Communicator, NavBarItemView) {
 
-        var NavBarCollectionView = Backbone.Marionette.CompositeView.extend({  
-            appendHtml: function(collectionView, itemView, index){
-                collectionView.$("#tab-headers-main").append(itemView.el);
-            }
-        });
-        return {'NavBarCollectionView':NavBarCollectionView};
+    var NavBarCollectionView = Backbone.Marionette.CompositeView.extend({
+      appendHtml: function (collectionView, itemView, index) {
+        collectionView.$("#tab-headers-main").append(itemView.el);
+      }
     });
+    return {'NavBarCollectionView': NavBarCollectionView};
+  });
 
-}).call( this );
+}).call(this);

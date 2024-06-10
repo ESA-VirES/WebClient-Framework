@@ -458,7 +458,7 @@
           Communicator.mediator.trigger('analytics:set:filter', filters);
         }
 
-        globals.swarm.appendSources(data.info.sources)
+        globals.swarm.appendSources(data.info.sources);
         globals.swarm.set({data: data});
       },
 
