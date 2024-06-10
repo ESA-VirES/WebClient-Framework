@@ -1,110 +1,110 @@
 define([
-	'backbone.marionette',
-	'hbs!tmpl/SplitView',
-], function(Marionette, SplitViewTmpl) {
+  'backbone.marionette',
+  'hbs!tmpl/SplitView',
+], function (Marionette, SplitViewTmpl) {
 
-	'use strict';
+  'use strict';
 
-	var SplitView = Marionette.Layout.extend({
+  var SplitView = Marionette.Layout.extend({
 
-		className: "splitview",
+    className: "splitview",
 
-		template: {
-			type: 'handlebars',
-			template: SplitViewTmpl
-		},
+    template: {
+      type: 'handlebars',
+      template: SplitViewTmpl
+    },
 
-		regions: {
-			view1: '.view1 > .viewport',
-			view2: '.view2 > .viewport',
-			view3: '.view3 > .viewport',
-			view4: '.view4 > .viewport'
-		},
+    regions: {
+      view1: '.view1 > .viewport',
+      view2: '.view2 > .viewport',
+      view3: '.view3 > .viewport',
+      view4: '.view4 > .viewport'
+    },
 
-		ui: {
-			view1: '.view1',
-			view2: '.view2',
-			view3: '.view3',
-			view4: '.view4'
-		},
+    ui: {
+      view1: '.view1',
+      view2: '.view2',
+      view3: '.view3',
+      view4: '.view4'
+    },
 
-		initialize: function() {
-			this.views = undefined;
-		},
+    initialize: function () {
+      this.views = undefined;
+    },
 
-		registerViews: function(views) {
-			this.views = views;
-		},
+    registerViews: function (views) {
+      this.views = views;
+    },
 
-		showViewInRegion: function(viewid, regionid) {
-			var region = this[regionid];
-			if (!region) {
-				// FIXXME: replace with exception!
-				console.log('[SplitView::setView] Region "' + regionid + '" is not known. Valid regions are: FIXXME');
-				return;
-			}
+    showViewInRegion: function (viewid, regionid) {
+      var region = this[regionid];
+      if (!region) {
+        // FIXXME: replace with exception!
+        console.log('[SplitView::setView] Region "' + regionid + '" is not known. Valid regions are: FIXXME');
+        return;
+      }
 
-			var view = this.views[viewid];
-			if (!view) {
-				// FIXXME: replace with exception!
-				console.log('[SplitView::setView] View "' + viewid + '" is not known. Valid views are: FIXXME');
-				return;
-			}
+      var view = this.views[viewid];
+      if (!view) {
+        // FIXXME: replace with exception!
+        console.log('[SplitView::setView] View "' + viewid + '" is not known. Valid views are: FIXXME');
+        return;
+      }
 
-			region.show(view);
-		},
+      region.show(view);
+    },
 
-		setFullscreen: function(regionid) {
+    setFullscreen: function (regionid) {
 
-			_.each(this.ui, function(desc, key){
-				this.ui[key].removeClass("halfscreen quarterscreen");
-				if(key == regionid){
-					this.ui[key].addClass('fullscreen');
-				}else{
-					this.ui[key].addClass('disabled');
-				}
-			}, this);
-			
-			this.updateViewSize();
-		},
+      _.each(this.ui, function (desc, key) {
+        this.ui[key].removeClass("halfscreen quarterscreen");
+        if (key == regionid) {
+          this.ui[key].addClass('fullscreen');
+        } else {
+          this.ui[key].addClass('disabled');
+        }
+      }, this);
 
-		setSingleScreen: function(){
+      this.updateViewSize();
+    },
 
-		},
+    setSingleScreen: function () {
 
-		setSplitscreen: function() {
+    },
+
+    setSplitscreen: function () {
 
 
-			_.each(this.ui, function(desc, key){
-				this.ui[key].addClass("disabled").removeClass("fullscreen quarterscreen");
-				if(key == 'view1' || key == 'view2'){
-					this.ui[key].addClass('halfscreen').removeClass("disabled");
-				}
-			}, this);
-			
-			this.updateViewSize();
+      _.each(this.ui, function (desc, key) {
+        this.ui[key].addClass("disabled").removeClass("fullscreen quarterscreen");
+        if (key == 'view1' || key == 'view2') {
+          this.ui[key].addClass('halfscreen').removeClass("disabled");
+        }
+      }, this);
 
-		},
+      this.updateViewSize();
 
-		setQuadscreen: function(){
+    },
 
-			_.each(this.ui, function(desc, key){
-				this.ui[key].removeClass("disabled fullscreen halfscreen").addClass("quarterscreen");
-			}, this);
-			
-			this.updateViewSize();
+    setQuadscreen: function () {
 
-		},
+      _.each(this.ui, function (desc, key) {
+        this.ui[key].removeClass("disabled fullscreen halfscreen").addClass("quarterscreen");
+      }, this);
 
-		updateViewSize: function() {
-			_.each(this.views, function(view) {
-				if (view.onResize) {
-					view.onResize();
-				}
-			});
-		}
+      this.updateViewSize();
 
-	});
+    },
 
-	return SplitView;
+    updateViewSize: function () {
+      _.each(this.views, function (view) {
+        if (view.onResize) {
+          view.onResize();
+        }
+      });
+    }
+
+  });
+
+  return SplitView;
 });

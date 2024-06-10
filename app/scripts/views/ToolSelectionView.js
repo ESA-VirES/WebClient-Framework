@@ -1,31 +1,31 @@
-(function() {
-    'use strict';
+(function () {
+  'use strict';
 
-    var root = this;
+  var root = this;
 
-    root.define([
-        'backbone',
-        'communicator',
-        'underscore'
-    ],
+  root.define([
+    'backbone',
+    'communicator',
+    'underscore'
+  ],
 
-    function( Backbone, Communicator, UIElementTmpl ) {
+  function (Backbone, Communicator, UIElementTmpl) {
 
-        var ToolSelectionView = Backbone.Marionette.CollectionView.extend({
+    var ToolSelectionView = Backbone.Marionette.CollectionView.extend({
 
-            tagName: "div",
-            className: "btn-group-vertical",
+      tagName: "div",
+      className: "btn-group-vertical",
 
-            initialize: function(options) {
-            },
+      initialize: function (options) {
+      },
 
-            onShow: function(view){
-            }
-
-        });
-
-        return {'ToolSelectionView':ToolSelectionView};
+      onShow: function (view) {
+      }
 
     });
 
-}).call( this );
+    return {'ToolSelectionView': ToolSelectionView};
+
+  });
+
+}).call(this);

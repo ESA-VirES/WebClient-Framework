@@ -1,53 +1,53 @@
-(function() {
-    'use strict';
+(function () {
+  'use strict';
 
-    var root = this;
+  var root = this;
 
-    root.define([
-        'backbone',
-        'communicator',
-        'hbs!tmpl/LayerControl',
-        'underscore'
-    ],
+  root.define([
+    'backbone',
+    'communicator',
+    'hbs!tmpl/LayerControl',
+    'underscore'
+  ],
 
-    function( Backbone, Communicator, LayerControlTmpl ) {
+  function (Backbone, Communicator, LayerControlTmpl) {
 
-        var LayerControlLayout = Backbone.Marionette.Layout.extend({
+    var LayerControlLayout = Backbone.Marionette.Layout.extend({
 
-            template: {type: 'handlebars', template: LayerControlTmpl},
-            regions: {
-                baseLayers: "#baseLayers",
-                products: "#products",
-                overlays: "#overlays"
-            },
-            className: "panel panel-default layercontrol not-selectable",
-            events: {},
+      template: {type: 'handlebars', template: LayerControlTmpl},
+      regions: {
+        baseLayers: "#baseLayers",
+        products: "#products",
+        overlays: "#overlays"
+      },
+      className: "panel panel-default layercontrol not-selectable",
+      events: {},
 
-            initialize: function(options) {
-            },
+      initialize: function (options) {
+      },
 
-            onShow: function(view){
-                this.$('.close').on("click", _.bind(this.onClose, this));
-                this.$el.draggable({
-                    handle: '.panel-heading',
-                    containment: "#main" ,
-                    scroll: false,
-                    start: function(event, ui) {
-                        $( ".ui-slider" ).detach();
-                        $('.fa-adjust').toggleClass('active')
-                        $('.fa-adjust').popover('hide');
-                    },
-                });
-            },
-
-            onClose: function() {
-                this.close();
-            }
-
+      onShow: function (view) {
+        this.$('.close').on("click", _.bind(this.onClose, this));
+        this.$el.draggable({
+          handle: '.panel-heading',
+          containment: "#main",
+          scroll: false,
+          start: function (event, ui) {
+            $(".ui-slider").detach();
+            $('.fa-adjust').toggleClass('active');
+            $('.fa-adjust').popover('hide');
+          },
         });
+      },
 
-        return LayerControlLayout;
+      onClose: function () {
+        this.close();
+      }
 
     });
 
-}).call( this );
+    return LayerControlLayout;
+
+  });
+
+}).call(this);

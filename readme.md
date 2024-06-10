@@ -8,7 +8,6 @@ The application uses [Yeoman](http://yeoman.io/) which integrates:
 
 * [Yo](https://github.com/yeoman/yo) : scaffolds out the application, writing the Grunt configuration and pulling in relevant Grunt tasks that you might need for your build.
 * [Grunt](http://gruntjs.com/) : which allows building, previewing and testing the project
-* [Bower](http://bower.io/) : which allows managing of dependencies and automatic download, thus making the application easily extendable.
 
 ## Libraries used
 
@@ -28,7 +27,7 @@ The application uses [Yeoman](http://yeoman.io/) which integrates:
 
 0.  Install development environment and client dependencies:
 
-    Make sure [Node.js](http://nodejs.org) and [NPM](https://npmjs.org) are installed
+    Make sure [Node.js](http://nodejs.org) >= 14 and [NPM](https://npmjs.org) are installed
     on your machine and run:
 
     ```
@@ -36,20 +35,25 @@ The application uses [Yeoman](http://yeoman.io/) which integrates:
     npm install
     ```
 
-    These commands install the needed Node.js packages. In case of any trouble try to use
-    reasonable recent version of Node.js. Also note that newer versions of Node.js contain
-    the NPM already bundled in the baseline installation.
+    These commands install the needed Node.js packages.
+
+    You will also need ruby and ruby-compass installed to run the dev server due to the usage of compass for sass preprocessing.
+
+    Install them on linux by:
+
+    apt install -y ruby ruby-compass
+
 
 0.  Start the [Grunt](http://gruntjs.com/) development server:
 
     ```
-    npm run server
+    npm run start
     ```
 
     this should automatically open a the client on your default web browser, if not point your browser to localhost:9000.
 
-If you managed to reach this the last step you can start to hack the code.
-The development server by grunt watches for saved changes in the code and will update the page automatically.
+    If you managed to reach this the last step you can start to hack the code.
+    The development server by grunt watches for saved changes in the code and will update the page automatically.
 
 
 ## How to deploy the code on a server
