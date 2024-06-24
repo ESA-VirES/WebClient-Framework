@@ -3824,7 +3824,7 @@
                 "id": "SW_OPER_MITATEC_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3832,7 +3832,7 @@
             "download": {
                 "id": "SW_OPER_MITATEC_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3851,7 +3851,7 @@
                 "id": "SW_OPER_MITBTEC_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3859,7 +3859,7 @@
             "download": {
                 "id": "SW_OPER_MITBTEC_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3878,7 +3878,7 @@
                 "id": "SW_OPER_MITCTEC_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3886,7 +3886,7 @@
             "download": {
                 "id": "SW_OPER_MITCTEC_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3905,7 +3905,7 @@
                 "id": "SW_OPER_MITUTEC_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3932,7 +3932,7 @@
                 "id": "SW_OPER_PPIAFAC_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3940,7 +3940,7 @@
             "download": {
                 "id": "SW_OPER_PPIAFAC_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3959,7 +3959,7 @@
                 "id": "SW_OPER_PPIBFAC_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3967,7 +3967,7 @@
             "download": {
                 "id": "SW_OPER_PPIBFAC_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -3986,7 +3986,7 @@
                 "id": "SW_OPER_PPICFAC_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
@@ -3994,7 +3994,7 @@
             "download": {
                 "id": "SW_OPER_PPICFAC_2F",
                 "protocol": "EOWCS",
-                "url": "/vires00/ows"
+                "url": "/ows"
             },
             "processes" : [
                 {
@@ -4013,7 +4013,7 @@
                 "id": "SW_OPER_PPIUFAC_2F",
                 "protocol": "CZML",
                 "urls": [
-                    "/vires00/ows"
+                    "/ows"
                 ],
                 "style": "default",
                 "format": "image/png"
