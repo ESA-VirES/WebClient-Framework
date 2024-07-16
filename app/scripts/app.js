@@ -73,7 +73,7 @@ var REVERSE_DERIVED_PARAMETERS = {};
 // Ordered from highest resolution to lowest with the exception of FAC that
 // needs to be first as the master product needs to be the same
 var MASTER_PRIORITY = [
-    'SW_OPER_FACATMS_2F', 'SW_OPER_FACBTMS_2F', 'SW_OPER_FACCTMS_2F', 'SW_OPER_FAC_TMS_2F', 'SW_OPER_FACUTMS_2F',
+    'SW_OPER_FACATMS_2F+SW_FAST_FACATMS_2F', 'SW_OPER_FACBTMS_2F+SW_FAST_FACBTMS_2F', 'SW_OPER_FACCTMS_2F+SW_FAST_FACCTMS_2F', 'SW_OPER_FAC_TMS_2F', 'SW_OPER_FACUTMS_2F',
     'SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B', 'SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B', 'SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B', 'SW_OPER_EFIU_LP_1B',
     'SW_OPER_EFIATIE_2_', 'SW_OPER_EFIBTIE_2_', 'SW_OPER_EFICTIE_2_', 'SW_OPER_EFIUTIE_2_',
     'SW_PREL_EFIAIDM_2_', 'SW_PREL_EFIBIDM_2_', 'SW_PREL_EFICIDM_2_', 'SW_PREL_EFIUIDM_2_',
@@ -535,6 +535,9 @@ var RELATED_VARIABLES = {
                             "SW_OPER_EFIA_LP_1B": "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B",
                             "SW_OPER_EFIB_LP_1B": "SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B",
                             "SW_OPER_EFIC_LP_1B": "SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B",
+                            "SW_OPER_FACATMS_2F": "SW_OPER_FACATMS_2F+SW_FAST_FACATMS_2F",
+                            "SW_OPER_FACBTMS_2F": "SW_OPER_FACBTMS_2F+SW_FAST_FACBTMS_2F",
+                            "SW_OPER_FACCTMS_2F": "SW_OPER_FACCTMS_2F+SW_FAST_FACCTMS_2F",
                         },
                         function (dstName, srcName) {
                             if (has(productConfiguration, srcName)) {
@@ -854,9 +857,9 @@ var RELATED_VARIABLES = {
                         "Upload": "SW_OPER_TECUTMS_2F"
                     },
                     "FAC": {
-                        "Alpha": "SW_OPER_FACATMS_2F",
-                        "Bravo": "SW_OPER_FACBTMS_2F",
-                        "Charlie": "SW_OPER_FACCTMS_2F",
+                        "Alpha": "SW_OPER_FACATMS_2F+SW_FAST_FACATMS_2F",
+                        "Bravo": "SW_OPER_FACBTMS_2F+SW_FAST_FACBTMS_2F",
+                        "Charlie": "SW_OPER_FACCTMS_2F+SW_FAST_FACCTMS_2F",
                         "Upload": "SW_OPER_FACUTMS_2F",
                         "NSC": "SW_OPER_FAC_TMS_2F",
                     },
