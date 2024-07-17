@@ -43,6 +43,46 @@ The application uses [Yeoman](http://yeoman.io/) which integrates:
 
     apt install -y ruby ruby-compass
 
+0.  Grunt proxy configuration
+
+    Copy `Gruntfile.js.template` to `Gruntfile.js`.
+
+    ```
+    cp Gruntfile.js.template Gruntfile.js
+    ```
+
+    If you intend to run the development server, you will also need to edit
+    the `Gruntfile.js` file and configure the VirES server proxy.
+    Namely, the hostname and protocol (HTTP or HTTPS) of the VireES server
+    and [access token](https://viresclient.readthedocs.io/en/latest/access_token.html)
+    need to be filled.
+
+    ```
+    ...
+    proxies: [{
+        context: '/wps',
+        host: 'vires.services',
+        https: true,
+        secure: false,
+    }, {
+        context: '/ows',
+        host: 'vires.services',
+        headers: {
+            "Authorization": "Bearer <put-your-access-token-here>"
+        },
+        https: true,
+        secure: false,
+    }, {
+        context: '/custom_data',
+        host: 'vires.services',
+        headers: {
+            "Authorization": "Bearer <put-your-access-token-here>"
+        },
+        https: true,
+        secure: false,
+    }],
+    ...
+    ```
 
 0.  Start the [Grunt](http://gruntjs.com/) development server:
 
