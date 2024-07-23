@@ -24,6 +24,10 @@
     margin-left: -1px;
 }
 
+.ui-datepicker {
+  z-index: 2000 !important;
+}
+
 .panel-collapse{
     border-right-style: solid;
     border-bottom-style: solid;
@@ -82,16 +86,16 @@
     width: 100%;
 }
 
-#filters .form-control, #date .form-control, #timefilter .form-control{
+#filters .form-control, #date_filter .form-control, #time_filter .form-control, #time_sampling_filter .form-control {
     padding-top: 3px !important;
     padding-bottom: 3px !important;
 }
 
-#filters textarea, #date textarea, #timefilter textarea{
-    height: 26px;
+#filters textarea, #time_filter textarea, #time_sampling_filter textarea {
+    height: 24px;
 }
 
-#starttime, #endtime {
+#date_filter input[type=text] {
     height: 24px !important;
     border-radius: 0px !important;
     border-style: solid !important;
@@ -111,7 +115,7 @@
     border-color: rgb(110, 110, 110) !important;
 }
 
-#param_enum{
+#parameters_list{
     display: none!important;
 }
 
@@ -129,19 +133,6 @@
     pointer-events: none;
 }
 
-#custom_subsetting_filter{
-    border-radius: 3px;
-    height: 34px !important;
-    width: 100%;
-    padding-right: 13px;
-}
-
-#custom_subsetting_filter span{
-    border-radius: 3px;
-    padding-top: 3px !important;
-    padding-bottom: 3px !important;
-}
-
-#custom_download .w2ui-field-helper{
+#custom_parameters_selection .w2ui-field-helper{
     width: 100%!important;
 }
