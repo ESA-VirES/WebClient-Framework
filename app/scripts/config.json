@@ -1552,6 +1552,137 @@
                 }
             }
         },
+        "SW_FACxTMS_2F_FAST": {
+            "satellite": "Swarm",
+            "parameters": {
+                "IRC": {
+                    "range": [-6, 6],
+                    "uom":"uA/m2",
+                    "colorscale": "diverging_1",
+                    "name": "Ionospheric radial current (IRC)"
+                },
+                "FAC": {
+                    "range": [-6, 6],
+                    "uom":"uA/m2",
+                    "colorscale": "diverging_1",
+                    "selected": true,
+                    "name": "Field-aligned current (FAC)"
+                },
+                "DataSource": {
+                    "range": [0, 1],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "Data source flag",
+                    "hidden": true,
+                    "bitmask": {
+                        "flags": [
+                            ["FAST", "Set for Swarm FAST data / unset for Swarm OPER data"]
+                        ]
+                    }
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time stamp in UTC"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Geographic latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Geographic longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Geographic radius"
+                },
+                "IRC": {
+                    "uom": "uA/m2",
+                    "name": "Ionospheric radial current"
+                },
+                "IRC_Error": {
+                    "uom": "uA/m2",
+                    "name": "uncertainty of IRC"
+                },
+                "FAC": {
+                    "uom": "uA/m2",
+                    "name": "Field-aligned current"
+                },
+                "FAC_Error": {
+                    "uom": "uA/m2",
+                    "name": "uncertainty of FAC"
+                },
+                "Flags": {
+                    "uom": null,
+                    "name": "Flags characterizing the product quality (processing flags)"
+                },
+                "Flags_F": {
+                    "ignore": true,
+                    "uom": null,
+                    "name": "Flags_F passed through from L1b and accumulated for quad points"
+                },
+                "Flags_B": {
+                    "ignore": true,
+                    "uom": null,
+                    "name": "Flags_B passed through from L1b and accumulated for quad points"
+                },
+                "Flags_q": {
+                    "ignore": true,
+                    "uom": null,
+                    "name": "Flags_q passed through from L1b and accumulated for quad points"
+                },
+                "QDLat": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude"
+                },
+                "QDLon": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude"
+                },
+                "MLT": {
+                    "uom": null,
+                    "name": "Magnetic local time"
+                },
+                "OrbitNumber": {
+                    "uom": null,
+                    "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
+                },
+                "DataSource": {
+                    "uom": null,
+                    "name": "Data source flag (0 - OPER, 1 - FAST)."
+                }
+            }
+        },
         "SW_EEFxTMS_2F": {
             "satellite": "Swarm",
             "parameters": {
@@ -3127,12 +3258,12 @@
             "satellite": "Upload"
         }, {
             "name": "FAC A TMS 2F",
-            "type": "SW_FACxTMS_2F",
+            "type": "SW_FACxTMS_2F_FAST",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#66aa00",
             "views": [{
-                "id": "SW_OPER_FACATMS_2F",
+                "id": "SW_OPER_FACATMS_2F+SW_FAST_FACATMS_2F",
                 "protocol": "CZML",
                 "urls": [
                     "/ows"
@@ -3141,26 +3272,26 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_FACATMS_2F",
+                "id": "SW_OPER_FACATMS_2F+SW_FAST_FACATMS_2F",
                 "protocol": "EOWCS",
                 "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_FACATMS_2F"
+                    "layer_id": "SW_OPER_FACATMS_2F+SW_FAST_FACATMS_2F"
                 }
             ],
             "outlines": false
         },
         {
             "name": "FAC B TMS 2F",
-            "type": "SW_FACxTMS_2F",
+            "type": "SW_FACxTMS_2F_FAST",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#66aa00",
             "views": [{
-                "id": "SW_OPER_FACBTMS_2F",
+                "id": "SW_OPER_FACBTMS_2F+SW_FAST_FACBTMS_2F",
                 "protocol": "CZML",
                 "urls": [
                     "/ows"
@@ -3169,25 +3300,25 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_FACBTMS_2F",
+                "id": "SW_OPER_FACBTMS_2F+SW_FAST_FACBTMS_2F",
                 "protocol": "EOWCS",
                 "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_FACBTMS_2F"
+                    "layer_id": "SW_OPER_FACBTMS_2F+SW_FAST_FACBTMS_2F"
                 }
             ],
             "outlines": false
         }, {
             "name": "FAC C TMS 2F",
-            "type": "SW_FACxTMS_2F",
+            "type": "SW_FACxTMS_2F_FAST",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#66aa00",
             "views": [{
-                "id": "SW_OPER_FACCTMS_2F",
+                "id": "SW_OPER_FACCTMS_2F+SW_FAST_FACCTMS_2F",
                 "protocol": "CZML",
                 "urls": [
                     "/ows"
@@ -3196,14 +3327,14 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_FACCTMS_2F",
+                "id": "SW_OPER_FACCTMS_2F+SW_FAST_FACCTMS_2F",
                 "protocol": "EOWCS",
                 "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_FACCTMS_2F"
+                    "layer_id": "SW_OPER_FACCTMS_2F+SW_FAST_FACCTMS_2F"
                 }
             ],
             "outlines": false

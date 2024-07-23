@@ -8,33 +8,33 @@
   
   <div style="font-weight:bold;">Filters</div>
 
-  <div class="input-group" id="date" style="margin:7px">
-    <span class="form-control">
-      Date (&nbsp;<input type="checkbox" style="vertical-align:top;" value="" id="custom_time_cb">&nbsp;specify time)&nbsp;<i style="cursor: help;" class="fa fa-info-circle" title="By default, the data requests are rounded to whole days. Check 'specify time' to allow finer time selection."></i> 
-      <div style="float:right; margin-right:27px;">
-      <input type="hidden" id="type" name="type" value="DateRangeFilter">
-      <input type="text" id="startDate" style="width: 11em; margin-left:6px;">
-      <input type="text" id="endDate" style="margin-left:29px;width: 11em;">
-      </div>
-    </span>
-    <span class="input-group-btn">
-      <button class="btn btn-danger delete-filter disabled" type="button">
-        <i class="fa fa-minus-circle"></i>
-      </button>
-    </span>
+  <div id="time_input_switch" style="margin:7px">
+    <input type="checkbox" value="" id="time_input_cb">&nbsp;Specify time&nbsp;<i style="cursor: help;" class="fa fa-info-circle" title="By default, the data requests are rounded to whole days. Check 'specify time' to allow finer time selection."></i>
   </div>
-  <div id="customtimefilter"></div>
+
+  <div id="date_filter"></div>
+
+  <div id="time_filter"></div>
 
   <div id="filters"></div>
 
   <div style="margin-top:10px;">
     <div id="productsList" style="float:left;"></div>
-    <div id="model" style="float:left; margin-left:50px;"></div>
+    <div id="modelsList" style="float:left; margin-left:50px;"></div>
     <div class="spacer" style="clear: both;"></div>
   </div>
 
-  <div id="custom_download"></div>
-  <div id="custom_subsetting"></div>
+  <div id="custom_parameters_switch" style="margin:7px">
+    <input type="checkbox" value="" id="custom_parameters_cb">&nbsp;Custom download parameters
+  </div>
+  <div id="custom_parameters_selection" class="w2ui-field">
+    <div style="margin-left:0px;"><input id="parameters_list" style="width:100%;"></div>
+  </div>
+
+  <div id="sampling_input_switch" style="margin:7px">
+    <input type="checkbox" value="" id="sampling_input_cb">&nbsp;Custom time subsampling
+  </div>
+  <div id="time_sampling_filter"></div>
 
 </div>
 
