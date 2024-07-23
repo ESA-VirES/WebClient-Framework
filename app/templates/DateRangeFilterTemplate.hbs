@@ -1,0 +1,15 @@
+  <span class="form-control">
+    {{{name}}}
+    <input type="hidden" id="type" name="type" value="{{type}}">
+    <div style="float:right;margin-left:6px;padding-right:20px;">
+    <input type="text" id="lowerBound" name="lowerBound" size="18" style="resize:none; overflow: hidden;{{#unless lowerBoundIsValid}};background-color:rgb(255, 215, 215){{/unless}}" value="{{lowerBound}}">
+    <span style="padding-right:20px;"></span>
+    <input type="text" id="upperBound" name="upperBound" size="18" style="resize:none; overflow: hidden;{{#unless upperBoundIsValid}};background-color:rgb(255, 215, 215){{/unless}}" value="{{upperBound}}">
+    </div>
+  </span>
+  <span class="input-group-btn">
+    <button rows="1" class="btn{{#if this.removable}} btn-danger{{else}} btn-default disabled{{/if}} delete-filter" type="button">
+      <i class="fa {{#if this.removable}}fa-minus-circle{{else}}fa-circle-thin{{/if}}"></i>
+    </button>
+  </span>
+
