@@ -1,5 +1,5 @@
 /*global $ _ w2confirm BitwiseInt */
-/*global getISOTimeString isValidTime parseTime getISODateTimeString */
+/*global getISODateTimeString */
 /*global VECTOR_BREAKDOWN REVERSE_VECTOR_BREAKDOWN TIMESTAMP */
 /*global has get pop */
 
@@ -55,6 +55,23 @@
         "name": "Observed 10.7cm solar radio flux"
       },
     };
+
+
+    var createSubscript = function createSubscript(string) {
+      // Adding subscript elements to string which contain underscores
+      var newkey = "";
+      var parts = string.split("_");
+      if (parts.length > 1) {
+        newkey = parts[0];
+        for (var i = 1; i < parts.length; i++) {
+          newkey += (" " + parts[i]).sub();
+        }
+      } else {
+        newkey = string;
+      }
+      return newkey;
+    };
+
 
     var DownloadProcessModel = Backbone.Model.extend({
       refreshTime: 2000, // refresh time in ms
@@ -387,44 +404,15 @@
         this.coverages = new Backbone.Collection([]);
         this.start_picker = null;
         this.end_picker = null;
+        this.parameters = [];
+        this.products = [];
         this.models = [];
-        this.swarm_prod = [];
         this.loadcounter = 0;
         this.currentFilters = {};
-        this.tabindex = 1;
         this.filterViews = {};
-      },
-
-      createSubscript: function createSubscript(string) {
-        // Adding subscript elements to string which contain underscores
-        var newkey = "";
-        var parts = string.split("_");
-        if (parts.length > 1) {
-          newkey = parts[0];
-          for (var i = 1; i < parts.length; i++) {
-            newkey += (" " + parts[i]).sub();
-          }
-        } else {
-          newkey = string;
-        }
-        return newkey;
-      },
-
-      handleItemSelected: function handleItemSelected(evt) {
-        var selected = $('#addfilter').val();
-        var parameters = get(globals.swarm.get('uom_set') || {}, selected);
-        if (!parameters) {return;}
-        var filters = this.model.get("filter") || {};
-        if (has(filters, selected)) {
-          this.currentFilters[selected] = filters[selected];
-        } else if (has(parameters, "bitmask")) {
-          this.currentFilters[selected] = viresFilters.createBitmaskFilter(
-            parameters.bitmask.flags.length, 0, 0
-          );
-        } else {
-          this.currentFilters[selected] = viresFilters.createRangeFilter(0.0, 0.0);
-        }
-        this.renderFilterList();
+        this.samplingFilterView = null;
+        this.timeSelectionView = null;
+        this.dateSelectionView = null;
       },
 
       onShow: function (view) {
@@ -470,56 +458,317 @@
 
         this.renderFilterList();
 
-        // Check for products and models
-        var products;
-        this.models = [];
-        this.swarm_prod = [];
+        // Date and optional time selection
 
-        // Initialise datepickers
-        $.datepicker.setDefaults({
-          showOn: "both",
-          dateFormat: "yy-mm-dd"
+        var timeInterval = this.model.get("ToI");
+
+        this.showDateSelection(timeInterval);
+
+        this.removeTimeSelection();
+
+        var $timeSelectionCheckbox = this.$el.find("#time_input_cb");
+        $timeSelectionCheckbox.off();
+        $timeSelectionCheckbox.click(_.bind(function () {
+          this.removeTimeSelection();
+          if ($timeSelectionCheckbox.is(':checked')) {
+            this.showTimeSelection(timeInterval);
+          }
+        }, this));
+
+        // Optional custom time sampling filter
+
+        var $samplingInputCheckbox = this.$el.find("#sampling_input_cb");
+        $samplingInputCheckbox.off();
+        $samplingInputCheckbox.click(_.bind(function () {
+          this.removeSamplingFilter();
+          if ($samplingInputCheckbox.is(':checked')) {
+            this.showSamplingFilter({seconds: 10});
+          }
+        }, this));
+
+        // Update the lists of products, models and available parameters
+
+        this.collectProductsModelsAndParameters();
+
+        this.renderProductAndModelLists();
+
+        // Custom parameters
+
+        var $customParametersCheckbox = this.$el.find("#custom_parameters_cb");
+        $customParametersCheckbox.off();
+        $customParametersCheckbox.click(_.bind(function () {
+          if ($customParametersCheckbox.is(':checked')) {
+            this.enableParametersList();
+          } else {
+            this.disableParametersList();
+          }
+        }, this));
+        this.initParametersList(
+          this.getAvailableParameters(this.parameters),
+          this.getSelectedParameters(this.parameters)
+        );
+        this.disableParametersList();
+      },
+
+      onStartDownloadClicked: function () {
+        $('#validationwarning').remove();
+        // First validate fields
+        if (!this.validateInputs()) {
+          // Show 'there is an issue in the fields' and return
+          $('.panel-footer').append('<div id="validationwarning">There is an issue with the provided filters, please look for the red marked fields.</div>');
+          return;
+        }
+
+        //var $downloads = $("#div-downloads");
+        var options = {};
+
+        // format
+        options.format = this.$("#select-output-format").val();
+
+        if (options.format == "application/cdf") {
+          options['time_format'] = "Unix epoch";
+        }
+
+        var beginTime = this.dateSelectionView.model.dataType.toUTCDate(
+          this.dateSelectionView.model.get("lowerBound")
+        );
+        var endTime = this.dateSelectionView.model.dataType.toUTCDate(
+          this.dateSelectionView.model.get("upperBound")
+        );
+
+        if (this.timeSelectionView) {
+          // Precise time selection is active
+          this.timeSelectionView.model.dataType.setUTCHoursFromMilliseconds(
+            beginTime, this.timeSelectionView.model.get("lowerBound")
+          );
+          this.timeSelectionView.model.dataType.setUTCHoursFromMilliseconds(
+            endTime, this.timeSelectionView.model.get("upperBound")
+          );
+        } else {
+          // Precise time selection is not active:
+          // - round start date down to the start of the day ...
+          beginTime.setUTCHours(0, 0, 0, 0);
+          // - round end date up to the start of the next whole day/
+          endTime.setDate(endTime.getDate() + 1);
+          endTime.setUTCHours(0, 0, 0, 0);
+        }
+
+        options.begin_time = getISODateTimeString(beginTime);
+        options.end_time = getISODateTimeString(endTime);
+
+        var requestDaysDuration = (
+          endTime.getTime() - beginTime.getTime()
+        ) / 86400000;
+
+        if (this.samplingFilterView) {
+          options.sampling_step = this.samplingFilterView.model.dataType.formatValue(
+            this.samplingFilterView.model.get("value")
+          );
+        }
+
+        // products
+        var retrieve_data = [];
+
+        globals.products.each(function (model) {
+          if (_.find(this.products, function (p) {return model.get("views")[0].id == p.get("views")[0].id;})) {
+            var processes = model.get("processes");
+            _.each(processes, function (process) {
+              if (process) {
+                switch (process.id) {
+                  case "retrieve_data":
+                    retrieve_data.push({
+                      layer: process.layer_id,
+                      url: model.get("views")[0].urls[0]
+                    });
+                    break;
+                }
+              }
+            }, this);
+          }
+        }, this);
+
+        if (retrieve_data.length > 0) {
+          options["collections_ids"] = DataUtil.formatCollections(
+            DataUtil.parseCollections(retrieve_data)
+          );
+        }
+
+        // models
+        options["model_ids"] = _.map(this.models, function (item) {
+          return item.getModelExpression(item.get('download').id);
+        }).join(',');
+
+        options["shc"] = _.map(this.models, function (item) {
+          return item.getCustomShcIfSelected();
+        })[0] || null;
+
+        var getSourceVariableName = function (name) {
+          var v = get(REVERSE_VECTOR_BREAKDOWN, name);
+          return v ? (v.source + "[" + v.index + "]") : name;
+        };
+
+        // filters
+        var filters = _.map(this.filterViews, function (view, key) {
+          return viresFilters.formatFilter(
+            getSourceVariableName(view.model.get("id")), view.model.toFilter()
+          );
         });
 
-        var timeinterval = this.model.get("ToI");
+        options.filters = viresFilters.joinFormattedFilters(filters);
 
-        this.start_picker = this.$('#startDate').datepicker({
-          onSelect: _.bind(function () {
-            var start = this.start_picker.datepicker("getDate");
-            var end = this.end_picker.datepicker("getDate");
-            if (start > end) {
-              this.end_picker.datepicker("setDate", start);
-            }
-          }, this),
+        // Custom variables
+        var $customParametersCheckbox = this.$el.find("#custom_parameters_cb");
+        if ($customParametersCheckbox.is(':checked')) {
+          options.variables = (
+            this.readSelectedParameters()
+              .map(function (item) {return item.id;})
+              .join(",")
+          );
+        } else {
+          // Use default parameters as described by download
+          // product parameters in configuration
+          var strippedVariables = [
+            "QDLat", "QDLon", "MLT", "OrbitDirection", "QDOrbitDirection",
+            "OrbitNumber", "SunDeclination", "SunRightAscension",
+            "SunHourAngle", "SunAzimuthAngle", "SunZenithAngle",
+            "B_NEC_resAC"
+          ];
+
+          // Separate models and Swarm products and add lists to ui
+          options.variables = _.chain(this.model.get("products"))
+            .map(function (product) {
+              var parameters = product.get("download_parameters");
+              return parameters && !product.get("model") ? _.keys(parameters) : [];
+            })
+            .flatten()
+            .uniq()
+            .difference(strippedVariables)
+            .value();
+        }
+
+        // TODO: Just getting last URL here think of how different urls should be handled
+        var url = this.products.map(function (item) {return item.get("views")[0].urls[0];})[0];
+        var req_data = wps_fetchFilteredDataAsync(options);
+
+        var that = this;
+        var sendProcessingRequest = function () {
+          disableDownloadButton();
+          $.post(url, req_data, 'xml')
+            .done(function (response) {
+              that.updateJobs();
+            })
+            .error(function (resp) {
+              enableDownloadButton();
+            });
+        };
+
+        // Warn users about possibly large data requests.
+
+        var MAX_REQUST_DAYS_DURATION = 50;
+
+        var message;
+        if (requestDaysDuration >= MAX_REQUST_DAYS_DURATION) {
+          if (filters.length == 0) {
+            message = [
+              "The current selection will most likely exceed the download limit,",
+              "please make sure to add filters to further subset your selection.",
+              "<br> Would you still like to proceed?",
+            ].join(" ");
+          } else {
+            message = [
+              "The current selected time interval is large and could result in",
+              " a large download file if filters are not restrictive. ",
+              "The process runs in the background and the browser does not ",
+              "need to be open.",
+              "<br>Are you sure you want to proceed?",
+            ].join(" ");
+          }
+          w2confirm(message).yes(sendProcessingRequest);
+        } else {
+          sendProcessingRequest();
+        }
+
+      },
+
+      onClose: function () {
+        Communicator.mediator.trigger("ui:close", "download");
+        for (var key in this.filterViews) {
+          pop(this.filterViews, key).remove();
+        }
+        this.removeSamplingFilter();
+        this.removeTimeSelection();
+        this.removeDateSelection();
+        this.close();
+      },
+
+      validateInputs: function () {
+
+        var isValid = true;
+
+        _.each(this.filterViews, function (view, key) {
+          isValid = isValid && view.model.isValid();
         });
-        this.start_picker.datepicker("setDate", timeinterval.start);
 
-        this.end_picker = this.$('#endDate').datepicker({
-          onSelect: _.bind(function () {
-            var start = this.start_picker.datepicker("getDate");
-            var end = this.end_picker.datepicker("getDate");
-            if (end < start) {
-              this.start_picker.datepicker("setDate", end);
-            }
-          }, this),
+        if (this.dateSelectionView) {
+          isValid = isValid && this.dateSelectionView.model.isValid();
+        }
+
+        if (this.timeSelectionView) {
+          isValid = isValid && this.timeSelectionView.model.isValid();
+        }
+
+        if (this.samplingFilterView) {
+          isValid = isValid && this.samplingFilterView.model.isValid();
+        }
+
+        return isValid;
+      },
+
+      getSelectedParameters: function (availableParameters) {
+        // Make sure the available essential parameters are selected.
+        return _.map(ESSENTIAL_PARAMETERS, function (variable) {
+          if (_.any(availableParameters, function (item) {return item.id == variable;})) {
+            return {id: variable};
+          }
         });
-        this.end_picker.datepicker("setDate", timeinterval.end);
 
-        // Prepare to create list of available parameters
-        var available_parameters = [];
+      },
 
-        products = this.model.get("products");
+      getAvailableParameters: function (availableParameters) {
+
+        // See if magnetic data actually selected if not remove residuals
+        var magneticDataSelected = _.any(
+          _.keys(this.model.get("products")),
+          function (key) {return key.includes("MAG");}
+        );
+
+        if (!magneticDataSelected) {
+          availableParameters = _.filter(
+            availableParameters,
+            function (item) {return !item.id.includes("_res_");}
+          );
+        }
+
+        return availableParameters;
+      },
+
+      collectProductsModelsAndParameters: function () {
+        // return list of available parameters
+        var parameters = [];
+        var products = [];
+        var models = [];
+
         // Separate models and Swarm products and add lists to ui
-        _.each(products, function (prod) {
+        _.each(this.model.get("products"), function (prod) {
 
           if (prod.get("download_parameters")) {
             var par = prod.get("download_parameters");
             var new_keys = _.keys(par);
             _.each(new_keys, function (key) {
-              if (!_.find(available_parameters, function (item) {
+              if (!_.find(parameters, function (item) {
                 return item.id == key;
               })) {
-                available_parameters.push({
+                parameters.push({
                   id: key,
                   uom: par[key].uom,
                   description: par[key].name,
@@ -530,154 +779,166 @@
 
           if (prod.get("processes")) {
             var result = $.grep(prod.get("processes"), function (e) {return e.id == "retrieve_data";});
-            if (result)
-              this.swarm_prod.push(prod);
+            if (result) {
+              products.push(prod);
+            }
           }
 
           if (prod.get("model")) {
-            this.models.push(prod);
+            models.push(prod);
           }
-        }, this);
+        });
 
-        var prod_div = this.$el.find("#productsList");
-        prod_div.append('<div style="font-weight:bold;">Products</div>');
+        this.parameters = parameters;
+        this.products = products;
+        this.models = models;
+      },
 
-        prod_div.append('<ul style="padding-left:15px">');
-        var ul = prod_div.find("ul");
-        _.each(this.swarm_prod, function (prod) {
-          ul.append('<li style="list-style-type: circle; padding-left:-6px;list-style-position: initial;">' + prod.get("name") + '</li>');
-        }, this);
+      renderProductAndModelLists: function () {
+        var _renderList = function ($container, title, items) {
+          $container.append('<div style="font-weight:bold;">' + title + '</div>');
+          $container.append('<ul style="padding-left:15px">');
+          var $list = $container.find("ul");
+          _.each(items, function (item) {
+            $list.append('<li style="list-style-type: circle; padding-left:-6px;list-style-position: initial;">' + item + '</li>');
+          });
+        };
 
-        if (this.models.length > 0) {
-          var mod_div = this.$el.find("#model");
-          mod_div.append('<div><b>Models</b></div>');
-          mod_div.append('<ul style="padding-left:15px">');
-          ul = mod_div.find("ul");
-          _.each(this.models, function (prod) {
-            ul.append('<li style="list-style-type: circle; padding-left:-6px;list-style-position: initial;">' + prod.getPrettyModelExpression() + '</li>');
-          }, this);
-        }
-
-        this.$el.find("#custom_parameter_cb").off();
-        this.$el.find("#custom_download").empty();
-        this.$el.find("#custom_download").html(
-          '<div class="w2ui-field">' +
-              '<div class="checkbox" style="margin-left:-3px;"><label><input type="checkbox" value="" id="custom_parameter_cb">Custom download parameters</label></div>' +
-              '<div style="margin-left:0px;"> <input id="param_enum" style="width:100%;"> </div>' +
-          '</div>'
+        _renderList(
+          this.$el.find("#productsList"), "Products",
+          this.products.map(function (item) {return item.get("name");})
         );
 
-        var subsetting_cb = '<div class="checkbox"><label><input type="checkbox" value="" id="custom_subsetting_cb">Custom time subsampling</label></div>';
-        var subsettingFilter =
-          '<div class="input-group" id=custom_subsetting_filter style="margin:7px">' +
-            '<input type="hidden" id="type" name="type" value="SamplingRateFilter">' +
-            '<span class="form-control">' +
-              'Time subsetting (Expected format ISO-8601 duration e.g. PT1H10M30S)' +
-              '<textarea id="duration" name="duration" rows="1" cols="20" style="float:right; resize:none;">PT10S</textarea>' +
-            '</span>' +
-        '</div>';
-
-        this.$el.find("#custom_subsetting_cb").off();
-        this.$el.find("#custom_subsetting").empty();
-        this.$el.find("#custom_subsetting").append(subsetting_cb);
-
-        $("#custom_subsetting_cb").click(function (evt) {
-          if ($('#custom_subsetting_cb').is(':checked')) {
-            $("#custom_subsetting").append(subsettingFilter);
-          } else {
-            $("#custom_subsetting_filter").remove();
-          }
-        });
-
-        this.$el.find("#custom_time_cb").off();
-        this.$el.find("#custom_time").empty();
-        /*this.$el.find("#custom_time").html(
-            '<div class="checkbox" style="margin-left:0px;"><label><input type="checkbox" value="" id="custom_time_cb">Custom time selection</label></div><div id="customtimefilter"></div>'
-        );*/
-
-        this.$el.find('#custom_time_cb').click(_.bind(function () {
-          $('#customtimefilter').empty();
-          if ($('#custom_time_cb').is(':checked')) {
-            var timeinterval = this.model.get("ToI");
-            var name = "Time (hh:mm:ss.fff)";
-            var $html = $(
-              '<div class="input-group" id="timefilter" style="margin:7px">'
-              + RangeFilterTmpl({
-                id: "timefilter",
-                type: "TimeRangeFilter",
-                name: name,
-                lowerBound: getISOTimeString(timeinterval.start),
-                upperBound: getISOTimeString(timeinterval.end),
-              })
-              + "</div>"
-            );
-            $('#customtimefilter').append($html);
-            $('#customtimefilter .input-group-btn button').removeClass();
-            $('#customtimefilter .input-group-btn button').attr('class', 'btn disabled');
-          }
-        }, this));
-
-        // Make sure the available essential parameters are selected.
-        var selected = _.map(ESSENTIAL_PARAMETERS, function (variable) {
-          if (_.any(available_parameters, function (item) {return item.id == variable;})) {
-            return {id: variable};
-          }
-        });
-
-        // See if magnetic data actually selected if not remove residuals
-        var magdata = _.any(_.keys(products), function (key) {return key.includes("MAG");});
-
-        if (!magdata) {
-          available_parameters = _.filter(available_parameters, function (v) {
-            return !v.id.includes("_res_");
-          });
+        if (this.models.length > 0) {
+          _renderList(
+            this.$el.find("#modelsList"), "Models",
+            this.models.map(function (item) {return item.getPrettyModelExpression();})
+          );
         }
+      },
 
-        $('#param_enum').w2field('enum', {
-          items: _.sortBy(available_parameters, 'id'), // Sort parameters alphabetically
+      initParametersList: function (availableParameters, selectedParameters) {
+        var $parametersList = $('#parameters_list');
+        $parametersList.w2field('enum', {
+          items: _.sortBy(availableParameters, 'id'), // Sort parameters alphabetically
           openOnFocus: true,
-          selected: selected,
-          renderItem: _.bind(function (item, index, remove) {
+          selected: selectedParameters || [],
+          renderItem: function (item, index, remove) {
             if (ESSENTIAL_PARAMETERS.includes(item.id)) {
               remove = "";
             }
-            var html = remove + this.createSubscript(item.id);
+            var html = remove + createSubscript(item.id);
             return html;
-          }, this),
-          renderDrop: _.bind(function (item, options) {
+          },
+          renderDrop: function (item, options) {
             $("#w2ui-overlay").addClass("downloadsection");
-
-            var html = '<b>' + this.createSubscript(item.id) + '</b>';
+            var html = '<b>' + createSubscript(item.id) + '</b>';
             if (item.uom != null) {
               html += ' [' + item.uom + ']';
             }
             if (item.description) {
               html += ': ' + item.description;
             }
-            //'<i class="fa fa-info-circle" aria-hidden="true" data-placement="right" style="margin-left:4px;" title="'+item.description+'"></i>';
-
             return html;
-          }, this),
-          onRemove: function (evt) {
-            if (ESSENTIAL_PARAMETERS.includes(evt.item.id)) {
-              evt.preventDefault();
-              evt.stopPropagation();
+          },
+          onRemove: function (event_) {
+            if (ESSENTIAL_PARAMETERS.includes(event_.item.id)) {
+              event_.preventDefault();
+              event_.stopPropagation();
             }
           }
         });
-        $('#param_enum').prop('disabled', true);
-        $('#param_enum').w2field().refresh();
 
-        this.$el.find("#custom_parameter_cb").click(function (evt) {
-          if ($('#custom_parameter_cb').is(':checked')) {
-            $('#param_enum').prop('disabled', false);
-            $('#param_enum').w2field().refresh();
-          } else {
-            $('#param_enum').prop('disabled', true);
-            $('#param_enum').w2field().refresh();
-          }
+      },
+
+      readSelectedParameters: function () {
+        return $('#parameters_list').data('selected');
+      },
+
+      disableParametersList: function () {
+        var $parametersList = $('#parameters_list');
+        $parametersList.prop('disabled', true);
+        $parametersList.w2field().refresh();
+      },
+
+      enableParametersList: function () {
+        var $parametersList = $('#parameters_list');
+        $parametersList.prop('disabled', false);
+        $parametersList.w2field().refresh();
+      },
+
+      removeTimeSelection: function () {
+        if (this.timeSelectionView) {
+          this.timeSelectionView.remove();
+          this.timeSelectionView = null;
+        }
+        this.$el.find("#time_filter").empty();
+      },
+
+      showTimeSelection: function (timeInterval) {
+        var view;
+        if (this.timeSelectionView) {return;}
+        this.timeSelectionView = view = new DownloadFilters.TimeRangeFilterView({
+          id: "time",
+          label: "Time (hh:mm:ss.sss)",
+          filter: {
+            lowerBound: timeInterval.start.getTime() % 86400000,
+            upperBound: timeInterval.end.getTime() % 86400000,
+          },
+          parameters: {},
+          removable: false,
         });
+        view.render();
+        this.$el.find("#time_filter").append(view.$el);
+      },
 
+      removeDateSelection: function () {
+        if (this.dateSelectionView) {
+          this.dateSelectionView.remove();
+          this.dateSelectionView = null;
+        }
+        this.$el.find("#date_filter").empty();
+      },
+
+      showDateSelection: function (timeInterval) {
+        if (this.dateSelectionView) {return;}
+
+        var view = this.dateSelectionView = new DownloadFilters.DateRangeFilterView({
+          id: "date",
+          label: "Date (YYYY-MM-DD)",
+          filter: {
+            lowerBound: DownloadFilters.DateType.fromUTCDate(timeInterval.start),
+            upperBound: DownloadFilters.DateType.fromUTCDate(timeInterval.end),
+          },
+          parameters: {},
+          removable: false,
+        });
+        view.render();
+        this.$el.find("#date_filter").append(view.$el);
+      },
+
+      removeSamplingFilter: function () {
+        if (this.samplingFilterView) {
+          this.samplingFilterView.remove();
+          this.samplingFilterView = null;
+        }
+        this.$el.find("#time_sampling_filter").empty();
+      },
+
+      showSamplingFilter: function (value) {
+        if (this.samplingFilterView) {return;}
+
+        var view = this.samplingFilterView = new DownloadFilters.DurationFilterView({
+          id: "timeSampling",
+          label: "Time sampling (ISO-8601 duration, e.g., PT1H10M30.5S)",
+          filter: {
+            value: value,
+          },
+          parameters: {},
+          removable: false,
+        });
+        view.render();
+        this.$el.find("#time_sampling_filter").append(view.$el);
       },
 
       updateJobs: function () {
@@ -774,14 +1035,13 @@
             id: name,
             filter: filter,
             parameters: availableParameters[name],
-            tabIndex: this.tabindex
           });
 
           view.render();
           fil_div.append(view.$el);
-          this.tabindex += view.getTabCount();
           this.filterViews[name] = view;
         }, this);
+
 
         // Create possible filter options based on possible download parameters
         var filterOptions = _.clone(EXTRA_PARAMETERS);
@@ -816,7 +1076,7 @@
         $('#addfilter').w2field('list', {
           items: _.keys(filterOptions).sort(),
           renderDrop: _.bind(function (item, options) {
-            var html = '<b>' + this.createSubscript(item.id) + '</b>';
+            var html = '<b>' + createSubscript(item.id) + '</b>';
             if (filterOptions[item.id].uom != null) {
               html += ' [' + filterOptions[item.id].uom + ']';
             }
@@ -827,264 +1087,42 @@
           }, this)
         });
 
-        $('#addfilter').change(this.handleItemSelected.bind(this));
+        $('#addfilter').change(_.bind(
+          function (event_) {this.addFilter($('#addfilter').val());}, this
+        ));
 
         // Remove previously set click bindings
         this.$('.delete-filter').off('click');
-        this.$('.delete-filter').on('click', _.bind(function (evt) {
-          var item = evt.currentTarget.parentElement.parentElement;
-          pop(this.filterViews, item.id).remove();
-          delete this.currentFilters[item.id];
-          this.renderFilterList();
+        this.$('.delete-filter').on('click', _.bind(function (event_) {
+          this.removeFilter(event_.currentTarget.parentElement.parentElement.id);
         }, this));
 
         $('.w2ui-field-helper input').attr('placeholder', 'Type to search');
 
       },
 
-      fieldsValid: function () {
-
-        var validateDate = function (value) {
-          return (
-            (value.match(/^\s*\d{4,4}-\d{2,2}-\d{2,2}\s*$/) !== null) &&
-            (!isNaN(Date.parse(value)))
+      addFilter: function (name) {
+        var parameters = get(globals.swarm.get('uom_set') || {}, name);
+        if (!parameters) {return;}
+        var filters = this.model.get("filter") || {};
+        if (has(filters, name)) {
+          this.currentFilters[name] = filters[name];
+        } else if (has(parameters, "bitmask")) {
+          this.currentFilters[name] = viresFilters.createBitmaskFilter(
+            parameters.bitmask.flags.length, 0, 0
           );
-        };
-
-        var validateDuration = function (value) {
-          return value[0] === "P"; // FIXME
-        };
-
-        var validateTextInput = function ($element, validate) {
-          if (!validate($element.val())) {
-            $($element).css('background-color', 'rgb(255, 215, 215)');
-            return false;
-          } else {
-            $($element).css('background-color', '');
-            return true;
-          }
-        };
-
-        var isValid = true;
-        var $filterElements = this.$el.find(".input-group");
-
-        var validators = {
-          "DateRangeFilter": function ($element) {
-            return (
-              validateTextInput($($element).find("#startDate"), validateDate) &&
-              validateTextInput($($element).find("#endDate"), validateDate)
-            );
-          },
-          "TimeRangeFilter": function ($element) {
-            return (
-              validateTextInput($($element).find("#lowerBound"), isValidTime) &&
-              validateTextInput($($element).find("#upperBound"), isValidTime)
-            );
-          },
-          "SamplingRateFilter": function ($element) {
-            return (
-              validateTextInput($($element).find("#duration"), validateDuration)
-            );
-          },
-        };
-
-        _.each(this.filterViews, function (view, key) {
-          isValid = isValid && view.model.isValid();
-        });
-
-        _.each($filterElements, function ($filterElement) {
-          var type = $($filterElement).find("#type").val();
-          if (has(validators, type)) {
-            isValid = isValid && validators[type]($filterElement);
-          }
-        });
-
-        return isValid;
+        } else {
+          this.currentFilters[name] = viresFilters.createRangeFilter(0.0, 0.0);
+        }
+        this.renderFilterList();
       },
 
-      onStartDownloadClicked: function () {
-        $('#validationwarning').remove();
-        // First validate fields
-        if (!this.fieldsValid()) {
-          // Show 'there is an issue in the fields' and return
-          $('.panel-footer').append('<div id="validationwarning">There is an issue with the provided filters, please look for the red marked fields.</div>');
-          return;
-        }
-
-        //var $downloads = $("#div-downloads");
-        var options = {};
-
-        // format
-        options.format = this.$("#select-output-format").val();
-
-        if (options.format == "application/cdf") {
-          options['time_format'] = "Unix epoch";
-        }
-
-        // time
-        var copyUTCDate = function (date) {
-          return new Date(Date.UTC(
-            date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(),
-            date.getMinutes(), date.getSeconds()
-          ));
-        };
-
-        options.begin_time = copyUTCDate(new Date(this.$("#startDate").val()));
-        options.begin_time.setUTCHours(0, 0, 0, 0);
-
-        options.end_time = copyUTCDate(new Date(this.$("#endDate").val()));
-        options.end_time.setUTCHours(23, 59, 59, 999);
-
-        // Add time subsetting option
-        if ($('#custom_subsetting_filter').length != 0) {
-          options.sampling_step = $('#custom_subsetting_filter #duration').val();
-        }
-
-        // Rewrite time for start and end date if custom time is active
-        if ($("#timefilter").length != 0) {
-          var start = parseTime($("#timefilter #lowerBound").val());
-          var end = parseTime($("#timefilter #upperBound").val());
-          options.begin_time.setUTCHours(start[0], start[1], start[2], start[3]);
-          options.end_time.setUTCHours(end[0], end[1], end[2], end[3]);
-        } else {
-          // round start date down to the start of the next whole day
-          options.begin_time.setUTCHours(0, 0, 0, 0);
-          // round end date up to the start of the next whole day
-          options.end_time.setDate(options.end_time.getDate() + 1);
-          options.end_time.setUTCHours(0, 0, 0, 0);
-        }
-
-        var bt_obj = options.begin_time;
-        var et_obj = options.end_time;
-        options.begin_time = getISODateTimeString(options.begin_time);
-        options.end_time = getISODateTimeString(options.end_time);
-
-        // products
-        //options.collection_ids = this.swarm_prod.map(function(m){return m.get("views")[0].id;}).join(",");
-        var retrieve_data = [];
-
-        globals.products.each(function (model) {
-          if (_.find(this.swarm_prod, function (p) {return model.get("views")[0].id == p.get("views")[0].id;})) {
-            var processes = model.get("processes");
-            _.each(processes, function (process) {
-              if (process) {
-                switch (process.id) {
-                  case "retrieve_data":
-                    retrieve_data.push({
-                      layer: process.layer_id,
-                      url: model.get("views")[0].urls[0]
-                    });
-                    break;
-                }
-              }
-            }, this);
-          }
-        }, this);
-
-        if (retrieve_data.length > 0) {
-          options["collections_ids"] = DataUtil.formatCollections(
-            DataUtil.parseCollections(retrieve_data)
-          );
-        }
-
-        // models
-        options["model_ids"] = _.map(this.models, function (item) {
-          return item.getModelExpression(item.get('download').id);
-        }).join(',');
-
-        options["shc"] = _.map(this.models, function (item) {
-          return item.getCustomShcIfSelected();
-        })[0] || null;
-
-        var getSourceVariableName = function (name) {
-          var v = get(REVERSE_VECTOR_BREAKDOWN, name);
-          return v ? (v.source + "[" + v.index + "]") : name;
-        };
-
-        // filters
-        var filters = _.map(this.filterViews, function (view, key) {
-          return viresFilters.formatFilter(
-            getSourceVariableName(view.model.get("id")), view.model.toFilter()
-          );
-        });
-
-        options.filters = viresFilters.joinFormattedFilters(filters);
-
-        // Custom variables
-        var variables;
-        if ($('#custom_parameter_cb').is(':checked')) {
-          variables = $('#param_enum').data('selected');
-          variables = variables.map(function (item) {return item.id;});
-          variables = variables.join(',');
-          options.variables = variables;
-        } else {
-          // Use default parameters as described by download
-          // product parameters in configuration
-          var strippedVariables = [
-            "QDLat", "QDLon", "MLT", "OrbitDirection", "QDOrbitDirection",
-            "OrbitNumber", "SunDeclination", "SunRightAscension",
-            "SunHourAngle", "SunAzimuthAngle", "SunZenithAngle",
-            "B_NEC_resAC"
-          ];
-
-          // Separate models and Swarm products and add lists to ui
-          options.variables = _.chain(this.model.get("products"))
-            .map(function (product) {
-              var parameters = product.get("download_parameters");
-              return parameters && !product.get("model") ? _.keys(parameters) : [];
-            })
-            .flatten()
-            .uniq()
-            .difference(strippedVariables)
-            .value();
-        }
-
-        // TODO: Just getting last URL here think of how different urls should be handled
-        var url = this.swarm_prod.map(function (m) {return m.get("views")[0].urls[0];})[0];
-        var req_data = wps_fetchFilteredDataAsync(options);
-
-        // Do some sanity checks before starting process
-
-        // Calculate the difference in milliseconds
-        var difference_ms = et_obj.getTime() - bt_obj.getTime();
-        var days = Math.round(difference_ms / (1000 * 60 * 60 * 24));
-
-        var that = this;
-        var sendProcessingRequest = function () {
-          disableDownloadButton();
-          $.post(url, req_data, 'xml')
-            .done(function (response) {
-              that.updateJobs();
-            })
-            .error(function (resp) {
-              enableDownloadButton();
-            });
-        };
-
-        if (days > 50 && filters.length == 0) {
-          w2confirm('The current selection will most likely exceed the download limit, please make sure to add filters to further subset your selection. <br> Would you still like to proceed?')
-            .yes(function () {
-              sendProcessingRequest();
-            });
-
-        } else if (days > 50) {
-          w2confirm('The current selected time interval is large and could result in a large download file if filters are not restrictive. The process runs in the background and the browser does not need to be open.<br>Are you sure you want to proceed?')
-            .yes(function () {
-              sendProcessingRequest();
-            });
-        } else {
-          sendProcessingRequest();
-        }
-
+      removeFilter: function (name) {
+        pop(this.filterViews, name).remove();
+        delete this.currentFilters[name];
+        this.renderFilterList();
       },
 
-      onClose: function () {
-        Communicator.mediator.trigger("ui:close", "download");
-        for (var key in this.filterViews) {
-          pop(this.filterViews, key).remove();
-        }
-        this.close();
-      }
     });
 
     return {DownloadFilterView: DownloadFilterView};

@@ -14,7 +14,7 @@
         <td style="text-align:right;">selection:</td>
         {{#each bits}}{{#if this.insertSeparator}}<td></td>{{/if}}{{#if this.rendered}}<td style="text-align:center">
           <div style="display:inline-block; position:relative;">
-            <input id="cb{{this.index}}" data-bit-index="{{this.index}}" {{this.tabIndex}}" type="checkbox"{{#if this.selected}} checked{{/if}}{{#unless this.enabled}} disabled{{/unless}} style="margin-top:0px">
+            <input id="cb{{this.index}}" data-bit-index="{{this.index}}" type="checkbox"{{#if this.selected}} checked{{/if}}{{#unless this.enabled}} disabled{{/unless}} style="margin-top:0px">
             <div data-bit-index="{{this.index}}" data-checkbox-id="cb{{this.index}}" class="checkbox-control" style="position:absolute; left:0;right:0;top:0;bottom:0;cursor:pointer" title="{{#if this.enabled}}Records with the {{this.label}} flag {{#if this.selected}}set{{else}}unset{{/if}} are selected.{{else}}The {{this.label}} flag is ignored.{{/if}}"></div>
           </div>
         </td>{{/if}}{{/each}}
@@ -26,7 +26,7 @@
     </table>
   </span>
   <span class="input-group-btn">
-    <button tabindex="{{index3}}" rows="1" class="btn btn-danger delete-filter" type="button">
-      <i class="fa fa-minus-circle"></i>
+    <button rows="1" class="btn{{#if this.removable}} btn-danger{{else}} btn-default disabled{{/if}} delete-filter" type="button">
+      <i class="fa {{#if this.removable}}fa-minus-circle{{else}}fa-circle-thin{{/if}}"></i>
     </button>
   </span>
