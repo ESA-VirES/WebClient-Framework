@@ -173,25 +173,94 @@ var RELATED_COLLECTIONS = {
       type: 'AOB_FAC'
     }
   ],
-  'SW_OPER_EFIA_LP_1B': [
+  'SW_OPER_MITA_LP_2F': [
     {
-      timeSliderDataset: 'SW_OPER_MITA_LP_2F',
-      collections: ['SW_OPER_MITA_LP_2F:ID'],
+      collections: ['SW_OPER_MITA_LP_2F'],
       type: 'MIT_LP'
+    },
+    {
+      collections: ['SW_OPER_MITA_LP_2F:ID'],
+      type: 'MIT_LP:ID'
     }
   ],
-  'SW_OPER_EFIB_LP_1B': [
+  'SW_OPER_MITB_LP_2F': [
     {
-      timeSliderDataset: 'SW_OPER_MITB_LP_2F',
       collections: ['SW_OPER_MITB_LP_2F:ID'],
       type: 'MIT_LP'
+    },
+    {
+      collections: ['SW_OPER_MITB_LP_2F:ID'],
+      type: 'MIT_LP:ID'
     }
   ],
-  'SW_OPER_EFIC_LP_1B': [
+  'SW_OPER_MITC_LP_2F': [
     {
-      timeSliderDataset: 'SW_OPER_MITC_LP_2F',
       collections: ['SW_OPER_MITC_LP_2F:ID'],
       type: 'MIT_LP'
+    },
+    {
+      collections: ['SW_OPER_MITC_LP_2F:ID'],
+      type: 'MIT_LP:ID'
+    }
+  ],
+  'SW_OPER_MITATEC_2F': [
+    {
+      collections: ['SW_OPER_MITATEC_2F'],
+      type: 'MIT_TEC'
+    },
+    {
+      collections: ['SW_OPER_MITATEC_2F:ID'],
+      type: 'MIT_TEC:ID'
+    }
+  ],
+  'SW_OPER_MITBTEC_2F': [
+    {
+      collections: ['SW_OPER_MITBTEC_2F:ID'],
+      type: 'MIT_TEC'
+    },
+    {
+      collections: ['SW_OPER_MITBTEC_2F:ID'],
+      type: 'MIT_TEC:ID'
+    }
+  ],
+  'SW_OPER_MITCTEC_2F': [
+    {
+      collections: ['SW_OPER_MITCTEC_2F:ID'],
+      type: 'MIT_TEC'
+    },
+    {
+      collections: ['SW_OPER_MITCTEC_2F:ID'],
+      type: 'MIT_TEC:ID'
+    }
+  ],
+  'SW_OPER_PPIAFAC_2F': [
+    {
+      collections: ['SW_OPER_PPIAFAC_2F'],
+      type: 'PPI_FAC'
+    },
+    {
+      collections: ['SW_OPER_PPIAFAC_2F:ID'],
+      type: 'PPI_FAC:ID'
+    }
+  ],
+  'SW_OPER_PPIBFAC_2F': [
+    {
+      collections: ['SW_OPER_PPIBFAC_2F:ID'],
+      type: 'PPI_FAC'
+    },
+    {
+      collections: ['SW_OPER_PPIBFAC_2F:ID'],
+      type: 'PPI_FAC:ID'
+    }
+  ],
+  'SW_OPER_PPICFAC_2F': [
+    {
+      collections: ['SW_OPER_PPICFAC_2F:ID'],
+      type: 'PPI_FAC'
+    },
+    {
+      collections: ['SW_OPER_PPICFAC_2F:ID'],
+      type: 'PPI_FAC:ID'
     }
   ],
 };
@@ -205,7 +274,12 @@ var RELATED_VARIABLES = {
   'AEJ_PBS:GroundMagneticDisturbance': [].concat(_COMMON_RELATED_VARIABLES),
   'AEJ_PBL': ['J_QD', 'PointType'].concat(_COMMON_RELATED_VARIABLES),
   'AOB_FAC': ['FAC', 'Radius', 'Boundary_Flag'].concat(_COMMON_RELATED_VARIABLES),
-  'MIT_LP': ['Ne', 'Te', 'PointType'],
+  'MIT_LP': ['Ne', 'Te'].concat(_COMMON_RELATED_VARIABLES),
+  'MIT_LP:ID': ['Ne', 'Te', 'PointType'].concat(_COMMON_RELATED_VARIABLES),
+  'MIT_TEC': [].concat(_COMMON_RELATED_VARIABLES),
+  'MIT_TEC:ID': ['PointType'].concat(_COMMON_RELATED_VARIABLES),
+  'PPI_FAC': [].concat(_COMMON_RELATED_VARIABLES),
+  'PPI_FAC:ID': ['PointType'].concat(_COMMON_RELATED_VARIABLES),
 };
 
 (function () {
@@ -664,7 +738,8 @@ var RELATED_VARIABLES = {
             satellite: product.satellite,
             tileSize: (product.tileSize) ? product.tileSize : 256,
             validity: product.validity,
-            showColorscale: true
+            showColorscale: true,
+            showAsSymbolsOnly: product.showAsSymbolsOnly || false,
           });
 
           if (lm.get('model')) {
@@ -913,6 +988,11 @@ var RELATED_VARIABLES = {
             "Charlie": "SW_OPER_AEJCLPS_2F",
             "Upload": "SW_OPER_AEJULPS_2F",
           },
+          "MIT_LP": {
+            "Alpha": "SW_OPER_MITA_LP_2F",
+            "Bravo": "SW_OPER_MITB_LP_2F",
+            "Charlie": "SW_OPER_MITC_LP_2F",
+          },
           "MIT_TEC": {
             "Alpha": "SW_OPER_MITATEC_2F",
             "Bravo": "SW_OPER_MITBTEC_2F",
@@ -985,6 +1065,7 @@ var RELATED_VARIABLES = {
           'IPD': false,
           'AEJ_LPL': false,
           'AEJ_LPS': false,
+          'MIT_LP': false,
           'MIT_TEC': false,
           'PPI_FAC': false,
         };
@@ -1053,6 +1134,14 @@ var RELATED_VARIABLES = {
           protocol: null,
           containerproduct: true,
           id: "MIT_TEC"
+        }, {at: 0});
+        filtered_collection.add({
+          name: "Midlatitude Ionospheric Trough - (MIT LP)",
+          visible: containerSelection['MIT_LP'],
+          color: "#560064",
+          protocol: null,
+          containerproduct: true,
+          id: "MIT_LP"
         }, {at: 0});
         filtered_collection.add({
           name: "Auroral Electrojet - SECS (AEJ LPS/PBS)",

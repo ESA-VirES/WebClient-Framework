@@ -20,6 +20,15 @@ define([
   'hbs!tmpl/SvgSymbolDimondLarge',
   'hbs!tmpl/SvgSymbolSquare',
   'hbs!tmpl/SvgSymbolTriangle',
+  'hbs!tmpl/SvgSymbolTriangleDown',
+  'hbs!tmpl/SvgSymbolHLineMLineDown',
+  'hbs!tmpl/SvgSymbolHLineMLineUp',
+  'hbs!tmpl/SvgSymbolHLineRoundDown',
+  'hbs!tmpl/SvgSymbolHLineRoundUp',
+  'hbs!tmpl/SvgSymbolHLineTriangleDown',
+  'hbs!tmpl/SvgSymbolHLineTriangleUp',
+  'hbs!tmpl/SvgSymbolHLineTriangleDownFilled',
+  'hbs!tmpl/SvgSymbolHLineTriangleUpFilled',
   'hbs!tmpl/wps_fetchFilteredData',
   'colormap',
   'viresFilters',
@@ -30,10 +39,21 @@ define([
   Marionette, Communicator, App, MapModel, vires, globals, msgpack, httpRequest,
   DataUtil, tmplEvalModel, tmplFieldLinesLabel,
   tmplSvgSymbolCircle, tmplSvgSymbolDimond, tmplSvgSymbolDimondLarge,
-  tmplSvgSymbolSquare, tmplSvgSymbolTriangle, tmplFetchFilteredData,
-  colormap, viresFilters
+  tmplSvgSymbolSquare, tmplSvgSymbolTriangle, tmplSvgSymbolTriangleDown,
+  tmplSvgSymbolHLineMLineDown, tmplSvgSymbolHLineMLineUp,
+  tmplSvgSymbolHLineRoundDown, tmplSvgSymbolHLineRoundUp,
+  tmplSvgSymbolHLineTriangleDown, tmplSvgSymbolHLineTriangleUp,
+  tmplSvgSymbolHLineTriangleDownFilled, tmplSvgSymbolHLineTriangleUpFilled,
+  tmplFetchFilteredData, colormap, viresFilters
 ) {
   'use strict';
+
+  var COLORS = {
+    black: 'black',
+    red: 'maroon',
+    green: 'rgb(0,64,0)',
+    blue: 'rgb(0,0,128)',
+  };
 
   var SYMBOLS = new (function () {
     _.extend(this, {
@@ -59,13 +79,26 @@ define([
     });
   })();
 
-  SYMBOLS.set('SQUARE_BLACK', tmplSvgSymbolSquare({color: 'black'}));
-  SYMBOLS.set('DIMOND_RED', tmplSvgSymbolDimond({color: 'maroon'}));
-  SYMBOLS.set('DIMOND_GREEN', tmplSvgSymbolDimond({color: 'rgb(0,64,0)'}));
-  SYMBOLS.set('LARGE_DIMOND_RED', tmplSvgSymbolDimondLarge({color: 'maroon'}));
-  SYMBOLS.set('LARGE_DIMOND_GREEN', tmplSvgSymbolDimondLarge({color: 'rgb(0,64,0)'}));
-  SYMBOLS.set('TRIANGLE_BLACK', tmplSvgSymbolTriangle({color: 'black'}));
-  SYMBOLS.set('CIRCLE_BLACK', tmplSvgSymbolCircle({color: 'black'}));
+  SYMBOLS.set('SQUARE_BLACK', tmplSvgSymbolSquare({color: COLORS.black}));
+  SYMBOLS.set('DIMOND_RED', tmplSvgSymbolDimond({color: COLORS.red}));
+  SYMBOLS.set('DIMOND_GREEN', tmplSvgSymbolDimond({color: COLORS.green}));
+  SYMBOLS.set('LARGE_DIMOND_RED', tmplSvgSymbolDimondLarge({color: COLORS.red}));
+  SYMBOLS.set('LARGE_DIMOND_GREEN', tmplSvgSymbolDimondLarge({color: COLORS.green}));
+  SYMBOLS.set('TRIANGLE_BLACK', tmplSvgSymbolTriangle({color: COLORS.black}));
+  SYMBOLS.set('TRIANGLE_RED', tmplSvgSymbolTriangle({color: COLORS.red}));
+  //SYMBOLS.set('TRIANGLE_DOWN_GREEN', tmplSvgSymbolTriangleDown({color: COLORS.green}));
+  SYMBOLS.set('TRIANGLE_DOWN_BLACK', tmplSvgSymbolTriangleDown({color: COLORS.black}));
+  SYMBOLS.set('TRIANGLE_DOWN_BLUE', tmplSvgSymbolTriangleDown({color: COLORS.blue}));
+  SYMBOLS.set('CIRCLE_BLACK', tmplSvgSymbolCircle({color: COLORS.black}));
+  SYMBOLS.set('CIRCLE_GREEN', tmplSvgSymbolCircle({color: COLORS.green}));
+  SYMBOLS.set('HLINE_MLINE_DOWN_BLACK', tmplSvgSymbolHLineMLineDown({color: COLORS.black}));
+  SYMBOLS.set('HLINE_MLINE_UP_BLACK', tmplSvgSymbolHLineMLineUp({color: COLORS.black}));
+  SYMBOLS.set('HLINE_TRINAGLE_DOWN_BLACK', tmplSvgSymbolHLineTriangleDown({color: COLORS.black}));
+  SYMBOLS.set('HLINE_TRINAGLE_UP_BLACK', tmplSvgSymbolHLineTriangleUp({color: COLORS.black}));
+  SYMBOLS.set('HLINE_TRINAGLE_DOWN_FILLED_BLACK', tmplSvgSymbolHLineTriangleDownFilled({color: COLORS.black}));
+  SYMBOLS.set('HLINE_TRINAGLE_UP_FILLED_BLACK', tmplSvgSymbolHLineTriangleUpFilled({color: COLORS.black}));
+  SYMBOLS.set('HLINE_ROUND_DOWN_GREEN', tmplSvgSymbolHLineRoundDown({color: COLORS.green}));
+  SYMBOLS.set('HLINE_ROUND_UP_GREEN', tmplSvgSymbolHLineRoundUp({color: COLORS.green}));
 
   var DEG2RAD = Math.PI / 180.0;
 
@@ -123,13 +156,21 @@ define([
   var BF_AOB_EW_BOUNDARY = 0x1;
   var BF_AOB_PW_BOUNDARY = 0x2;
 
-  var LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
-  var LP_MIT_POLEWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x1;
+  var LP_MIT_EQUATORWARD_EDGE_OF_EQUATORWARD_WALL = 0x0;
+  var LP_MIT_POLEWARD_EDGE_OF_EQUATORWARD_WALL = 0x1;
   var LP_MIT_EQUATORWARD_EDGE_OF_POLEWARD_WALL = 0x2;
-  var LP_MIT_POLEWARD_EDGE_OF_THE_POLEWARD_BOUNDARY = 0x3;
+  var LP_MIT_POLEWARD_EDGE_OF_POLEWARD_BOUNDARY = 0x3;
   var LP_SETE_EQUATORWARD_BOUNDING_POSITION = 0x4;
   var LP_SETE_POLEWARD_BOUNDING_POSITION = 0x5;
   var LP_TE_PEAK_POSITION = 0x6;
+
+  var TEC_MIT_EQUATORWARD_EDGE_OF_EQUATORWARD_WALL = 0x0;
+  var TEC_MIT_POLEWARD_EDGE_OF_EQUATORWARD_WALL = 0x1;
+  var TEC_MIT_EQUATORWARD_EDGE_OF_POLEWARD_WALL = 0x2;
+  var TEC_MIT_POLEWARD_EDGE_OF_POLEWARD_BOUNDARY = 0x3;
+
+  var FAC_PPI_EQUATORWARD_EDGE_OF_SSFAC_BOUNDARY = 0x0;
+  var FAC_PPI_POLEWARD_EDGE_OF_SSFAC_BOUNDARY = 0x1;
 
 
   // record filter class
@@ -1750,46 +1791,53 @@ define([
 
     _createRelatedDataFeatures: function (productType, data) {
 
-      var getPointPrimitive = function (symbol, position) {
+      var getPointPrimitive = function (symbol, position, options) {
+        options = options || {};
         return {
           image: SYMBOLS.get(symbol),
           position: position,
           pixelOffset: new Cesium.Cartesian2(0, 0),
           eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
           radius: 0,
-          scale: 0.4,
+          scale: get(options, "scale", 0.4),
           scaleByDistance: NEAR_FAR_SCALAR,
         };
       };
 
-      var getGeodeticPointRenderer = function (symbol, altitude) {
+      var getGeodeticPointRenderer = function (symbol, altitude, options) {
         return function (record) {
           var position = Cesium.Cartesian3.fromDegrees(
             record.Longitude, record.Latitude, altitude
           );
-          featureCollection.add(getPointPrimitive(symbol, position));
+          featureCollection.add(getPointPrimitive(symbol, position, options));
         };
       };
 
-      var getGeocetricPointRenderer = function (symbol, radius, indices) {
+      var getGeocentricPointRenderer = function (symbol, radius, indices, options) {
         return function (record) {
           var position = Cesium.Cartesian3.clone(
             convertSpherical2Cartesian(
-              record.Latitude, record.Longitude,
-              get(record, 'Radius', radius) +
-                            get(indices, record.id, 0) * HEIGHT_OFFSET
+              record.Latitude, record.Longitude, (
+                get(record, 'Radius', radius)
+                + get(indices || {}, record.id, 0) * HEIGHT_OFFSET
+              )
             )
           );
-          featureCollection.add(getPointPrimitive(symbol, position));
+          console.log("options:", options)
+          featureCollection.add(getPointPrimitive(symbol, position, options));
         };
       };
 
-      var getMultiGeocetricPointRenderer = function (selector, symbols, radius, indices) {
+      var getMultiGeocetricPointRenderer = function (selector, symbols, radius, indices, options) {
+        console.log("options", options)
         var renderers = _.map(symbols, function (symbol) {
-          return getGeocetricPointRenderer(symbol, radius, indices);
+          return getGeocentricPointRenderer(symbol, radius, indices, options);
         });
         return function (record) {
-          renderers[selector(record)](record);
+          var selection = selector(record);
+          if (selection != null) {
+            renderers[selection](record);
+          }
         };
       };
 
@@ -1810,39 +1858,45 @@ define([
             return 1;
         }
       };
-      /*
-var LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
-    var LP_MIT_POLEWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x1;
-    var LP_MIT_EQUATORWARD_EDGE_OF_POLEWARD_WALL = 0x2;
-    var LP_MIT_POLEWARD_EDGE_OF_THE_POLEWARD_BOUNDARY = 0x3;
-    var LP_SETE_EQUATORWARD_BOUNDING_POSITION = 0x4;
-    var LP_SETE_POLEWARD_BOUNDING_POSITION = 0x5;
-    var LP_TE_PEAK_POSITION = 0x6;
 
-    var TEC_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
-    var TEC_MIT_POLEWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x1;
-    var TEC_MIT_EQUATORWARD_EDGE_OF_POLEWARD_WALL = 0x2;
-    var TEC_MIT_POLEWARD_EDGE_OF_THE_POLEWARD_BOUNDARY = 0x3;
-  */
-      var selectMITPointType = function (record) {
+      var select_MIT_LP_ID_PointType = function (record) {
         switch (record.PointType) {
-          case LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL:
+          case LP_MIT_EQUATORWARD_EDGE_OF_EQUATORWARD_WALL:
             return 0;
-          case LP_MIT_POLEWARD_EDGE_OF_THE_EQUATORWARD_WALL:
+          case LP_MIT_POLEWARD_EDGE_OF_EQUATORWARD_WALL:
             return 1;
-          default:
-            return 0;
+          case LP_MIT_EQUATORWARD_EDGE_OF_POLEWARD_WALL:
+            return 2;
+          case LP_MIT_POLEWARD_EDGE_OF_POLEWARD_BOUNDARY:
+            return 3;
+          case LP_SETE_EQUATORWARD_BOUNDING_POSITION:
+            return 4;
+          case LP_SETE_POLEWARD_BOUNDING_POSITION:
+            return 5;
+          case LP_TE_PEAK_POSITION:
+            return 6;
         }
       };
 
-      var selectTEC_MITPointType = function (record) {
+      var select_MIT_TEC_ID_PointType = function (record) {
         switch (record.PointType) {
-          case TEC_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL:
+          case TEC_MIT_EQUATORWARD_EDGE_OF_EQUATORWARD_WALL:
             return 0;
-          case TEC_MIT_POLEWARD_EDGE_OF_THE_EQUATORWARD_WALL:
+          case TEC_MIT_POLEWARD_EDGE_OF_EQUATORWARD_WALL:
             return 1;
-          default:
+          case TEC_MIT_EQUATORWARD_EDGE_OF_POLEWARD_WALL:
+            return 2;
+          case TEC_MIT_POLEWARD_EDGE_OF_POLEWARD_BOUNDARY:
+            return 3;
+        }
+      };
+
+      var select_PPI_FAC_ID_PointType = function (record) {
+        switch (record.PointType) {
+          case FAC_PPI_EQUATORWARD_EDGE_OF_SSFAC_BOUNDARY:
             return 0;
+          case FAC_PPI_POLEWARD_EDGE_OF_SSFAC_BOUNDARY:
+            return 1;
         }
       };
 
@@ -1871,12 +1925,131 @@ var LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
       var indices = retrieveHeightIndices(data.parentCollections);
 
       var renderer;
+
       switch (productType) {
         case 'MIT_LP':
-          renderer = getMultiGeocetricPointRenderer(
-            selectMITPointType, ['TRIANGLE_BLACK', 'SQUARE_BLACK'],
-            EARTH_RADIUS + IONOSPHERIC_ALTITUDE, indices
+          renderer = getGeocentricPointRenderer(
+            'TRIANGLE_DOWN_BLUE',
+            null, null, {scale: 0.6}
           );
+          this.dataLegends.addProductTypeItem(productType, 'MIT_Ne_min', {
+            symbol: 'TRIANGLE_DOWN_BLUE',
+            title: "MIT Ne minimum",
+          });
+          break;
+        case 'MIT_LP:ID':
+          renderer = getMultiGeocetricPointRenderer(
+            select_MIT_LP_ID_PointType,
+            [
+              'HLINE_TRINAGLE_DOWN_FILLED_BLACK',
+              'HLINE_TRINAGLE_UP_BLACK',
+              'HLINE_TRINAGLE_DOWN_BLACK',
+              'HLINE_TRINAGLE_UP_FILLED_BLACK',
+              'HLINE_MLINE_DOWN_BLACK',
+              'HLINE_MLINE_UP_BLACK',
+              'TRIANGLE_RED',
+            ],
+            null, null, {scale: 0.6}
+          );
+
+          this.dataLegends.addProductTypeItem(productType, 'MIT_SETE_EB', {
+            symbol: 'HLINE_MLINE_DOWN_BLACK',
+            title: "MIT SETE equatorward bounding position",
+          });
+          this.dataLegends.addProductTypeItem(productType, 'MIT_SETE_PB', {
+            symbol: 'HLINE_MLINE_UP_BLACK',
+            title: "MIT SETE poleward bounding position",
+          });
+          this.dataLegends.addProductTypeItem(productType, 'MIT_EE_EW', {
+            symbol: 'HLINE_TRINAGLE_DOWN_FILLED_BLACK',
+            title: "MIT equatorward edge of the equatorward wall",
+          });
+          this.dataLegends.addProductTypeItem(productType, 'MIT_PE_EW', {
+            symbol: 'HLINE_TRINAGLE_UP_BLACK',
+            title: "MIT poleward edge of the equatorward wall",
+          });
+          this.dataLegends.addProductTypeItem(productType, 'MIT_EE_PW', {
+            symbol: 'HLINE_TRINAGLE_DOWN_BLACK',
+            title: "MIT equatorward edge of poleward wall",
+          });
+          this.dataLegends.addProductTypeItem(productType, 'MIT_PE_PW', {
+            symbol: 'HLINE_TRINAGLE_UP_FILLED_BLACK',
+            title: "MIT poleward edge of the poleward boundary",
+          });
+          this.dataLegends.addProductTypeItem(productType, 'MIT_Te_peak', {
+            symbol: 'TRIANGLE_RED',
+            title: "MIT Te peak",
+          });
+          break;
+        case 'MIT_TEC':
+          renderer = getGeocentricPointRenderer(
+            'TRIANGLE_DOWN_BLACK',
+            null, null, {scale: 0.6}
+          );
+          this.dataLegends.addProductTypeItem(productType, 'MIT_TEC_min', {
+            symbol: 'TRIANGLE_DOWN_BLACK',
+            title: "MIT TEC minimum",
+          });
+          break;
+        case 'MIT_TEC:ID':
+          renderer = getMultiGeocetricPointRenderer(
+            select_MIT_TEC_ID_PointType,
+            [
+              'HLINE_TRINAGLE_DOWN_FILLED_BLACK',
+              'HLINE_TRINAGLE_UP_BLACK',
+              'HLINE_TRINAGLE_DOWN_BLACK',
+              'HLINE_TRINAGLE_UP_FILLED_BLACK',
+            ],
+            null, null, {scale: 0.6}
+          );
+          this.dataLegends.addProductTypeItem(productType, 'MIT_Te_peak', {
+            symbol: 'TRIANGLE_RED',
+            title: "MIT Te peak",
+          });
+          this.dataLegends.addProductTypeItem(productType, 'MIT_EE_EW', {
+            symbol: 'HLINE_TRINAGLE_DOWN_FILLED_BLACK',
+            title: "MIT equatorward edge of the equatorward wall",
+          });
+          this.dataLegends.addProductTypeItem(productType, 'MIT_PE_EW', {
+            symbol: 'HLINE_TRINAGLE_UP_BLACK',
+            title: "MIT poleward edge of the equatorward wall",
+          });
+          this.dataLegends.addProductTypeItem(productType, 'MIT_EE_PW', {
+            symbol: 'HLINE_TRINAGLE_DOWN_BLACK',
+            title: "MIT equatorward edge of poleward wall",
+          });
+          this.dataLegends.addProductTypeItem(productType, 'MIT_PE_PW', {
+            symbol: 'HLINE_TRINAGLE_UP_FILLED_BLACK',
+            title: "MIT poleward edge of the poleward boundary",
+          });
+          break;
+        case 'PPI_FAC':
+          renderer = getGeocentricPointRenderer(
+            'CIRCLE_GREEN',
+            null, null, {scale: 0.6}
+          );
+          this.dataLegends.addProductTypeItem(productType, 'PPI_FAC_SSFAC_boundary', {
+            symbol: 'CIRCLE_GREEN',
+            title: "SSFAC equatorward boundary",
+          });
+          break;
+        case 'PPI_FAC:ID':
+          renderer = getMultiGeocetricPointRenderer(
+            select_PPI_FAC_ID_PointType,
+            [
+              'HLINE_ROUND_DOWN_GREEN',
+              'HLINE_ROUND_UP_GREEN',
+            ],
+            null, null, {scale: 0.6}
+          );
+          this.dataLegends.addProductTypeItem(productType, 'PPI_FAC_SSFAC_equatorward_edge', {
+            symbol: 'HLINE_ROUND_DOWN_GREEN',
+            title: "equatorward edge of the SSFAC boundary",
+          });
+          this.dataLegends.addProductTypeItem(productType, 'PPI_FAC_SSFAC_poleward_edge', {
+            symbol: 'HLINE_ROUND_UP_GREEN',
+            title: "poleward edge of the SSFAC boundary",
+          });
           break;
         case 'AEJ_PBS':
         case 'AEJ_PBL':
@@ -2334,6 +2507,7 @@ var LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
 
         globals.products.each(function (product) {
           if (!product.get('visible')) {return;}
+          if (product.get('showAsSymbolsOnly')) {return;}
           var collection = product.get('views')[0].id;
           var spacecraft = get(globals.swarm.collection2satellite, collection);
           if (!spacecraft) {return;}
@@ -2703,7 +2877,7 @@ var LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
     },
 
     renderDataLegend: function (name, options) {
-      var width = 250;
+      var width = 300;
       var height = 20;
 
       var id = 'svg-data-legend-container-' + name;
@@ -2825,11 +2999,11 @@ var LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
 
       svgContainer.selectAll('text')
         .attr('stroke', 'none')
-        .attr('fill', 'black')
+        .attr('fill', COLORS.black)
         .attr('font-weight', 'bold');
 
       svgContainer.selectAll('.tick').select('line')
-        .attr('stroke', 'black');
+        .attr('stroke', COLORS.black);
 
       svgContainer.selectAll('.axis .domain')
         .attr('stroke-width', '2')

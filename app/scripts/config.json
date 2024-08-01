@@ -82,6 +82,20 @@
             "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_AEJxLPS_2F' target='_blank'>Sheet current density profile product specification</a><br>",
             "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_AEJxPBS_2F' target='_blank'>Peaks and boundaries product specification</a><br>",
             "<a href='https://notebooks.vires.services/notebooks/03h2_demo-aebs-aejxlps' target='notebooks'>Example VRE notebook</a>"
+        ],
+        "MIT_LP": [
+            "<p>Midlatitude ionospheric trough boundaries and minima derived from LP measurements</p>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_MITx_LP_2F' target='_blank'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03j1_demo-prism-mitx' target='notebooks'>Example VRE notebook</a>"
+        ],
+        "MIT_TEC": [
+            "<p>Midlatitude ionospheric trough boundaries and minima derived from TEC measurements</p>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_MITxTEC_2F' target='_blank'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03j1_demo-prism-mitx' target='notebooks'>Example VRE notebook</a>"
+        ],
+        "PPI_FAC": [
+            "<p>Equatorward boundary of SSFACs and the associated midnight PP index</p>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_PPIxFAC_2F' target='_blank'>Product specification</a><br>"
         ]
     },
 
@@ -2294,7 +2308,113 @@
                 }
             }
         },
+        "SW_MITx_LP_2F": {
+            "showAsSymbolsOnly": true,
+            "satellite": "Swarm",
+            "parameters": {
+                "L_value": {
+                    "selected": true,
+                    "range": [0, 8],
+                    "colorscale": "viridis",
+                    "uom": null,
+                    "name": "L-value in earth radii of the MIT minimum"
+                },
+                "DR": {
+                    "range": [40, 100],
+                    "colorscale": "viridis",
+                    "uom": "%",
+                    "name": "Relative change in density within the MIT"
+                },
+                "Width": {
+                    "range": [0, 40],
+                    "colorscale": "viridis",
+                    "uom": "deg",
+                    "name": "Scalar  width of the MIT calculated from QD latitudes"
+                },
+                "dL": {
+                    "range": [0, 15],
+                    "colorscale": "viridis",
+                    "uom": "deg",
+                    "name": "Scalar  width of the MIT calculated from L-values"
+                }
+            },
+            "download_parameters": {
+                "Counter": {
+                    "uom": null,
+                    "name": "Swarm orbit and quarter orbit counters"
+                },
+                "Timestamp": {
+                    "uom": null,
+                    "name": "UTC time of the MIT minimum"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "ITRF geocentric latitude of the MIT minimum"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "ITRF geocentric longitude of the MIT minimum"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "ITRF geocentric radius of the MIT minimum"
+                },
+                "Latitude_QD": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude of the MIT minimum"
+                },
+                "Longitude_QD": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude of the MIT minimum"
+                },
+                "MLT_QD": {
+                    "uom": "hour",
+                    "name": "Magnetic local time (QD) of the MIT minimum"
+                },
+                "L_value": {
+                    "uom": null,
+                    "name": "L-value in earth radii of the MIT minimum"
+                },
+                "SZA": {
+                    "uom": "deg",
+                    "name": "Solar zenith angle of the MIT minimum"
+                },
+                "Ne": {
+                    "uom":"cm -3",
+                    "name": "LP electron density at the MIT minimum"
+                },
+                "Te": {
+                    "uom":"K",
+                    "name": "LP electron temperature at the MIT minimum"
+                },
+                "Depth": {
+                    "uom": "cm^-3",
+                    "name": "Scalar  depth of the MIT"
+                },
+                "DR": {
+                    "uom": "%",
+                    "name": "Relative change in density within the MIT"
+                },
+                "Width": {
+                    "uom": "deg",
+                    "name": "Scalar width of the MIT calculated from QD latitudes"
+                },
+                "PW_Gradient": {
+                    "uom": "log(cm^-3)/deg",
+                    "name": "Scalar change in log electron density at the poleward wall of the MIT divided by QD latitude difference"
+                },
+                "EW_Gradient": {
+                    "uom": "log(cm^-3)/deg",
+                    "name": "Scalar change in log electron density at the equatorward wall of the MIT divided by QD latitude difference"
+                },
+                "Quality": {
+                    "uom": null,
+                    "name": "Characterises the detection quality of the MIT as a whole"
+                }
+            }
+        },
         "SW_MITxTEC_2F": {
+            "showAsSymbolsOnly": true,
             "satellite": "Swarm",
             "parameters": {
                 "L_value": {
@@ -2386,11 +2506,11 @@
                 },
                 "PW_Gradient": {
                     "uom": "TECU deg^-1",
-                    "name": "Scalar  change in log electron density at the poleward wall of the MIT divided by QD latitude difference"
+                    "name": "Scalar change in TEC at the poleward wall of the MIT divided by QD latitude difference"
                 },
                 "EW_Gradient": {
                     "uom": "TECU deg^-1",
-                    "name": "Scalar  change in log electron density at the equatorward wall of the MIT divided by QD latitude difference"
+                    "name": "Scalar  change in TEC at the equatorward wall of the MIT divided by QD latitude difference"
                 },
                 "Quality": {
                     "uom": null,
@@ -2399,6 +2519,7 @@
             }
         },
         "SW_PPIxFAC_2F": {
+            "showAsSymbolsOnly": true,
             "satellite": "Swarm",
             "parameters": {
                 "Sigma": {
@@ -3946,6 +4067,118 @@
             "outlines": false,
             "satellite": "Upload"
         }, {
+            "name": "MIT A LP 2F",
+            "type": "SW_MITx_LP_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#645600",
+            "views": [{
+                "id": "SW_OPER_MITA_LP_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_MITA_LP_2F",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "doNotLoadAsPrimary": true,
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_MITA_LP_2F"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "MIT B LP 2F",
+            "type": "SW_MITx_LP_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#645600",
+            "views": [{
+                "id": "SW_OPER_MITB_LP_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_MITB_LP_2F",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "doNotLoadAsPrimary": true,
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_MITB_LP_2F"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "MIT C LP 2F",
+            "type": "SW_MITx_LP_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#645600",
+            "views": [{
+                "id": "SW_OPER_MITC_LP_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_MITC_LP_2F",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "doNotLoadAsPrimary": true,
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_MITC_LP_2F"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "MIT U LP 2F",
+            "type": "SW_MITx_LP_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#145600",
+            "views": [{
+                "id": "SW_OPER_MITU_LP_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_MITU_LP_2F"
+            },
+            "processes" : [
+                {
+                    "doNotLoadAsPrimary": true,
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "download_parameters": {},
+            "outlines": false,
+            "satellite": "Upload"
+        }, {
             "name": "MIT A TEC 2F",
             "type": "SW_MITxTEC_2F",
             "timeSlider": true,
@@ -3967,6 +4200,7 @@
             },
             "processes" : [
                 {
+                    "doNotLoadAsPrimary": true,
                     "id": "retrieve_data",
                     "layer_id": "SW_OPER_MITATEC_2F"
                 }
@@ -3994,6 +4228,7 @@
             },
             "processes" : [
                 {
+                    "doNotLoadAsPrimary": true,
                     "id": "retrieve_data",
                     "layer_id": "SW_OPER_MITBTEC_2F"
                 }
@@ -4021,6 +4256,7 @@
             },
             "processes" : [
                 {
+                    "doNotLoadAsPrimary": true,
                     "id": "retrieve_data",
                     "layer_id": "SW_OPER_MITCTEC_2F"
                 }
@@ -4046,6 +4282,7 @@
             },
             "processes" : [
                 {
+                    "doNotLoadAsPrimary": true,
                     "id": "retrieve_data",
                     "layer_id": "USER_DATA"
                 }
@@ -4075,6 +4312,7 @@
             },
             "processes" : [
                 {
+                    "doNotLoadAsPrimary": true,
                     "id": "retrieve_data",
                     "layer_id": "SW_OPER_PPIAFAC_2F"
                 }
@@ -4102,6 +4340,7 @@
             },
             "processes" : [
                 {
+                    "doNotLoadAsPrimary": true,
                     "id": "retrieve_data",
                     "layer_id": "SW_OPER_PPIBFAC_2F"
                 }
@@ -4129,6 +4368,7 @@
             },
             "processes" : [
                 {
+                    "doNotLoadAsPrimary": true,
                     "id": "retrieve_data",
                     "layer_id": "SW_OPER_PPICFAC_2F"
                 }
@@ -4154,6 +4394,7 @@
             },
             "processes" : [
                 {
+                    "doNotLoadAsPrimary": true,
                     "id": "retrieve_data",
                     "layer_id": "USER_DATA"
                 }

@@ -1,5 +1,5 @@
 /*global _ $ * d3 showMessage getISODateTimeString */
-/*global get */
+/*global get has */
 
 (function () {
   'use strict';
@@ -81,7 +81,7 @@
           this.parameters.min_degree = Math.max(
             this.defaults.min_degree,
             Math.min(value, (
-              this.parameters.hasOwnProperty('max_degree') ?
+              has(this.parameters, 'max_degree') ?
                 this.parameters.max_degree :
                 this.defaults.max_degree
             ))
@@ -98,7 +98,7 @@
           this.parameters.max_degree = Math.min(
             this.defaults.max_degree,
             Math.max(value, (
-              this.parameters.hasOwnProperty('min_degree') ?
+              has(this.parameters, 'min_degree') ?
                 this.parameters.min_degree :
                 this.defaults.min_degree
             ))
@@ -131,6 +131,12 @@
       },
 
       renderView: function () {
+
+        // do nothing if the current model is not set
+        if (!this.current_model) {
+          console.error("No model is set! Layer settings cannot be rendered properly");
+          return;
+        }
 
         // Unbind first to make sure we are not binding to many times
         this.stopListening(Communicator.mediator, "layer:settings:changed", this.onParameterChange);
@@ -187,7 +193,7 @@
         // then the model was removed also removing the residuals parameter
         // from the context menu.
         // If this happens the visualized parameter needs to be changed
-        if (!options.hasOwnProperty(this.selected)) {
+        if (!has(options, this.selected)) {
           this.onOptionsChanged();
         } else {
           var selectedOption = options[this.selected];
@@ -196,7 +202,7 @@
             this.$("#description").text(selectedOption.description);
           }
 
-          if (selectedOption.hasOwnProperty("logarithmic")) {
+          if (has(selectedOption, "logarithmic")) {
             this.addLogOption(options);
           }
 
@@ -237,7 +243,7 @@
               var selected = $(evt.target).find("option:selected").text();
               options[this.selected].colorscale = selected;
               this.current_model.set("parameters", options);
-              if (selectedOption.hasOwnProperty("logarithmic")) {
+              if (has(selectedOption, "logarithmic")) {
                 this.createScale(selectedOption.logarithmic);
               } else {
                 this.createScale();
@@ -299,7 +305,7 @@
           }
 
           this.createScale(
-            selectedOption.hasOwnProperty("logarithmic") &&
+            has(selectedOption, "logarithmic") &&
                         selectedOption.logarithmic
           );
 
@@ -357,8 +363,7 @@
         }
       },
 
-      onShow: function (view) {
-        var that = this;
+      onShow: function () {
 
         if (this.model.get("containerproduct")) {
           // Add options for three satellites
@@ -367,38 +372,25 @@
           $("#satellite_selection").append('<label for="satellite_selec" style="width:120px;">Satellite </label>');
           $("#satellite_selection").append('<select style="margin-left:4px;" name="satellite_selec" id="satellite_selec"></select>');
 
-          if (globals.swarm.products.hasOwnProperty(this.model.get('id'))) {
-            var options = Object.keys(globals.swarm.products[this.model.get('id')]);
-            for (var i = 0; i < options.length; i++) {
-              var selected = '';
-              if (options[i] == 'Alpha') {
-                selected = 'selected';
-              }
-              $('#satellite_selec').append('<option value="' + options[i] + '"' + selected + '>' + options[i] + '</option>');
+          _.each(
+            _.keys(get(globals.swarm.products, this.model.get('id'), {})),
+            function (key) {
+              var selected = (key === 'Aplha' ? 'selected' : '');
+              $('#satellite_selec').append('<option value="' + key + '"' + selected + '>' + key + '</option>');
             }
-          }
-
+          );
           $("#satellite_selec option[value=" + this.selected_satellite + "]").prop("selected", "selected");
 
-          var model = null;
-          globals.products.forEach(function (p) {
-            if (p.get("download").id == globals.swarm.products[that.model.get("id")][that.selected_satellite]) {
-              model = p;
-            }
-          });
-          this.current_model = model;
+          var _getCurrentModel = function (id) {
+            return globals.products.find(function (product) {return product.get("download").id == id;});
+          };
+          this.current_model = _getCurrentModel(globals.swarm.products[this.model.get("id")][this.selected_satellite]);
 
-          $("#satellite_selection").on('change', function () {
-            that.selected_satellite = $("#satellite_selection").find("option:selected").val();
-            var model = null;
-            globals.products.forEach(function (p) {
-              if (p.get("download").id == globals.swarm.products[that.model.get("id")][that.selected_satellite]) {
-                model = p;
-              }
-            });
-            that.current_model = model;
-            that.renderView();
-          });
+          $("#satellite_selection").on('change', _.bind(function () {
+            this.selected_satellite = $("#satellite_selection").find("option:selected").val();
+            this.current_model = _getCurrentModel(globals.swarm.products[this.model.get("id")][this.selected_satellite]);
+            this.renderView();
+          }, this));
 
         } else {
           this.current_model = this.model;
@@ -419,7 +411,7 @@
       onOptionsChanged: function () {
         var options = this.current_model.get("parameters");
 
-        if (options.hasOwnProperty(this.selected)) {
+        if (has(options, this.selected)) {
           delete options[this.selected].selected;
         }
 
@@ -458,7 +450,7 @@
           this.createScale(); // logarithmic ?
         }
 
-        if (selectedOption.hasOwnProperty("logarithmic")) {
+        if (has(selectedOption, "logarithmic")) {
           this.addLogOption(options);
         } else {
           this.$("#logarithmic").empty();
@@ -588,7 +580,7 @@
           }
           options[this.selected].range = [range_min, range_max];
 
-          if (options[this.selected].hasOwnProperty("logarithmic"))
+          if (has(options[this.selected], "logarithmic"))
             this.createScale(options[this.selected].logarithmic);
           else
             this.createScale();
@@ -688,7 +680,7 @@
 
       addLogOption: function (options) {
         var that = this;
-        if (options[this.selected].hasOwnProperty("logarithmic")) {
+        if (has(options[this.selected], "logarithmic")) {
           var checked = "";
           if (options[this.selected].logarithmic)
             checked = "checked";
@@ -709,7 +701,7 @@
             that.current_model.set("parameters", options);
             Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("name"), true);
 
-            if (options[that.selected].hasOwnProperty("logarithmic"))
+            if (has(options[that.selected], "logarithmic"))
               that.createScale(options[that.selected].logarithmic);
             else
               that.createScale();
