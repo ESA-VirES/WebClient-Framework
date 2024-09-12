@@ -2309,33 +2309,21 @@
             }
         },
         "SW_MITx_LP_2F": {
-            "showAsSymbolsOnly": true,
+            "showAsSymbolsOnly": false,
             "satellite": "Swarm",
             "parameters": {
-                "L_value": {
+                "Ne": {
                     "selected": true,
-                    "range": [0, 8],
-                    "colorscale": "viridis",
-                    "uom": null,
-                    "name": "L-value in earth radii of the MIT minimum"
+                    "name": "Electron density at the MIT minimum",
+                    "uom":"cm -3",
+                    "range": [100000, 200000],
+                    "colorscale": "plasma"
                 },
-                "DR": {
-                    "range": [40, 100],
-                    "colorscale": "viridis",
-                    "uom": "%",
-                    "name": "Relative change in density within the MIT"
-                },
-                "Width": {
-                    "range": [0, 40],
-                    "colorscale": "viridis",
-                    "uom": "deg",
-                    "name": "Scalar  width of the MIT calculated from QD latitudes"
-                },
-                "dL": {
-                    "range": [0, 15],
-                    "colorscale": "viridis",
-                    "uom": "deg",
-                    "name": "Scalar  width of the MIT calculated from L-values"
+                "Te": {
+                    "name": "Electron temperature at the MIT minimum",
+                    "uom":"K",
+                    "range": [1000, 5000],
+                    "colorscale": "portland"
                 }
             },
             "download_parameters": {
@@ -2414,33 +2402,15 @@
             }
         },
         "SW_MITxTEC_2F": {
-            "showAsSymbolsOnly": true,
+            "showAsSymbolsOnly": false,
             "satellite": "Swarm",
             "parameters": {
-                "L_value": {
+                "TEC": {
                     "selected": true,
-                    "range": [0, 8],
-                    "colorscale": "viridis",
-                    "uom": null,
-                    "name": "L-value in earth radii of the MIT minimum"
-                },
-                "DR": {
-                    "range": [40, 100],
-                    "colorscale": "viridis",
-                    "uom": "%",
-                    "name": "Relative change in density within the MIT"
-                },
-                "Width": {
-                    "range": [0, 40],
-                    "colorscale": "viridis",
-                    "uom": "deg",
-                    "name": "Scalar  width of the MIT calculated from QD latitudes"
-                },
-                "dL": {
-                    "range": [0, 15],
-                    "colorscale": "viridis",
-                    "uom": "deg",
-                    "name": "Scalar  width of the MIT calculated from L-values"
+                    "range": [0, 7],
+                    "colorscale": "plasma",
+                    "uom": "TECU",
+                    "name": "Total electron content at the MIT minimum"
                 }
             },
             "download_parameters": {
@@ -2519,15 +2489,9 @@
             }
         },
         "SW_PPIxFAC_2F": {
-            "showAsSymbolsOnly": true,
+            "showAsSymbolsOnly": false,
             "satellite": "Swarm",
             "parameters": {
-                "Sigma": {
-                    "range": [0, 1],
-                    "uom": null,
-                    "colorscale": "viridis",
-                    "name": "Standard deviation of the linear fit of S at the boundary"
-                },
                 "PPI": {
                     "range": [0, 10],
                     "selected": true,
@@ -4088,7 +4052,7 @@
             },
             "processes" : [
                 {
-                    "doNotLoadAsPrimary": true,
+                    "doNotLoadAsPrimary": false,
                     "id": "retrieve_data",
                     "layer_id": "SW_OPER_MITA_LP_2F"
                 }
@@ -4116,7 +4080,7 @@
             },
             "processes" : [
                 {
-                    "doNotLoadAsPrimary": true,
+                    "doNotLoadAsPrimary": false,
                     "id": "retrieve_data",
                     "layer_id": "SW_OPER_MITB_LP_2F"
                 }
@@ -4144,7 +4108,7 @@
             },
             "processes" : [
                 {
-                    "doNotLoadAsPrimary": true,
+                    "doNotLoadAsPrimary": false,
                     "id": "retrieve_data",
                     "layer_id": "SW_OPER_MITC_LP_2F"
                 }
@@ -4170,7 +4134,7 @@
             },
             "processes" : [
                 {
-                    "doNotLoadAsPrimary": true,
+                    "doNotLoadAsPrimary": false,
                     "id": "retrieve_data",
                     "layer_id": "USER_DATA"
                 }
@@ -4200,7 +4164,7 @@
             },
             "processes" : [
                 {
-                    "doNotLoadAsPrimary": true,
+                    "doNotLoadAsPrimary": false,
                     "id": "retrieve_data",
                     "layer_id": "SW_OPER_MITATEC_2F"
                 }
@@ -4228,7 +4192,7 @@
             },
             "processes" : [
                 {
-                    "doNotLoadAsPrimary": true,
+                    "doNotLoadAsPrimary": false,
                     "id": "retrieve_data",
                     "layer_id": "SW_OPER_MITBTEC_2F"
                 }
@@ -4256,7 +4220,7 @@
             },
             "processes" : [
                 {
-                    "doNotLoadAsPrimary": true,
+                    "doNotLoadAsPrimary": false,
                     "id": "retrieve_data",
                     "layer_id": "SW_OPER_MITCTEC_2F"
                 }
@@ -4282,7 +4246,7 @@
             },
             "processes" : [
                 {
-                    "doNotLoadAsPrimary": true,
+                    "doNotLoadAsPrimary": false,
                     "id": "retrieve_data",
                     "layer_id": "USER_DATA"
                 }
@@ -4312,7 +4276,7 @@
             },
             "processes" : [
                 {
-                    "doNotLoadAsPrimary": true,
+                    "doNotLoadAsPrimary": false,
                     "id": "retrieve_data",
                     "layer_id": "SW_OPER_PPIAFAC_2F"
                 }
@@ -4340,7 +4304,7 @@
             },
             "processes" : [
                 {
-                    "doNotLoadAsPrimary": true,
+                    "doNotLoadAsPrimary": false,
                     "id": "retrieve_data",
                     "layer_id": "SW_OPER_PPIBFAC_2F"
                 }
@@ -4368,7 +4332,7 @@
             },
             "processes" : [
                 {
-                    "doNotLoadAsPrimary": true,
+                    "doNotLoadAsPrimary": false,
                     "id": "retrieve_data",
                     "layer_id": "SW_OPER_PPICFAC_2F"
                 }
@@ -4394,7 +4358,7 @@
             },
             "processes" : [
                 {
-                    "doNotLoadAsPrimary": true,
+                    "doNotLoadAsPrimary": false,
                     "id": "retrieve_data",
                     "layer_id": "USER_DATA"
                 }

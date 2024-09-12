@@ -1823,13 +1823,11 @@ define([
               )
             )
           );
-          console.log("options:", options)
           featureCollection.add(getPointPrimitive(symbol, position, options));
         };
       };
 
       var getMultiGeocetricPointRenderer = function (selector, symbols, radius, indices, options) {
-        console.log("options", options)
         var renderers = _.map(symbols, function (symbol) {
           return getGeocentricPointRenderer(symbol, radius, indices, options);
         });
@@ -2002,10 +2000,6 @@ define([
             ],
             null, null, {scale: 0.6}
           );
-          this.dataLegends.addProductTypeItem(productType, 'MIT_Te_peak', {
-            symbol: 'TRIANGLE_RED',
-            title: "MIT Te peak",
-          });
           this.dataLegends.addProductTypeItem(productType, 'MIT_EE_EW', {
             symbol: 'HLINE_TRINAGLE_DOWN_FILLED_BLACK',
             title: "MIT equatorward edge of the equatorward wall",

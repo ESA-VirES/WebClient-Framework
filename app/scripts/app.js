@@ -40,9 +40,9 @@ var SCALAR_PARAM = [
   "T_e", "Phi_sc",
   "Vixh", "Vixv",
   // MIT TEC
-  "L_value", "Width", "DR", "dL",
+  "TEC",
   // PPI FAC
-  "Sigma", "PPI",
+  "PPI",
 ];
 
 // parameters displayed by Cesium as vectors by Cesium (note that some of them
