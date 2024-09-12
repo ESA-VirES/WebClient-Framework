@@ -511,11 +511,22 @@
       },
 
       onStartDownloadClicked: function () {
+
+        var _renderErrorMessage = function (message) {
+          $('.panel-footer').append('<div id="validationwarning">' + message + '</div>');
+        };
+
         $('#validationwarning').remove();
-        // First validate fields
+
+        // check if any downloadable products are selected
+        if (this.products.length == 0) {
+          _renderErrorMessage("Cannot proceed with the download. No downloadable product is selected.");
+          return;
+        }
+
+        // validate input fields
         if (!this.validateInputs()) {
-          // Show 'there is an issue in the fields' and return
-          $('.panel-footer').append('<div id="validationwarning">There is an issue with the provided filters, please look for the red marked fields.</div>');
+          _renderErrorMessage("There is an issue with the provided filters, please look for the red marked fields.");
           return;
         }
 
@@ -778,8 +789,8 @@
           }
 
           if (prod.get("processes")) {
-            var result = $.grep(prod.get("processes"), function (e) {return e.id == "retrieve_data";});
-            if (result) {
+            var result = _.find(prod.get("processes"), function (item) {return item.id == "retrieve_data";});
+            if (result && !get(result, "doNotLoadAsPrimary", false)) {
               products.push(prod);
             }
           }
@@ -804,10 +815,23 @@
           });
         };
 
-        _renderList(
-          this.$el.find("#productsList"), "Products",
-          this.products.map(function (item) {return item.get("name");})
-        );
+        var _renderWarningMessage = function ($container, message) {
+          $container.append('<div style="font-weight:bold;padding-left:15px" class="warning">' + message + '</div>');
+        };
+
+        if (this.products.length > 0) {
+          _renderList(
+            this.$el.find("#productsList"), "Products",
+            this.products.map(function (item) {return item.get("name");})
+          );
+
+        } else {
+          _renderWarningMessage(
+            this.$el.find("#productsList"),
+            "No downloadable product selected."
+          );
+          return;
+        }
 
         if (this.models.length > 0) {
           _renderList(
