@@ -185,7 +185,7 @@ var RELATED_COLLECTIONS = {
   ],
   'SW_OPER_MITB_LP_2F': [
     {
-      collections: ['SW_OPER_MITB_LP_2F:ID'],
+      collections: ['SW_OPER_MITB_LP_2F'],
       type: 'MIT_LP'
     },
     {
@@ -195,7 +195,7 @@ var RELATED_COLLECTIONS = {
   ],
   'SW_OPER_MITC_LP_2F': [
     {
-      collections: ['SW_OPER_MITC_LP_2F:ID'],
+      collections: ['SW_OPER_MITC_LP_2F'],
       type: 'MIT_LP'
     },
     {
