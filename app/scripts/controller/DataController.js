@@ -296,7 +296,7 @@
             )
           );
         } else {
-          // clear any existing data
+          // clear previous primary data
           globals.swarm.set({data: vires.EMPTY_DATA});
         }
 
