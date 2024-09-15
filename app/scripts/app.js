@@ -276,9 +276,9 @@ var RELATED_VARIABLES = {
   'AOB_FAC': ['FAC', 'Radius', 'Boundary_Flag'].concat(_COMMON_RELATED_VARIABLES),
   'MIT_LP': ['Ne', 'Te'].concat(_COMMON_RELATED_VARIABLES),
   'MIT_LP:ID': ['Ne', 'Te', 'PointType'].concat(_COMMON_RELATED_VARIABLES),
-  'MIT_TEC': [].concat(_COMMON_RELATED_VARIABLES),
+  'MIT_TEC': ['TEC'].concat(_COMMON_RELATED_VARIABLES),
   'MIT_TEC:ID': ['PointType'].concat(_COMMON_RELATED_VARIABLES),
-  'PPI_FAC': [].concat(_COMMON_RELATED_VARIABLES),
+  'PPI_FAC': ['PPI'].concat(_COMMON_RELATED_VARIABLES),
   'PPI_FAC:ID': ['PointType'].concat(_COMMON_RELATED_VARIABLES),
 };
 

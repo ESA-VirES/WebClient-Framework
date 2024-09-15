@@ -2407,7 +2407,7 @@
             "parameters": {
                 "TEC": {
                     "selected": true,
-                    "range": [0, 7],
+                    "range": [0, 35],
                     "colorscale": "plasma",
                     "uom": "TECU",
                     "name": "Total electron content at the MIT minimum"

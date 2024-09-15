@@ -722,13 +722,7 @@ define(['backbone.marionette',
       var BF_AOB_EW_BOUNDARY = 0x1;
       var BF_AOB_PW_BOUNDARY = 0x2;
 
-      var LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x0;
-      var LP_MIT_POLEWARD_EDGE_OF_THE_EQUATORWARD_WALL = 0x1;
-      var LP_MIT_EQUATORWARD_EDGE_OF_POLEWARD_WALL = 0x2;
-      var LP_MIT_POLEWARD_EDGE_OF_THE_POLEWARD_BOUNDARY = 0x3;
-      var LP_SETE_EQUATORWARD_BOUNDING_POSITION = 0x4;
-      var LP_SETE_POLEWARD_BOUNDING_POSITION = 0x5;
-      var LP_TE_PEAK_POSITION = 0x6;
+      var MIT_LP_TE_PEAK_POSITION = 0x6;
 
       // We create combined settings and dataset for related data
       var overlaySettings = {};
@@ -739,90 +733,77 @@ define(['backbone.marionette',
         switch (key) {
           case 'MIT_LP':
             overlaySettings[key] = {
+              keyParameter: 'Latitude',
+              displayParameters: ['Latitude', 'Longitude', 'MLT', 'QDLat', 'QDLatitude_periodic', 'QDLon', 'Ne', 'Te'],
+              typeDefinition: [
+                {
+                  name: "MIT Ne minimum",
+                  style: {
+                    symbol: 'triangle_down_empty',
+                    size: 15,
+                    color: [0.8, 0, 0, 0.8],
+                  }
+                }
+              ]
+            };
+            overlayData[key] = data.data;
+            break;
+          case 'MIT_LP:ID':
+            overlaySettings[key] = {
               keyParameter: 'PointType',
-              displayParameters: ['Ne', 'Te'],
+              displayParameters: ['Latitude', 'Longitude', 'MLT', 'QDLat', 'QDLatitude_periodic', 'QDLon', 'Ne', 'Te'],
               typeDefinition: [
                 {
                   match: function (value) {
-                    return value === LP_MIT_EQUATORWARD_EDGE_OF_THE_EQUATORWARD_WALL;
+                    return value == MIT_LP_TE_PEAK_POSITION;
                   },
-                  name: 'Equatorward edge of the equatorward wall',
+                  name: "MIT Te maximum",
                   style: {
-                    symbol: 'circle',
-                    size: 9,
-                    color: [0, 1, 0, 0.8],
-                  }
-                },
-                {
-                  match: function (value) {
-                    return value === LP_MIT_POLEWARD_EDGE_OF_THE_EQUATORWARD_WALL;
-                  },
-                  name: 'Poleward edge of the equatorward wall',
-                  style: {
-                    symbol: 'rectangle',
-                    size: 9,
-                    color: [0, 1, 0, 0.8],
-                  }
-                },
-                {
-                  match: function (value) {
-                    return value === LP_MIT_EQUATORWARD_EDGE_OF_POLEWARD_WALL;
-                  },
-                  name: 'Equatorward edge of poleward wall',
-                  style: {
-                    symbol: 'circle',
-                    size: 9,
-                    color: [0, 0.5, 0.5, 0.8],
-                  }
-                },
-                {
-                  match: function (value) {
-                    return value === LP_MIT_POLEWARD_EDGE_OF_THE_POLEWARD_BOUNDARY;
-                  },
-                  name: 'Poleward edge of the poleward boundary',
-                  style: {
-                    symbol: 'rectangle',
-                    size: 9,
-                    color: [0, 0.5, 0.5, 0.8],
-                  }
-                },
-                {
-                  match: function (value) {
-                    return value === LP_SETE_EQUATORWARD_BOUNDING_POSITION;
-                  },
-                  name: 'Equatorward bounding position',
-                  style: {
-                    symbol: 'x',
-                    size: 9,
-                    color: [0, 0, 1.0, 0.8],
-                  }
-                },
-                {
-                  match: function (value) {
-                    return value === LP_SETE_POLEWARD_BOUNDING_POSITION;
-                  },
-                  name: 'Poleward bounding position',
-                  style: {
-                    symbol: 'diamond',
-                    size: 9,
-                    color: [0, 0, 1.0, 0.8],
-                  }
-                },
-                {
-                  match: function (value) {
-                    return value === LP_TE_PEAK_POSITION;
-                  },
-                  name: 'Te peak position',
-                  style: {
-                    symbol: 'triangle',
-                    size: 9,
-                    color: [1, 0, 0, 0.8],
+                    symbol: 'triangle_up_empty',
+                    size: 15,
+                    color: [0, 0, 0.8, 0.8],
                   }
                 },
               ]
             };
             overlayData[key] = data.data;
             break;
+
+          case 'MIT_TEC':
+            overlaySettings[key] = {
+              keyParameter: 'Latitude',
+              displayParameters: ['Latitude', 'Longitude', 'MLT', 'QDLat', 'QDLatitude_periodic', 'QDLon', 'TEC'],
+              typeDefinition: [
+                {
+                  name: "TEC MIT minimum",
+                  style: {
+                    symbol: 'triangle_down_empty',
+                    size: 15,
+                    color: [0, 0.6, 0.8, 0.8],
+                  }
+                }
+              ]
+            };
+            overlayData[key] = data.data;
+            break;
+          case 'PPI_FAC':
+            overlaySettings[key] = {
+              keyParameter: 'Latitude',
+              displayParameters: ['Latitude', 'Longitude', 'MLT', 'QDLat', 'QDLatitude_periodic', 'QDLon', 'PPI'],
+              typeDefinition: [
+                {
+                  name: "SSFAC boundary",
+                  style: {
+                    symbol: 'circle_empty',
+                    size: 9,
+                    color: [0, 0.6, 0, 0.8],
+                  }
+                }
+              ]
+            };
+            overlayData[key] = data.data;
+            break;
+
           case 'AEJ_PBL':
           case 'AEJ_PBS':
             overlaySettings[key] = {
@@ -835,7 +816,7 @@ define(['backbone.marionette',
                   },
                   name: 'Peak electrojet current',
                   style: {
-                    symbol: 'triangle_empty',
+                    symbol: 'triangle_up_empty',
                     size: 15,
                     color: [0.0, 0, 0.0, 0.8],
                   }
@@ -846,7 +827,7 @@ define(['backbone.marionette',
                   },
                   name: 'Electrojet Boundary',
                   style: {
-                    symbol: 'rectangle_empty',
+                    symbol: 'rectangle_up_empty',
                     size: 13,
                     color: [0, 0, 0.0, 0.8],
                   }
@@ -886,25 +867,6 @@ define(['backbone.marionette',
             };
             overlayData[key] = data.data;
             break;
-                    /*
-                    case 'AEJ_PBS:GroundMagneticDisturbance':
-                        overlaySettings[key] = {
-                            keyParameter: 'Timestamp',
-                            typeDefinition: [
-                                {
-                                    match: function () {return true;},
-                                    name: 'Peak Magnetic disturbance',
-                                    style: {
-                                        symbol: 'circle_empty',
-                                        size: 15,
-                                        color: [0.0, 0, 0.0, 0.8],
-                                    }
-                                },
-                            ]
-                        };
-                        overlayData[key] = data.data;
-                        break;
-                    */
         }
       });
 
@@ -1298,10 +1260,8 @@ define(['backbone.marionette',
           'M_i_eff_Flags', 'M_i_eff', 'N_i', 'T_e',
           'Pair_Indicator', 'Boundary_Flag',
           'Viy', 'Viz', 'Vixh', 'Vixv', 'Quality_flags', 'Calibration_flags',
-          // MIT TEC
-          "L_value", "Width", "DR", "dL",
-          // PPI FAC
-          "Sigma", "PPI",
+          "TEC", // MIT TEC
+          "PPI", // PPI FAC
         ];
 
         var residuals = _.filter(idKeys, function (item) {
@@ -1330,16 +1290,14 @@ define(['backbone.marionette',
         // If previous does not contain key data and new one
         // does we add key parameter to selection in plot
         var parasToCheck = [
-          'Ne', 'F', 'Bubble_Probability', 'Absolute_STEC',
+          'Ne', 'Te', 'F', 'Bubble_Probability', 'Absolute_STEC',
           'FAC', 'EEF', 'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
           'Pair_Indicator',
           'Ti_meas_drift', // EFIxTIE default
           'M_i_eff', 'N_i', // EFIxIDM defaults
           'Viy', 'Viz', // EFIxTCT defaults
-          // MIT TEC
-          "L_value",
-          // PPI FAC
-          "Sigma", "PPI",
+          "TEC", // MIT TEC
+          "PPI", // PPI FAC
         ];
 
         // Go trough all plots and see if they need to be removed

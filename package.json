@@ -21,7 +21,7 @@
     "d3.Graphs": "github:ESA-VirES/AnalyticsViewer#8560652b0c3746656edb2a2a7f66950c6c1c0de2",
     "filepond": "~4.30.6",
     "font-awesome": "~4.5.0",
-    "graphly": "github:EOX-A/graphly#1badbf25e2848b3233bcb28f0cc61976f80b5c23",
+    "graphly": "github:EOX-A/graphly#adf0bcb0d1f74475054f9a7aebb428494c4367e8",
     "jquery": "~1.12.4",
     "jquery-ui": "~1.13.0",
     "jqueryui-touch-punch": "github:RWAP/jquery-ui-touch-punch#970cab8db60884db070bb9e1b044041aa347c375",

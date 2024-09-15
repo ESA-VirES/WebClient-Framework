@@ -1986,7 +1986,7 @@ define([
           );
           this.dataLegends.addProductTypeItem(productType, 'MIT_TEC_min', {
             symbol: 'TRIANGLE_DOWN_BLACK',
-            title: "MIT TEC minimum",
+            title: "TEC at MIT minimum",
           });
           break;
         case 'MIT_TEC:ID':
@@ -2024,7 +2024,7 @@ define([
           );
           this.dataLegends.addProductTypeItem(productType, 'PPI_FAC_SSFAC_boundary', {
             symbol: 'CIRCLE_GREEN',
-            title: "SSFAC equatorward boundary",
+            title: "SSFAC boundary",
           });
           break;
         case 'PPI_FAC:ID':
