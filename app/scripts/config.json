@@ -4653,7 +4653,7 @@
         },
         {
             "name": "Satellite Orbit",
-            "visible": false,
+            "visible": true,
             "view":{
                 "id": "satellite_orbit",
                 "protocol": "WPS",
