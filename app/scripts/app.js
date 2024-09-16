@@ -805,16 +805,17 @@ var RELATED_VARIABLES = {
         window.setInterval(function () {globals.models.fetch();}, 900000); // refresh each 15min
 
         // If there is already saved overly configuration use that
-        var activeOverlays = [];
+        var activeOverlays = null;
         if (localStorage.getItem('activeOverlays') !== null) {
           activeOverlays = JSON.parse(localStorage.getItem('activeOverlays'));
           savedChangesApplied = true;
         }
         //Overlays are loaded and added to the global collection
         _.each(config.mapConfig.overlays, function (overlay) {
-          var overlayActive = false;
-          if (activeOverlays.indexOf(overlay.name) !== -1) {
-            overlayActive = true;
+          var overlayActive = Boolean(overlay.visible);
+          if (activeOverlays !== null) {
+            // apply saved state
+            overlayActive = _.contains(activeOverlays, overlay.name);
           }
           globals.overlays.add(
             new m.LayerModel({

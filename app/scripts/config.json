@@ -4659,7 +4659,21 @@
                 "protocol": "WPS",
                 "url": "/ows",
                 "style": "default",
-                "format": "image/png"
+                "format": "image/png",
+                "spacecrafts": {
+                    "Alpha": {
+                      "collection": "SW_OPER_MODA_SC_1B+SW_FAST_MODA_SC_1B",
+                      "color": "#3333cc"
+                    },
+                    "Bravo": {
+                      "collection": "SW_OPER_MODB_SC_1B+SW_FAST_MODB_SC_1B",
+                      "color": "#cc3333"
+                    },
+                    "Charlie": {
+                      "collection": "SW_OPER_MODC_SC_1B+SW_FAST_MODC_SC_1B",
+                      "color": "#33cc33"
+                    }
+                }
             }
         }]
     },

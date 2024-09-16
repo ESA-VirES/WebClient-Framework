@@ -3117,58 +3117,63 @@ define([
     },
 
     loadOrbits: function () {
-      var satellites = ['Alpha', 'Bravo', 'Charlie'];
-      _.each(satellites, function (sat) {
-        this.removeOrbitPrimitives(sat);
+
+      this.removeAllOrbitPrimitives();
+
+      var overlay = globals.overlays.find(function (item) {return item.get("view").id === "satellite_orbit";});
+
+      if (!overlay || !overlay.get("visible")) {return;}
+
+      _.each(overlay.get("view").spacecrafts, function (options, spacecraft) {
+        this.fetchOrbitData(spacecraft, {
+          url: overlay.get("view").url,
+          collection: options.collection,
+          color: options.color,
+        });
       }, this);
 
-      globals.overlays.each(function (overlay) {
-        if (overlay.get("view").id === "satellite_orbit") {
-
-          if (overlay.get('visible')) {
-            _.each(satellites, function (sat) {
-              if (globals.swarm.satellites[sat]) {
-                var request = new vires.ViresDataRequest({
-                  context: this,
-                  // customTemplate: tmplFetchFilteredData,
-                  success: function (data) {
-                    this.createOrbitPrimitives(data.data, sat);
-                  },
-                  error: function (xhr, message) {
-                    if (xhr.responseText === "") {return;}
-                    this.showErrorMessage(message);
-                  },
-                });
-
-                request.url = overlay.get("view").url;
-                var colls = {
-                  'Alpha': '{"Alpha":["SW_OPER_MODA_SC_1B+SW_FAST_MODA_SC_1B"]}',
-                  'Bravo': '{"Bravo":["SW_OPER_MODB_SC_1B+SW_FAST_MODB_SC_1B"]}',
-                  'Charlie': '{"Charlie":["SW_OPER_MODC_SC_1B+SW_FAST_MODC_SC_1B"]}',
-                };
-                request.fetch({
-                  collections_ids: colls[sat],
-                  begin_time: getISODateTimeString(this.beginTime),
-                  end_time: getISODateTimeString(this.endTime),
-                  sampling_step: "PT20S",
-                  format: "application/msgpack",
-                });
-              }
-            }, this);
-          }
-
-        }
-      }, this);
     },
 
-    removeOrbitPrimitives: function (name) {
-      if (this.orbitCollection.hasOwnProperty(name)) {
-        this.map.scene.primitives.remove(this.orbitCollection[name]);
-        delete this.orbitCollection[name];
+    fetchOrbitData: function (spacecraft, options) {
+
+      var _createOrbitPrimitives = function (data) {
+        this.createOrbitPrimitives(spacecraft, data.data, options.color);
+      };
+
+      if (!globals.swarm.satellites[spacecraft]) {return;}
+
+      var request = new vires.ViresDataRequest({
+        url: options.url,
+        context: this,
+        success: _createOrbitPrimitives,
+        error: function (xhr, message) {
+          if (xhr.responseText === "") {return;}
+          this.showErrorMessage(message);
+        },
+      });
+
+      request.fetch({
+        collections_ids: '{"' + spacecraft + '":["' + options.collection + '"]}',
+        begin_time: getISODateTimeString(this.beginTime),
+        end_time: getISODateTimeString(this.endTime),
+        sampling_step: "PT20S",
+        format: "application/msgpack",
+      });
+
+    },
+
+    removeAllOrbitPrimitives: function () {
+      _.each(_.keys(this.orbitCollection), this.removeOrbitPrimitives, this);
+    },
+
+    removeOrbitPrimitives: function (spacecraft) {
+      if (has(this.orbitCollection, spacecraft)) {
+        this.map.scene.primitives.remove(this.orbitCollection[spacecraft]);
+        delete this.orbitCollection[spacecraft];
       }
     },
 
-    createOrbitPrimitives: function (data, name) {
+    createOrbitPrimitives: function (spacecraft, data, color) {
       var positions = _.map(data.Latitude, function (ds, idx) {
         return Cesium.Cartesian3.clone(
           convertSpherical2Cartesian(
@@ -3178,34 +3183,20 @@ define([
           )
         );
       });
-      this.removeOrbitPrimitives(name);
+      this.removeOrbitPrimitives(spacecraft);
       var lineCollection = new Cesium.PolylineCollection();
 
       // Color based on satellite
-      var color;
-      switch (name) {
-        case 'Alpha':
-          color = new Cesium.Color(0.2, 0.2, 0.8, 1.0);
-          break;
-        case 'Bravo':
-          color = new Cesium.Color(0.8, 0.2, 0.2, 1.0);
-          break;
-        case 'Charlie':
-          color = new Cesium.Color(0.2, 0.8, 0.2, 1.0);
-          break;
-        default:
-          color = new Cesium.Color(0.0, 0.0, 0.0, 1.0);
-      }
       lineCollection.add({
         positions: positions,
         width: 2,
         material: Cesium.Material.fromType('Color', {
-          color: color
+          color: Cesium.Color.fromCssColorString(color),
         }),
       });
 
-      this.orbitCollection[name] = lineCollection;
-      this.map.scene.primitives.add(this.orbitCollection[name]);
+      this.orbitCollection[spacecraft] = lineCollection;
+      this.map.scene.primitives.add(this.orbitCollection[spacecraft]);
     },
 
     updateFieldLines: function (onlyStyleChange) {
