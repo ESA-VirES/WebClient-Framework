@@ -200,18 +200,18 @@
             },
             {
                 "id": "CHAOS",
-                "name": "CHAOS-7 (complete)",
+                "name": "CHAOS-8 (Core + Static + MMA)",
                 "blockDegreeSelection": true,
                 "excludes": ["CHAOS-Core", "CHAOS-Static", "CHAOS-MMA", "CHAOS-MMA-Primary", "CHAOS-MMA-Secondary"]
             },
             {
                 "id": "CHAOS-Core",
-                "name": "CHAOS-7 Core",
+                "name": "CHAOS-8 Core",
                 "excludes": ["CHAOS"]
             },
             {
                 "id": "CHAOS-Static",
-                "name": "CHAOS-7 Crust",
+                "name": "CHAOS-8 Crust",
                 "excludes": ["CHAOS"]
             },
             {
