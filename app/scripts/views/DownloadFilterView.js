@@ -653,8 +653,12 @@
         var that = this;
         var sendProcessingRequest = function () {
           disableDownloadButton();
-          $.post(url, req_data, 'xml')
-            .done(function (response) {
+          $.post({
+            url: url,
+            data: req_data,
+            contentType: 'application/xml; charset=utf-8',
+            dataType: 'xml',
+          }).done(function (response) {
               that.updateJobs();
             })
             .error(function (resp) {
