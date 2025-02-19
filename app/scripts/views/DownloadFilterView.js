@@ -224,7 +224,7 @@
             var ref = $(this).find('wps\\:Reference')[0];
             if (!ref) {return;}
             outputData[id] = {
-              url: $(ref).attr('href'),
+              url: ($(ref).attr('xlink:href') || $(ref).attr('href')),
               dataType: $(ref).attr('dataType')
             };
           });
