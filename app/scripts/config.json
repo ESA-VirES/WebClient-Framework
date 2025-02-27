@@ -1437,6 +1437,186 @@
                 }
             }
         },
+        "SW_TECxTMS_2F_FAST": {
+            "satellite": "Swarm",
+            "parameters": {
+                "Absolute_STEC": {
+                    "range": [0, 35],
+                    "uom":"TECU",
+                    "colorscale": "plasma",
+                    "selected": true,
+                    "name": "Absolute slant TEC"
+                },
+                "Relative_STEC": {
+                    "range": [0, 70],
+                    "uom":"TECU",
+                    "colorscale": "portland",
+                    "name": "Relative slant TEC"
+                },
+                "Relative_STEC_RMS": {
+                    "range": [0, 5],
+                    "uom":"TECU",
+                    "colorscale": "portland",
+                    "name": "Relative STEC RMS"
+                },
+                "Absolute_VTEC": {
+                    "range": [0, 35],
+                    "uom":"TECU",
+                    "colorscale": "plasma",
+                    "name": "Absolute vertical TEC"
+                },
+                "Elevation_Angle": {
+                    "range": [0, 90],
+                    "uom":"degree",
+                    "colorscale": "plasma",
+                    "name": "Elevation Angle"
+                },
+                "DataSource": {
+                    "range": [0, 1],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "Data source flag",
+                    "hidden": true,
+                    "bitmask": {
+                        "flags": [
+                            ["FAST", "Set for Swarm FAST data / unset for Swarm OPER data"]
+                        ]
+                    }
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time stamp in UTC"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Geographic latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Geographic longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Geographic radius"
+                },
+                "GPS_Position": {
+                    "uom": "m",
+                    "name": "X-,Y-,Z-coordinates (WGS84) of the GPS satellite",
+                    "breakInto": ["GPS_Position_X", "GPS_Position_Y", "GPS_Position_Z"]
+                },
+                "LEO_Position": {
+                    "uom": "m",
+                    "name": "X-,Y-,Z-coordinates (WGS84) of the LEO satellite",
+                    "breakInto": ["LEO_Position_X", "LEO_Position_Y", "LEO_Position_Z"]
+                },
+                "PRN": {
+                    "uom": null,
+                    "name": "GPS satellite PRN"
+                },
+                "L1": {
+                    "uom": "m",
+                    "name": "GPS L1 carrier phase observation"
+                },
+                "L2": {
+                    "uom": "m",
+                    "name": "GPS L2 carrier phase observation"
+                },
+                "P1": {
+                    "uom": "m",
+                    "name": "GPS P1 code phase observation"
+                },
+                "P2": {
+                    "uom": "m",
+                    "name": "GPS P2 code phase observation"
+                },
+                "S1": {
+                    "uom": null,
+                    "name": "GPS signal-to-noise ratio or raw signal strength on L1"
+                },
+                "S2": {
+                    "uom": null,
+                    "name": "GPS signal-to-noise ratio or raw signal strength on L2"
+                },
+                "Absolute_STEC": {
+                    "uom": "TECU",
+                    "name": "Absolute slant TEC"
+                },
+                "Absolute_VTEC": {
+                    "uom": "TECU",
+                    "name": "Absolute vertical TEC"
+                },
+                "Elevation_Angle": {
+                    "uom": "degree",
+                    "name": "Elevation Angle"
+                },
+                "Relative_STEC": {
+                    "uom": "TECU",
+                    "name": "Relative slant TEC"
+                },
+                "Relative_STEC_RMS": {
+                    "uom": "TECU",
+                    "name": "Root mean square error of relative slant TEC"
+                },
+                "DCB": {
+                    "uom": "TECU",
+                    "name": "GPS receiver differential code bias"
+                },
+                "DCB_Error": {
+                    "uom": "TECU",
+                    "name": "Error of the GPS receiver differential code bias"
+                },
+                "QDLat": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude"
+                },
+                "QDLon": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude"
+                },
+                "MLT": {
+                    "uom": null,
+                    "name": "Magnetic local time"
+                },
+                "OrbitNumber": {
+                    "uom": null,
+                    "name": "Orbit Number"
+                },
+                "SunDeclination": {
+                    "uom": null,
+                    "name": "Sun declination"
+                },
+                "SunRightAscension": {
+                    "uom": null,
+                    "name": "Sun right ascension"
+                },
+                "SunHourAngle": {
+                    "uom": "deg",
+                    "name": "Sun hour angle"
+                },
+                "SunAzimuthAngle": {
+                    "uom": "deg",
+                    "name": "Sun azimuth angle, degrees clockwise from North"
+                },
+                "SunZenithAngle": {
+                    "uom": "deg",
+                    "name": "Sun zenith angle"
+                },
+                "OrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in geographic coordinates."
+                },
+                "QDOrbitDirection": {
+                    "uom": null,
+                    "name": "Orbit direction in quasi-dipole coordinates."
+                },
+                "DataSource": {
+                    "uom": null,
+                    "name": "Data source flag (0 - OPER, 1 - FAST)."
+                }
+            }
+        },
         "SW_FACxTMS_2F": {
             "satellite": "Swarm",
             "parameters": {
@@ -2963,12 +3143,12 @@
             "satellite": "Upload"
         }, {
             "name": "TEC A TMS 2F",
-            "type": "SW_TECxTMS_2F",
+            "type": "SW_TECxTMS_2F_FAST",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#990099",
             "views": [{
-                "id": "SW_OPER_TECATMS_2F",
+                "id": "SW_OPER_TECATMS_2F+SW_FAST_TECATMS_2F",
                 "protocol": "CZML",
                 "urls": [
                     "/ows"
@@ -2977,25 +3157,25 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_TECATMS_2F",
+                "id": "SW_OPER_TECATMS_2F+SW_FAST_TECATMS_2F",
                 "protocol": "EOWCS",
                 "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_TECATMS_2F"
+                    "layer_id": "SW_OPER_TECATMS_2F+SW_FAST_TECATMS_2F"
                 }
             ],
             "outlines": false
         }, {
             "name": "TEC B TMS 2F",
-            "type": "SW_TECxTMS_2F",
+            "type": "SW_TECxTMS_2F_FAST",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#990099",
             "views": [{
-                "id": "SW_OPER_TECBTMS_2F",
+                "id": "SW_OPER_TECBTMS_2F+SW_FAST_TECBTMS_2F",
                 "protocol": "CZML",
                 "urls": [
                     "/ows"
@@ -3004,25 +3184,25 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_TECBTMS_2F",
+                "id": "SW_OPER_TECBTMS_2F+SW_FAST_TECBTMS_2F",
                 "protocol": "EOWCS",
                 "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_TECBTMS_2F"
+                    "layer_id": "SW_OPER_TECBTMS_2F+SW_FAST_TECBTMS_2F"
                 }
             ],
             "outlines": false
         }, {
             "name": "TEC C TMS 2F",
-            "type": "SW_TECxTMS_2F",
+            "type": "SW_TECxTMS_2F_FAST",
             "timeSlider": true,
             "timeSliderProtocol": "WPS",
             "color": "#990099",
             "views": [{
-                "id": "SW_OPER_TECCTMS_2F",
+                "id": "SW_OPER_TECCTMS_2F+SW_FAST_TECCTMS_2F",
                 "protocol": "CZML",
                 "urls": [
                     "/ows"
@@ -3031,14 +3211,14 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_TECCTMS_2F",
+                "id": "SW_OPER_TECCTMS_2F+SW_FAST_TECCTMS_2F",
                 "protocol": "EOWCS",
                 "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_TECCTMS_2F"
+                    "layer_id": "SW_OPER_TECCTMS_2F+SW_FAST_TECCTMS_2F"
                 }
             ],
             "outlines": false
