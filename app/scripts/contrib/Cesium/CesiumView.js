@@ -20,7 +20,6 @@ define([
   'hbs!tmpl/SvgSymbolDimondLarge',
   'hbs!tmpl/SvgSymbolSquare',
   'hbs!tmpl/SvgSymbolTriangle',
-  'hbs!tmpl/wps_fetchFilteredData',
   'colormap',
   'viresFilters',
   'cesium/Cesium',
@@ -30,7 +29,7 @@ define([
   Marionette, Communicator, App, MapModel, vires, globals, msgpack, httpRequest,
   DataUtil, tmplEvalModel, tmplFieldLinesLabel,
   tmplSvgSymbolCircle, tmplSvgSymbolDimond, tmplSvgSymbolDimondLarge,
-  tmplSvgSymbolSquare, tmplSvgSymbolTriangle, tmplFetchFilteredData,
+  tmplSvgSymbolSquare, tmplSvgSymbolTriangle,
   colormap, viresFilters
 ) {
   'use strict';
@@ -1598,8 +1597,11 @@ define([
         options.bbox = boundingBox.join();
       }
 
-      $.post(product.get('views')[0].urls[0], tmplEvalModel(options))
-        .done(_.bind(function (data) {
+      $.post({
+        url: product.get('views')[0].urls[0],
+        data: tmplEvalModel(options),
+        contentType: 'application/xml; charset=utf-8',
+      }).done(_.bind(function (data) {
           var customModelLayer = product._cesiumLayerCustom;
           customModelLayer.show = false;
 
@@ -2884,7 +2886,6 @@ define([
               if (globals.swarm.satellites[sat]) {
                 var request = new vires.ViresDataRequest({
                   context: this,
-                  // customTemplate: tmplFetchFilteredData,
                   success: function (data) {
                     this.createOrbitPrimitives(data.data, sat);
                   },

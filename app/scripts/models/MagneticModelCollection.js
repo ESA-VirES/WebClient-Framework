@@ -116,6 +116,7 @@
         }
         _.extend(options, {
           method: 'POST',
+          contentType: 'application/xml; charset=utf-8',
           data: wps_getModelInfoTmpl({
             model_ids: modelId,
             shc: modelContainsSHC ? this.get('shc') : null,
@@ -182,6 +183,7 @@
         var customModel = this.getCustomModel();
         _.extend(options, {
           method: 'POST',
+          contentType: 'application/xml; charset=utf-8',
           data: wps_getModelInfoTmpl({
             model_ids: modelIds.join(','),
             shc: customModel ? customModel.get('shc') : null,

@@ -47,6 +47,9 @@
       };
 
       xhr.open(options.type, options.url, true);
+      if (options.contentType) {
+        xhr.setRequestHeader("Content-Type", options.contentType);
+      }
       xhr.send(options.data);
 
       return xhr;

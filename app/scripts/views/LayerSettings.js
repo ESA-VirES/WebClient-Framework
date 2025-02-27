@@ -833,8 +833,11 @@
 
         var payload = evalModelTmplComposed_POST(options);
 
-        $.post(this.current_model.get("download").url, payload)
-          .success(this.handleRangeRespone.bind(this))
+        $.post({
+          url: this.current_model.get("download").url,
+          data: payload,
+          contentType: 'application/xml; charset=utf-8',
+        }).success(this.handleRangeRespone.bind(this))
           .fail(this.handleRangeResponseError);
       },
 
