@@ -231,6 +231,12 @@
                 "excludes": ["CHAOS", "CHAOS-MMA"]
             },
             {
+                "id": "CHAOS-MIO",
+                "name": "CHAOS-8 Ionosphere",
+                "blockDegreeSelection": true,
+                "excludes": []
+            },
+            {
                 "id": "Custom_Model",
                 "name": "Custom Model",
                 "isCustomModel": true
