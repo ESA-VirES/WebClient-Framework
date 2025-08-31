@@ -71,7 +71,6 @@
 
         // Check if the Matomo tracking has been loaded ...
         if (typeof window.Matomo !== 'object' || !window.Matomo.getAsyncTracker) {return;}
-        console.log("TRACKING:", event, param)
 
         // .. if so, get the configured global tracker.
         var tracker = window.Matomo.getAsyncTracker();
