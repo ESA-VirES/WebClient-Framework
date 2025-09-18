@@ -1659,8 +1659,11 @@ define([
         options.bbox = boundingBox.join();
       }
 
-      $.post(product.get('views')[0].urls[0], tmplEvalModel(options))
-        .done(_.bind(function (data) {
+      $.post({
+        url: product.get('views')[0].urls[0],
+        data: tmplEvalModel(options),
+        contentType: 'application/xml; charset=utf-8',
+      }).done(_.bind(function (data) {
           var customModelLayer = product._cesiumLayerCustom;
           customModelLayer.show = false;
 

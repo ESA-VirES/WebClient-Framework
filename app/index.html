@@ -65,8 +65,6 @@
 
         </script>
 
-        <script type="text/javascript" src="scripts/vendor/vmanip-core/vmanip-core-deps.debug.js"></script>
-        <script type="text/javascript" src="scripts/vendor/vmanip-core/vmanip-core.debug.js"></script>
     </head>
     <body>
 
@@ -101,10 +99,9 @@
         <div id="x3dom-hidden" style="display:none">
             <div id="x3dom-wrapper">
                 <div id="progressbar"></div>
-                <X3D id="x3d" showlog="false" showstat="false" showprogress="false">
-                    <scene id="x3dScene"></scene>
-                </X3D>
-      
+                    <X3D id="x3d" showlog="false" showstat="false" showprogress="false">
+                        <scene id="x3dScene"></scene>
+                    </X3D>
                 <div id='x3domUI'></div>
             </div>
         </div>
@@ -145,23 +142,35 @@
         <script data-main="init" src="requirejs/require.js"></script>     
         <!-- endbuild -->
 
-        <!-- Piwik -->
-        <!--<script type="text/javascript">
-         var _paq = _paq || [];
-         _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
-         _paq.push(["setDoNotTrack", true]);
-         _paq.push(['trackPageView']);
-         _paq.push(['enableLinkTracking']);
-         (function() {
-           var u="//nix.eox.at/piwik/";
-           _paq.push(['setTrackerUrl', u+'piwik.php']);
-           _paq.push(['setSiteId', 4]);
-           var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-           g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-         })();
+        <!-- START - Matomo tracking -->
+        <!--
+        <script type="text/javascript">
+            var _paq = window._paq = window._paq || [];
+            _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
+            _paq.push(["setDoNotTrack", true]);
+            _paq.push(["trackPageView"]);
+            _paq.push(["enableLinkTracking"]);
+            (function() {
+                var u="//nix.eox.at/";
+                _paq.push(["setTrackerUrl", u+"matomo.php"]);
+                _paq.push(["setSiteId", 4]);
+                // if require.js if used then matomo.js must be loaded
+                // with require() or bad things happen.
+                if (typeof require === "function" && typeof define === "function" && define.amd) {
+                    require.config({contex: "matomo", paths: {matomo: u+"matomo"}})(
+                        ["require"], function (require) {
+                            require(["matomo"], function (matomo) {});
+                        }
+                    );
+                } else {
+                    var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0];
+                    g.type="text/javascript"; g.async=true; g.defer=true; g.src=u+"matomo.js"; s.parentNode.insertBefore(g,s);
+                }
+            })();
         </script>
-        <noscript><p><img src="//nix.eox.at/piwik/piwik.php?idsite=4" style="border:0;" alt="" /></p></noscript>-->
-        <!-- End Piwik Code -->
+        <noscript><p><img referrerpolicy="no-referrer-when-downgrade" src="https://nix.eox.at/matomo.php?idsite=4&amp;rec=1" style="border:0" alt="" /></p></noscript>
+        -->
+        <!-- END - Matomo tracking -->
 
     </body>
 </html>

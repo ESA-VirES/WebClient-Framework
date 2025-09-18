@@ -173,6 +173,7 @@
         this.xhr = httpRequest.asyncHttpRequest({
           context: this,
           type: 'POST',
+          contentType: 'application/xml; charset=utf-8',
           url: this.url,
           data: template(options),
           responseType: 'arraybuffer',
@@ -377,6 +378,7 @@
         this.xhr = httpRequest.asyncHttpRequest({
           context: this,
           type: 'POST',
+          contentType: 'application/xml; charset=utf-8',
           url: this.url,
           data: wps_fetchFieldlinesTmpl(options),
           responseType: 'arraybuffer',
