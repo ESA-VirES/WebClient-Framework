@@ -82,6 +82,16 @@
             "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_AEJxLPS_2F' target='_blank'>Sheet current density profile product specification</a><br>",
             "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_AEJxPBS_2F' target='_blank'>Peaks and boundaries product specification</a><br>",
             "<a href='https://notebooks.vires.services/notebooks/03h2_demo-aebs-aejxlps' target='notebooks'>Example VRE notebook</a>"
+        ],
+        "DNS_POD": [
+            "<p>Thermospheric neutral density from precise orbit determination data</p>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_DNSxPOD_2_' target='_blank'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03l1_demo-dns' target='notebooks'>Example VRE notebook</a>"
+        ],
+        "DNS_ACC": [
+            "<p>Thermospheric neutral density from precise orbit determination data and accelerometer measurements</p>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_DNSxACC_2_' target='_blank'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03l1_demo-dns' target='notebooks'>Example VRE notebook</a>"
         ]
     },
 
@@ -2478,6 +2488,130 @@
                     "name": "Divergence-free horizontal sheet current density (SemiQD frame, east component)"
                 }
             }
+        },
+        "SW_DNSxPOD_2_": {
+            "satellite": "Swarm",
+            "parameters": {
+                "density": {
+                    "selected": true,
+                    "range": [0, 1e-12],
+                    "colorscale": "viridis",
+                    "uom": "kg/m3",
+                    "name": "Thermospheric neutral density"
+                },
+                "density_orbitmean": {
+                    "range": [0, 1e-12],
+                    "colorscale": "viridis",
+                    "uom": "kg/m3",
+                    "name": "Orbit-mean thermospheric neutral density"
+                },
+                "local_solar_time": {
+                    "range": [0, 24],
+                    "colorscale": "twilight_shifted",
+                    "uom": "h",
+                    "name": "Local solar time"
+                },
+                "validity_flag": {
+                    "range": [0, 1],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "POD density validity flag",
+                    "hidden": true,
+                    "bitmask": {
+                        "flags": [
+                            ["bit 0", "Set for anomalous data."]
+                        ]
+                    }
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude_GD": {
+                    "uom": "deg",
+                    "name": "Geodetic latitude"
+                },
+                "Longitude_GD": {
+                    "uom": "deg",
+                    "name": "Geodetic longitude"
+                },
+                "Height_GD": {
+                    "uom": "m",
+                    "name": "Geodetic altitude"
+                },
+                "local_solar_time": {
+                    "periodic": {"period": 24, "offset": 0},
+                    "uom": "h",
+                    "name": "Local solar time"
+                },
+                "density": {
+                    "uom": "kg/m3",
+                    "name": "Thermospheric neutral density"
+                },
+                "density_orbitmean": {
+                    "uom": "kg/m3",
+                    "name": "Orbit-mean thermospheric neutral density"
+                },
+                "validity_flag": {
+                    "uom": null,
+                    "name": "POD density validity flag"
+                },
+                "OrbitNumber": {
+                    "uom": null,
+                    "name": "Orbit Number"
+                }
+            }
+        },
+        "SW_DNSxACC_2_": {
+            "satellite": "Swarm",
+            "parameters": {
+                "density": {
+                    "selected": true,
+                    "range": [0, 1e-12],
+                    "colorscale": "viridis",
+                    "uom": "kg/m3",
+                    "name": "Thermospheric neutral density"
+                },
+                "local_solar_time": {
+                    "range": [0, 24],
+                    "colorscale": "twilight_shifted",
+                    "uom": "h",
+                    "name": "Local solar time"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude_GD": {
+                    "uom": "deg",
+                    "name": "Geodetic latitude"
+                },
+                "Longitude_GD": {
+                    "uom": "deg",
+                    "name": "Geodetic longitude"
+                },
+                "Height_GD": {
+                    "uom": "m",
+                    "name": "Geodetic altitude"
+                },
+                "local_solar_time": {
+                    "periodic": {"period": 24, "offset": 0},
+                    "uom": "h",
+                    "name": "Local solar time"
+                },
+                "density": {
+                    "uom": "kg/m3",
+                    "name": "Thermospheric neutral density"
+                },
+                "OrbitNumber": {
+                    "uom": null,
+                    "name": "Orbit Number"
+                }
+            }
         }
     },
 
@@ -3932,6 +4066,222 @@
             }],
             "download": {
                 "id": "SW_OPER_AEJULPS_2F"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "download_parameters": {},
+            "outlines": false,
+            "satellite": "Upload"
+        }, {
+            "name": "DNS A ACC 2",
+            "type": "SW_DNSxACC_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#8e3ede",
+            "views": [{
+                "id": "SW_OPER_DNSAACC_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_DNSAACC_2_",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_DNSAACC_2_"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "DNS B ACC 2",
+            "type": "SW_DNSxACC_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#8e3ede",
+            "views": [{
+                "id": "SW_OPER_DNSBACC_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_DNSBACC_2_",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_DNSBACC_2_"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "DNS C ACC 2",
+            "type": "SW_DNSxACC_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#8e3ede",
+            "views": [{
+                "id": "SW_OPER_DNSCACC_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_DNSCACC_2_",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_DNSCACC_2_"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "DNS U ACC 2_",
+            "type": "SW_DNSxACC_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#8e3ede",
+            "views": [{
+                "id": "SW_OPER_DNSUACC_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_DNSUACC_2_"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "download_parameters": {},
+            "outlines": false,
+            "satellite": "Upload"
+        }, {
+            "name": "DNS A POD 2",
+            "type": "SW_DNSxPOD_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#de3ece",
+            "views": [{
+                "id": "SW_OPER_DNSAPOD_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_DNSAPOD_2_",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_DNSAPOD_2_"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "DNS B POD 2",
+            "type": "SW_DNSxPOD_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#de3ece",
+            "views": [{
+                "id": "SW_OPER_DNSBPOD_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_DNSBPOD_2_",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_DNSBPOD_2_"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "DNS C POD 2",
+            "type": "SW_DNSxPOD_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#de3ece",
+            "views": [{
+                "id": "SW_OPER_DNSCPOD_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_DNSCPOD_2_",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_DNSCPOD_2_"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "DNS U POD 2_",
+            "type": "SW_DNSxPOD_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#de3ece",
+            "views": [{
+                "id": "SW_OPER_DNSUPOD_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_DNSUPOD_2_"
             },
             "processes" : [
                 {

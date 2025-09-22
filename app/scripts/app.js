@@ -39,6 +39,7 @@ var SCALAR_PARAM = [
   "V_i", "V_i_err", "V_i_Flags", "V_i_raw", "N_i", "N_i_err", "N_i_Flags",
   "T_e", "Phi_sc",
   "Vixh", "Vixv",
+  "density", "density_orbitmean", "local_solar_time", "validity_flag",
 ];
 
 // parameters displayed by Cesium as vectors by Cesium (note that some of them
@@ -80,10 +81,13 @@ var MASTER_PRIORITY = [
   'SW_EXPT_EFIA_TCT02', 'SW_EXPT_EFIB_TCT02', 'SW_EXPT_EFIC_TCT02', 'SW_EXPT_EFIC_TCT02',
   'SW_OPER_MAGA_LR_1B+SW_FAST_MAGA_LR_1B', 'SW_OPER_MAGB_LR_1B+SW_FAST_MAGB_LR_1B', 'SW_OPER_MAGC_LR_1B+SW_FAST_MAGC_LR_1B', 'SW_OPER_MAGU_LR_1B',
   'SW_OPER_TECATMS_2F+SW_FAST_TECATMS_2F', 'SW_OPER_TECBTMS_2F+SW_FAST_TECBTMS_2F', 'SW_OPER_TECCTMS_2F+SW_FAST_TECCTMS_2F', 'SW_OPER_TECUTMS_2F',
+  'SW_OPER_DNSAACC_2_', 'SW_OPER_DNSBACC_2_', 'SW_OPER_DNSCACC_2_', 'SW_OPER_DNSUACC_2_',
+  'SW_OPER_DNSAPOD_2_', 'SW_OPER_DNSBPOD_2_', 'SW_OPER_DNSCPOD_2_', 'SW_OPER_DNSUPOD_2_',
   'SW_OPER_IBIATMS_2F', 'SW_OPER_IBIBTMS_2F', 'SW_OPER_IBICTMS_2F', 'SW_OPER_IBIUTMS_2F',
   'SW_OPER_EEFATMS_2F', 'SW_OPER_EEFBTMS_2F', 'SW_OPER_EEFCTMS_2F', 'SW_OPER_EEFUTMS_2F',
   'SW_OPER_AEJALPS_2F', 'SW_OPER_AEJBLPS_2F', 'SW_OPER_AEJCLPS_2F', 'SW_OPER_AEJULPS_2F',
   'SW_OPER_AEJALPL_2F', 'SW_OPER_AEJBLPL_2F', 'SW_OPER_AEJCLPL_2F', 'SW_OPER_AEJULPL_2F',
+
 ];
 
 // variable translations
@@ -808,7 +812,7 @@ var RELATED_VARIABLES = {
         var filtered = globals.products.filter(function (product) {
           var id = product.get("download").id;
           return !(id && id.match(
-            /^SW_(OPER|FAST|PREL|EXPT)_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ)[ABCU_]/
+            /^SW_(OPER|FAST|PREL|EXPT)_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ|DNS)[ABCU_]/
           ));
         });
 
@@ -886,6 +890,18 @@ var RELATED_VARIABLES = {
             "Bravo": "SW_OPER_AEJBLPS_2F",
             "Charlie": "SW_OPER_AEJCLPS_2F",
             "Upload": "SW_OPER_AEJULPS_2F",
+          },
+          "DNS_POD": {
+            "Alpha": "SW_OPER_DNSAPOD_2_",
+            "Bravo": "SW_OPER_DNSBPOD_2_",
+            "Charlie": "SW_OPER_DNSCPOD_2_",
+            "Upload": "SW_OPER_DNSUPOD_2_",
+          },
+          "DNS_ACC": {
+            "Alpha": "SW_OPER_DNSAACC_2_",
+            "Bravo": "SW_OPER_DNSBACC_2_",
+            "Charlie": "SW_OPER_DNSCACC_2_",
+            "Upload": "SW_OPER_DNSUACC_2_",
           }
         };
 
@@ -949,6 +965,8 @@ var RELATED_VARIABLES = {
           'IPD': false,
           'AEJ_LPL': false,
           'AEJ_LPS': false,
+          'DNS_POD': false,
+          'DNS_ACC': false,
         };
 
         var clickEvent = "require(['communicator'], function(Communicator){Communicator.mediator.trigger('application:reset');});";
@@ -1000,6 +1018,22 @@ var RELATED_VARIABLES = {
         }
 
         // Add generic product (which is container for A,B and C sats)
+        filtered_collection.add({
+          name: "Neutral Density (DNS POD)",
+          visible: containerSelection['DNS_POD'],
+          color: "#de3ece",
+          protocol: null,
+          containerproduct: true,
+          id: "DNS_POD"
+        }, {at: 0});
+        filtered_collection.add({
+          name: "Neutral Density (DNS ACC)",
+          visible: containerSelection['DNS_ACC'],
+          color: "#8e3ede",
+          protocol: null,
+          containerproduct: true,
+          id: "DNS_ACC"
+        }, {at: 0});
         filtered_collection.add({
           name: "Auroral Electrojet - SECS (AEJ LPS/PBS)",
           visible: containerSelection['AEJ_LPS'],

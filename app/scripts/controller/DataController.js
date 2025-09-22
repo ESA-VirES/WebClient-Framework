@@ -310,6 +310,7 @@
             "Viz", "Viz_error", "VsatN", "VsatE", "VsatC", "Ehx", "Ehy", "Ehz",
             "Evx", "Evy", "Evz", "Bx", "By", "Bz", "Vicrx", "Vicry", "Vicrz",
             "Quality_flags", "Calibration_flags",
+            "density", "density_orbitmean", "local_solar_time", "validity_flag",
           ];
 
           var collectionList = _.chain(collections)

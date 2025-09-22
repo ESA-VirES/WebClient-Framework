@@ -27,7 +27,7 @@ define(['backbone.marionette',
   // TODO: find a better place to put the extra parameters' configuration
   var EXTRA_PARAMETERS = {
     "MLT": {
-      "uom": "hr",
+      "uom": "h",
       "name": "Magnetic Local Time",
       "periodic": {"period": 24, "offset": 0}
     },
@@ -274,7 +274,10 @@ define(['backbone.marionette',
         filterList = JSON.parse(filterList);
         this.selectedFilterList = filterList;
       } else {
-        this.selectedFilterList = ['F', 'B_N', 'B_E', 'B_C', 'Dst', 'QDLat', 'MLT'];
+        this.selectedFilterList = [
+            'F', 'B_N', 'B_E', 'B_C', 'Dst', 'QDLat', 'MLT',
+            'density', 'local_solar_time',
+        ];
       }
 
 
@@ -1238,6 +1241,7 @@ define(['backbone.marionette',
           'Ti_meas_drift', // EFIxTIE default
           'M_i_eff', 'N_i', // EFIxIDM defaults
           'Viy', 'Viz', // EFIxTCT defaults
+          'density', // DNSxACC and DNSxPOD defaults
         ];
 
         // Go trough all plots and see if they need to be removed
