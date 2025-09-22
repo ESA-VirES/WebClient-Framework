@@ -96,6 +96,16 @@
         "PPI_FAC": [
             "<p>Equatorward boundary of SSFACs and the associated midnight PP index</p>",
             "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_PPIxFAC_2F' target='_blank'>Product specification</a><br>"
+        ],
+        "DNS_POD": [
+            "<p>Thermospheric neutral density from precise orbit determination data</p>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_DNSxPOD_2_' target='_blank'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03l1_demo-dns' target='notebooks'>Example VRE notebook</a>"
+        ],
+        "DNS_ACC": [
+            "<p>Thermospheric neutral density from precise orbit determination data and accelerometer measurements</p>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_DNSxACC_2_' target='_blank'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03l1_demo-dns' target='notebooks'>Example VRE notebook</a>"
         ]
     },
 
@@ -2992,6 +3002,118 @@
                     "name": "Quality indicators of SSFAC boundary detection"
                 }
             }
+	},
+        "SW_DNSxPOD_2_": {
+            "satellite": "Swarm",
+            "parameters": {
+                "density": {
+                    "selected": true,
+                    "range": [0, 1e-12],
+                    "colorscale": "jet",
+                    "uom": "kg/m3",
+                    "name": "Thermospheric neutral density"
+                },
+                "density_orbitmean": {
+                    "range": [0, 1e-12],
+                    "colorscale": "jet",
+                    "uom": "kg/m3",
+                    "name": "Orbit-mean thermospheric neutral density"
+                },
+                "validity_flag": {
+                    "range": [0, 1],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "POD density validity flag",
+                    "hidden": true,
+                    "bitmask": {
+                        "flags": [
+                            ["bit 0", "Set for anomalous data."]
+                        ]
+                    }
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude_GD": {
+                    "uom": "deg",
+                    "name": "Geodetic latitude"
+                },
+                "Longitude_GD": {
+                    "uom": "deg",
+                    "name": "Geodetic longitude"
+                },
+                "Height_GD": {
+                    "uom": "m",
+                    "name": "Geodetic altitude"
+                },
+                "local_solar_time": {
+                    "periodic": {"period": 24, "offset": 0},
+                    "uom": "h",
+                    "name": "Local solar time"
+                },
+                "density": {
+                    "uom": "kg/m3",
+                    "name": "Thermospheric neutral density"
+                },
+                "density_orbitmean": {
+                    "uom": "kg/m3",
+                    "name": "Orbit-mean thermospheric neutral density"
+                },
+                "validity_flag": {
+                    "uom": null,
+                    "name": "POD density validity flag"
+                },
+                "OrbitNumber": {
+                    "uom": null,
+                    "name": "Orbit Number"
+                }
+            }
+        },
+        "SW_DNSxACC_2_": {
+            "satellite": "Swarm",
+            "parameters": {
+                "density": {
+                    "selected": true,
+                    "range": [0, 1e-12],
+                    "colorscale": "jet",
+                    "uom": "kg/m3",
+                    "name": "Thermospheric neutral density"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude_GD": {
+                    "uom": "deg",
+                    "name": "Geodetic latitude"
+                },
+                "Longitude_GD": {
+                    "uom": "deg",
+                    "name": "Geodetic longitude"
+                },
+                "Height_GD": {
+                    "uom": "m",
+                    "name": "Geodetic altitude"
+                },
+                "local_solar_time": {
+                    "periodic": {"period": 24, "offset": 0},
+                    "uom": "h",
+                    "name": "Local solar time"
+                },
+                "density": {
+                    "uom": "kg/m3",
+                    "name": "Thermospheric neutral density"
+                },
+                "OrbitNumber": {
+                    "uom": null,
+                    "name": "Orbit Number"
+                }
+            }
         }
     },
 
@@ -5101,6 +5223,517 @@
                       "color": "#33cc33"
                     }
                 }
+            }
+        }, {
+            "name": "DNS A ACC 2",
+            "type": "SW_DNSxACC_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#8e3ede",
+            "views": [{
+                "id": "SW_OPER_DNSAACC_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_DNSAACC_2_",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_DNSAACC_2_"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "DNS B ACC 2",
+            "type": "SW_DNSxACC_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#8e3ede",
+            "views": [{
+                "id": "SW_OPER_DNSBACC_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_DNSBACC_2_",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_DNSBACC_2_"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "DNS C ACC 2",
+            "type": "SW_DNSxACC_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#8e3ede",
+            "views": [{
+                "id": "SW_OPER_DNSCACC_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_DNSCACC_2_",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_DNSCACC_2_"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "DNS U ACC 2_",
+            "type": "SW_DNSxACC_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#8e3ede",
+            "views": [{
+                "id": "SW_OPER_DNSUACC_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_DNSUACC_2_"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "download_parameters": {},
+            "outlines": false,
+            "satellite": "Upload"
+        }, {
+            "name": "DNS A POD 2",
+            "type": "SW_DNSxPOD_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#de3ece",
+            "views": [{
+                "id": "SW_OPER_DNSAPOD_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_DNSAPOD_2_",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_DNSAPOD_2_"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "DNS B POD 2",
+            "type": "SW_DNSxPOD_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#de3ece",
+            "views": [{
+                "id": "SW_OPER_DNSBPOD_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_DNSBPOD_2_",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_DNSBPOD_2_"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "DNS C POD 2",
+            "type": "SW_DNSxPOD_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#de3ece",
+            "views": [{
+                "id": "SW_OPER_DNSCPOD_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_DNSCPOD_2_",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_DNSCPOD_2_"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "DNS U POD 2_",
+            "type": "SW_DNSxPOD_2_",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#de3ece",
+            "views": [{
+                "id": "SW_OPER_DNSUPOD_2_",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_DNSUPOD_2_"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "download_parameters": {},
+            "outlines": false,
+            "satellite": "Upload"
+        }, {
+            "name": "Magnetic Model",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "tileSize":1024,
+            "opacity": 0.7,
+            "views": [{
+                "id": "Model",
+                "protocol": "WMS",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "Model",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "parameters": {
+                "F": {
+                    "range": [15000, 55000],
+                    "uom":"nT",
+                    "name": "Total field intensity",
+                    "colorscale": "jet",
+                    "selected": true
+                },
+                "H": {
+                    "range": [10000, 23000],
+                    "uom":"nT",
+                    "name": "Horizontal intensity",
+                    "colorscale": "jet"
+                },
+                "X": {
+                    "range": [10000, 23000],
+                    "uom":"nT",
+                    "name": "North component",
+                    "colorscale": "jet"
+                },
+                "Y": {
+                    "range": [-7000, 7000],
+                    "uom":"nT",
+                    "name": "East component",
+                    "colorscale": "diverging_1"
+                },
+                "Z": {
+                    "range": [-200, 200],
+                    "uom":"nT",
+                    "name": "Down component",
+                    "colorscale": "diverging_1"
+                },
+                "I": {
+                    "range": [-80, 80],
+                    "uom":"degree",
+                    "name": "Inclination",
+                    "colorscale": "diverging_1"
+                },
+                "D": {
+                    "range": [-80, 80],
+                    "uom":"degree",
+                    "name": "Declination",
+                    "colorscale": "diverging_1"
+                },
+                "Fieldlines":{
+                    "range": [1, 40000],
+                    "uom":"nT",
+                    "name": "Fieldlines",
+                    "description": "In order to visualize fieldlines please select an area with the bounding box tool. Click on a fieldline to display additional information.",
+                    "colorscale": "jet",
+                    "logarithmic": true
+                },
+                "X_EW": {
+                    "range": [-5, 5],
+                    "uom":"nT/km",
+                    "name": "North component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Y_EW": {
+                    "range": [-5, 5],
+                    "uom":"nT/km",
+                    "name": "East component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                },
+                "Z_EW": {
+                    "range": [-5, 5],
+                    "uom":"nT/km",
+                    "name": "Down component (East-West Gradient)",
+                    "colorscale": "diverging_1"
+                }
+            },
+            "download_parameters": {
+                "B_NEC_res_Model": {
+                    "uom":"nT",
+                    "name": "Residuals to magnetic model coefficients of Magnetic field vector, NEC frame",
+                    "breakInto": ["B_N_res_Model", "B_E_res_Model", "B_C_res_Model"]
+                },
+                "F_res_Model": {
+                    "uom":"nT",
+                    "name": "Residuals of Magnetic field intensity to magnetic model coefficients"
+                }
+            },
+            "height": 450,
+            "model": true,
+            "components": [
+                {
+                    "sign": "+",
+                    "id": "CHAOS-Core",
+                    "parameters": {}
+                }
+            ]
+        }, {
+            "name": "Dst Index",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "INDEX",
+            "views": [{
+                "id": "dst",
+                "protocol": "INDEX",
+                "urls": [
+                    "/ows"
+                ]
+            }],
+            "download": {
+                "id": "dst",
+                "protocol": "INDEX",
+                "url": "/ows"
+            },
+            "download_parameters": {},
+            "index": true
+        }, {
+            "name": "|dDst| Index",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "INDEX",
+            "views": [{
+                "id": "ddst",
+                "protocol": "INDEX",
+                "urls": [
+                    "/ows"
+                ]
+            }],
+            "download": {
+                "id": "ddst",
+                "protocol": "INDEX",
+                "url": "/ows"
+            },
+            "download_parameters": {},
+            "index": true
+        }, {
+            "name": "Kp Index",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "INDEX",
+            "color": "#0AA8B3",
+            "views": [{
+                "id": "kp",
+                "protocol": "INDEX",
+                "urls": [
+                    "/ows"
+                ]
+            }],
+            "download": {
+                "id": "kp",
+                "protocol": "INDEX",
+                "url": "/ows"
+            },
+            "download_parameters": {},
+            "index": true
+        }, {
+            "name": "F10.7 Index",
+            "visible": false,
+            "timeSlider": true,
+            "timeSliderProtocol": "INDEX",
+            "views": [{
+                "id": "f107",
+                "protocol": "INDEX",
+                "urls": [
+                    "/ows"
+                ]
+            }],
+            "download": {
+                "id": "f107",
+                "protocol": "INDEX",
+                "url": "/ows"
+            },
+            "download_parameters": {},
+            "index": true
+        }, {
+            "name": "Digital Elevation Model",
+            "visible": false,
+            "timeSlider": false,
+            "color": "lightgray",
+            "views": [{
+                "id": "Wireframe",
+                "protocol": "DEM",
+                "urls": [
+                    "//data.eox.at/elevation?"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {}
+        }],
+        "overlays": [{
+            "name": "Coastlines and Countries",
+            "visible": false,
+            "view":{
+                "id": "coastline_black",
+                "protocol": "WMTS",
+                "urlTemplate": "https://{s}.s2maps-tiles.eu/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=coastline_black&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fpng",
+                "subdomains": "abcdef",
+                "urls": [
+                    "//a.tiles.maps.eox.at/wmts/",
+                    "//b.tiles.maps.eox.at/wmts/"
+                ],
+                "matrixSet": "WGS84",
+                "style": "default",
+                "format": "image/png",
+                "maxExtent": [-180.000000, -90.000000, 180.000000, 90.000000],
+                "projection": "EPSG:4326",
+                "gutter": 0,
+                "buffer": 0,
+                "units": "dd",
+                "transitionEffect": "resize",
+                "isphericalMercator": false,
+                "wrapDateLine": true,
+                "zoomOffset": 0,
+                "attribution": " Coastlines and Countries { Data &copy; <a href=\"http://www.openstreetmap.org/copyright\" target=\"_blank\">OSM</a> & Natural Earth, Rendering &copy; <a href=\"http://eox.at\" target=\"_blank\">EOX</a> and <a href=\"https://github.com/mapserver/basemaps\" target=\"_blank\">MapServer</a> }"
+            }
+        },
+        {
+            "name": "Graticule",
+            "visible": false,
+            "view":{
+                "id": "graticules",
+                "protocol": "WMTS",
+                "urlTemplate": "https://{s}.s2maps-tiles.eu/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=graticules&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fpng",
+                "subdomains": "abcdef",
+                "urls": [
+                    "//a.tiles.maps.eox.at/wmts/",
+                    "//b.tiles.maps.eox.at/wmts/"
+                ],
+                "matrixSet": "WGS84",
+                "style": "default",
+                "format": "image/png",
+                "maxExtent": [-180.000000, -90.000000, 180.000000, 90.000000],
+
+                "projection": "EPSG:4326",
+                "gutter": 0,
+                "buffer": 0,
+                "units": "dd",
+                "transitionEffect": "resize",
+                "isphericalMercator": false,
+                "wrapDateLine": true,
+                "zoomOffset": 0
+            }
+        },
+        {
+            "name": "Magnetic Graticule",
+            "visible": false,
+            "view":{
+                "id": "magnetic_graticules",
+                "protocol": "WMTS",
+                "urlTemplate": "https://{s}.s2maps-tiles.eu/wmts/?service=WMTS&version=1.0.0&request=GetTile&tilematrix={TileMatrix}&layer=magnetic_graticules&style={Style}&tilerow={TileRow}&tilecol={TileCol}&tilematrixset={TileMatrixSet}&format=image%2Fpng",
+                "subdomains": "abcdef",
+                "urls": [
+                    "//a.tiles.maps.eox.at/wmts/",
+                    "//b.tiles.maps.eox.at/wmts/"
+                ],
+                "matrixSet": "WGS84",
+                "style": "default",
+                "format": "image/png",
+                "maxExtent": [-180.000000, -90.000000, 180.000000, 90.000000],
+                "projection": "EPSG:4326",
+                "gutter": 0,
+                "buffer": 0,
+                "units": "dd",
+                "transitionEffect": "resize",
+                "isphericalMercator": false,
+                "wrapDateLine": true,
+                "zoomOffset": 0
+            }
+        },
+        {
+            "name": "Satellite Orbit",
+            "visible": false,
+            "view":{
+                "id": "satellite_orbit",
+                "protocol": "WPS",
+                "url": "/ows",
+                "style": "default",
+                "format": "image/png"
             }
         }]
     },

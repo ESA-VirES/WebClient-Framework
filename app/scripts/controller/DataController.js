@@ -457,6 +457,8 @@
           "Depth", "DR", "Width", "dL", "PW_Gradient", "EW_Gradient", "Quality",
           // PPI FAC also overlaps with MIT TEC params
           "Sigma", "PPI",
+          // DNSxPOD and DNSxACC
+          "density", "density_orbitmean", "local_solar_time", "validity_flag",
         ];
 
         var retrieveUserUploads = (
