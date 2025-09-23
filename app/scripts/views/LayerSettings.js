@@ -117,6 +117,73 @@
       }
     });
 
+    // ------------------------------------------------------------------------
+    // parameter list helper class
+
+    function ParameterList() {
+      this.parameters = {};
+      this.selected = null;
+    }
+
+    _.extend(ParameterList.prototype, {
+
+      getSelectedParameter: function () {
+        if (this.selected === null || !has(this.parameters, this.selected)) {
+          return null;
+        }
+        return this.parameters[this.selected];
+      },
+
+      set: function (parameters) {
+        this.parameters = this._filterOutHiddenParameters(parameters);
+        this.selected = this._findSelected(this.parameters);
+        return this;
+      },
+
+      setSelected: function (key) {
+        this._unsetSelected(this.parameters, this.selected);
+        this._setSelected(this.parameters, key);
+        this.selected = key;
+        return this;
+      },
+
+      _unsetSelected: function (parameters, key) {
+        if (has(parameters, key)) {
+          delete parameters[key].selected;
+        }
+      },
+
+      _setSelected: function (parameters, key) {
+        if (has(parameters, key)) {
+          parameters[key].selected = true;
+        }
+      },
+
+      _findSelected: function (parameters) {
+        var selected = null;
+        _.find(parameters, function (value, key) {
+          if (value.selected) {
+            selected = key;
+            return false;
+          }
+          return false;
+        });
+        return selected;
+      },
+
+      _filterOutHiddenParameters: function (parameters) {
+        var parameters = _.clone(parameters);
+        _.each(parameters, function (value, key) {
+          if (get(value, 'hidden', false)) {
+            delete parameters[key];
+          }
+        });
+        return parameters;
+      },
+
+    });
+
+    // ------------------------------------------------------------------------
 
     var LayerSettings = Backbone.Marionette.Layout.extend({
 
@@ -125,520 +192,8 @@
 
       initialize: function (options) {
         this.colorscales = _.sortBy(_.keys(colormap.colorscaleDefinitions));
-
-        this.selected = null;
+        this.parameters = new ParameterList();
         this.selected_satellite = "Alpha";
-      },
-
-      renderView: function () {
-
-        // do nothing if the current model is not set
-        if (!this.current_model) {
-          console.error("No model is set! Layer settings cannot be rendered properly");
-          return;
-        }
-
-        // Unbind first to make sure we are not binding to many times
-        this.stopListening(Communicator.mediator, "layer:settings:changed", this.onParameterChange);
-
-        // Event handler to check if tutorial banner made changes to a model in order to redraw settings
-        // If settings open rerender view to update changes
-        this.listenTo(Communicator.mediator, "layer:settings:changed", this.onParameterChange);
-
-        // for custom model change to apply in choices list
-        this.stopListening(Communicator.mediator, "models:update", this.onParameterChange);
-        this.listenTo(Communicator.mediator, 'models:update', this.onParameterChange);
-
-        this.stopListening(Communicator.mediator, 'time:change');
-        this.listenTo(Communicator.mediator, 'time:change', this.onTimeChange);
-
-        this.$(".panel-title").html('<h3 class="panel-title"><i class="fa fa-fw fa-sliders"></i> ' + this.current_model.get("name") + ' Settings</h3>');
-
-        this.$('.close').on("click", _.bind(this.onClose, this));
-        this.$el.draggable({
-          containment: "#main",
-          scroll: false,
-          handle: '.panel-heading'
-        });
-
-        var options = _.clone(this.current_model.get("parameters"));
-
-        // filter out hidden parameters
-        _.each(options, function (value, key) {
-          if (get(value, 'hidden', false)) {
-            delete options[key];
-          }
-        });
-
-        //var height = this.current_model.get("height");
-        var outlines = this.current_model.get("outlines");
-        var showColorscale = this.current_model.get("showColorscale");
-        //var protocol = this.current_model.get("views")[0].protocol;
-        //var contours = this.current_model.get("contours");
-
-        this.$("#options").empty();
-        this.$("#options").append(
-          _.map(options, function (value, key) {
-            var selected = "";
-            if (value.selected) {
-              this.selected = key;
-              selected = " selected";
-            }
-            return '<option value="' + key + '"' + selected + '>' + value.name + '</option>';
-          }, this).join('')
-        );
-
-        // Check if selected is not inside the available options
-        // This happens if residuals were selected for the layer and
-        // then the model was removed also removing the residuals parameter
-        // from the context menu.
-        // If this happens the visualized parameter needs to be changed
-        if (!has(options, this.selected)) {
-          this.onOptionsChanged();
-        } else {
-          var selectedOption = options[this.selected];
-
-          if (selectedOption.description) {
-            this.$("#description").text(selectedOption.description);
-          }
-
-          if (has(selectedOption, "logarithmic")) {
-            this.addLogOption(options);
-          }
-
-          // Add event handler for change in drop down selection
-          this.$("#options").unbind();
-          this.$("#options").change(this.onOptionsChanged.bind(this));
-
-          this.$("#range_min").hide();
-          this.$("#range_max").hide();
-          this.$("#colorscale").hide();
-          $("#opacitysilder").parent().hide();
-
-          if (get(selectedOption, 'allowLayerSettings', true)) {
-            this.$("#range_min").show();
-            this.$("#range_max").show();
-            this.$("#colorscale").show();
-            $("#opacitysilder").parent().show();
-            // Set values for color scale ranges
-            this.$("#range_min").val(selectedOption.range[0]);
-            this.$("#range_max").val(selectedOption.range[1]);
-
-            // Register necessary key events
-            this.registerKeyEvents(this.$("#range_min"));
-            this.registerKeyEvents(this.$("#range_max"));
-
-            this.$("#style").unbind();
-            this.$("#style").empty();
-            this.$("#style").append(
-              _.map(this.colorscales, function (colorscale) {
-                var selected = "";
-                if (selectedOption.colorscale == colorscale) {
-                  selected = " selected";
-                }
-                return '<option value="' + colorscale + '"' + selected + '>' + colorscale + '</option>';
-              }).join('')
-            );
-            this.$("#style").change(_.bind(function (evt) {
-              var selected = $(evt.target).find("option:selected").text();
-              options[this.selected].colorscale = selected;
-              this.current_model.set("parameters", options);
-              if (has(selectedOption, "logarithmic")) {
-                this.createScale(selectedOption.logarithmic);
-              } else {
-                this.createScale();
-              }
-              Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"), true);
-            }, this));
-
-            this.$("#opacitysilder").unbind();
-            this.$("#opacitysilder").val(this.current_model.get("opacity") * 100);
-            this.$("#opacitysilder").on("input change", _.bind(function (evt) {
-              var opacity = Number(evt.target.value) / 100;
-              this.current_model.set("opacity", opacity);
-              Communicator.mediator.trigger('productCollection:updateOpacity', {model: this.current_model, value: opacity});
-            }, this));
-          }
-
-
-          var checked;
-          if (!(typeof outlines === 'undefined')) {
-            checked = "";
-            if (outlines)
-              checked = "checked";
-
-            $("#outlines input").unbind();
-            $("#outlines").empty();
-            this.$("#outlines").append(
-              '<form style="vertical-align: middle;">' +
-                            '<label class="valign" for="outlines" style="width: 120px;">Outlines </label>' +
-                            '<input class="valign" style="margin-top: -5px;" type="checkbox" name="outlines" value="outlines" ' + checked + '></input>' +
-                            '</form>'
-            );
-
-            this.$("#outlines input").change(_.bind(function (evt) {
-              var outlines = !this.current_model.get("outlines");
-              this.current_model.set("outlines", outlines);
-              Communicator.mediator.trigger("layer:outlines:changed", this.current_model.get("views")[0].id, outlines);
-            }, this));
-          }
-
-          if (!(typeof showColorscale === 'undefined')) {
-            checked = "";
-            if (showColorscale)
-              checked = "checked";
-
-            $("#showColorscale input").unbind();
-            $("#showColorscale").empty();
-            this.$("#showColorscale").append(
-              '<form style="vertical-align: middle;">' +
-                            '<label class="valign" for="outlines" style="width: 120px; margin">Legend </label>' +
-                            '<input class="valign" style="margin-top: -5px;" type="checkbox" name="outlines" value="outlines" ' + checked + '></input>' +
-                            '</form>'
-            );
-
-            this.$("#showColorscale input").change(_.bind(function (evt) {
-              var showColorscale = !this.current_model.get("showColorscale");
-              this.current_model.set("showColorscale", showColorscale);
-              Communicator.mediator.trigger("layer:colorscale:show", this.current_model.get("download").id);
-            }, this));
-          }
-
-          this.createScale(
-            has(selectedOption, "logarithmic") &&
-                        selectedOption.logarithmic
-          );
-
-          if (this.current_model.get("model") && this.current_model.get("editable")) {
-            this.createCustomModelSelection();
-            this.createApplyButton();
-            this.createComposedModelSelection();
-          } else {
-            this.$("#composed_model_compute").empty();
-          }
-
-          this.createHeightTextbox(this.current_model.get("height"));
-        }
-
-        if (this.selected == "Fieldlines") {
-          $("#coefficients_range").hide();
-          $("#opacitysilder").parent().hide();
-          // Check if there is a selection available if not, show message
-
-          // Check for possible already available selection
-          if (this.current_model.id.indexOf('PPI') === -1 &&
-                      (localStorage.getItem('areaSelection') === null ||
-                       !JSON.parse(localStorage.getItem('areaSelection')))) {
-            showMessage(
-              'warning',
-              'In order to visualize fieldlines please select an area using the "Select Area" button in the globe view. Click on a fieldline to display additional information.',
-              35
-            );
-          }
-        } else {
-          $("#coefficients_range").show();
-        }
-        this.$el.append('<div class="model-sources-label hidden sourcesInfoContainer"></div>');
-      },
-
-      createCustomModelSelection: function () {
-        this.$("#shc").empty();
-        this.$("#shc").append(
-          '<p>Spherical Harmonics Coefficients</p>' +
-                    '<div class="myfileupload-buttonbar ">' +
-                        '<label class="btn btn-default shcbutton">' +
-                        '<span><i class="fa fa-fw fa-upload"></i> Upload SHC File</span>' +
-                        '<input id="upload-selection" type="file" accept=".shc" name="files[]" />' +
-                      '</label>' +
-                  '</div>'
-        );
-
-        this.$("#upload-selection").unbind();
-        this.$("#upload-selection").change(
-          _.bind(this.onCustomModelUpload, this)
-        );
-        var customModel = this.current_model.getCustomModelIfSelected();
-        if (customModel) {
-          this.$("#shc").append('<p id="filename" style="font-size:.9em;">Selected File: ' + customModel.get('filename') + '</p>');
-        }
-      },
-
-      onShow: function () {
-
-        if (this.model.get("containerproduct")) {
-          // Add options for three satellites
-          $("#satellite_selection").off();
-          $("#satellite_selection").empty();
-          $("#satellite_selection").append('<label for="satellite_selec" style="width:120px;">Satellite </label>');
-          $("#satellite_selection").append('<select style="margin-left:4px;" name="satellite_selec" id="satellite_selec"></select>');
-
-          _.each(
-            _.keys(get(globals.swarm.products, this.model.get('id'), {})),
-            function (key) {
-              var selected = (key === 'Aplha' ? 'selected' : '');
-              $('#satellite_selec').append('<option value="' + key + '"' + selected + '>' + key + '</option>');
-            }
-          );
-          $("#satellite_selec option[value=" + this.selected_satellite + "]").prop("selected", "selected");
-
-          var _getCurrentModel = function (id) {
-            return globals.products.find(function (product) {return product.get("download").id == id;});
-          };
-          this.current_model = _getCurrentModel(globals.swarm.products[this.model.get("id")][this.selected_satellite]);
-
-          $("#satellite_selection").on('change', _.bind(function () {
-            this.selected_satellite = $("#satellite_selection").find("option:selected").val();
-            this.current_model = _getCurrentModel(globals.swarm.products[this.model.get("id")][this.selected_satellite]);
-            this.renderView();
-          }, this));
-
-        } else {
-          this.current_model = this.model;
-        }
-        this.renderView();
-      },
-
-      onClose: function () {
-        this.deleteSavedModelComponents();
-        this.close();
-      },
-
-      onParameterChange: function () {
-        this.saveModelComponents();
-        this.onShow();
-      },
-
-      onOptionsChanged: function () {
-        var options = this.current_model.get("parameters");
-
-        if (has(options, this.selected)) {
-          delete options[this.selected].selected;
-        }
-
-        $("#description").empty();
-
-        this.selected = $("#options").find("option:selected").val();
-        var selectedOption = options[this.selected];
-
-        this.$("#style").empty();
-
-        this.$("#range_min").hide();
-        this.$("#range_max").hide();
-        this.$("#colorscale").hide();
-        $("#opacitysilder").parent().hide();
-
-        if (get(selectedOption, 'allowLayerSettings', true)) {
-
-          this.$("#range_min").show();
-          this.$("#range_max").show();
-          this.$("#colorscale").show();
-          $("#opacitysilder").parent().show();
-
-          this.$("#style").append(
-            _.map(this.colorscales, function (colorscale) {
-              var selected = "";
-              if (selectedOption.colorscale == colorscale) {
-                selected = " selected";
-              }
-              return '<option value="' + colorscale + '"' + selected + '>' + colorscale + '</option>';
-            }).join('')
-          );
-
-          $("#range_min").val(selectedOption.range[0]);
-          $("#range_max").val(selectedOption.range[1]);
-
-          this.createScale(); // logarithmic ?
-        }
-
-        if (has(selectedOption, "logarithmic")) {
-          this.addLogOption(options);
-        } else {
-          this.$("#logarithmic").empty();
-        }
-
-        selectedOption.selected = true;
-
-        if (selectedOption.description) {
-          this.$("#description").text(selectedOption.description);
-        }
-
-        this.createHeightTextbox(this.current_model.get("height"));
-
-        if (this.selected == "Fieldlines") {
-          $("#coefficients_range").hide();
-          $("#opacitysilder").parent().hide();
-          // Check for possible already available selection
-          if (this.current_model.id.indexOf('PPI') === -1 &&
-                      (localStorage.getItem('areaSelection') === null ||
-                       !JSON.parse(localStorage.getItem('areaSelection')))) {
-            showMessage(
-              'warning',
-              'In order to visualize fieldlines please select an area using the "Select Area" button in the globe view. Click on a fieldline to display additional information.',
-              35
-            );
-          }
-        } else {
-          $("#coefficients_range").show();
-        }
-
-        // request range for selected parameter if layer is of type model
-        if (this.current_model.get("model") && this.selected !== "Fieldlines") {
-          this.updateComposedModelValuesRange();
-        } else {
-          Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
-        }
-
-      },
-
-      registerKeyEvents: function (el) {
-        var that = this;
-        el.keypress(function (evt) {
-          if (evt.keyCode == 13) { //Enter pressed
-            evt.preventDefault();
-            that.applyChanges();
-          } else {
-            that.createApplyButton();
-          }
-        });
-
-        el.keyup(function (evt) {
-          if (evt.keyCode == 8) { //Backspace clicked
-            that.createApplyButton();
-          }
-        });
-
-        // Add click event to select text when clicking or tabbing into textfield
-        el.click(function () {$(this).select();});
-      },
-
-      createApplyButton: function () {
-        var that = this;
-        if ($("#changesbutton").length == 0) {
-          $("#applychanges").append('<button type="button" class="btn btn-default" id="changesbutton" style="width: 100%;"> Apply changes </button>');
-          $("#changesbutton").click(function (evt) {
-            that.applyChanges();
-          });
-        }
-      },
-
-      handleRangeRespone: function (response) {
-        var options = this.current_model.get("parameters");
-        var resp = response.split(',');
-        var range = [Number(resp[1]), Number(resp[2])];
-        if (!isNaN(range[0]) && !isNaN(range[1])) {
-          // Make range "nicer", rounding depending on extent
-          range = d3.scale.linear().domain(range).nice().domain();
-          $("#range_min").val(range[0]);
-          $("#range_max").val(range[1]);
-          options[this.selected].range = range;
-          this.current_model.set("parameters", options);
-          this.createScale();
-        }
-        Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
-      },
-
-      handleRangeResponeSHC: function (evt, response) {
-        this.handleRangeRespone(response);
-        var params = {name: this.current_model.get("download").id, isBaseLayer: false, visible: false};
-        Communicator.mediator.trigger('map:layer:change', params);
-        Communicator.mediator.trigger("file:shc:loaded", evt.target.result);
-        Communicator.mediator.trigger("layer:activate", this.current_model.get("views")[0].id);
-      },
-
-      handleRangeResponseError: function (response) {
-        showMessage(
-          'warning',
-          'There is a problem requesting the range values for the color scale,' +
-                    ' please revise and set them to adequate values if necessary.', 15
-        );
-      },
-
-      applyChanges: function () {
-        var options = this.current_model.get("parameters");
-        var isEditableModel = (
-          this.current_model.get("model") &&
-                    this.current_model.get("editable")
-        );
-
-        var error = false;
-        var modelChanged = false;
-        var heightChanged = false;
-        var rangeChanged = false;
-
-        // Check color ranges
-        var range_min = parseFloat($("#range_min").val());
-        error = error || this.checkValue(range_min, $("#range_min"));
-
-        var range_max = parseFloat($("#range_max").val());
-        error = error || this.checkValue(range_max, $("#range_max"));
-
-        // Set range parameters and redraw color scale
-        if (!error) {
-          var old_range = options[this.selected].range;
-          if (typeof old_range !== 'undefined' && (old_range[0] !== range_min || old_range[1] !== range_max)) {
-            rangeChanged = true;
-          }
-          options[this.selected].range = [range_min, range_max];
-
-          if (has(options[this.selected], "logarithmic"))
-            this.createScale(options[this.selected].logarithmic);
-          else
-            this.createScale();
-        }
-
-        // Check for height attribute
-        if ($("#heightvalue").length) {
-          var height = parseFloat($("#heightvalue").val());
-          error = error || this.checkValue(height, $("#heightvalue"));
-
-          if (!error) {
-            if (this.current_model.get("height") != height) {
-              heightChanged = true;
-            }
-            this.current_model.set("height", height);
-          }
-        }
-
-        if (isEditableModel) {
-          error = error || this.checkComposedModelChanges();
-        }
-
-        if (error) {
-          return;
-        }
-
-        if (isEditableModel) {
-          modelChanged = this.applyComposedModelChanges();
-          $("#changesbutton").removeClass("unAppliedChanges");
-        } else {
-          // remove button for non-composed models
-          $("#applychanges").empty();
-        }
-
-        //Apply changes
-        this.current_model.set("parameters", options);
-
-        if ((modelChanged || heightChanged) && this.selected !== 'Fieldlines') {
-          this.updateComposedModelValuesRange();
-        } else if (rangeChanged && this.selected === 'Fieldlines')
-        {
-          Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"), true);
-        } else {
-          Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
-        }
-        if (modelChanged && this.current_model.get("visible")) {
-          Communicator.mediator.trigger("model:change", this.current_model.get("download").id);
-        }
-      },
-
-      checkValue: function (value, textfield) {
-        if (isNaN(value)) {
-          textfield.addClass("text_error");
-          return true;
-        } else {
-          textfield.removeClass("text_error");
-          return false;
-        }
       },
 
       setModel: function (model) {
@@ -649,11 +204,102 @@
         return this.model.get("name") == model.get("name");
       },
 
+      onShow: function () {
+
+        var selectSatellite = _.bind(function (satellite) {
+          var _getCurrentModel = function (id) {
+            return globals.products.find(function (product) {return product.get("download").id == id;});
+          };
+          this.selected_satellite = satellite;
+          this.current_model = _getCurrentModel(globals.swarm.products[this.model.get("id")][satellite]);
+        }, this);
+
+        if (this.model.get("containerproduct")) {
+          this._renderSatelliteSelection(
+            this.selected_satellite,
+            _.bind(function (selectedSatellite) {
+              selectSatellite(selectedSatellite);
+              this.renderView();
+            }, this)
+          );
+          selectSatellite(this.selected_satellite);
+        } else {
+          this.current_model = this.model;
+        }
+        this.renderView();
+      },
+
+      renderView: function () {
+
+        // do nothing if the current model is not set
+        if (!this.current_model) {
+          console.error("No model is set! Layer settings cannot be rendered properly");
+          return;
+        }
+
+        this._updateEventHandler(Communicator.mediator, "layer:settings:changed", this.onParameterChange);
+        this._updateEventHandler(Communicator.mediator, "models:update", this.onParameterChange);
+        this._updateEventHandler(Communicator.mediator, 'time:change');
+
+        this._renderPanelHeader(this.current_model.get("name"));
+
+        this.parameters.set(this.current_model.get("parameters"));
+
+        this._renderParameterSelection();
+
+        this._clearLayerSettings();
+
+        var selectedParameter = this.parameters.getSelectedParameter() || {};
+        if (selectedParameter.name) {
+
+          this._renderLayerSettings(selectedParameter);
+
+          if (this.current_model.get("model") && this.current_model.get("editable")) {
+            this._renderCustomModelUpload();
+            this._renderApplyButton();
+            this._renderComposedModelSelection();
+          } else {
+            this._clearComposedModelSelection();
+          }
+        }
+
+      },
+
+      onParameterSelected: function () {
+
+        var selectedParameter = this.parameters.getSelectedParameter() || {};
+
+        this._clearLayerSettings();
+        this._renderLayerSettings(selectedParameter);
+
+        // request range for selected parameter if layer is of type model
+        if (this.current_model.get("model") && selectedParameter.name !== "Fieldlines") {
+          this._fetchComposedModelValuesRange();
+        } else {
+          Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
+        }
+
+      },
+
+      onClose: function () {
+        this._deleteSavedModelComponents();
+        this.close();
+      },
+
+      onParameterChange: function () {
+        this._saveModelComponents();
+        this.onShow();
+      },
+
+      onTimeChange: function () {
+        $('.model-sources-label').addClass('hidden');
+      },
+
       onCustomModelUpload: function (evt) {
         var reader = new FileReader();
         var filename = evt.target.files[0].name;
         reader.onloadend = _.bind(function (evt) {
-          $("#changesbutton").addClass("unAppliedChanges");
+          this._activateApplyButton();
 
           // save SHC file to localstorage
           localStorage.setItem('shcFile', JSON.stringify({
@@ -665,108 +311,376 @@
           globals.models.setCustomModel(evt.target.result, filename);
 
           if (this.current_model.getCustomModelIfSelected()) {
-            this.updateComposedModelValuesRange();
+            this._fetchComposedModelValuesRange();
             Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
             if (this.current_model.get("visible")) {
               Communicator.mediator.trigger("model:change", this.current_model.get("download").id);
             }
           }
-          this.saveModelComponents();
+          this._saveModelComponents();
           this.onShow();
         }, this);
 
         reader.readAsText(evt.target.files[0]);
       },
 
-      addLogOption: function (options) {
-        var that = this;
-        if (has(options[this.selected], "logarithmic")) {
-          var checked = "";
-          if (options[this.selected].logarithmic)
-            checked = "checked";
+      _updateEventHandler: function (mediator, eventName, handler) {
+        // Unbind first to make sure we are not binding to many times
+        this.stopListening(mediator, eventName, handler);
+        this.listenTo(mediator, eventName, handler);
+      },
 
-          this.$("#logarithmic").empty();
+      _registerKeyEventHandlers: function (element) { // FIXME: deprecated jQuery API
+        element.unbind();
+        element.keypress(_.bind(function (evt) {
+          if (evt.keyCode == 13) { //Enter pressed
+            evt.preventDefault();
+            this._applyChanges();
+          } else {
+            this._renderApplyButton();
+          }
+        }, this));
 
-          this.$("#logarithmic").append(
-            '<form style="vertical-align: middle;">' +
-                        '<label class="valign" for="outlines" style="width: 100px;">Log. Scale</label>' +
-                        '<input class="valign" style="margin-top: -5px;" type="checkbox" name="logarithmic" value="logarithmic" ' + checked + '></input>' +
-                        '</form>'
-          );
+        element.keyup(_.bind(function (evt) {
+          if (evt.keyCode == 8) { //Backspace clicked
+            this._renderApplyButton();
+          }
+        }, this));
 
-          this.$("#logarithmic input").change(function (evt) {
-            var options = that.current_model.get("parameters");
-            options[that.selected].logarithmic = !options[that.selected].logarithmic;
+        // Add click event to select text when clicking or tabbing into textfield
+        element.click(function () {$(this).select();});
+      },
 
-            that.current_model.set("parameters", options);
-            Communicator.mediator.trigger("layer:parameters:changed", that.current_model.get("name"), true);
+      _applyChanges: function () {
+        var selectedParameter = this.parameters.getSelectedParameter() || {};
 
-            if (has(options[that.selected], "logarithmic"))
-              that.createScale(options[that.selected].logarithmic);
-            else
-              that.createScale();
-          });
+        var isEditableModel = (
+          this.current_model.get("model") && this.current_model.get("editable")
+        );
+
+        var error = false;
+        var modelChanged = false;
+        var heightChanged = false;
+        var rangeChanged = false;
+
+        // Check color ranges
+        var range_min = parseFloat($("#range_min").val());
+        error = error || this._checkNumberValue(range_min, this.$("#range_min"));
+
+        var range_max = parseFloat($("#range_max").val());
+        error = error || this._checkNumberValue(range_max, this.$("#range_max"));
+
+        // Set range parameters and redraw color scale
+        if (!error) {
+          var old_range = selectedParameter.range;
+          if (typeof old_range !== 'undefined' && (old_range[0] !== range_min || old_range[1] !== range_max)) {
+            rangeChanged = true;
+          }
+          selectedParameter.range = [range_min, range_max];
+
+          this._renderColorscale(selectedParameter);
+        }
+
+        // Check for height attribute
+        if ($("#heightvalue").length) {
+          var height = parseFloat($("#heightvalue").val());
+          error = error || this._checkNumberValue(height, $("#heightvalue"));
+
+          if (!error) {
+            if (this.current_model.get("height") != height) {
+              heightChanged = true;
+            }
+            this.current_model.set("height", height);
+          }
+        }
+
+        if (isEditableModel) {
+          error = error || this._checkComposedModelChanges();
+        }
+
+        if (error) {return;}
+
+        if (isEditableModel) {
+          modelChanged = this._applyComposedModelChanges();
+          this._deactivateApplyButton();
+        } else {
+          // remove button for non-composed models
+          this._removeApplyButton();
+        }
+
+        //Apply changes
+
+        if ((modelChanged || heightChanged) && selectedParameter.name !== 'Fieldlines') {
+          this._fetchComposedModelValuesRange();
+        } else if (rangeChanged && selectedParameter.name === 'Fieldlines')
+        {
+          Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"), true);
+        } else {
+          Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
+        }
+        if (modelChanged && this.current_model.get("visible")) {
+          Communicator.mediator.trigger("model:change", this.current_model.get("download").id);
         }
       },
 
-      createScale: function (logscale) {
-        /*
-                var superscript = "⁰¹²³⁴⁵⁶⁷⁸⁹";
-                var formatPower = function (d) {
-                    if (d >= 0)
-                        return (d + "").split("").map(function (c) {return superscript[c];}).join("");
-                    else if (d < 0)
-                        return "⁻" + (d + "").split("").map(function (c) {return superscript[c];}).join("");
-                };
-                */
-        $("#setting_colorscale").empty();
-
-        if (!get(this.current_model.get("parameters")[this.selected], 'allowLayerSettings', true)) {
-          return;
+      _checkNumberValue: function (value, textfield) {
+        if (isNaN(value)) {
+          textfield.addClass("text_error");
+          return true;
+        } else {
+          textfield.removeClass("text_error");
+          return false;
         }
+      },
+
+      _clearLayerSettings: function () {
+        this.$("#description").empty();
+        this.$("#style").empty();
+        this.$("#range_min").hide();
+        this.$("#range_max").hide();
+        this.$("#colorscale").hide();
+        this.$("#opacitysilder").parent().hide();
+        this.$("#setting_colorscale").empty();
+        this.$("#logarithmic").empty();
+        this.$("#outlines").empty();
+        this.$("#showColorscale").empty();
+        this.$("#height").empty();
+        this.$("#coefficients_range").hide();
+      },
+
+      _renderLayerSettings: function (parameter) {
+        if (!get(parameter, 'allowLayerSettings', true)) {return;}
+
+        this._renderDescription(parameter);
+        this._renderRangeBoundInputs(parameter);
+        this._renderColormapSelection(parameter);
+        this._renderColorscale(parameter);
+        this._renderLogScaleCheckbox(parameter);
+        this._renderOutlinesCheckbox();
+        this._renderLegendCheckbox();
+
+        if (parameter.name !== "Fieldlines") {
+          this._renderOpacitySlider();
+          this._renderHeightTextbox();
+        } else {
+          // Check for possible already available selection
+          if (this.current_model.id.indexOf('PPI') === -1) {
+            this._warnIfNoAreaSelected();
+          }
+        }
+      },
+
+      _warnIfNoAreaSelected: function () {
+        var areaSelection = localStorage.getItem('areaSelection');
+        if (areaSelection === null || !JSON.parse(areaSelection)) {
+          showMessage('warning', (
+            'In order to visualize fieldlines please select an area using '
+            + 'the "Select Area" button in the globe view. Click on a '
+            + 'fieldline to display additional information.'
+          ), 35);
+        }
+      },
+
+      _renderPanelHeader: function (title) {
+        this.$(".panel-title").html(`<h3 class="panel-title"><i class="fa fa-fw fa-sliders"></i> ${title} Settings</h3>`);
+        this.$('.close').on("click", _.bind(this.onClose, this));
+        this.$el.draggable({
+          containment: "#main",
+          scroll: false,
+          handle: '.panel-heading'
+        });
+      },
+
+      _renderSatelliteSelection: function (selectedSatellite, onSatelliteChange) {
+
+        this.$("#satellite_selection")
+          .off()
+          .empty()
+          .append('<label for="satellite_selec" style="width:120px;">Satellite </label>')
+          .append('<select style="margin-left:4px;" name="satellite_selec" id="satellite_selec"></select>');
+
+        _.each(
+          _.keys(get(globals.swarm.products, this.model.get('id'), {})),
+          function (key) {
+            var selected = (key === selectedSatellite ? ' selected' : '');
+            $('#satellite_selec').append(`<option value="${key}"${selected}>${key}</option>`);
+          }
+        );
+
+        this.$("#satellite_selection").on('change', function () {
+          onSatelliteChange($("#satellite_selection").find("option:selected").val());
+        });
+      },
+
+      _renderParameterSelection: function () {
+        this.$("#options").empty();
+        this.$("#options").append(
+          _.map(
+            this.parameters.parameters,
+            function (value, key) {
+              var selected = value.selected ? " selected" : "";
+              return `<option value="${key}"${selected}>${value.name}</option>`;
+            },
+            this).join("")
+        );
+        this.$("#options").unbind();
+        this.$("#options").change(_.bind(function () {
+          this.parameters.setSelected(
+            this.$("#options").find("option:selected").val()
+          );
+          this.onParameterSelected();
+        }, this));
+      },
+
+      _renderDescription: function (parameter) {
+        this.$("#description").empty();
+        if (parameter.description) {
+          this.$("#description").text(parameter.description);
+        }
+      },
+
+      _renderRangeBoundInputs: function (parameter) {
+        this.$("#range_min").val(parameter.range[0]).show();
+        this.$("#range_max").val(parameter.range[1]).show();
+        this._registerKeyEventHandlers(this.$("#range_min"));
+        this._registerKeyEventHandlers(this.$("#range_max"));
+      },
+
+      _renderOpacitySlider: function () {
+        // FIXME: too many events triggered
+        this.$("#opacitysilder")
+          .val(this.current_model.get("opacity") * 100).parent()
+          .show()
+          .unbind()
+          .on("input change", _.bind(function (evt) {
+            var opacity = Number(evt.target.value) / 100;
+            this.current_model.set("opacity", opacity);
+            Communicator.mediator.trigger('productCollection:updateOpacity', {model: this.current_model, value: opacity});
+          }, this));
+      },
+
+      _renderColormapSelection: function (parameter) {
+        this.$("#style").append(
+          _.map(this.colorscales, function (name) {
+            var selected = parameter.colorscale == name ? " selected" : "";
+            return `<option value="${name}"${selected}>${name}</option>`;
+          }).join('')
+        );
+        this.$("#style").unbind();
+        this.$("#style").change(_.bind(function (evt) {
+          var parameter = this.parameters.getSelectedParameter();
+          parameter.colorscale = $(evt.target).find("option:selected").text();
+          this._renderColorscale(parameter);
+          Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"), true);
+        }, this));
+      },
+
+      _renderLegendCheckbox: function () {
+
+        var showColorscale = this.current_model.get("showColorscale");
+
+        if (typeof showColorscale === 'undefined') {return;}
+
+        var checked = showColorscale ? " checked" : "";
+
+        this.$("#showColorscale").empty().append(
+          '<form style="vertical-align: middle;">'
+          + '<label class="valign" for="outlines" style="width: 120px; margin">Legend </label>'
+          + `<input class="valign" style="margin-top: -5px;" type="checkbox" name="outlines" value="outlines"${checked}></input>`
+          + '</form>'
+        );
+
+        this.$("#showColorscale input").change(_.bind(function (evt) {
+          var showColorscale = !this.current_model.get("showColorscale");
+          this.current_model.set("showColorscale", showColorscale);
+          Communicator.mediator.trigger("layer:colorscale:show", this.current_model.get("download").id);
+        }, this));
+      },
+
+      _renderOutlinesCheckbox: function () {
+
+        var outlines = this.current_model.get("outlines");
+
+        if (typeof outlines === 'undefined') {return;}
+
+        var checked = outlines ? " checked" : "";
+
+        this.$("#outlines").empty().append(
+          '<form style="vertical-align: middle;">'
+          + '<label class="valign" for="outlines" style="width: 120px;">Outlines </label>'
+          + `<input class="valign" style="margin-top: -5px;" type="checkbox" name="outlines" value="outlines"${checked}></input>`
+          + '</form>'
+        );
+
+        this.$("#outlines input").change(_.bind(function (evt) {
+          var outlines = !this.current_model.get("outlines");
+          this.current_model.set("outlines", outlines);
+          Communicator.mediator.trigger("layer:outlines:changed", this.current_model.get("views")[0].id, outlines);
+        }, this));
+      },
+
+      _renderLogScaleCheckbox: function (parameter) {
+
+        if (!has(parameter, "logarithmic")) {return;}
+
+        var checked = parameter.logarithmic ? " checked" : "";
+
+        this.$("#logarithmic").empty().append(
+          '<form style="vertical-align: middle;">'
+          + '<label class="valign" for="outlines" style="width: 100px;">Log. Scale</label>'
+          + `<input class="valign" style="margin-top: -5px;" type="checkbox" name="logarithmic" value="logarithmic"${checked}></input>`
+          + '</form>'
+        );
+
+        this.$("#logarithmic input").change(_.bind(function (evt) {
+          var parameter = this.parameters.getSelectedParameter();
+          parameter.logarithmic = !parameter.logarithmic;
+          Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"), true);
+          this._renderColorscale(parameter);
+        }, this));
+      },
+
+      _renderColorscale: function (parameter) {
+
+        this.$("#colorscale").show();
+
+        var uom = parameter.uom;
+        var range_max = parameter.range[0];
+        var range_min = parameter.range[1];
+        var isLogScale = get(parameter, "logarithmic", false);
 
         var margin = 20;
-        var width = $("#setting_colorscale").width();
+        var height = 40;
+        var width = this.$("#setting_colorscale").width();
         var scalewidth = width - margin * 2;
 
-        var range_min = this.current_model.get("parameters")[this.selected].range[0];
-        var range_max = this.current_model.get("parameters")[this.selected].range[1];
-        var uom = this.current_model.get("parameters")[this.selected].uom;
-        var style = this.current_model.get("parameters")[this.selected].colorscale;
 
-        $("#setting_colorscale").append(
-          '<div id="gradient" style="width:' + scalewidth + 'px;margin-left:' + margin + 'px"></div>'
+        this.$("#setting_colorscale").empty().append(
+          `<div id="gradient" style="width:${scalewidth}px;margin-left:${margin}px"></div>`
         );
-        /*'<div class="'+style+'" style="width:'+scalewidth+'px; height:20px; margin-left:'+margin+'px"></div>'*/
+
+        var style = parameter.colorscale;
 
         var data_url = (new colormap.ColorMap(style)).getCanvas().toDataURL('image/png');
-        $('#gradient').css('background-image', 'url(' + data_url + ')');
+        $('#gradient').css('background-image', `url(${data_url})`);
 
         var svgContainer = d3.select("#setting_colorscale").append("svg")
           .attr("width", width)
-          .attr("height", 40);
+          .attr("height", height);
 
-        var axisScale;
-
-        if (logscale) {
-          axisScale = d3.scale.log();
-        } else {
-          axisScale = d3.scale.linear();
-        }
-
-        axisScale.domain([range_min, range_max]);
+        var axisScale = isLogScale ? d3.scale.log() : d3.scale.linear();
+        axisScale.domain([range_max, range_min]);
         axisScale.range([0, scalewidth]);
 
         var xAxis = d3.svg.axis()
           .scale(axisScale);
 
-        if (logscale) {
+        if (isLogScale) {
           var numberFormat = d3.format(",f");
           xAxis.tickFormat(function logFormat(d) {
             var x = Math.log(d) / Math.log(10) + 1e-6;
             return Math.abs(x - Math.floor(x)) < .3 ? numberFormat(d) : "";
           });
-
         } else {
           var step = Number(((range_max - range_min) / 5).toPrecision(3));
           var ticks = d3.range(range_min, range_max + step, step);
@@ -791,34 +705,79 @@
           .attr("stroke", "black");
       },
 
-      createHeightTextbox: function (height) {
-        this.$("#height").empty();
-        if ((height || height == 0) && this.selected !== "Fieldlines") {
-          this.$("#height").append(
-            '<form style="vertical-align: middle;">' +
-                        '<label for="heightvalue" style="width: 120px;">Height</label>' +
-                        '<input id="heightvalue" type="text" style="width:35px; margin-left:8px"/>' +
-                        '</form>'
-          );
-          this.$("#heightvalue").val(height);
-          this.$("#height").append(
-            '<p style="font-size:0.85em; margin-left: 120px;">Above ellipsoid (Km)</p>'
-          );
+      _renderHeightTextbox: function () {
 
-          // Register necessary key events
-          this.registerKeyEvents(this.$("#heightvalue"));
+        var height = this.current_model.get("height");
+
+        if (!height && height !== 0) {return;}
+
+        this.$("#height").empty().append(
+          '<form style="vertical-align: middle;">'
+          + '<label for="heightvalue" style="width: 120px;">Height</label>'
+          + '<input id="heightvalue" type="text" style="width:35px; margin-left:8px"/>'
+          + '</form>'
+          + '<p style="font-size:0.85em; margin-left: 120px;">Above ellipsoid (Km)</p>'
+        );
+        this.$("#heightvalue").val(height);
+
+        this._registerKeyEventHandlers(this.$("#heightvalue"));
+      },
+
+      _renderApplyButton: function () {
+        if ($("#changesbutton").length == 0) {
+          $("#applychanges").append('<button type="button" class="btn btn-default" id="changesbutton" style="width: 100%;"> Apply changes </button>');
+          $("#changesbutton").click(_.bind(function (evt) {
+            this._applyChanges();
+          }, this));
         }
       },
 
-      updateComposedModelValuesRange: function () {
-        var sel_time = Communicator.reqres.request('get:time');
+      _activateApplyButton: function () {
+        $("#changesbutton").addClass("unAppliedChanges");
+      },
+
+      _deactivateApplyButton: function () {
+        $("#changesbutton").removeClass("unAppliedChanges");
+      },
+
+      _removeApplyButton: function () {
+        $("#applychanges").empty();
+      },
+
+      _renderCustomModelUpload: function () {
+        this.$("#shc")
+          .empty()
+          .append(
+            '<p>Spherical Harmonics Coefficients</p>'
+            + '<div class="myfileupload-buttonbar ">'
+            + '<label class="btn btn-default shcbutton">'
+            + '<span><i class="fa fa-fw fa-upload"></i> Upload SHC File</span>'
+            + '<input id="upload-selection" type="file" accept=".shc" name="files[]" />'
+            + '</label>'
+            + '</div>'
+          );
+
+        this.$("#upload-selection")
+          .unbind()
+          .change(_.bind(this.onCustomModelUpload, this));
+
+        /* Displayed by the model info.
+        var customModel = this.current_model.getCustomModel();
+        if (customModel) {
+          this.$("#shc").append(`<p id="filename" style="font-size:.9em;">Selected File: ${customModel.get('filename')}</p>`);
+        }
+        */
+      },
+
+      _fetchComposedModelValuesRange: function () {
+        var selectedTimeRange = Communicator.reqres.request('get:time');
 
         var options = {
           model_expression: this.current_model.getModelExpression(),
           shc: this.current_model.getCustomShcIfSelected(),
-          variable: this.selected,
-          begin_time: getISODateTimeString(sel_time.start),
-          end_time: getISODateTimeString(sel_time.end),
+          variable: this.parameters.selected,
+          begin_time: getISODateTimeString(selectedTimeRange.start),
+          end_time: getISODateTimeString(selectedTimeRange.end),
           elevation: this.current_model.get("height"),
           height: 24,
           width: 24,
@@ -831,11 +790,45 @@
           url: this.current_model.get("download").url,
           data: payload,
           contentType: 'application/xml; charset=utf-8',
-        }).success(this.handleRangeRespone.bind(this))
-          .fail(this.handleRangeResponseError);
+        }).success(_.bind(this._handleRangeResponse, this))
+          .fail(_.bind(this._handleRangeResponseError, this));
       },
 
-      createComposedModelSelection: function () {
+      _handleRangeResponse: function (response) {
+        var selectedParameter = this.parameters.getSelectedParameter() || {};
+        var resp = response.split(',');
+        var range = [Number(resp[1]), Number(resp[2])];
+        if (!isNaN(range[0]) && !isNaN(range[1])) {
+          // Make range "nicer", rounding depending on extent
+          range = d3.scale.linear().domain(range).nice().domain();
+          $("#range_min").val(range[0]);
+          $("#range_max").val(range[1]);
+          selectedParameter.range = range;
+          this. _renderColorscale(selectedParameter);
+        }
+        Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
+      },
+
+      _handleRangeResponseError: function (response) {
+        showMessage('warning', (
+          'There is a problem requesting the range values for the color scale,'
+          + ' please revise and set them to adequate values if necessary.'
+        ), 15);
+      },
+
+      _handleRangeResponseSHC: function (evt, response) {
+        this.handleRangeResponse(response);
+        var params = {name: this.current_model.get("download").id, isBaseLayer: false, visible: false};
+        Communicator.mediator.trigger('map:layer:change', params);
+        Communicator.mediator.trigger("file:shc:loaded", evt.target.result);
+        Communicator.mediator.trigger("layer:activate", this.current_model.get("views")[0].id);
+      },
+
+      _clearComposedModelSelection: function () {
+        this.$("#composed_model_compute").empty();
+      },
+
+      _renderComposedModelSelection: function () {
 
         //composed model additional fields
         this.$("#composed_model_compute").empty();
@@ -847,10 +840,10 @@
         // create hash of the previous components
         var previousSelection = {};
         _.each(
-          this.getSavedModelComponents() || this.current_model.get('components'),
+          this._loadSavedModelComponents() || this.current_model.get('components'),
           function (item) {previousSelection[item.id] = item;}
         );
-        this.deleteSavedModelComponents();
+        this._deleteSavedModelComponents();
 
         var models = globals.models.map(function (model) {
           return new ModelComponentParameters(model, previousSelection[model.id]);
@@ -947,7 +940,7 @@
           var items = $('#composed_model_compute').data();
           var thisItem = $('#composed_model_compute').data(event.detail.value);
           thisItem.selected = true;
-          $("#changesbutton").addClass("unAppliedChanges");
+          this._activateApplyButton();
           // remove colliding models
           _.each(items, function (item) {
             if (thisItem.excludes[item.id] && item.selected) {
@@ -957,44 +950,43 @@
         }, this));
         choices.passedElement.addEventListener('removeItem', _.bind(function (event) {
           $('#composed_model_compute').data(event.detail.value).selected = false;
-          $("#changesbutton").addClass("unAppliedChanges");
+          this._activateApplyButton();
           $('.model-sources-label').addClass('hidden');
         }, this));
       },
 
-      checkComposedModelChanges: function () {
+      _checkComposedModelChanges: function () {
         if ($('.composed_model_operation_operand').length === 0) {
           showMessage('warning', 'The composed model is empty. Please add at least one model.', 20);
           return true;
         }
-
         return false;
       },
 
-      applyComposedModelChanges: function () {
+      _applyComposedModelChanges: function () {
         var newComponents = this._getSelectedComponents();
         var modelChanged = !this._modelComponentsAreEqual(
           this.current_model.get('components'), newComponents
         );
         if (modelChanged) {
-          console.log("Composed model " + this.current_model.get("name") + " changed");
+          console.log(`Composed model ${this.current_model.get("name")} changed`);
           this.current_model.set("components", newComponents);
         }
-        this.deleteSavedModelComponents();
+        this._deleteSavedModelComponents();
         return modelChanged;
       },
 
-      saveModelComponents: function () {
+      _saveModelComponents: function () {
         // save current state of the composed model section
         this._cachedModelComponents = this._getSelectedComponents();
       },
 
-      getSavedModelComponents: function () {
+      _loadSavedModelComponents: function () {
         // get saved composed model selection
         return this._cachedModelComponents || null;
       },
 
-      deleteSavedModelComponents: function () {
+      _deleteSavedModelComponents: function () {
         // clear saved composed model selection
         delete this._cachedModelComponents;
       },
@@ -1030,9 +1022,7 @@
         }
         return true;
       },
-      onTimeChange: function () {
-        $('.model-sources-label').addClass('hidden');
-      },
+
     });
 
     return {LayerSettings: LayerSettings};
