@@ -1068,8 +1068,8 @@ define([
           // If product is model and active parameters is Fieldline
           // do not activate dummy layer and check for fieldlines
           if (product.get('model')) {
-            var activeKey = this.getSelectedVariable(product.get('parameters'));
-            if (activeKey === 'Fieldlines') {
+            var parameter = this.getSelectedParameter(product.get('parameters'));
+            if (parameter.type === 'aoi-fieldlines') {
               imagerylayer.show = false;
             }
             // add extra later for the custom model
@@ -1556,10 +1556,9 @@ define([
               var parameters = product.get('parameters');
               if (parameters) {
                 var band = this.getSelectedVariable(parameters);
-                var style = parameters[band].colorscale;
-                var range = parameters[band].range;
+                var parameter = parameters[band];
 
-                if (band === 'Fieldlines') {
+                if (parameter.type === 'aoi-fieldlines') {
                   this.updateActiveFL(product);
                   this.updateFieldLines();
                 } else {
@@ -1570,14 +1569,14 @@ define([
                       'dim_bands', band
                     );
                   }
-                  if (range) {
+                  if (parameter.range) {
                     cesLayer.imageryProvider.updateProperties(
-                      'dim_range', (range[0] + ',' + range[1])
+                      'dim_range', (parameter.range[0] + ',' + parameter.range[1])
                     );
                   }
-                  if (style) {
+                  if (parameter.colorscale) {
                     cesLayer.imageryProvider.updateProperties(
-                      'styles', style
+                      'styles', parameter.colorscale
                     );
                   }
                   if (product.get('model')) {
@@ -1594,11 +1593,11 @@ define([
               }
               // END of WMS and WMTS case
             } else if (product.get('views')[0].protocol === 'CZML') {
-              // Special case for selected fieldlines of a product
+              // Special case for fieldlines rendered from data locations
               var parameters = product.get('parameters');
               if (parameters) {
-                var band = this.getSelectedVariable(parameters);
-                if (band === 'Fieldlines') {
+                var parameter = this.getSelectedParameter(parameters);
+                if (parameter.type === 'data-fieldlines') {
                   this.updateActiveFL(product);
                   this.updateFieldLines();
                 }
@@ -1627,18 +1626,16 @@ define([
     showCustomModel: function (product) {
       var parameters = product.get('parameters');
       var band = this.getSelectedVariable(parameters);
+      var parameter = parameters[band];
 
       product._cesiumLayer.show = false; // hide WMS layer
 
-      if (band === 'Fieldlines') {
+      if (parameter.type === 'aoi-fieldlines') {
         this.hideCustomModel(product);
         product._cesiumLayerCustom.show = false; // hide WPS layer
         this.updateFieldLines();
         return;
       }
-
-      var style = parameters[band].colorscale;
-      var range = parameters[band].range;
 
       var options = {
         model_expression: product.getModelExpression(),
@@ -1649,9 +1646,9 @@ define([
         elevation: product.get('height'),
         height: 512,
         width: 1024,
-        style: style,
-        range_min: range[0],
-        range_max: range[1],
+        style: parameter.colorscale,
+        range_min: parameter.range[0],
+        range_max: parameter.range[1],
       };
 
       if (this.bboxsel !== null) {
@@ -1664,33 +1661,33 @@ define([
         data: tmplEvalModel(options),
         contentType: 'application/xml; charset=utf-8',
       }).done(_.bind(function (data) {
-          var customModelLayer = product._cesiumLayerCustom;
-          customModelLayer.show = false;
+        var customModelLayer = product._cesiumLayerCustom;
+        customModelLayer.show = false;
 
-          var layers = this.map.scene.imageryLayers;
-          var index = layers.indexOf(customModelLayer);
+        var layers = this.map.scene.imageryLayers;
+        var index = layers.indexOf(customModelLayer);
 
-          if (index > 0) {
-            var imageURI = 'data:image/gif;base64,' + data;
-            var layerOptions = {url: imageURI};
-            if (boundingBox && boundingBox.length === 4) {
-              var rec = new Cesium.Rectangle(
-                Cesium.Math.toRadians(boundingBox[1]),
-                Cesium.Math.toRadians(boundingBox[0]),
-                Cesium.Math.toRadians(boundingBox[3]),
-                Cesium.Math.toRadians(boundingBox[2])
-              );
-              layerOptions.rectangle = rec;
-            }
-            layers.remove(customModelLayer);
-            customModelLayer = layers.addImageryProvider(
-              new Cesium.SingleTileImageryProvider(layerOptions), index
+        if (index > 0) {
+          var imageURI = 'data:image/gif;base64,' + data;
+          var layerOptions = {url: imageURI};
+          if (boundingBox && boundingBox.length === 4) {
+            var rec = new Cesium.Rectangle(
+              Cesium.Math.toRadians(boundingBox[1]),
+              Cesium.Math.toRadians(boundingBox[0]),
+              Cesium.Math.toRadians(boundingBox[3]),
+              Cesium.Math.toRadians(boundingBox[2])
             );
-            customModelLayer.alpha = product.get('opacity');
-            customModelLayer.show = true;
-            product._cesiumLayerCustom = customModelLayer;
+            layerOptions.rectangle = rec;
           }
-        }, this));
+          layers.remove(customModelLayer);
+          customModelLayer = layers.addImageryProvider(
+            new Cesium.SingleTileImageryProvider(layerOptions), index
+          );
+          customModelLayer.alpha = product.get('opacity');
+          customModelLayer.show = true;
+          product._cesiumLayerCustom = customModelLayer;
+        }
+      }, this));
       return true;
     },
 
@@ -2500,7 +2497,6 @@ define([
         // collect visible parameters and their settings
 
         var settings = {};
-        var currentCollection = null;
 
         globals.products.each(function (product) {
           if (!product.get('visible')) {return;}
@@ -2605,7 +2601,11 @@ define([
           });
 
           _.each(settings[id], function (item, name) {
-            if (!get(item, "isVector", false) && !get(item, "isScalar", false)) {
+            if (
+              item.type !== "data-fieldlines" &&
+              !get(item, "isVector", false) &&
+              !get(item, "isScalar", false)
+            ) {
               throw "Neither SCALAR_PARAM nor VECTOR_PARAM list contains the " + name + " parameter!";
             }
           });
@@ -2639,10 +2639,10 @@ define([
         function (record) {
           _.each(settings[record.id], function (parameterSettings) {
             // If parameter fieldlines we do not create features for it
-            if (parameterSettings.name !== 'Fieldlines') {
-              parameterSettings.featureCreator(record, parameterSettings);
-            } else {
+            if (parameterSettings.type === 'data-fieldlines') {
               fieldlinesActive = true;
+            } else {
+              parameterSettings.featureCreator(record, parameterSettings);
             }
           });
         },
@@ -2669,12 +2669,14 @@ define([
         return product.get('name') === layer;
       });
 
-      var variable = this.getSelectedVariable(product.get('parameters'));
+      var parameters = product.get('parameters');
+      var variable = this.getSelectedVariable(parameters);
+      var parameter = parameters[variable];
       if (product === undefined) {
         return;
       } else if (product.get('views')[0].protocol === 'CZML') {
         this.createDataFeatures(globals.swarm.get('data'));
-        if (variable === 'Fieldlines') {
+        if (parameter.type === 'aoi-fieldlines') {
           this.updateActiveFL(product);
         } else {
           this.deleteActiveFL(product);
@@ -2682,7 +2684,7 @@ define([
         this.updateFieldLines(onlyStyleChange);
       } else if (product.get('views')[0].protocol === 'WMS') {
 
-        if (variable === 'Fieldlines') {
+        if (parameter.type === 'aoi-fieldlines') {
           this.hideCustomModel(product);
           this.hideWMSLayer(product);
           this.updateActiveFL(product);
@@ -3239,14 +3241,19 @@ define([
           var name = product.get('name');
           var parameters = product.get('parameters');
           var variable = this.getSelectedVariable(parameters);
-          var style = parameters[variable].colorscale;
-          var range_min = parameters[variable].range[0];
-          var range_max = parameters[variable].range[1];
-          var log_scale = parameters[variable].logarithmic;
+          var parameter = parameters[variable];
+          var style = parameter.colorscale;
+          var range_min = parameter.range[0];
+          var range_max = parameter.range[1];
+          var log_scale = parameter.logarithmic;
+
           var time = meanDate(this.beginTime, this.endTime);
           this.removeFLPrimitives(name);
 
-          if (variable !== 'Fieldlines') return;
+          if (
+            parameter.type !== 'aoi-fieldlines' &&
+            parameter.type !== 'data-fieldlines'
+          ) {return;}
 
           if (product.getModelValidity()) {
             if (product.getModelValidity().start > time || product.getModelValidity().end < time) return;
@@ -3255,57 +3262,63 @@ define([
           if (onlyStyleChange && typeof this.FLStoredData[name] !== 'undefined') {
             // do not send request to server if no new data needed
             this.createFLPrimitives(this.FLStoredData[name], name, style, range_min, range_max, log_scale);
-          } else {
-            var fieldlinesRequest = new vires.ViresFieldlinesRequest({
-              context: this,
-              url: product.get('views')[0].urls[0],
-              success: function (data, xhr) {
-                this.createFLPrimitives(data, name, style, range_min, range_max, log_scale);
-                this.FLStoredData[name] = data;
-              },
-              error: function (xhr, message) {
-                if (xhr.responseText === "") {return;}
-                if (!message) {
-                  message = 'Please contact feedback@vires.services if issue persists.';
-                }
-                showMessage('danger', ('Problem retrieving data: ' + message), 35);
-              }
-            });
+            return;
+          }
 
-            // Try to get bbox points if not available check if
-            // product data is available to use as points
-            var points = [];
-            if (this.bboxsel) {
-              points = _boundingBoxToPoints(this.bboxsel, 3, 3);
-            } else {
-              var data = globals.swarm.get('data');
-              data.forEachRecord(function (record) {
+          var fieldlinesRequest = new vires.ViresFieldlinesRequest({
+            context: this,
+            url: product.get('views')[0].urls[0],
+            success: function (data, xhr) {
+              this.createFLPrimitives(data, name, style, range_min, range_max, log_scale);
+              this.FLStoredData[name] = data;
+            },
+            error: function (xhr, message) {
+              if (xhr.responseText === "") {return;}
+              if (!message) {
+                message = 'Please contact feedback@vires.services if issue persists.';
+              }
+              showMessage('danger', ('Problem retrieving data: ' + message), 35);
+            }
+          });
+
+          var points = [];
+          var model_ids = null;
+
+          if (parameter.type === 'aoi-fieldlines' && this.bboxsel) {
+
+            // points are generated from the AoI bounding box
+            points = _boundingBoxToPoints(this.bboxsel, 3, 3);
+            // products is the actual model
+            model_ids = product.getModelExpression(product.get('download').id);
+
+          } else if (parameter.type === 'data-fieldlines') {
+
+            // points are generated from the data locations
+            var data = globals.swarm.get('data');
+            data.forEachRecord(
+              function (record) {
                 points.push([record.Latitude, record.Longitude, record.Radius]);
               },
-              new RecordFilter(_.keys(data.data)), this);
-            }
-            // If fieldlines are selected for a non model product
-            // we use a standard model for calculation
-            var model_ids = null;
-            var prodId = product.get('download').id;
-            if (prodId !== 'Model') {
-              // Find model product
-              var modelProd = globals.products.find(function (pr) {
-                return pr.get('download').id === 'Model';
-              });
-              model_ids = modelProd.getModelExpression(modelProd.get('download').id);
-            } else {
-              model_ids = product.getModelExpression(product.get('download').id);
-            }
-            if (points.length > 0) {
-              fieldlinesRequest.fetch({
-                model_ids: model_ids,
-                shc: product.getCustomShcIfSelected(),
-                time: getISODateTimeString(time),
-                locations_csv: vires.locationToCsv(points),
-              });
+              new RecordFilter(_.keys(data.data))
+            );
+            // searching for the current model
+            var model = globals.products.find(function (product) {
+              return product.get('download').id === 'Model';
+            });
+            if (model) {
+              model_ids = model.getModelExpression(model.get('download').id);
             }
           }
+
+          if (points.length > 0 && model_ids) {
+            fieldlinesRequest.fetch({
+              model_ids: model_ids,
+              shc: product.getCustomShcIfSelected(),
+              time: getISODateTimeString(time),
+              locations_csv: vires.locationToCsv(points),
+            });
+          }
+
         }, this
       );
     },
@@ -3320,6 +3333,15 @@ define([
       for (var key in parameters) {
         if (parameters[key].selected) {
           return key;
+        }
+      }
+    },
+
+    getSelectedParameter: function (parameters) {
+      if (!parameters) return;
+      for (var key in parameters) {
+        if (parameters[key].selected) {
+          return parameters[key];
         }
       }
     },

@@ -273,7 +273,7 @@
         this._renderLayerSettings(selectedParameter);
 
         // request range for selected parameter if layer is of type model
-        if (this.current_model.get("model") && selectedParameter.name !== "Fieldlines") {
+        if (this.current_model.get("model") && selectedParameter.type !== "aoi-fieldlines") {
           this._fetchComposedModelValuesRange();
         } else {
           Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
@@ -410,10 +410,9 @@
 
         //Apply changes
 
-        if ((modelChanged || heightChanged) && selectedParameter.name !== 'Fieldlines') {
+        if ((modelChanged || heightChanged) && selectedParameter.type !== "aoi-fieldlines") {
           this._fetchComposedModelValuesRange();
-        } else if (rangeChanged && selectedParameter.name === 'Fieldlines')
-        {
+        } else if (rangeChanged && selectedParameter.type === "aoi-fieldlines") {
           Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"), true);
         } else {
           Communicator.mediator.trigger("layer:parameters:changed", this.current_model.get("name"));
@@ -452,6 +451,11 @@
         if (!get(parameter, 'allowLayerSettings', true)) {return;}
 
         this._renderDescription(parameter);
+
+        if (parameter.type === "data-fieldlines") {
+          return;
+        }
+
         this._renderRangeBoundInputs(parameter);
         this._renderColormapSelection(parameter);
         this._renderColorscale(parameter);
@@ -459,15 +463,13 @@
         this._renderOutlinesCheckbox();
         this._renderLegendCheckbox();
 
-        if (parameter.name !== "Fieldlines") {
-          this._renderOpacitySlider();
-          this._renderHeightTextbox();
-        } else {
-          // Check for possible already available selection
-          if (this.current_model.id.indexOf('PPI') === -1) {
-            this._warnIfNoAreaSelected();
-          }
+        if (parameter.type === "aoi-fieldlines") {
+          this._warnIfNoAreaSelected();
+          return;
         }
+
+        this._renderOpacitySlider();
+        this._renderHeightTextbox();
       },
 
       _warnIfNoAreaSelected: function () {

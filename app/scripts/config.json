@@ -2689,7 +2689,8 @@
                     "range": [0, 0],
                     "uom":"nT",
                     "name": "Fieldlines",
-                    "description": "Fieldlines are be calculated from the PP footprint",
+                    "type": "data-fieldlines",
+                    "description": "Fieldlines are calculated from the PP locations using the currently selected magnetic model.",
                     "colorscale": "blackwhite"
                 }
             },
@@ -4621,6 +4622,7 @@
                     "range": [1, 40000],
                     "uom":"nT",
                     "name": "Fieldlines",
+                    "type": "aoi-fieldlines",
                     "description": "In order to visualize fieldlines please select an area with the bounding box tool. Click on a fieldline to display additional information.",
                     "colorscale": "jet",
                     "logarithmic": true
