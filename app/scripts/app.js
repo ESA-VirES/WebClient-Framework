@@ -152,21 +152,21 @@ var RELATED_COLLECTIONS = {
       type: 'AEJ_PBL'
     }
   ],
-  'SW_OPER_FACATMS_2F': [
+  'SW_OPER_FACATMS_2F+SW_FAST_FACATMS_2F': [
     {
       timeSliderDataset: 'SW_OPER_AOBAFAC_2F',
       collections: ['SW_OPER_AOBAFAC_2F', 'SW_OPER_FACATMS_2F'],
       type: 'AOB_FAC'
     }
   ],
-  'SW_OPER_FACBTMS_2F': [
+  'SW_OPER_FACBTMS_2F+SW_FAST_FACBTMS_2F': [
     {
       timeSliderDataset: 'SW_OPER_AOBBFAC_2F',
       collections: ['SW_OPER_AOBBFAC_2F', 'SW_OPER_FACBTMS_2F'],
       type: 'AOB_FAC'
     }
   ],
-  'SW_OPER_FACCTMS_2F': [
+  'SW_OPER_FACCTMS_2F+SW_FAST_FACCTMS_2F': [
     {
       timeSliderDataset: 'SW_OPER_AOBCFAC_2F',
       collections: ['SW_OPER_AOBCFAC_2F', 'SW_OPER_FACCTMS_2F'],
