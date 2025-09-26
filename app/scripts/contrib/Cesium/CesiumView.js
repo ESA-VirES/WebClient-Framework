@@ -1781,12 +1781,30 @@ define([
         return;
       }
 
-      console.log('symbols not loeaded yet - ' + productType + ' rendering delayed');
+      console.log('symbols not loaded yet - ' + productType + ' rendering delayed');
 
       // delay rendering if the symbols have not been loaded yet
       setTimeout(_.bind(function () {
         this.createRelatedDataFeatures(productType, data, timestamp);
       }, this), 100);
+    },
+
+    _extractSymbolConfiguration: function (productType) {
+      var products = globals.products.filter(function (product) {
+        var collection = product.get('views')[0].id;
+        var spacecraft = get(globals.swarm.collection2satellite, collection);
+        return (product.get('visible') && spacecraft);
+      });
+      var collectedSymbols = {};
+      _.each(products, function (product) {
+        var symbols = product.get('symbols');
+        if (symbols) {
+          _.extend(collectedSymbols, symbols);
+        }
+      });
+      return _.filter(collectedSymbols[productType] || [], function (value) {
+        return value.selected;
+      });
     },
 
     _createRelatedDataFeatures: function (productType, data) {
@@ -1804,98 +1822,89 @@ define([
         };
       };
 
-      var getGeodeticPointRenderer = function (symbol, altitude, options) {
+      var getGeodeticPointRenderer = function (symbol, indices) {
         return function (record) {
           var position = Cesium.Cartesian3.fromDegrees(
-            record.Longitude, record.Latitude, altitude
+            record.Longitude, record.Latitude, symbol.altitude
           );
-          featureCollection.add(getPointPrimitive(symbol, position, options));
+          featureCollection.add(getPointPrimitive(
+            symbol.symbol, position, symbol.options
+          ));
         };
       };
 
-      var getGeocentricPointRenderer = function (symbol, radius, indices, options) {
+      var getGeocentricPointRenderer = function (symbol, indices) {
         return function (record) {
           var position = Cesium.Cartesian3.clone(
             convertSpherical2Cartesian(
               record.Latitude, record.Longitude, (
-                get(record, 'Radius', radius)
+                get(record, 'Radius', symbol.radius)
                 + get(indices || {}, record.id, 0) * HEIGHT_OFFSET
               )
             )
           );
-          featureCollection.add(getPointPrimitive(symbol, position, options));
+          featureCollection.add(getPointPrimitive(
+            symbol.symbol, position, symbol.options
+          ));
         };
       };
 
-      var getMultiGeocetricPointRenderer = function (selector, symbols, radius, indices, options) {
-        var renderers = _.map(symbols, function (symbol) {
-          return getGeocentricPointRenderer(symbol, radius, indices, options);
+      var getPointRenderer = function (symbols, indices) {
+
+        var renderes = _.map(symbols, function (symbol) {
+
+            var valuePredicate = function (key, value, mask) {
+              if (mask == null) {
+                return function (record) {return record[key] === value;};
+              }
+              return function (record) {return (record[key] & mask) === value;};
+            }
+
+            var composedPredicate = function (predicates) {
+                switch (predicates.length) {
+                  case 0:
+                    return function (record) {return true;};
+                  case 1:
+                    return predicates[0];
+                  default:
+                    return function (record) {
+                      for (var i = 0, n = predicates.length; i < n; ++i) {
+                        if (!predicates[i](record)){return false;}
+                      }
+                      return true;
+                    };
+                }
+            }
+
+            var mask = symbol.mask || {};
+            var filter = symbol.filter || {};
+
+            var pointRendererFactory = (
+              symbol.coordinateSystem === "GEODETIC"
+                ? getGeodeticPointRenderer
+                : getGeocentricPointRenderer
+            );
+
+            return {
+              "predicate": composedPredicate(
+                _.map(filter, function (value, key) {
+                  return valuePredicate(key, value, mask[key]);
+                })
+              ),
+              "renderer": pointRendererFactory(symbol, indices),
+            };
         });
+
         return function (record) {
-          var selection = selector(record);
-          if (selection != null) {
-            renderers[selection](record);
+          var item;
+          for (var i = 0, n = renderes.length; i < n; ++i) {
+            item = renderes[i];
+            if (item.predicate(record)) {
+              return item.renderer(record);
+            }
           }
         };
-      };
 
-      var selectAejPointType = function (record) {
-        switch (record.PointType & PT_AEJ_POINT_TYPE_MASK) {
-          case PT_AEJ_PEAK:
-            return 0;
-          case PT_AEJ_BOUNDARY:
-            return 1;
-        }
-      };
-
-      var selectAobPointType = function (record) {
-        switch (record.Boundary_Flag & BF_AOB_POINT_TYPE_MASK) {
-          case BF_AOB_EW_BOUNDARY:
-            return 0;
-          case BF_AOB_PW_BOUNDARY:
-            return 1;
-        }
-      };
-
-      var select_MIT_LP_ID_PointType = function (record) {
-        switch (record.PointType) {
-          case LP_MIT_EQUATORWARD_EDGE_OF_EQUATORWARD_WALL:
-            return 0;
-          case LP_MIT_POLEWARD_EDGE_OF_EQUATORWARD_WALL:
-            return 1;
-          case LP_MIT_EQUATORWARD_EDGE_OF_POLEWARD_WALL:
-            return 2;
-          case LP_MIT_POLEWARD_EDGE_OF_POLEWARD_BOUNDARY:
-            return 3;
-          case LP_SETE_EQUATORWARD_BOUNDING_POSITION:
-            return 4;
-          case LP_SETE_POLEWARD_BOUNDING_POSITION:
-            return 5;
-          case LP_TE_PEAK_POSITION:
-            return 6;
-        }
-      };
-
-      var select_MIT_TEC_ID_PointType = function (record) {
-        switch (record.PointType) {
-          case TEC_MIT_EQUATORWARD_EDGE_OF_EQUATORWARD_WALL:
-            return 0;
-          case TEC_MIT_POLEWARD_EDGE_OF_EQUATORWARD_WALL:
-            return 1;
-          case TEC_MIT_EQUATORWARD_EDGE_OF_POLEWARD_WALL:
-            return 2;
-          case TEC_MIT_POLEWARD_EDGE_OF_POLEWARD_BOUNDARY:
-            return 3;
-        }
-      };
-
-      var select_PPI_FAC_ID_PointType = function (record) {
-        switch (record.PointType) {
-          case FAC_PPI_EQUATORWARD_EDGE_OF_SSFAC_BOUNDARY:
-            return 0;
-          case FAC_PPI_POLEWARD_EDGE_OF_SSFAC_BOUNDARY:
-            return 1;
-        }
       };
 
       var retrieveHeightIndices = function (parentCollections) {
@@ -1911,187 +1920,36 @@ define([
 
       // -----------------------------------------------------------------
 
+      var symbols = this._extractSymbolConfiguration(productType);
       var timer = new Timer();
 
       this.relatedFeatureCollections.remove(productType);
 
-      if (!data || data.isEmpty()) {
-        this.dataLegends.removeProductTypeItems(productType);
+      this.dataLegends.removeProductTypeItems(productType);
+
+      if (!data || data.isEmpty() || symbols.length === 0) {
+        this.dataLegends.refresh();
         return;
       }
 
+      _.each(symbols, _.bind(function (symbol) {
+          this.dataLegends.addProductTypeItem(productType, symbol.tag, {
+            symbol: symbol.symbol,
+            title: symbol.title,
+          });
+      }, this))
+      this.dataLegends.refresh();
+
       var indices = retrieveHeightIndices(data.parentCollections);
 
-      var renderer;
+      var renderer = getPointRenderer(symbols, indices);
 
-      switch (productType) {
-        case 'MIT_LP':
-          renderer = getGeocentricPointRenderer(
-            'TRIANGLE_DOWN_BLUE',
-            null, null, {scale: 0.6}
-          );
-          this.dataLegends.addProductTypeItem(productType, 'MIT_Ne_min', {
-            symbol: 'TRIANGLE_DOWN_BLUE',
-            title: "MIT Ne minimum",
-          });
-          break;
-        case 'MIT_LP:ID':
-          renderer = getMultiGeocetricPointRenderer(
-            select_MIT_LP_ID_PointType,
-            [
-              'HLINE_TRINAGLE_DOWN_FILLED_BLACK',
-              'HLINE_TRINAGLE_UP_BLACK',
-              'HLINE_TRINAGLE_DOWN_BLACK',
-              'HLINE_TRINAGLE_UP_FILLED_BLACK',
-              'HLINE_MLINE_DOWN_BLACK',
-              'HLINE_MLINE_UP_BLACK',
-              'TRIANGLE_RED',
-            ],
-            null, null, {scale: 0.6}
-          );
-
-          this.dataLegends.addProductTypeItem(productType, 'MIT_SETE_EB', {
-            symbol: 'HLINE_MLINE_DOWN_BLACK',
-            title: "MIT SETE equatorward bounding position",
-          });
-          this.dataLegends.addProductTypeItem(productType, 'MIT_SETE_PB', {
-            symbol: 'HLINE_MLINE_UP_BLACK',
-            title: "MIT SETE poleward bounding position",
-          });
-          this.dataLegends.addProductTypeItem(productType, 'MIT_EE_EW', {
-            symbol: 'HLINE_TRINAGLE_DOWN_FILLED_BLACK',
-            title: "MIT equatorward edge of the equatorward wall",
-          });
-          this.dataLegends.addProductTypeItem(productType, 'MIT_PE_EW', {
-            symbol: 'HLINE_TRINAGLE_UP_BLACK',
-            title: "MIT poleward edge of the equatorward wall",
-          });
-          this.dataLegends.addProductTypeItem(productType, 'MIT_EE_PW', {
-            symbol: 'HLINE_TRINAGLE_DOWN_BLACK',
-            title: "MIT equatorward edge of poleward wall",
-          });
-          this.dataLegends.addProductTypeItem(productType, 'MIT_PE_PW', {
-            symbol: 'HLINE_TRINAGLE_UP_FILLED_BLACK',
-            title: "MIT poleward edge of the poleward boundary",
-          });
-          this.dataLegends.addProductTypeItem(productType, 'MIT_Te_peak', {
-            symbol: 'TRIANGLE_RED',
-            title: "MIT Te peak",
-          });
-          break;
-        case 'MIT_TEC':
-          renderer = getGeocentricPointRenderer(
-            'TRIANGLE_DOWN_BLACK',
-            null, null, {scale: 0.6}
-          );
-          this.dataLegends.addProductTypeItem(productType, 'MIT_TEC_min', {
-            symbol: 'TRIANGLE_DOWN_BLACK',
-            title: "TEC at MIT minimum",
-          });
-          break;
-        case 'MIT_TEC:ID':
-          renderer = getMultiGeocetricPointRenderer(
-            select_MIT_TEC_ID_PointType,
-            [
-              'HLINE_TRINAGLE_DOWN_FILLED_BLACK',
-              'HLINE_TRINAGLE_UP_BLACK',
-              'HLINE_TRINAGLE_DOWN_BLACK',
-              'HLINE_TRINAGLE_UP_FILLED_BLACK',
-            ],
-            null, null, {scale: 0.6}
-          );
-          this.dataLegends.addProductTypeItem(productType, 'MIT_EE_EW', {
-            symbol: 'HLINE_TRINAGLE_DOWN_FILLED_BLACK',
-            title: "MIT equatorward edge of the equatorward wall",
-          });
-          this.dataLegends.addProductTypeItem(productType, 'MIT_PE_EW', {
-            symbol: 'HLINE_TRINAGLE_UP_BLACK',
-            title: "MIT poleward edge of the equatorward wall",
-          });
-          this.dataLegends.addProductTypeItem(productType, 'MIT_EE_PW', {
-            symbol: 'HLINE_TRINAGLE_DOWN_BLACK',
-            title: "MIT equatorward edge of poleward wall",
-          });
-          this.dataLegends.addProductTypeItem(productType, 'MIT_PE_PW', {
-            symbol: 'HLINE_TRINAGLE_UP_FILLED_BLACK',
-            title: "MIT poleward edge of the poleward boundary",
-          });
-          break;
-        case 'PPI_FAC':
-          renderer = getGeocentricPointRenderer(
-            'CIRCLE_GREEN',
-            null, null, {scale: 0.6}
-          );
-          this.dataLegends.addProductTypeItem(productType, 'PPI_FAC_SSFAC_boundary', {
-            symbol: 'CIRCLE_GREEN',
-            title: "SSFAC boundary",
-          });
-          break;
-        case 'PPI_FAC:ID':
-          renderer = getMultiGeocetricPointRenderer(
-            select_PPI_FAC_ID_PointType,
-            [
-              'HLINE_ROUND_DOWN_GREEN',
-              'HLINE_ROUND_UP_GREEN',
-            ],
-            null, null, {scale: 0.6}
-          );
-          this.dataLegends.addProductTypeItem(productType, 'PPI_FAC_SSFAC_equatorward_edge', {
-            symbol: 'HLINE_ROUND_DOWN_GREEN',
-            title: "equatorward edge of the SSFAC boundary",
-          });
-          this.dataLegends.addProductTypeItem(productType, 'PPI_FAC_SSFAC_poleward_edge', {
-            symbol: 'HLINE_ROUND_UP_GREEN',
-            title: "poleward edge of the SSFAC boundary",
-          });
-          break;
-        case 'AEJ_PBS':
-        case 'AEJ_PBL':
-          renderer = getMultiGeocetricPointRenderer(
-            selectAejPointType, ['TRIANGLE_BLACK', 'SQUARE_BLACK'],
-            EARTH_RADIUS + IONOSPHERIC_ALTITUDE, indices
-          );
-          this.dataLegends.addProductTypeItem(productType, 'EJB', {
-            symbol: 'SQUARE_BLACK',
-            title: "Electrojet boundary",
-          });
-          this.dataLegends.addProductTypeItem(productType, 'EJP', {
-            symbol: 'TRIANGLE_BLACK',
-            title: "Peak electrojet current",
-          });
-          break;
-        case 'AEJ_PBS:GroundMagneticDisturbance':
-          renderer = getGeodeticPointRenderer('CIRCLE_BLACK', 0);
-          this.dataLegends.addProductTypeItem(productType, 'MDP', {
-            symbol: 'CIRCLE_BLACK',
-            title: "Peak magnetic disturbance",
-          });
-          break;
-        case 'AOB_FAC':
-          renderer = getMultiGeocetricPointRenderer(
-            selectAobPointType,
-            ['LARGE_DIMOND_GREEN', 'LARGE_DIMOND_RED'],
-            EARTH_RADIUS + SWARM_ALTITUDE, indices
-          );
-          this.dataLegends.addProductTypeItem(productType, 'AOB_PW', {
-            symbol: 'DIMOND_RED',
-            title: "Aurora oval poleward boundary",
-          });
-          this.dataLegends.addProductTypeItem(productType, 'AOB_EW', {
-            symbol: 'DIMOND_GREEN',
-            title: "Aurora oval equatorward boundary",
-          });
-          break;
-        default:
-          this.dataLegends.removeProductTypeItems(productType);
-          return;
-      }
+      if (renderer === null) {return;}
 
       var featureCollection = new Cesium.BillboardCollection();
       this.relatedFeatureCollections.add(productType, featureCollection);
       data.forEachRecord(renderer, new RecordFilter(_.keys(data.data)));
       this.relatedFeatureCollections.show(productType);
-      this.dataLegends.refresh();
 
       timer.logEllapsedTime("createRelatedDataFeatures(" + productType + ")");
     },
@@ -2660,6 +2518,10 @@ define([
 
     onLayerOutlinesChanged: function (collection) {
       this.createDataFeatures(globals.swarm.get('data'));
+    },
+
+    onLayerSymbolsChanged: function () {
+      this.updateRelatedDataFeatures();
     },
 
     onLayerParametersChanged: function (layer, onlyStyleChange) {

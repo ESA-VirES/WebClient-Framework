@@ -263,6 +263,8 @@
           }
         }
 
+        this._renderProductSettinggs(this.current_model.attributes);
+
       },
 
       onParameterSelected: function () {
@@ -472,6 +474,10 @@
         this._renderHeightTextbox();
       },
 
+      _renderProductSettinggs: function(product) {
+        this._renderSymbols(product);
+      },
+
       _warnIfNoAreaSelected: function () {
         var areaSelection = localStorage.getItem('areaSelection');
         if (areaSelection === null || !JSON.parse(areaSelection)) {
@@ -537,8 +543,52 @@
       _renderDescription: function (parameter) {
         this.$("#description").empty();
         if (parameter.description) {
-          this.$("#description").text(parameter.description);
+          this.$("#description").append(
+            `<p style="padding-top:8px;padding-bottom:10px">${parameter.description}</p>`
+          );
         }
+      },
+
+      _renderSymbols: function(product) {
+        this.$("#symbols").empty();
+
+        if (!product.symbols) {return;}
+
+        this.$("#symbols").append(
+          '<div class="box" style="margin-bottom:-10px">'
+          + '<div class="box-label" style="width:120px">Displayed Symbols</div>'
+          + '<form id="symbol-selection" style="vertical-align: middle;"></form>'
+          + '</div>'
+        );
+
+        _.each(product.symbols, _.bind(function (symbols, productType) {
+          _.each(symbols, _.bind(function (symbol) {
+            var id = `symbol-${productType}-${symbol.tag}`;
+            var isChecked = typeof product.selected === 'undefined' ? true : product.selected;
+            var checked = isChecked ? " checked" : "";
+            this.$("#symbol-selection").append(
+              '<div>'
+              +`<label class="valign" for="${id}" style="width: 300px; margin">${symbol.title}</label>`
+              + `<input class="valign" style="margin-top: -5px;" type="checkbox" name="${id}" data-product="${productType}" value="${symbol.tag}"${checked}></input>`
+              + '</div>'
+            );
+          }, this))
+        }, this));
+
+        this.$("#symbol-selection input").unbind().change(_.bind(function (event_) {
+          var source = $(event_.target)[0];
+          var product = source.dataset.product;
+          var tag = source.value;
+          var symbols = this.current_model.get("symbols");
+
+          var symbol = _.find(symbols[product], function (symbol) {
+            return symbol.tag === tag;
+          })
+          if (symbol) {
+            symbol.selected = source.checked;
+          }
+          Communicator.mediator.trigger("layer:symbols:changed");
+        }, this));
       },
 
       _renderRangeBoundInputs: function (parameter) {

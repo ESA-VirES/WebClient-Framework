@@ -732,6 +732,7 @@ var RELATED_VARIABLES = {
             unit: product.unit,
             parameters: product.parameters,
             download_parameters: product.download_parameters,
+            symbols: product.symbols,
             height: product.height,
             outlines: product.outlines,
             model: product.model,

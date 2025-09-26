@@ -84,6 +84,10 @@ define([
         _.bind(this.cesiumView.onLayerParametersChanged, this.cesiumView)
       );
       this.cesiumView.listenTo(
+        Communicator.mediator, 'layer:symbols:changed',
+        _.bind(this.cesiumView.onLayerSymbolsChanged, this.cesiumView)
+      );
+      this.cesiumView.listenTo(
         Communicator.mediator, 'layer:outlines:changed',
         _.bind(this.cesiumView.onLayerOutlinesChanged, this.cesiumView)
       );

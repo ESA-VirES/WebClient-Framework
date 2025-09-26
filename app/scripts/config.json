@@ -1639,6 +1639,28 @@
         },
         "SW_FACxTMS_2F": {
             "satellite": "Swarm",
+            "symbols": {
+                "AOB_FAC": [
+                    {
+                        "selected": true,
+                        "tag": "AOB_PW",
+                        "symbol": "DIMOND_RED",
+                        "radius": 6821000,
+                        "title": "Aurora oval poleward boundary",
+                        "mask": {"Boundary_Flag": 3},
+                        "filter": {"Boundary_Flag": 2}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "AOB_EW",
+                        "symbol": "DIMOND_GREEN",
+                        "radius": 6821000,
+                        "title": "Aurora oval equatorward boundary",
+                        "mask": {"Boundary_Flag": 3},
+                        "filter": {"Boundary_Flag": 1}
+                    }
+                ]
+            },
             "parameters": {
                 "IRC": {
                     "range": [-6, 6],
@@ -1754,6 +1776,28 @@
         },
         "SW_FACxTMS_2F_FAST": {
             "satellite": "Swarm",
+            "symbols": {
+                "AOB_FAC": [
+                    {
+                        "selected": true,
+                        "tag": "AOB_PW",
+                        "symbol": "DIMOND_RED",
+                        "radius": 6821000,
+                        "title": "Aurora oval poleward boundary",
+                        "mask": {"Boundary_Flag": 3},
+                        "filter": {"Boundary_Flag": 2}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "AOB_EW",
+                        "symbol": "DIMOND_GREEN",
+                        "radius": 6821000,
+                        "title": "Aurora oval equatorward boundary",
+                        "mask": {"Boundary_Flag": 3},
+                        "filter": {"Boundary_Flag": 1}
+                    }
+                ]
+            },
             "parameters": {
                 "IRC": {
                     "range": [-6, 6],
@@ -2376,6 +2420,28 @@
         },
         "SW_AEJxLPL_2F": {
             "satellite": "Swarm",
+            "symbols": {
+                "AEJ_PBL": [
+                    {
+                        "selected": true,
+                        "tag": "EJB",
+                        "symbol": "SQUARE_BLACK",
+                        "radius": 6481000,
+                        "title": "Electrojet boundary",
+                        "mask": {"PointType": 2},
+                        "filter": {"PointType": 2}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "EJP",
+                        "symbol": "TRIANGLE_BLACK",
+                        "radius": 6481000,
+                        "title": "Peak electrojet current",
+                        "mask": {"PointType": 2},
+                        "filter": {"PointType": 0}
+                    }
+                ]
+            },
             "parameters": {
                 "J_QD": {
                     "selected": true,
@@ -2416,6 +2482,38 @@
         },
         "SW_AEJxLPS_2F": {
             "satellite": "Swarm",
+            "symbols": {
+                "AEJ_PBS": [
+                    {
+                        "selected": true,
+                        "tag": "EJB",
+                        "symbol": "SQUARE_BLACK",
+                        "radius": 6481000,
+                        "title": "Electrojet boundary",
+                        "mask": {"PointType": 2},
+                        "filter": {"PointType": 2}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "EJP",
+                        "symbol": "TRIANGLE_BLACK",
+                        "radius": 6481000,
+                        "title": "Peak electrojet current",
+                        "mask": {"PointType": 2},
+                        "filter": {"PointType": 0}
+                    }
+                ],
+                "AEJ_PBS:GroundMagneticDisturbance": [
+                    {
+                        "selected": true,
+                        "tag": "MDP",
+                        "symbol": "CIRCLE_BLACK",
+                        "coordinateSystem": "GEODETIC",
+                        "altitude": 0,
+                        "title": "Ground magnetic disturbance"
+                    }
+                ]
+            },
             "parameters": {
                 "J_DF_SemiQD": {
                     "selected": true,
@@ -2497,6 +2595,75 @@
         "SW_MITx_LP_2F": {
             "showAsSymbolsOnly": false,
             "satellite": "Swarm",
+            "symbols": {
+                "MIT_LP": [
+                    {
+                        "selected": true,
+                        "tag": "MIT_Ne_min",
+                        "symbol": "TRIANGLE_DOWN_BLUE",
+                        "options": {"scale": 0.6},
+                        "title": "MIT Ne minimum"
+                    }
+                ],
+                "MIT_LP:ID": [
+                    {
+                        "selected": true,
+                        "tag": "MIT_Te_peak",
+                        "symbol": "TRIANGLE_RED",
+                        "options": {"scale": 0.6},
+                        "title": "MIT Te peak",
+                        "filter": {"PointType": 6}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "MIT_SETE_EB",
+                        "symbol": "HLINE_MLINE_DOWN_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT SETE equatorward bounding position",
+                        "filter": {"PointType": 4}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "MIT_SETE_PB",
+                        "symbol": "HLINE_MLINE_UP_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT SETE poleward bounding position",
+                        "filter": {"PointType": 5}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "MIT_EE_EW",
+                        "symbol": "HLINE_TRINAGLE_DOWN_FILLED_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT equatorward edge of the equatorward wall",
+                        "filter": {"PointType": 0}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "MIT_PE_EW",
+                        "symbol": "HLINE_TRINAGLE_UP_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT poleward edge of the equatorward wall",
+                        "filter": {"PointType": 1}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "MIT_EE_PW",
+                        "symbol": "HLINE_TRINAGLE_DOWN_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT equatorward edge of poleward wall",
+                        "filter": {"PointType": 2}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "MIT_PE_PW",
+                        "symbol": "HLINE_TRINAGLE_UP_FILLED_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT poleward edge of the poleward boundary",
+                        "filter": {"PointType": 3}
+                    }
+                ]
+            },
             "parameters": {
                 "Ne": {
                     "selected": true,
@@ -2590,6 +2757,51 @@
         "SW_MITxTEC_2F": {
             "showAsSymbolsOnly": false,
             "satellite": "Swarm",
+            "symbols": {
+                "MIT_TEC": [
+                    {
+                        "selected": true,
+                        "tag": "MIT_TEC_min",
+                        "symbol": "TRIANGLE_DOWN_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "TEC at MIT minimum"
+                    }
+                ],
+                "MIT_TEC:ID": [
+                    {
+                        "selected": true,
+                        "tag": "MIT_EE_EW",
+                        "symbol": "HLINE_TRINAGLE_DOWN_FILLED_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT equatorward edge of the equatorward wall",
+                        "filter": {"PointType": 0}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "MIT_PE_EW",
+                        "symbol": "HLINE_TRINAGLE_UP_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT poleward edge of the equatorward wall",
+                        "filter": {"PointType": 1}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "MIT_EE_PW",
+                        "symbol": "HLINE_TRINAGLE_DOWN_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT equatorward edge of poleward wall",
+                        "filter": {"PointType": 2}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "MIT_PE_PW",
+                        "symbol": "HLINE_TRINAGLE_UP_FILLED_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT poleward edge of the poleward boundary",
+                        "filter": {"PointType": 3}
+                    }
+                ]
+            },
             "parameters": {
                 "TEC": {
                     "selected": true,
@@ -2677,6 +2889,35 @@
         "SW_PPIxFAC_2F": {
             "showAsSymbolsOnly": false,
             "satellite": "Swarm",
+            "symbols": {
+                "PPI_FAC": [
+                    {
+                        "selected": true,
+                        "tag": "PPI_FAC_SSFAC_boundary",
+                        "symbol": "CIRCLE_GREEN",
+                        "options": {"scale": 0.6},
+                        "title": "SSFAC boundary"
+                    }
+                ],
+                "PPI_FAC:ID": [
+                    {
+                        "selected": true,
+                        "tag": "PPI_FAC_SSFAC_equatorward_edge",
+                        "symbol": "HLINE_ROUND_DOWN_GREEN",
+                        "options": {"scale": 0.6},
+                        "title": "Equatorward edge of the SSFAC boundary",
+                        "filter": {"PointType": 0}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "PPI_FAC_SSFAC_poleward_edge",
+                        "symbol": "HLINE_ROUND_UP_GREEN",
+                        "options": {"scale": 0.6},
+                        "title": "Poleward edge of the SSFAC boundary",
+                        "filter": {"PointType": 1}
+                    }
+                ]
+            },
             "parameters": {
                 "PPI": {
                     "range": [0, 10],
