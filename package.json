@@ -7,7 +7,7 @@
     "start": "grunt server"
   },
   "dependencies": {
-    "D3.TimeSlider": "1.2.0",
+    "D3.TimeSlider": "1.6.5-rc.0",
     "FileSaver.js": "github:eligrey/FileSaver.js#cea522bc41bfadc364837293d0c4dc585a65ac46",
     "backbone-amd": "github:amdjs/backbone#47e136947fc97c2f21f24aa339271194c6143dc4",
     "backbone.babysitter": "~0.1.12",
