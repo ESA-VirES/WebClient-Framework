@@ -20,6 +20,16 @@ define([
   'hbs!tmpl/SvgSymbolDimondLarge',
   'hbs!tmpl/SvgSymbolSquare',
   'hbs!tmpl/SvgSymbolTriangle',
+  'hbs!tmpl/SvgSymbolTriangleDown',
+  'hbs!tmpl/SvgSymbolHLineMLineDown',
+  'hbs!tmpl/SvgSymbolHLineMLineUp',
+  'hbs!tmpl/SvgSymbolHLineRoundDown',
+  'hbs!tmpl/SvgSymbolHLineRoundUp',
+  'hbs!tmpl/SvgSymbolHLineTriangleDown',
+  'hbs!tmpl/SvgSymbolHLineTriangleUp',
+  'hbs!tmpl/SvgSymbolHLineTriangleDownFilled',
+  'hbs!tmpl/SvgSymbolHLineTriangleUpFilled',
+  'hbs!tmpl/wps_fetchFilteredData',
   'colormap',
   'viresFilters',
   'cesium/Cesium',
@@ -29,10 +39,21 @@ define([
   Marionette, Communicator, App, MapModel, vires, globals, msgpack, httpRequest,
   DataUtil, tmplEvalModel, tmplFieldLinesLabel,
   tmplSvgSymbolCircle, tmplSvgSymbolDimond, tmplSvgSymbolDimondLarge,
-  tmplSvgSymbolSquare, tmplSvgSymbolTriangle,
-  colormap, viresFilters
+  tmplSvgSymbolSquare, tmplSvgSymbolTriangle, tmplSvgSymbolTriangleDown,
+  tmplSvgSymbolHLineMLineDown, tmplSvgSymbolHLineMLineUp,
+  tmplSvgSymbolHLineRoundDown, tmplSvgSymbolHLineRoundUp,
+  tmplSvgSymbolHLineTriangleDown, tmplSvgSymbolHLineTriangleUp,
+  tmplSvgSymbolHLineTriangleDownFilled, tmplSvgSymbolHLineTriangleUpFilled,
+  tmplFetchFilteredData, colormap, viresFilters
 ) {
   'use strict';
+
+  var COLORS = {
+    black: 'black',
+    red: 'maroon',
+    green: 'rgb(0,64,0)',
+    blue: 'rgb(0,0,128)',
+  };
 
   var SYMBOLS = new (function () {
     _.extend(this, {
@@ -58,13 +79,26 @@ define([
     });
   })();
 
-  SYMBOLS.set('SQUARE_BLACK', tmplSvgSymbolSquare({color: 'black'}));
-  SYMBOLS.set('DIMOND_RED', tmplSvgSymbolDimond({color: 'maroon'}));
-  SYMBOLS.set('DIMOND_GREEN', tmplSvgSymbolDimond({color: 'rgb(0,64,0)'}));
-  SYMBOLS.set('LARGE_DIMOND_RED', tmplSvgSymbolDimondLarge({color: 'maroon'}));
-  SYMBOLS.set('LARGE_DIMOND_GREEN', tmplSvgSymbolDimondLarge({color: 'rgb(0,64,0)'}));
-  SYMBOLS.set('TRIANGLE_BLACK', tmplSvgSymbolTriangle({color: 'black'}));
-  SYMBOLS.set('CIRCLE_BLACK', tmplSvgSymbolCircle({color: 'black'}));
+  SYMBOLS.set('SQUARE_BLACK', tmplSvgSymbolSquare({color: COLORS.black}));
+  SYMBOLS.set('DIMOND_RED', tmplSvgSymbolDimond({color: COLORS.red}));
+  SYMBOLS.set('DIMOND_GREEN', tmplSvgSymbolDimond({color: COLORS.green}));
+  SYMBOLS.set('LARGE_DIMOND_RED', tmplSvgSymbolDimondLarge({color: COLORS.red}));
+  SYMBOLS.set('LARGE_DIMOND_GREEN', tmplSvgSymbolDimondLarge({color: COLORS.green}));
+  SYMBOLS.set('TRIANGLE_BLACK', tmplSvgSymbolTriangle({color: COLORS.black}));
+  SYMBOLS.set('TRIANGLE_RED', tmplSvgSymbolTriangle({color: COLORS.red}));
+  //SYMBOLS.set('TRIANGLE_DOWN_GREEN', tmplSvgSymbolTriangleDown({color: COLORS.green}));
+  SYMBOLS.set('TRIANGLE_DOWN_BLACK', tmplSvgSymbolTriangleDown({color: COLORS.black}));
+  SYMBOLS.set('TRIANGLE_DOWN_BLUE', tmplSvgSymbolTriangleDown({color: COLORS.blue}));
+  SYMBOLS.set('CIRCLE_BLACK', tmplSvgSymbolCircle({color: COLORS.black}));
+  SYMBOLS.set('CIRCLE_GREEN', tmplSvgSymbolCircle({color: COLORS.green}));
+  SYMBOLS.set('HLINE_MLINE_DOWN_BLACK', tmplSvgSymbolHLineMLineDown({color: COLORS.black}));
+  SYMBOLS.set('HLINE_MLINE_UP_BLACK', tmplSvgSymbolHLineMLineUp({color: COLORS.black}));
+  SYMBOLS.set('HLINE_TRINAGLE_DOWN_BLACK', tmplSvgSymbolHLineTriangleDown({color: COLORS.black}));
+  SYMBOLS.set('HLINE_TRINAGLE_UP_BLACK', tmplSvgSymbolHLineTriangleUp({color: COLORS.black}));
+  SYMBOLS.set('HLINE_TRINAGLE_DOWN_FILLED_BLACK', tmplSvgSymbolHLineTriangleDownFilled({color: COLORS.black}));
+  SYMBOLS.set('HLINE_TRINAGLE_UP_FILLED_BLACK', tmplSvgSymbolHLineTriangleUpFilled({color: COLORS.black}));
+  SYMBOLS.set('HLINE_ROUND_DOWN_GREEN', tmplSvgSymbolHLineRoundDown({color: COLORS.green}));
+  SYMBOLS.set('HLINE_ROUND_UP_GREEN', tmplSvgSymbolHLineRoundUp({color: COLORS.green}));
 
   var DEG2RAD = Math.PI / 180.0;
 
@@ -121,6 +155,23 @@ define([
   var BF_AOB_POINT_TYPE_MASK = 0x3;
   var BF_AOB_EW_BOUNDARY = 0x1;
   var BF_AOB_PW_BOUNDARY = 0x2;
+
+  var LP_MIT_EQUATORWARD_EDGE_OF_EQUATORWARD_WALL = 0x0;
+  var LP_MIT_POLEWARD_EDGE_OF_EQUATORWARD_WALL = 0x1;
+  var LP_MIT_EQUATORWARD_EDGE_OF_POLEWARD_WALL = 0x2;
+  var LP_MIT_POLEWARD_EDGE_OF_POLEWARD_BOUNDARY = 0x3;
+  var LP_SETE_EQUATORWARD_BOUNDING_POSITION = 0x4;
+  var LP_SETE_POLEWARD_BOUNDING_POSITION = 0x5;
+  var LP_TE_PEAK_POSITION = 0x6;
+
+  var TEC_MIT_EQUATORWARD_EDGE_OF_EQUATORWARD_WALL = 0x0;
+  var TEC_MIT_POLEWARD_EDGE_OF_EQUATORWARD_WALL = 0x1;
+  var TEC_MIT_EQUATORWARD_EDGE_OF_POLEWARD_WALL = 0x2;
+  var TEC_MIT_POLEWARD_EDGE_OF_POLEWARD_BOUNDARY = 0x3;
+
+  var FAC_PPI_EQUATORWARD_EDGE_OF_SSFAC_BOUNDARY = 0x0;
+  var FAC_PPI_POLEWARD_EDGE_OF_SSFAC_BOUNDARY = 0x1;
+
 
   // record filter class
   var RecordFilter = function (variables) {
@@ -1017,8 +1068,8 @@ define([
           // If product is model and active parameters is Fieldline
           // do not activate dummy layer and check for fieldlines
           if (product.get('model')) {
-            var activeKey = this.getSelectedVariable(product.get('parameters'));
-            if (activeKey === 'Fieldlines') {
+            var parameter = this.getSelectedParameter(product.get('parameters'));
+            if (parameter.type === 'aoi-fieldlines') {
               imagerylayer.show = false;
             }
             // add extra later for the custom model
@@ -1505,10 +1556,9 @@ define([
               var parameters = product.get('parameters');
               if (parameters) {
                 var band = this.getSelectedVariable(parameters);
-                var style = parameters[band].colorscale;
-                var range = parameters[band].range;
+                var parameter = parameters[band];
 
-                if (band === 'Fieldlines') {
+                if (parameter.type === 'aoi-fieldlines') {
                   this.updateActiveFL(product);
                   this.updateFieldLines();
                 } else {
@@ -1519,14 +1569,14 @@ define([
                       'dim_bands', band
                     );
                   }
-                  if (range) {
+                  if (parameter.range) {
                     cesLayer.imageryProvider.updateProperties(
-                      'dim_range', (range[0] + ',' + range[1])
+                      'dim_range', (parameter.range[0] + ',' + parameter.range[1])
                     );
                   }
-                  if (style) {
+                  if (parameter.colorscale) {
                     cesLayer.imageryProvider.updateProperties(
-                      'styles', style
+                      'styles', parameter.colorscale
                     );
                   }
                   if (product.get('model')) {
@@ -1541,7 +1591,18 @@ define([
                 cesLayer = product._cesiumLayer;
                 cesLayer.show = options.visible;
               }
-            } // END of WMS and WMTS case
+              // END of WMS and WMTS case
+            } else if (product.get('views')[0].protocol === 'CZML') {
+              // Special case for fieldlines rendered from data locations
+              var parameters = product.get('parameters');
+              if (parameters) {
+                var parameter = this.getSelectedParameter(parameters);
+                if (parameter.type === 'data-fieldlines') {
+                  this.updateActiveFL(product);
+                  this.updateFieldLines();
+                }
+              }
+            }
           }
 
           if (product.get('model') && product.get('name') === options.name) {
@@ -1565,18 +1626,16 @@ define([
     showCustomModel: function (product) {
       var parameters = product.get('parameters');
       var band = this.getSelectedVariable(parameters);
+      var parameter = parameters[band];
 
       product._cesiumLayer.show = false; // hide WMS layer
 
-      if (band === 'Fieldlines') {
+      if (parameter.type === 'aoi-fieldlines') {
         this.hideCustomModel(product);
         product._cesiumLayerCustom.show = false; // hide WPS layer
         this.updateFieldLines();
         return;
       }
-
-      var style = parameters[band].colorscale;
-      var range = parameters[band].range;
 
       var options = {
         model_expression: product.getModelExpression(),
@@ -1587,9 +1646,9 @@ define([
         elevation: product.get('height'),
         height: 512,
         width: 1024,
-        style: style,
-        range_min: range[0],
-        range_max: range[1],
+        style: parameter.colorscale,
+        range_min: parameter.range[0],
+        range_max: parameter.range[1],
       };
 
       if (this.bboxsel !== null) {
@@ -1602,33 +1661,33 @@ define([
         data: tmplEvalModel(options),
         contentType: 'application/xml; charset=utf-8',
       }).done(_.bind(function (data) {
-          var customModelLayer = product._cesiumLayerCustom;
-          customModelLayer.show = false;
+        var customModelLayer = product._cesiumLayerCustom;
+        customModelLayer.show = false;
 
-          var layers = this.map.scene.imageryLayers;
-          var index = layers.indexOf(customModelLayer);
+        var layers = this.map.scene.imageryLayers;
+        var index = layers.indexOf(customModelLayer);
 
-          if (index > 0) {
-            var imageURI = 'data:image/gif;base64,' + data;
-            var layerOptions = {url: imageURI};
-            if (boundingBox && boundingBox.length === 4) {
-              var rec = new Cesium.Rectangle(
-                Cesium.Math.toRadians(boundingBox[1]),
-                Cesium.Math.toRadians(boundingBox[0]),
-                Cesium.Math.toRadians(boundingBox[3]),
-                Cesium.Math.toRadians(boundingBox[2])
-              );
-              layerOptions.rectangle = rec;
-            }
-            layers.remove(customModelLayer);
-            customModelLayer = layers.addImageryProvider(
-              new Cesium.SingleTileImageryProvider(layerOptions), index
+        if (index > 0) {
+          var imageURI = 'data:image/gif;base64,' + data;
+          var layerOptions = {url: imageURI};
+          if (boundingBox && boundingBox.length === 4) {
+            var rec = new Cesium.Rectangle(
+              Cesium.Math.toRadians(boundingBox[1]),
+              Cesium.Math.toRadians(boundingBox[0]),
+              Cesium.Math.toRadians(boundingBox[3]),
+              Cesium.Math.toRadians(boundingBox[2])
             );
-            customModelLayer.alpha = product.get('opacity');
-            customModelLayer.show = true;
-            product._cesiumLayerCustom = customModelLayer;
+            layerOptions.rectangle = rec;
           }
-        }, this));
+          layers.remove(customModelLayer);
+          customModelLayer = layers.addImageryProvider(
+            new Cesium.SingleTileImageryProvider(layerOptions), index
+          );
+          customModelLayer.alpha = product.get('opacity');
+          customModelLayer.show = true;
+          product._cesiumLayerCustom = customModelLayer;
+        }
+      }, this));
       return true;
     },
 
@@ -1722,7 +1781,7 @@ define([
         return;
       }
 
-      console.log('symbols not loeaded yet - ' + productType + ' rendering delayed');
+      console.log('symbols not loaded yet - ' + productType + ' rendering delayed');
 
       // delay rendering if the symbols have not been loaded yet
       setTimeout(_.bind(function () {
@@ -1730,67 +1789,122 @@ define([
       }, this), 100);
     },
 
+    _extractSymbolConfiguration: function (productType) {
+      var products = globals.products.filter(function (product) {
+        var collection = product.get('views')[0].id;
+        var spacecraft = get(globals.swarm.collection2satellite, collection);
+        return (product.get('visible') && spacecraft);
+      });
+      var collectedSymbols = {};
+      _.each(products, function (product) {
+        var symbols = product.get('symbols');
+        if (symbols) {
+          _.extend(collectedSymbols, symbols);
+        }
+      });
+      return _.filter(collectedSymbols[productType] || [], function (value) {
+        return value.selected;
+      });
+    },
+
     _createRelatedDataFeatures: function (productType, data) {
 
-      var getPointPrimitive = function (symbol, position) {
+      var getPointPrimitive = function (symbol, position, options) {
+        options = options || {};
         return {
           image: SYMBOLS.get(symbol),
           position: position,
           pixelOffset: new Cesium.Cartesian2(0, 0),
           eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
           radius: 0,
-          scale: 0.4,
+          scale: get(options, "scale", 0.4),
           scaleByDistance: NEAR_FAR_SCALAR,
         };
       };
 
-      var getGeodeticPointRenderer = function (symbol, altitude) {
+      var getGeodeticPointRenderer = function (symbol, indices) {
         return function (record) {
           var position = Cesium.Cartesian3.fromDegrees(
-            record.Longitude, record.Latitude, altitude
+            record.Longitude, record.Latitude, symbol.altitude
           );
-          featureCollection.add(getPointPrimitive(symbol, position));
+          featureCollection.add(getPointPrimitive(
+            symbol.symbol, position, symbol.options
+          ));
         };
       };
 
-      var getGeocetricPointRenderer = function (symbol, radius, indices) {
+      var getGeocentricPointRenderer = function (symbol, indices) {
         return function (record) {
           var position = Cesium.Cartesian3.clone(
             convertSpherical2Cartesian(
-              record.Latitude, record.Longitude,
-              get(record, 'Radius', radius) +
-                            get(indices, record.id, 0) * HEIGHT_OFFSET
+              record.Latitude, record.Longitude, (
+                get(record, 'Radius', symbol.radius)
+                + get(indices || {}, record.id, 0) * HEIGHT_OFFSET
+              )
             )
           );
-          featureCollection.add(getPointPrimitive(symbol, position));
+          featureCollection.add(getPointPrimitive(
+            symbol.symbol, position, symbol.options
+          ));
         };
       };
 
-      var getMultiGeocetricPointRenderer = function (selector, symbols, radius, indices) {
-        var renderers = _.map(symbols, function (symbol) {
-          return getGeocetricPointRenderer(symbol, radius, indices);
+      var getPointRenderer = function (symbols, indices) {
+
+        var renderes = _.map(symbols, function (symbol) {
+
+            var valuePredicate = function (key, value, mask) {
+              if (mask == null) {
+                return function (record) {return record[key] === value;};
+              }
+              return function (record) {return (record[key] & mask) === value;};
+            }
+
+            var composedPredicate = function (predicates) {
+                switch (predicates.length) {
+                  case 0:
+                    return function (record) {return true;};
+                  case 1:
+                    return predicates[0];
+                  default:
+                    return function (record) {
+                      for (var i = 0, n = predicates.length; i < n; ++i) {
+                        if (!predicates[i](record)){return false;}
+                      }
+                      return true;
+                    };
+                }
+            }
+
+            var mask = symbol.mask || {};
+            var filter = symbol.filter || {};
+
+            var pointRendererFactory = (
+              symbol.coordinateSystem === "GEODETIC"
+                ? getGeodeticPointRenderer
+                : getGeocentricPointRenderer
+            );
+
+            return {
+              "predicate": composedPredicate(
+                _.map(filter, function (value, key) {
+                  return valuePredicate(key, value, mask[key]);
+                })
+              ),
+              "renderer": pointRendererFactory(symbol, indices),
+            };
         });
+
         return function (record) {
-          renderers[selector(record)](record);
+          var item;
+          for (var i = 0, n = renderes.length; i < n; ++i) {
+            item = renderes[i];
+            if (item.predicate(record)) {
+              return item.renderer(record);
+            }
+          }
         };
-      };
 
-      var selectAejPointType = function (record) {
-        switch (record.PointType & PT_AEJ_POINT_TYPE_MASK) {
-          case PT_AEJ_PEAK:
-            return 0;
-          case PT_AEJ_BOUNDARY:
-            return 1;
-        }
-      };
-
-      var selectAobPointType = function (record) {
-        switch (record.Boundary_Flag & BF_AOB_POINT_TYPE_MASK) {
-          case BF_AOB_EW_BOUNDARY:
-            return 0;
-          case BF_AOB_PW_BOUNDARY:
-            return 1;
-        }
       };
 
       var retrieveHeightIndices = function (parentCollections) {
@@ -1806,66 +1920,36 @@ define([
 
       // -----------------------------------------------------------------
 
+      var symbols = this._extractSymbolConfiguration(productType);
       var timer = new Timer();
 
       this.relatedFeatureCollections.remove(productType);
 
-      if (!data || data.isEmpty()) {
-        this.dataLegends.removeProductTypeItems(productType);
+      this.dataLegends.removeProductTypeItems(productType);
+
+      if (!data || data.isEmpty() || symbols.length === 0) {
+        this.dataLegends.refresh();
         return;
       }
 
+      _.each(symbols, _.bind(function (symbol) {
+          this.dataLegends.addProductTypeItem(productType, symbol.tag, {
+            symbol: symbol.symbol,
+            title: symbol.title,
+          });
+      }, this))
+      this.dataLegends.refresh();
+
       var indices = retrieveHeightIndices(data.parentCollections);
 
-      var renderer;
-      switch (productType) {
-        case 'AEJ_PBS':
-        case 'AEJ_PBL':
-          renderer = getMultiGeocetricPointRenderer(
-            selectAejPointType, ['TRIANGLE_BLACK', 'SQUARE_BLACK'],
-            EARTH_RADIUS + IONOSPHERIC_ALTITUDE, indices
-          );
-          this.dataLegends.addProductTypeItem(productType, 'EJB', {
-            symbol: 'SQUARE_BLACK',
-            title: "Electrojet boundary",
-          });
-          this.dataLegends.addProductTypeItem(productType, 'EJP', {
-            symbol: 'TRIANGLE_BLACK',
-            title: "Peak electrojet current",
-          });
-          break;
-        case 'AEJ_PBS:GroundMagneticDisturbance':
-          renderer = getGeodeticPointRenderer('CIRCLE_BLACK', 0);
-          this.dataLegends.addProductTypeItem(productType, 'MDP', {
-            symbol: 'CIRCLE_BLACK',
-            title: "Peak magnetic disturbance",
-          });
-          break;
-        case 'AOB_FAC':
-          renderer = getMultiGeocetricPointRenderer(
-            selectAobPointType,
-            ['LARGE_DIMOND_GREEN', 'LARGE_DIMOND_RED'],
-            EARTH_RADIUS + SWARM_ALTITUDE, indices
-          );
-          this.dataLegends.addProductTypeItem(productType, 'AOB_PW', {
-            symbol: 'DIMOND_RED',
-            title: "Aurora oval poleward boundary",
-          });
-          this.dataLegends.addProductTypeItem(productType, 'AOB_EW', {
-            symbol: 'DIMOND_GREEN',
-            title: "Aurora oval equatorward boundary",
-          });
-          break;
-        default:
-          this.dataLegends.removeProductTypeItems(productType);
-          return;
-      }
+      var renderer = getPointRenderer(symbols, indices);
+
+      if (renderer === null) {return;}
 
       var featureCollection = new Cesium.BillboardCollection();
       this.relatedFeatureCollections.add(productType, featureCollection);
       data.forEachRecord(renderer, new RecordFilter(_.keys(data.data)));
       this.relatedFeatureCollections.show(productType);
-      this.dataLegends.refresh();
 
       timer.logEllapsedTime("createRelatedDataFeatures(" + productType + ")");
     },
@@ -2274,6 +2358,7 @@ define([
 
         globals.products.each(function (product) {
           if (!product.get('visible')) {return;}
+          if (product.get('showAsSymbolsOnly')) {return;}
           var collection = product.get('views')[0].id;
           var spacecraft = get(globals.swarm.collection2satellite, collection);
           if (!spacecraft) {return;}
@@ -2374,7 +2459,11 @@ define([
           });
 
           _.each(settings[id], function (item, name) {
-            if (!get(item, "isVector", false) && !get(item, "isScalar", false)) {
+            if (
+              item.type !== "data-fieldlines" &&
+              !get(item, "isVector", false) &&
+              !get(item, "isScalar", false)
+            ) {
               throw "Neither SCALAR_PARAM nor VECTOR_PARAM list contains the " + name + " parameter!";
             }
           });
@@ -2403,22 +2492,36 @@ define([
       var settings = getSettings();
       if (_.isEmpty(settings)) {return;}
 
+      var fieldlinesActive = false;
       data.forEachRecord(
         function (record) {
           _.each(settings[record.id], function (parameterSettings) {
-            parameterSettings.featureCreator(record, parameterSettings);
+            // If parameter fieldlines we do not create features for it
+            if (parameterSettings.type === 'data-fieldlines') {
+              fieldlinesActive = true;
+            } else {
+              parameterSettings.featureCreator(record, parameterSettings);
+            }
           });
         },
-        new RecordFilter(_.keys(data.data))
+        new RecordFilter(_.keys(data.data)), this
       );
 
       this.featureCollections.showAll();
 
       timer.logEllapsedTime("createDataFeatures()");
+
+      if (fieldlinesActive) {
+        this.updateFieldLines();
+      }
     },
 
     onLayerOutlinesChanged: function (collection) {
       this.createDataFeatures(globals.swarm.get('data'));
+    },
+
+    onLayerSymbolsChanged: function () {
+      this.updateRelatedDataFeatures();
     },
 
     onLayerParametersChanged: function (layer, onlyStyleChange) {
@@ -2428,14 +2531,22 @@ define([
         return product.get('name') === layer;
       });
 
-      var variable = this.getSelectedVariable(product.get('parameters'));
+      var parameters = product.get('parameters');
+      var variable = this.getSelectedVariable(parameters);
+      var parameter = parameters[variable];
       if (product === undefined) {
         return;
       } else if (product.get('views')[0].protocol === 'CZML') {
         this.createDataFeatures(globals.swarm.get('data'));
+        if (parameter.type === 'aoi-fieldlines') {
+          this.updateActiveFL(product);
+        } else {
+          this.deleteActiveFL(product);
+        }
+        this.updateFieldLines(onlyStyleChange);
       } else if (product.get('views')[0].protocol === 'WMS') {
 
-        if (variable === 'Fieldlines') {
+        if (parameter.type === 'aoi-fieldlines') {
           this.hideCustomModel(product);
           this.hideWMSLayer(product);
           this.updateActiveFL(product);
@@ -2627,7 +2738,7 @@ define([
     },
 
     renderDataLegend: function (name, options) {
-      var width = 250;
+      var width = 300;
       var height = 20;
 
       var id = 'svg-data-legend-container-' + name;
@@ -2749,11 +2860,11 @@ define([
 
       svgContainer.selectAll('text')
         .attr('stroke', 'none')
-        .attr('fill', 'black')
+        .attr('fill', COLORS.black)
         .attr('font-weight', 'bold');
 
       svgContainer.selectAll('.tick').select('line')
-        .attr('stroke', 'black');
+        .attr('stroke', COLORS.black);
 
       svgContainer.selectAll('.axis .domain')
         .attr('stroke-width', '2')
@@ -2873,57 +2984,63 @@ define([
     },
 
     loadOrbits: function () {
-      var satellites = ['Alpha', 'Bravo', 'Charlie'];
-      _.each(satellites, function (sat) {
-        this.removeOrbitPrimitives(sat);
+
+      this.removeAllOrbitPrimitives();
+
+      var overlay = globals.overlays.find(function (item) {return item.get("view").id === "satellite_orbit";});
+
+      if (!overlay || !overlay.get("visible")) {return;}
+
+      _.each(overlay.get("view").spacecrafts, function (options, spacecraft) {
+        this.fetchOrbitData(spacecraft, {
+          url: overlay.get("view").url,
+          collection: options.collection,
+          color: options.color,
+        });
       }, this);
 
-      globals.overlays.each(function (overlay) {
-        if (overlay.get("view").id === "satellite_orbit") {
-
-          if (overlay.get('visible')) {
-            _.each(satellites, function (sat) {
-              if (globals.swarm.satellites[sat]) {
-                var request = new vires.ViresDataRequest({
-                  context: this,
-                  success: function (data) {
-                    this.createOrbitPrimitives(data.data, sat);
-                  },
-                  error: function (xhr, message) {
-                    if (xhr.responseText === "") {return;}
-                    this.showErrorMessage(message);
-                  },
-                });
-
-                request.url = overlay.get("view").url;
-                var colls = {
-                  'Alpha': '{"Alpha":["SW_OPER_MODA_SC_1B+SW_FAST_MODA_SC_1B"]}',
-                  'Bravo': '{"Bravo":["SW_OPER_MODB_SC_1B+SW_FAST_MODB_SC_1B"]}',
-                  'Charlie': '{"Charlie":["SW_OPER_MODC_SC_1B+SW_FAST_MODC_SC_1B"]}',
-                };
-                request.fetch({
-                  collections_ids: colls[sat],
-                  begin_time: getISODateTimeString(this.beginTime),
-                  end_time: getISODateTimeString(this.endTime),
-                  sampling_step: "PT20S",
-                  format: "application/msgpack",
-                });
-              }
-            }, this);
-          }
-
-        }
-      }, this);
     },
 
-    removeOrbitPrimitives: function (name) {
-      if (this.orbitCollection.hasOwnProperty(name)) {
-        this.map.scene.primitives.remove(this.orbitCollection[name]);
-        delete this.orbitCollection[name];
+    fetchOrbitData: function (spacecraft, options) {
+
+      var _createOrbitPrimitives = function (data) {
+        this.createOrbitPrimitives(spacecraft, data.data, options.color);
+      };
+
+      if (!globals.swarm.satellites[spacecraft]) {return;}
+
+      var request = new vires.ViresDataRequest({
+        url: options.url,
+        context: this,
+        success: _createOrbitPrimitives,
+        error: function (xhr, message) {
+          if (xhr.responseText === "") {return;}
+          this.showErrorMessage(message);
+        },
+      });
+
+      request.fetch({
+        collections_ids: '{"' + spacecraft + '":["' + options.collection + '"]}',
+        begin_time: getISODateTimeString(this.beginTime),
+        end_time: getISODateTimeString(this.endTime),
+        sampling_step: "PT20S",
+        format: "application/msgpack",
+      });
+
+    },
+
+    removeAllOrbitPrimitives: function () {
+      _.each(_.keys(this.orbitCollection), this.removeOrbitPrimitives, this);
+    },
+
+    removeOrbitPrimitives: function (spacecraft) {
+      if (has(this.orbitCollection, spacecraft)) {
+        this.map.scene.primitives.remove(this.orbitCollection[spacecraft]);
+        delete this.orbitCollection[spacecraft];
       }
     },
 
-    createOrbitPrimitives: function (data, name) {
+    createOrbitPrimitives: function (spacecraft, data, color) {
       var positions = _.map(data.Latitude, function (ds, idx) {
         return Cesium.Cartesian3.clone(
           convertSpherical2Cartesian(
@@ -2933,34 +3050,20 @@ define([
           )
         );
       });
-      this.removeOrbitPrimitives(name);
+      this.removeOrbitPrimitives(spacecraft);
       var lineCollection = new Cesium.PolylineCollection();
 
       // Color based on satellite
-      var color;
-      switch (name) {
-        case 'Alpha':
-          color = new Cesium.Color(0.2, 0.2, 0.8, 1.0);
-          break;
-        case 'Bravo':
-          color = new Cesium.Color(0.8, 0.2, 0.2, 1.0);
-          break;
-        case 'Charlie':
-          color = new Cesium.Color(0.2, 0.8, 0.2, 1.0);
-          break;
-        default:
-          color = new Cesium.Color(0.0, 0.0, 0.0, 1.0);
-      }
       lineCollection.add({
         positions: positions,
         width: 2,
         material: Cesium.Material.fromType('Color', {
-          color: color
+          color: Cesium.Color.fromCssColorString(color),
         }),
       });
 
-      this.orbitCollection[name] = lineCollection;
-      this.map.scene.primitives.add(this.orbitCollection[name]);
+      this.orbitCollection[spacecraft] = lineCollection;
+      this.map.scene.primitives.add(this.orbitCollection[spacecraft]);
     },
 
     updateFieldLines: function (onlyStyleChange) {
@@ -2970,7 +3073,7 @@ define([
         }, 2000);
       }
       this.hideFieldLinesLabel();
-      if (this.activeFL.length > 0 && this.bboxsel) {
+      if (this.activeFL.length > 0) {
         this.showFieldLinesDebounced(onlyStyleChange);
       } else {
         this.hideFieldLines();
@@ -2978,7 +3081,6 @@ define([
     },
 
     showFieldLines: function (onlyStyleChange) {
-
       var _boundingBoxToPoints = function (bbox, nLatSteps, nLonSteps) {
         var lon0 = bbox[1];
         var lat0 = bbox[0];
@@ -3001,44 +3103,84 @@ define([
           var name = product.get('name');
           var parameters = product.get('parameters');
           var variable = this.getSelectedVariable(parameters);
-          var style = parameters[variable].colorscale;
-          var range_min = parameters[variable].range[0];
-          var range_max = parameters[variable].range[1];
-          var log_scale = parameters[variable].logarithmic;
+          var parameter = parameters[variable];
+          var style = parameter.colorscale;
+          var range_min = parameter.range[0];
+          var range_max = parameter.range[1];
+          var log_scale = parameter.logarithmic;
+
           var time = meanDate(this.beginTime, this.endTime);
           this.removeFLPrimitives(name);
 
-          if (variable !== 'Fieldlines') return;
+          if (
+            parameter.type !== 'aoi-fieldlines' &&
+            parameter.type !== 'data-fieldlines'
+          ) {return;}
 
-          if (product.getModelValidity().start > time || product.getModelValidity().end < time) return;
+          if (product.getModelValidity()) {
+            if (product.getModelValidity().start > time || product.getModelValidity().end < time) return;
+          }
 
           if (onlyStyleChange && typeof this.FLStoredData[name] !== 'undefined') {
             // do not send request to server if no new data needed
             this.createFLPrimitives(this.FLStoredData[name], name, style, range_min, range_max, log_scale);
-          } else {
-            var fieldlinesRequest = new vires.ViresFieldlinesRequest({
-              context: this,
-              url: product.get('views')[0].urls[0],
-              success: function (data, xhr) {
-                this.createFLPrimitives(data, name, style, range_min, range_max, log_scale);
-                this.FLStoredData[name] = data;
-              },
-              error: function (xhr, message) {
-                if (xhr.responseText === "") {return;}
-                if (!message) {
-                  message = 'Please contact feedback@vires.services if issue persists.';
-                }
-                showMessage('danger', ('Problem retrieving data: ' + message), 35);
-              }
-            });
+            return;
+          }
 
+          var fieldlinesRequest = new vires.ViresFieldlinesRequest({
+            context: this,
+            url: product.get('views')[0].urls[0],
+            success: function (data, xhr) {
+              this.createFLPrimitives(data, name, style, range_min, range_max, log_scale);
+              this.FLStoredData[name] = data;
+            },
+            error: function (xhr, message) {
+              if (xhr.responseText === "") {return;}
+              if (!message) {
+                message = 'Please contact feedback@vires.services if issue persists.';
+              }
+              showMessage('danger', ('Problem retrieving data: ' + message), 35);
+            }
+          });
+
+          var points = [];
+          var model_ids = null;
+
+          if (parameter.type === 'aoi-fieldlines' && this.bboxsel) {
+
+            // points are generated from the AoI bounding box
+            points = _boundingBoxToPoints(this.bboxsel, 3, 3);
+            // products is the actual model
+            model_ids = product.getModelExpression(product.get('download').id);
+
+          } else if (parameter.type === 'data-fieldlines') {
+
+            // points are generated from the data locations
+            var data = globals.swarm.get('data');
+            data.forEachRecord(
+              function (record) {
+                points.push([record.Latitude, record.Longitude, record.Radius]);
+              },
+              new RecordFilter(_.keys(data.data))
+            );
+            // searching for the current model
+            var model = globals.products.find(function (product) {
+              return product.get('download').id === 'Model';
+            });
+            if (model) {
+              model_ids = model.getModelExpression(model.get('download').id);
+            }
+          }
+
+          if (points.length > 0 && model_ids) {
             fieldlinesRequest.fetch({
-              model_ids: product.getModelExpression(product.get('download').id),
+              model_ids: model_ids,
               shc: product.getCustomShcIfSelected(),
               time: getISODateTimeString(time),
-              locations_csv: vires.locationToCsv(_boundingBoxToPoints(this.bboxsel, 3, 3)),
+              locations_csv: vires.locationToCsv(points),
             });
           }
+
         }, this
       );
     },
@@ -3053,6 +3195,15 @@ define([
       for (var key in parameters) {
         if (parameters[key].selected) {
           return key;
+        }
+      }
+    },
+
+    getSelectedParameter: function (parameters) {
+      if (!parameters) return;
+      for (var key in parameters) {
+        if (parameters[key].selected) {
+          return parameters[key];
         }
       }
     },

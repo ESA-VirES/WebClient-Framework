@@ -187,7 +187,12 @@
             return globals.models.get(item.id);
           }
         )[0];
-      }
+      },
+
+      getCustomModel: function () {
+        return globals.models.get(globals.models.customModelId);
+      },
+
     });
 
     return {LayerModel: LayerModel};

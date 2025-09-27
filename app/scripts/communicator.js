@@ -114,16 +114,17 @@
 
       saveStatus: function (event, param) {
 
-        /*
-                function replacer(key, value)
-                {
-                    if (key === 'ces_layer') {return undefined;}
-                    else if (key === 'backupLayer') {return undefined;}
-                    else if (key === 'ordinal') {return undefined;}
-                    //else if (key==='download_parameters') {return undefined;}
-                    else {return value;}
-                }
-                */
+        var getProductByName = function (name) {
+          return globals.products.find(
+            function (m) {return m.get('name') === name;}
+          );
+        };
+
+        var getProductByDownloadId = function (downloadId) {
+          return globals.products.find(
+            function (m) {return m.get('download').id === downloadId;}
+          );
+        };
 
         // Tracking timeslider
         if (event === 'time:domain:change') {
@@ -175,36 +176,26 @@
                 JSON.stringify(activeOverlays)
               );
             } else {
-              var product = globals.products.find(
-                function (m) {return m.get('name') === param.name;}
-              );
-              saveProductStatus(product);
+              saveProductStatus(getProductByName(param.name));
             }
           }
         }
 
         if (event === 'layer:parameters:changed') {
-          var product = globals.products.find(
-            function (m) {return m.get('name') === param;}
-          );
-          saveProductStatus(product);
+          saveProductStatus(getProductByName(param));
+        }
+
+        if (event === 'layer:symbols:changed') {
+          saveProductStatus(getProductByName(param));
         }
 
         if (event === 'productCollection:updateOpacity') {
-          var product = globals.products.find(
-            function (m) {
-              return m.get('download').id === param.model.get('download').id;
-            }
-          );
-          saveProductStatus(product);
+          saveProductStatus(getProductByDownloadId(param.model.get('download').id))
         }
 
 
         if (event === 'layer:outlines:changed') {
-          var product = globals.products.find(
-            function (m) {return m.get('download').id === param;}
-          );
-          saveProductStatus(product);
+          saveProductStatus(getProductByDownloadId(param))
         }
 
         // Tracking of Analytics settings
