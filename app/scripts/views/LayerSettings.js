@@ -564,7 +564,7 @@
         _.each(product.symbols, _.bind(function (symbols, productType) {
           _.each(symbols, _.bind(function (symbol) {
             var id = `symbol-${productType}-${symbol.tag}`;
-            var isChecked = typeof product.selected === 'undefined' ? true : product.selected;
+            var isChecked = symbol.selected == null ? true : symbol.selected;
             var checked = isChecked ? " checked" : "";
             this.$("#symbol-selection").append(
               '<div>'
@@ -587,7 +587,7 @@
           if (symbol) {
             symbol.selected = source.checked;
           }
-          Communicator.mediator.trigger("layer:symbols:changed");
+          Communicator.mediator.trigger("layer:symbols:changed", this.current_model.get("name"));
         }, this));
       },
 

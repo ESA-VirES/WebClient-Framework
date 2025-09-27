@@ -665,6 +665,18 @@ var RELATED_VARIABLES = {
               });
             }
 
+            if (has(src, 'symbols') && has(dst, 'symbols')) {
+              // extract symbol state
+              _.each(dst.symbols, function (symbols, productTag) {
+                _.each(symbols, function (symbol) {
+                  var selected = (src.symbols[productTag] || {})[symbol.tag];
+                  if (selected != null) {
+                    symbol.selected = selected;
+                  }
+                });
+              });
+            }
+
             if (has(src, 'parameters')) {
               // Find default selected variable and clear the flags.
               var selectedVariable = null;
