@@ -39,6 +39,10 @@ var SCALAR_PARAM = [
   "V_i", "V_i_err", "V_i_Flags", "V_i_raw", "N_i", "N_i_err", "N_i_Flags",
   "T_e", "Phi_sc",
   "Vixh", "Vixv",
+  // MIT TEC
+  "TEC",
+  // PPI FAC
+  "PPI",
 ];
 
 // parameters displayed by Cesium as vectors by Cesium (note that some of them
@@ -169,6 +173,96 @@ var RELATED_COLLECTIONS = {
       type: 'AOB_FAC'
     }
   ],
+  'SW_OPER_MITA_LP_2F': [
+    {
+      collections: ['SW_OPER_MITA_LP_2F'],
+      type: 'MIT_LP'
+    },
+    {
+      collections: ['SW_OPER_MITA_LP_2F:ID'],
+      type: 'MIT_LP:ID'
+    }
+  ],
+  'SW_OPER_MITB_LP_2F': [
+    {
+      collections: ['SW_OPER_MITB_LP_2F'],
+      type: 'MIT_LP'
+    },
+    {
+      collections: ['SW_OPER_MITB_LP_2F:ID'],
+      type: 'MIT_LP:ID'
+    }
+  ],
+  'SW_OPER_MITC_LP_2F': [
+    {
+      collections: ['SW_OPER_MITC_LP_2F'],
+      type: 'MIT_LP'
+    },
+    {
+      collections: ['SW_OPER_MITC_LP_2F:ID'],
+      type: 'MIT_LP:ID'
+    }
+  ],
+  'SW_OPER_MITATEC_2F': [
+    {
+      collections: ['SW_OPER_MITATEC_2F'],
+      type: 'MIT_TEC'
+    },
+    {
+      collections: ['SW_OPER_MITATEC_2F:ID'],
+      type: 'MIT_TEC:ID'
+    }
+  ],
+  'SW_OPER_MITBTEC_2F': [
+    {
+      collections: ['SW_OPER_MITBTEC_2F:ID'],
+      type: 'MIT_TEC'
+    },
+    {
+      collections: ['SW_OPER_MITBTEC_2F:ID'],
+      type: 'MIT_TEC:ID'
+    }
+  ],
+  'SW_OPER_MITCTEC_2F': [
+    {
+      collections: ['SW_OPER_MITCTEC_2F:ID'],
+      type: 'MIT_TEC'
+    },
+    {
+      collections: ['SW_OPER_MITCTEC_2F:ID'],
+      type: 'MIT_TEC:ID'
+    }
+  ],
+  'SW_OPER_PPIAFAC_2F': [
+    {
+      collections: ['SW_OPER_PPIAFAC_2F'],
+      type: 'PPI_FAC'
+    },
+    {
+      collections: ['SW_OPER_PPIAFAC_2F:ID'],
+      type: 'PPI_FAC:ID'
+    }
+  ],
+  'SW_OPER_PPIBFAC_2F': [
+    {
+      collections: ['SW_OPER_PPIBFAC_2F:ID'],
+      type: 'PPI_FAC'
+    },
+    {
+      collections: ['SW_OPER_PPIBFAC_2F:ID'],
+      type: 'PPI_FAC:ID'
+    }
+  ],
+  'SW_OPER_PPICFAC_2F': [
+    {
+      collections: ['SW_OPER_PPICFAC_2F:ID'],
+      type: 'PPI_FAC'
+    },
+    {
+      collections: ['SW_OPER_PPICFAC_2F:ID'],
+      type: 'PPI_FAC:ID'
+    }
+  ],
 };
 
 var _COMMON_RELATED_VARIABLES = [
@@ -180,6 +274,12 @@ var RELATED_VARIABLES = {
   'AEJ_PBS:GroundMagneticDisturbance': [].concat(_COMMON_RELATED_VARIABLES),
   'AEJ_PBL': ['J_QD', 'PointType'].concat(_COMMON_RELATED_VARIABLES),
   'AOB_FAC': ['FAC', 'Radius', 'Boundary_Flag'].concat(_COMMON_RELATED_VARIABLES),
+  'MIT_LP': ['Ne', 'Te'].concat(_COMMON_RELATED_VARIABLES),
+  'MIT_LP:ID': ['Ne', 'Te', 'PointType'].concat(_COMMON_RELATED_VARIABLES),
+  'MIT_TEC': ['TEC'].concat(_COMMON_RELATED_VARIABLES),
+  'MIT_TEC:ID': ['PointType'].concat(_COMMON_RELATED_VARIABLES),
+  'PPI_FAC': ['PPI'].concat(_COMMON_RELATED_VARIABLES),
+  'PPI_FAC:ID': ['PointType'].concat(_COMMON_RELATED_VARIABLES),
 };
 
 (function () {
@@ -565,6 +665,18 @@ var RELATED_VARIABLES = {
               });
             }
 
+            if (has(src, 'symbols') && has(dst, 'symbols')) {
+              // extract symbol state
+              _.each(dst.symbols, function (symbols, productTag) {
+                _.each(symbols, function (symbol) {
+                  var selected = (src.symbols[productTag] || {})[symbol.tag];
+                  if (selected != null) {
+                    symbol.selected = selected;
+                  }
+                });
+              });
+            }
+
             if (has(src, 'parameters')) {
               // Find default selected variable and clear the flags.
               var selectedVariable = null;
@@ -632,13 +744,15 @@ var RELATED_VARIABLES = {
             unit: product.unit,
             parameters: product.parameters,
             download_parameters: product.download_parameters,
+            symbols: product.symbols,
             height: product.height,
             outlines: product.outlines,
             model: product.model,
             satellite: product.satellite,
             tileSize: (product.tileSize) ? product.tileSize : 256,
             validity: product.validity,
-            showColorscale: true
+            showColorscale: true,
+            showAsSymbolsOnly: product.showAsSymbolsOnly || false,
           });
 
           if (lm.get('model')) {
@@ -704,16 +818,17 @@ var RELATED_VARIABLES = {
         window.setInterval(function () {globals.models.fetch();}, 900000); // refresh each 15min
 
         // If there is already saved overly configuration use that
-        var activeOverlays = [];
+        var activeOverlays = null;
         if (localStorage.getItem('activeOverlays') !== null) {
           activeOverlays = JSON.parse(localStorage.getItem('activeOverlays'));
           savedChangesApplied = true;
         }
         //Overlays are loaded and added to the global collection
         _.each(config.mapConfig.overlays, function (overlay) {
-          var overlayActive = false;
-          if (activeOverlays.indexOf(overlay.name) !== -1) {
-            overlayActive = true;
+          var overlayActive = Boolean(overlay.visible);
+          if (activeOverlays !== null) {
+            // apply saved state
+            overlayActive = _.contains(activeOverlays, overlay.name);
           }
           globals.overlays.add(
             new m.LayerModel({
@@ -808,7 +923,7 @@ var RELATED_VARIABLES = {
         var filtered = globals.products.filter(function (product) {
           var id = product.get("download").id;
           return !(id && id.match(
-            /^SW_(OPER|FAST|PREL|EXPT)_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ)[ABCU_]/
+            /^SW_(OPER|FAST|PREL|EXPT)_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ|MIT|PPI)[ABCU_]/
           ));
         });
 
@@ -886,6 +1001,21 @@ var RELATED_VARIABLES = {
             "Bravo": "SW_OPER_AEJBLPS_2F",
             "Charlie": "SW_OPER_AEJCLPS_2F",
             "Upload": "SW_OPER_AEJULPS_2F",
+          },
+          "MIT_LP": {
+            "Alpha": "SW_OPER_MITA_LP_2F",
+            "Bravo": "SW_OPER_MITB_LP_2F",
+            "Charlie": "SW_OPER_MITC_LP_2F",
+          },
+          "MIT_TEC": {
+            "Alpha": "SW_OPER_MITATEC_2F",
+            "Bravo": "SW_OPER_MITBTEC_2F",
+            "Charlie": "SW_OPER_MITCTEC_2F",
+          },
+          "PPI_FAC": {
+            "Alpha": "SW_OPER_PPIAFAC_2F",
+            "Bravo": "SW_OPER_PPIBFAC_2F",
+            "Charlie": "SW_OPER_PPICFAC_2F",
           }
         };
 
@@ -949,6 +1079,9 @@ var RELATED_VARIABLES = {
           'IPD': false,
           'AEJ_LPL': false,
           'AEJ_LPS': false,
+          'MIT_LP': false,
+          'MIT_TEC': false,
+          'PPI_FAC': false,
         };
 
         var clickEvent = "require(['communicator'], function(Communicator){Communicator.mediator.trigger('application:reset');});";
@@ -1000,6 +1133,30 @@ var RELATED_VARIABLES = {
         }
 
         // Add generic product (which is container for A,B and C sats)
+        filtered_collection.add({
+          name: "Midnight Plasmapause Index - (PPI FAC)",
+          visible: containerSelection['PPI_FAC'],
+          color: "#241620",
+          protocol: null,
+          containerproduct: true,
+          id: "PPI_FAC"
+        }, {at: 0});
+        filtered_collection.add({
+          name: "Midlatitude Ionospheric Trough - (MIT TEC)",
+          visible: containerSelection['MIT_TEC'],
+          color: "#645600",
+          protocol: null,
+          containerproduct: true,
+          id: "MIT_TEC"
+        }, {at: 0});
+        filtered_collection.add({
+          name: "Midlatitude Ionospheric Trough - (MIT LP)",
+          visible: containerSelection['MIT_LP'],
+          color: "#560064",
+          protocol: null,
+          containerproduct: true,
+          id: "MIT_LP"
+        }, {at: 0});
         filtered_collection.add({
           name: "Auroral Electrojet - SECS (AEJ LPS/PBS)",
           visible: containerSelection['AEJ_LPS'],

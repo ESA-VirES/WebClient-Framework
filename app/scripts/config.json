@@ -82,6 +82,20 @@
             "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_AEJxLPS_2F' target='_blank'>Sheet current density profile product specification</a><br>",
             "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_AEJxPBS_2F' target='_blank'>Peaks and boundaries product specification</a><br>",
             "<a href='https://notebooks.vires.services/notebooks/03h2_demo-aebs-aejxlps' target='notebooks'>Example VRE notebook</a>"
+        ],
+        "MIT_LP": [
+            "<p>Midlatitude ionospheric trough boundaries and minima derived from LP measurements</p>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_MITx_LP_2F' target='_blank'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03j1_demo-prism-mitx' target='notebooks'>Example VRE notebook</a>"
+        ],
+        "MIT_TEC": [
+            "<p>Midlatitude ionospheric trough boundaries and minima derived from TEC measurements</p>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_MITxTEC_2F' target='_blank'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03j1_demo-prism-mitx' target='notebooks'>Example VRE notebook</a>"
+        ],
+        "PPI_FAC": [
+            "<p>Equatorward boundary of SSFACs and the associated midnight PP index</p>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_PPIxFAC_2F' target='_blank'>Product specification</a><br>"
         ]
     },
 
@@ -1625,6 +1639,28 @@
         },
         "SW_FACxTMS_2F": {
             "satellite": "Swarm",
+            "symbols": {
+                "AOB_FAC": [
+                    {
+                        "selected": true,
+                        "tag": "AOB_PW",
+                        "symbol": "DIMOND_RED",
+                        "radius": 6821000,
+                        "title": "Aurora oval poleward boundary",
+                        "mask": {"Boundary_Flag": 3},
+                        "filter": {"Boundary_Flag": 2}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "AOB_EW",
+                        "symbol": "DIMOND_GREEN",
+                        "radius": 6821000,
+                        "title": "Aurora oval equatorward boundary",
+                        "mask": {"Boundary_Flag": 3},
+                        "filter": {"Boundary_Flag": 1}
+                    }
+                ]
+            },
             "parameters": {
                 "IRC": {
                     "range": [-6, 6],
@@ -1740,6 +1776,28 @@
         },
         "SW_FACxTMS_2F_FAST": {
             "satellite": "Swarm",
+            "symbols": {
+                "AOB_FAC": [
+                    {
+                        "selected": true,
+                        "tag": "AOB_PW",
+                        "symbol": "DIMOND_RED",
+                        "radius": 6821000,
+                        "title": "Aurora oval poleward boundary",
+                        "mask": {"Boundary_Flag": 3},
+                        "filter": {"Boundary_Flag": 2}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "AOB_EW",
+                        "symbol": "DIMOND_GREEN",
+                        "radius": 6821000,
+                        "title": "Aurora oval equatorward boundary",
+                        "mask": {"Boundary_Flag": 3},
+                        "filter": {"Boundary_Flag": 1}
+                    }
+                ]
+            },
             "parameters": {
                 "IRC": {
                     "range": [-6, 6],
@@ -2362,6 +2420,28 @@
         },
         "SW_AEJxLPL_2F": {
             "satellite": "Swarm",
+            "symbols": {
+                "AEJ_PBL": [
+                    {
+                        "selected": true,
+                        "tag": "EJB",
+                        "symbol": "SQUARE_BLACK",
+                        "radius": 6481000,
+                        "title": "Electrojet boundary",
+                        "mask": {"PointType": 2},
+                        "filter": {"PointType": 2}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "EJP",
+                        "symbol": "TRIANGLE_BLACK",
+                        "radius": 6481000,
+                        "title": "Peak electrojet current",
+                        "mask": {"PointType": 2},
+                        "filter": {"PointType": 0}
+                    }
+                ]
+            },
             "parameters": {
                 "J_QD": {
                     "selected": true,
@@ -2402,6 +2482,38 @@
         },
         "SW_AEJxLPS_2F": {
             "satellite": "Swarm",
+            "symbols": {
+                "AEJ_PBS": [
+                    {
+                        "selected": true,
+                        "tag": "EJB",
+                        "symbol": "SQUARE_BLACK",
+                        "radius": 6481000,
+                        "title": "Electrojet boundary",
+                        "mask": {"PointType": 2},
+                        "filter": {"PointType": 2}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "EJP",
+                        "symbol": "TRIANGLE_BLACK",
+                        "radius": 6481000,
+                        "title": "Peak electrojet current",
+                        "mask": {"PointType": 2},
+                        "filter": {"PointType": 0}
+                    }
+                ],
+                "AEJ_PBS:GroundMagneticDisturbance": [
+                    {
+                        "selected": true,
+                        "tag": "MDP",
+                        "symbol": "CIRCLE_BLACK",
+                        "coordinateSystem": "GEODETIC",
+                        "altitude": 0,
+                        "title": "Ground magnetic disturbance"
+                    }
+                ]
+            },
             "parameters": {
                 "J_DF_SemiQD": {
                     "selected": true,
@@ -2477,6 +2589,408 @@
                 "J_DF_SemiQD": {
                     "uom": "A/km",
                     "name": "Divergence-free horizontal sheet current density (SemiQD frame, east component)"
+                }
+            }
+        },
+        "SW_MITx_LP_2F": {
+            "showAsSymbolsOnly": false,
+            "satellite": "Swarm",
+            "symbols": {
+                "MIT_LP": [
+                    {
+                        "selected": true,
+                        "tag": "MIT_Ne_min",
+                        "symbol": "TRIANGLE_DOWN_BLUE",
+                        "options": {"scale": 0.6},
+                        "title": "MIT Ne minimum"
+                    }
+                ],
+                "MIT_LP:ID": [
+                    {
+                        "selected": true,
+                        "tag": "MIT_Te_peak",
+                        "symbol": "TRIANGLE_RED",
+                        "options": {"scale": 0.6},
+                        "title": "MIT Te peak",
+                        "filter": {"PointType": 6}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "MIT_SETE_EB",
+                        "symbol": "HLINE_MLINE_DOWN_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT SETE equatorward bounding position",
+                        "filter": {"PointType": 4}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "MIT_SETE_PB",
+                        "symbol": "HLINE_MLINE_UP_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT SETE poleward bounding position",
+                        "filter": {"PointType": 5}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "MIT_EE_EW",
+                        "symbol": "HLINE_TRINAGLE_DOWN_FILLED_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT equatorward edge of the equatorward wall",
+                        "filter": {"PointType": 0}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "MIT_PE_EW",
+                        "symbol": "HLINE_TRINAGLE_UP_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT poleward edge of the equatorward wall",
+                        "filter": {"PointType": 1}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "MIT_EE_PW",
+                        "symbol": "HLINE_TRINAGLE_DOWN_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT equatorward edge of poleward wall",
+                        "filter": {"PointType": 2}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "MIT_PE_PW",
+                        "symbol": "HLINE_TRINAGLE_UP_FILLED_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT poleward edge of the poleward boundary",
+                        "filter": {"PointType": 3}
+                    }
+                ]
+            },
+            "parameters": {
+                "Ne": {
+                    "selected": true,
+                    "name": "Electron density at the MIT minimum",
+                    "uom":"cm -3",
+                    "range": [100000, 200000],
+                    "colorscale": "plasma"
+                },
+                "Te": {
+                    "name": "Electron temperature at the MIT minimum",
+                    "uom":"K",
+                    "range": [1000, 5000],
+                    "colorscale": "portland"
+                }
+            },
+            "download_parameters": {
+                "Counter": {
+                    "uom": null,
+                    "name": "Swarm orbit and quarter orbit counters"
+                },
+                "Timestamp": {
+                    "uom": null,
+                    "name": "UTC time of the MIT minimum"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "ITRF geocentric latitude of the MIT minimum"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "ITRF geocentric longitude of the MIT minimum"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "ITRF geocentric radius of the MIT minimum"
+                },
+                "Latitude_QD": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude of the MIT minimum"
+                },
+                "Longitude_QD": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude of the MIT minimum"
+                },
+                "MLT_QD": {
+                    "uom": "hour",
+                    "name": "Magnetic local time (QD) of the MIT minimum"
+                },
+                "L_value": {
+                    "uom": null,
+                    "name": "L-value in earth radii of the MIT minimum"
+                },
+                "SZA": {
+                    "uom": "deg",
+                    "name": "Solar zenith angle of the MIT minimum"
+                },
+                "Ne": {
+                    "uom":"cm -3",
+                    "name": "LP electron density at the MIT minimum"
+                },
+                "Te": {
+                    "uom":"K",
+                    "name": "LP electron temperature at the MIT minimum"
+                },
+                "Depth": {
+                    "uom": "cm^-3",
+                    "name": "Scalar  depth of the MIT"
+                },
+                "DR": {
+                    "uom": "%",
+                    "name": "Relative change in density within the MIT"
+                },
+                "Width": {
+                    "uom": "deg",
+                    "name": "Scalar width of the MIT calculated from QD latitudes"
+                },
+                "PW_Gradient": {
+                    "uom": "log(cm^-3)/deg",
+                    "name": "Scalar change in log electron density at the poleward wall of the MIT divided by QD latitude difference"
+                },
+                "EW_Gradient": {
+                    "uom": "log(cm^-3)/deg",
+                    "name": "Scalar change in log electron density at the equatorward wall of the MIT divided by QD latitude difference"
+                },
+                "Quality": {
+                    "uom": null,
+                    "name": "Characterises the detection quality of the MIT as a whole"
+                }
+            }
+        },
+        "SW_MITxTEC_2F": {
+            "showAsSymbolsOnly": false,
+            "satellite": "Swarm",
+            "symbols": {
+                "MIT_TEC": [
+                    {
+                        "selected": true,
+                        "tag": "MIT_TEC_min",
+                        "symbol": "TRIANGLE_DOWN_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "TEC at MIT minimum"
+                    }
+                ],
+                "MIT_TEC:ID": [
+                    {
+                        "selected": true,
+                        "tag": "MIT_EE_EW",
+                        "symbol": "HLINE_TRINAGLE_DOWN_FILLED_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT equatorward edge of the equatorward wall",
+                        "filter": {"PointType": 0}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "MIT_PE_EW",
+                        "symbol": "HLINE_TRINAGLE_UP_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT poleward edge of the equatorward wall",
+                        "filter": {"PointType": 1}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "MIT_EE_PW",
+                        "symbol": "HLINE_TRINAGLE_DOWN_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT equatorward edge of poleward wall",
+                        "filter": {"PointType": 2}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "MIT_PE_PW",
+                        "symbol": "HLINE_TRINAGLE_UP_FILLED_BLACK",
+                        "options": {"scale": 0.6},
+                        "title": "MIT poleward edge of the poleward boundary",
+                        "filter": {"PointType": 3}
+                    }
+                ]
+            },
+            "parameters": {
+                "TEC": {
+                    "selected": true,
+                    "range": [0, 35],
+                    "colorscale": "plasma",
+                    "uom": "TECU",
+                    "name": "Total electron content at the MIT minimum"
+                }
+            },
+            "download_parameters": {
+                "Counter": {
+                    "uom": null,
+                    "name": "Swarm orbit and quarter orbit counters"
+                },
+                "Timestamp": {
+                    "uom": null,
+                    "name": "UTC time of the MIT minimum"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "ITRF geocentric latitude of the MIT minimum"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "ITRF geocentric longitude of the MIT minimum"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "ITRF geocentric radius of the MIT minimum"
+                },
+                "Latitude_QD": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude of the MIT minimum"
+                },
+                "Longitude_QD": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude of the MIT minimum"
+                },
+                "MLT_QD": {
+                    "uom": "hour",
+                    "name": "Magnetic local time (QD) of the MIT minimum"
+                },
+                "L_value": {
+                    "uom": null,
+                    "name": "L-value in earth radii of the MIT minimum"
+                },
+                "SZA": {
+                    "uom": "deg",
+                    "name": "Solar zenith angle of the MIT minimum"
+                },
+                "TEC": {
+                    "uom": "TECU",
+                    "name": "Total electron content at the MIT minimum"
+                },
+                "Depth": {
+                    "uom": "cm^-3",
+                    "name": "Scalar  depth of the MIT"
+                },
+                "DR": {
+                    "uom": "%",
+                    "name": "Relative change in density within the MIT"
+                },
+                "Width": {
+                    "uom": "deg",
+                    "name": "Scalar  width of the MIT calculated from QD latitudes"
+                },
+                "dL": {
+                    "uom": "deg",
+                    "name": "Scalar  width of the MIT calculated from L-values"
+                },
+                "PW_Gradient": {
+                    "uom": "TECU deg^-1",
+                    "name": "Scalar change in TEC at the poleward wall of the MIT divided by QD latitude difference"
+                },
+                "EW_Gradient": {
+                    "uom": "TECU deg^-1",
+                    "name": "Scalar  change in TEC at the equatorward wall of the MIT divided by QD latitude difference"
+                },
+                "Quality": {
+                    "uom": null,
+                    "name": "Characterises the detection quality of the MIT as a whole"
+                }
+            }
+        },
+        "SW_PPIxFAC_2F": {
+            "showAsSymbolsOnly": false,
+            "satellite": "Swarm",
+            "symbols": {
+                "PPI_FAC": [
+                    {
+                        "selected": true,
+                        "tag": "PPI_FAC_SSFAC_boundary",
+                        "symbol": "CIRCLE_GREEN",
+                        "options": {"scale": 0.6},
+                        "title": "SSFAC boundary"
+                    }
+                ],
+                "PPI_FAC:ID": [
+                    {
+                        "selected": true,
+                        "tag": "PPI_FAC_SSFAC_equatorward_edge",
+                        "symbol": "HLINE_ROUND_DOWN_GREEN",
+                        "options": {"scale": 0.6},
+                        "title": "Equatorward edge of the SSFAC boundary",
+                        "filter": {"PointType": 0}
+                    },
+                    {
+                        "selected": true,
+                        "tag": "PPI_FAC_SSFAC_poleward_edge",
+                        "symbol": "HLINE_ROUND_UP_GREEN",
+                        "options": {"scale": 0.6},
+                        "title": "Poleward edge of the SSFAC boundary",
+                        "filter": {"PointType": 1}
+                    }
+                ]
+            },
+            "parameters": {
+                "PPI": {
+                    "range": [0, 10],
+                    "selected": true,
+                    "colorscale": "viridis",
+                    "uom": "R_E",
+                    "name": "Midnight plasmapause index"
+                },
+                "Fieldlines":{
+                    "range": [0, 0],
+                    "uom":"nT",
+                    "name": "Fieldlines",
+                    "type": "data-fieldlines",
+                    "description": "Fieldlines are calculated from the PP locations using the currently selected magnetic model.",
+                    "colorscale": "blackwhite"
+                }
+            },
+            "download_parameters": {
+                "Counter": {
+                    "uom": null,
+                    "name": "Swarm orbit and quarter orbit counters"
+                },
+                "Timestamp": {
+                    "uom": null,
+                    "name": "UTC time of the SSFAC boundary"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "ITRF geocentric latitude of the SSFAC boundary"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "ITRF geocentric longitude of the SSFAC boundary"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "ITRF geocentric radius of the SSFAC boundary"
+                },
+                "Latitude_QD": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole latitude of the SSFAC boundary"
+                },
+                "Longitude_QD": {
+                    "uom": "deg",
+                    "name": "Quasi-dipole longitude of the SSFAC boundary"
+                },
+                "MLT_QD": {
+                    "uom": "hour",
+                    "name": "Magnetic local time (QD) of the SSFAC boundary"
+                },
+                "L_value": {
+                    "uom": null,
+                    "name": "L-value in earth radii of the SSFAC boundary"
+                },
+                "SZA": {
+                    "uom": "deg",
+                    "name": "Solar zenith angle of the SSFAC boundary"
+                },
+                "Sigma": {
+                    "uom": null,
+                    "name": "Standard deviation of the linear fit of S at the boundary"
+                },
+                "PPI": {
+                    "uom": "R_E",
+                    "name": "Midnight plasmapause index"
+                },
+                "dL": {
+                    "uom": "deg",
+                    "name": "Boundary width in Earth radii"
+                },
+                "Quality": {
+                    "uom": null,
+                    "name": "Quality indicators of SSFAC boundary detection"
                 }
             }
         }
@@ -3945,6 +4459,342 @@
             "outlines": false,
             "satellite": "Upload"
         }, {
+            "name": "MIT A LP 2F",
+            "type": "SW_MITx_LP_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#645600",
+            "views": [{
+                "id": "SW_OPER_MITA_LP_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_MITA_LP_2F",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "doNotLoadAsPrimary": false,
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_MITA_LP_2F"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "MIT B LP 2F",
+            "type": "SW_MITx_LP_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#645600",
+            "views": [{
+                "id": "SW_OPER_MITB_LP_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_MITB_LP_2F",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "doNotLoadAsPrimary": false,
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_MITB_LP_2F"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "MIT C LP 2F",
+            "type": "SW_MITx_LP_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#645600",
+            "views": [{
+                "id": "SW_OPER_MITC_LP_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_MITC_LP_2F",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "doNotLoadAsPrimary": false,
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_MITC_LP_2F"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "MIT U LP 2F",
+            "type": "SW_MITx_LP_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#145600",
+            "views": [{
+                "id": "SW_OPER_MITU_LP_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_MITU_LP_2F"
+            },
+            "processes" : [
+                {
+                    "doNotLoadAsPrimary": false,
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "download_parameters": {},
+            "outlines": false,
+            "satellite": "Upload"
+        }, {
+            "name": "MIT A TEC 2F",
+            "type": "SW_MITxTEC_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#645600",
+            "views": [{
+                "id": "SW_OPER_MITATEC_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_MITATEC_2F",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "doNotLoadAsPrimary": false,
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_MITATEC_2F"
+                }
+            ],
+            "outlines": false
+        },{
+            "name": "MIT B TEC 2F",
+            "type": "SW_MITxTEC_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#645600",
+            "views": [{
+                "id": "SW_OPER_MITBTEC_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_MITBTEC_2F",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "doNotLoadAsPrimary": false,
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_MITBTEC_2F"
+                }
+            ],
+            "outlines": false
+        },{
+            "name": "MIT C TEC 2F",
+            "type": "SW_MITxTEC_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#645600",
+            "views": [{
+                "id": "SW_OPER_MITCTEC_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_MITCTEC_2F",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "doNotLoadAsPrimary": false,
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_MITCTEC_2F"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "MIT U TEC 2F",
+            "type": "SW_MITxTEC_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#145600",
+            "views": [{
+                "id": "SW_OPER_MITUTEC_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_MITUTEC_2F"
+            },
+            "processes" : [
+                {
+                    "doNotLoadAsPrimary": false,
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "download_parameters": {},
+            "outlines": false,
+            "satellite": "Upload"
+        },{
+            "name": "PPI A FAC 2F",
+            "type": "SW_PPIxFAC_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#241620",
+            "views": [{
+                "id": "SW_OPER_PPIAFAC_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_PPIAFAC_2F",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "doNotLoadAsPrimary": false,
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_PPIAFAC_2F"
+                }
+            ],
+            "outlines": false
+        },{
+            "name": "PPI B FAC 2F",
+            "type": "SW_PPIxFAC_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#241620",
+            "views": [{
+                "id": "SW_OPER_PPIBFAC_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_PPIBFAC_2F",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "doNotLoadAsPrimary": false,
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_PPIBFAC_2F"
+                }
+            ],
+            "outlines": false
+        },{
+            "name": "PPI C FAC 2F",
+            "type": "SW_PPIxFAC_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#241620",
+            "views": [{
+                "id": "SW_OPER_PPICFAC_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_PPICFAC_2F",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "doNotLoadAsPrimary": false,
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_PPICFAC_2F"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "PPI U FAC 2F",
+            "type": "SW_PPIxFAC_2F",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#145600",
+            "views": [{
+                "id": "SW_OPER_PPIUFAC_2F",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_PPIUFAC_2F"
+            },
+            "processes" : [
+                {
+                    "doNotLoadAsPrimary": false,
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "download_parameters": {},
+            "outlines": false,
+            "satellite": "Upload"
+        }, {
             "name": "Magnetic Model",
             "visible": false,
             "timeSlider": true,
@@ -4013,6 +4863,7 @@
                     "range": [1, 40000],
                     "uom":"nT",
                     "name": "Fieldlines",
+                    "type": "aoi-fieldlines",
                     "description": "In order to visualize fieldlines please select an area with the bounding box tool. Click on a fieldline to display additional information.",
                     "colorscale": "jet",
                     "logarithmic": true
@@ -4231,13 +5082,27 @@
         },
         {
             "name": "Satellite Orbit",
-            "visible": false,
+            "visible": true,
             "view":{
                 "id": "satellite_orbit",
                 "protocol": "WPS",
                 "url": "/ows",
                 "style": "default",
-                "format": "image/png"
+                "format": "image/png",
+                "spacecrafts": {
+                    "Alpha": {
+                      "collection": "SW_OPER_MODA_SC_1B+SW_FAST_MODA_SC_1B",
+                      "color": "#3333cc"
+                    },
+                    "Bravo": {
+                      "collection": "SW_OPER_MODB_SC_1B+SW_FAST_MODB_SC_1B",
+                      "color": "#cc3333"
+                    },
+                    "Charlie": {
+                      "collection": "SW_OPER_MODC_SC_1B+SW_FAST_MODC_SC_1B",
+                      "color": "#33cc33"
+                    }
+                }
             }
         }]
     },
