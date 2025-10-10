@@ -69,6 +69,7 @@ define(['backbone.marionette',
       "periodic": {"period": 360, "offset": 0, "specialTicks": true}
     },
     "SunAzimuthAngle": {
+      "periodic": {"period": 360, "offset": -180},
       "uom": "deg",
       "name": "Local Sun azimuth angle"
     },
@@ -77,6 +78,7 @@ define(['backbone.marionette',
       "name": "Local Sun zenith angle"
     },
     "SunHourAngle": {
+      "periodic": {"period": 360, "offset": -180},
       "uom": "deg",
       "name": "Local Sun hour angle"
     },
@@ -85,6 +87,7 @@ define(['backbone.marionette',
       "name": "Sun declination"
     },
     "SunRightAscension": {
+      "periodic": {"period": 360, "offset": 0},
       "uom": "deg",
       "name": "Sun right ascension"
     },
