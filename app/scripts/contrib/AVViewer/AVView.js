@@ -741,7 +741,7 @@ define(['backbone.marionette',
                   style: {
                     symbol: 'triangle_down_empty',
                     size: 15,
-                    color: [0.8, 0, 0, 0.8],
+                    color: [0, 0, 0.8, 0.8],
                   }
                 }
               ]
@@ -761,7 +761,7 @@ define(['backbone.marionette',
                   style: {
                     symbol: 'triangle_up_empty',
                     size: 15,
-                    color: [0, 0, 0.8, 0.8],
+                    color: [0.8, 0, 0, 0.8],
                   }
                 },
               ]

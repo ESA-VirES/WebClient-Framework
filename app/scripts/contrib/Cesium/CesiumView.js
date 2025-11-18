@@ -50,9 +50,9 @@ define([
 
   var COLORS = {
     black: 'black',
-    red: 'maroon',
-    green: 'rgb(0,64,0)',
-    blue: 'rgb(0,0,128)',
+    red: 'rgb(197,0,0)',
+    green: 'rgb(0,128,0)',
+    blue: 'rgb(0,0,197)',
   };
 
   var SYMBOLS = new (function () {
