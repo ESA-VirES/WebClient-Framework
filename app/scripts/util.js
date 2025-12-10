@@ -270,42 +270,47 @@ var showMessage = function (level, message, timeout, additionalClasses) {
 
 
 var saveProductStatus = function (product) {
-  var prevConf = JSON.parse(
-    localStorage.getItem('productsConfiguration')
-  );
-  if (prevConf === null) {
-    prevConf = {};
-  }
-  var prdId = product.get('download').id;
-  var origPars = product.get('parameters');
-  var prodParams = {};
+  var configuration = JSON.parse(localStorage.getItem('productsConfiguration')) || {};
 
-  for (var pk in origPars) {
-    prodParams[pk] = {
-      range: origPars[pk].range,
-      colorscale: origPars[pk].colorscale,
+  var savedParameters = {};
+  _.each(product.get('parameters'), function (parameter, key) {
+    savedParameters[key] = {
+      range: parameter.range,
+      colorscale: parameter.colorscale,
     };
-    if (origPars[pk].selected) {
-      prodParams[pk]['selected'] = true;
+    if (parameter.selected) {
+      savedParameters[key].selected = true;
     }
-  }
+  })
 
-  var prod = {
+  var savedProduct = {
     visible: product.get('visible'),
     outlines: product.get('outlines'),
     opacity: product.get('opacity'),
-    parameters: prodParams
-
+    parameters: savedParameters
   };
 
-  // Save additional information for model product
-  if (product.attributes.hasOwnProperty('components')) {
-    prod.components = product.get('components');
+  // save selected magnetic model components
+  if (has(product.attributes, 'components')) {
+    savedProduct.components = product.get('components');
   }
 
-  prevConf[prdId] = prod;
+  // save selected overlay symbols
+  if (has(product.attributes, 'symbols')) {
+    var symbolStates = {};
+    _.each(product.get('symbols'), function (symbols, productTag) {
+        var symbolState = {};
+        _.each(symbols, function (symbol) {
+          symbolState[symbol.tag] = symbol.selected == null ? true : symbol.selected;
+        });
+        symbolStates[productTag] = symbolState;
+    })
+    savedProduct.symbols = symbolStates;
+  }
 
-  localStorage.setItem('productsConfiguration', JSON.stringify(prevConf));
+  configuration[product.get('download').id] = savedProduct;
+
+  localStorage.setItem('productsConfiguration', JSON.stringify(configuration));
 };
 
 

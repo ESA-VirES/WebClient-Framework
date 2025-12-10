@@ -1,3 +1,5 @@
+/* global _ */
+
 (function () {
   'use strict';
 
@@ -119,35 +121,19 @@
         }
         globals.swarm.activeProducts = [];
         filteredCollection.forEach(function (p) {
-          if (p.get('containerproduct')) {
-            if (p.get('visible')) {
-              if (globals.swarm.satellites['Alpha']) {
-                if (globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Alpha']) === -1) {
-                  globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Alpha']);
-                }
-              }
-              if (globals.swarm.satellites['Bravo']) {
-                if (globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Bravo']) === -1) {
-                  globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Bravo']);
-                }
-              }
-              if (globals.swarm.satellites['Charlie']) {
-                if (globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Charlie']) === -1) {
-                  globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Charlie']);
-                }
-              }
-              if (globals.swarm.satellites['NSC']) {
-                if (globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['NSC']) === -1) {
-                  globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['NSC']);
-                }
-              }
-              if (globals.swarm.satellites['Upload']) {
-                if (globals.swarm.activeProducts.indexOf(globals.swarm.products[p.get('id')]['Upload']) === -1) {
-                  globals.swarm.activeProducts.push(globals.swarm.products[p.get('id')]['Upload']);
-                }
+          if (!p.get('containerproduct') || !p.get('visible')) return;
+          var productId = p.get('id');
+          _.each(
+            ['Alpha', 'Alpha', 'Bravo', 'Charlie', 'NSC', 'Upload'],
+            function (source) {
+              if (!globals.swarm.satellites[source]) return;
+              var product = globals.swarm.products[productId][source];
+              var activeProducts = globals.swarm.activeProducts;
+              if (!_.contains(activeProducts, product)) {
+                activeProducts.push(product);
               }
             }
-          }
+          );
         });
 
         for (var i = globals.swarm.activeProducts.length - 1; i >= 0; i--) {
