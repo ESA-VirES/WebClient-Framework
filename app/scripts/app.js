@@ -26,7 +26,7 @@ var TIMESTAMP = 'Timestamp';
 
 // parameters displayed by Cesium as scalars
 var SCALAR_PARAM = [
-  "F", "Flags_F", "Flags_B", "Ne", "Te", "Vs", "U_orbit",
+  "F", "Flags_F", "Flags_B", "N_ion", "N_elec", "T_elec", "Ne", "Te", "Vs", "U_orbit",
   "Bubble_Index", "Bubble_Probability", "Flags_Bubble", "IRC", "FAC", "EEF",
   "Background_Ne", "Foreground_Ne", "PCP_flag", "Grad_Ne_at_100km", "Grad_Ne_at_50km",
   "Grad_Ne_at_20km", "Grad_Ne_at_PCP_edge", "ROD", "RODI10s", "RODI20s", "delta_Ne10s",
@@ -78,7 +78,8 @@ var REVERSE_DERIVED_PARAMETERS = {};
 // needs to be first as the master product needs to be the same
 var MASTER_PRIORITY = [
   'SW_OPER_FACATMS_2F+SW_FAST_FACATMS_2F', 'SW_OPER_FACBTMS_2F+SW_FAST_FACBTMS_2F', 'SW_OPER_FACCTMS_2F+SW_FAST_FACCTMS_2F', 'SW_OPER_FAC_TMS_2F', 'SW_OPER_FACUTMS_2F',
-  'SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B', 'SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B', 'SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B', 'SW_OPER_EFIU_LP_1B',
+  //'SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B', 'SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B', 'SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B', 'SW_OPER_EFIU_LP_1B',
+  'SW_OPER_EFIA_LP_1B', 'SW_OPER_EFIB_LP_1B', 'SW_OPER_EFIC_LP_1B', 'SW_OPER_EFIU_LP_1B',
   'SW_OPER_EFIATIE_2_', 'SW_OPER_EFIBTIE_2_', 'SW_OPER_EFICTIE_2_', 'SW_OPER_EFIUTIE_2_',
   'SW_PREL_EFIAIDM_2_', 'SW_PREL_EFIBIDM_2_', 'SW_PREL_EFICIDM_2_', 'SW_PREL_EFIUIDM_2_',
   'SW_EXPT_EFIA_TCT02', 'SW_EXPT_EFIB_TCT02', 'SW_EXPT_EFIC_TCT02', 'SW_EXPT_EFIC_TCT02',
@@ -641,7 +642,8 @@ var RELATED_VARIABLES = {
               "SW_OPER_MAGA_LR_1B": "SW_OPER_MAGA_LR_1B+SW_FAST_MAGA_LR_1B",
               "SW_OPER_MAGB_LR_1B": "SW_OPER_MAGB_LR_1B+SW_FAST_MAGB_LR_1B",
               "SW_OPER_MAGC_LR_1B": "SW_OPER_MAGC_LR_1B+SW_FAST_MAGC_LR_1B",
-              "SW_OPER_EFIA_LP_1B": "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B",
+              //"SW_OPER_EFIA_LP_1B": "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B",
+              "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B": "SW_OPER_EFIA_LP_1B",
               "SW_OPER_EFIB_LP_1B": "SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B",
               "SW_OPER_EFIC_LP_1B": "SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B",
               "SW_OPER_FACATMS_2F": "SW_OPER_FACATMS_2F+SW_FAST_FACATMS_2F",
@@ -945,9 +947,12 @@ var RELATED_VARIABLES = {
             "Upload": "SW_OPER_MAGU_LR_1B",
           },
           "EFI": {
-            "Alpha": "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B",
-            "Bravo": "SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B",
-            "Charlie": "SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B",
+            //"Alpha": "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B",
+            //"Bravo": "SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B",
+            //"Charlie": "SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B",
+            "Alpha": "SW_OPER_EFIA_LP_1B",
+            "Bravo": "SW_OPER_EFIB_LP_1B",
+            "Charlie": "SW_OPER_EFIC_LP_1B",
             "Upload": "SW_OPER_EFIU_LP_1B",
           },
           "EFI_TIE": {
