@@ -734,7 +734,7 @@ define(['backbone.marionette',
           case 'MIT_LP':
             overlaySettings[key] = {
               keyParameter: 'Latitude',
-              displayParameters: ['Latitude', 'Longitude', 'MLT', 'QDLat', 'QDLatitude_periodic', 'QDLon', 'Ne', 'Te'],
+              displayParameters: ['Latitude', 'Longitude', 'MLT', 'QDLat', 'QDLatitude_periodic', 'QDLon', 'Ne', 'Te', 'N_ion', 'N_elec', 'T_elec'],
               typeDefinition: [
                 {
                   name: "MIT Ne minimum",
@@ -751,7 +751,7 @@ define(['backbone.marionette',
           case 'MIT_LP:ID':
             overlaySettings[key] = {
               keyParameter: 'PointType',
-              displayParameters: ['Latitude', 'Longitude', 'MLT', 'QDLat', 'QDLatitude_periodic', 'QDLon', 'Ne', 'Te'],
+              displayParameters: ['Latitude', 'Longitude', 'MLT', 'QDLat', 'QDLatitude_periodic', 'QDLon', 'Ne', 'Te', 'N_ion', 'N_elec', 'T_elec'],
               typeDefinition: [
                 {
                   match: function (value) {
