@@ -746,7 +746,7 @@ define(['backbone.marionette',
           case 'MIT_LP':
             overlaySettings[key] = {
               keyParameter: 'Latitude',
-              displayParameters: ['Latitude', 'Longitude', 'MLT', 'QDLat', 'QDLatitude_periodic', 'QDLon', 'Ne', 'Te'],
+              displayParameters: ['Latitude', 'Longitude', 'MLT', 'QDLat', 'QDLatitude_periodic', 'QDLon', 'Ne', 'Te', 'N_ion', 'N_elec', 'T_elec'],
               typeDefinition: [
                 {
                   name: "MIT Ne minimum",
@@ -763,7 +763,7 @@ define(['backbone.marionette',
           case 'MIT_LP:ID':
             overlaySettings[key] = {
               keyParameter: 'PointType',
-              displayParameters: ['Latitude', 'Longitude', 'MLT', 'QDLat', 'QDLatitude_periodic', 'QDLon', 'Ne', 'Te'],
+              displayParameters: ['Latitude', 'Longitude', 'MLT', 'QDLat', 'QDLatitude_periodic', 'QDLon', 'Ne', 'Te', 'N_ion', 'N_elec', 'T_elec'],
               typeDefinition: [
                 {
                   match: function (value) {
@@ -1262,7 +1262,7 @@ define(['backbone.marionette',
         // Define which parameters should be selected defaultwise as filtering
         var requiredFilters = [
           'DataSource', 'Flags_F', 'Flags_B',
-          'Ne', 'Te', 'Bubble_Probability', 'Flags_Bubble',
+          'N_ion', 'T_elec', 'Ne', 'Te', 'Bubble_Probability', 'Flags_Bubble',
           'Relative_STEC_RMS', 'Relative_STEC', 'Absolute_STEC',
           'Absolute_VTEC', 'Elevation_Angle',
           'IRC', 'FAC',
@@ -1302,6 +1302,7 @@ define(['backbone.marionette',
         // If previous does not contain key data and new one
         // does we add key parameter to selection in plot
         var parasToCheck = [
+          'N_ion', 'T_elec',
           'Ne', 'Te', 'F', 'Bubble_Probability', 'Absolute_STEC',
           'FAC', 'EEF', 'J_QD', 'J_DF_SemiQD', 'J_CF_SemiQD',
           'Pair_Indicator',

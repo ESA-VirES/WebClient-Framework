@@ -497,14 +497,21 @@
         "SW_EFIx_LP_1B": {
             "satellite": "Swarm",
             "parameters": {
-                "Ne": {
+                "N_ion": {
                     "range": [100000, 200000],
                     "uom":"cm -3",
                     "colorscale": "plasma",
                     "selected": true,
-                    "name": "Plasma density"
+                    "name": "Plasma density estimated from ion current"
                 },
-                "Te": {
+                "N_elec": {
+                    "range": [100000, 200000],
+                    "uom":"cm -3",
+                    "colorscale": "plasma",
+                    "selected": true,
+                    "name": "Plasma density estimated from electron current"
+                },
+                "T_elec": {
                     "range": [1000, 5000],
                     "uom":"K",
                     "colorscale": "portland",
@@ -521,18 +528,6 @@
                     "uom": "m/s",
                     "colorscale": "jet",
                     "name": "Spacecraft velocity in the ITRF"
-                },
-                "DataSource": {
-                    "range": [0, 1],
-                    "uom": null,
-                    "colorscale": "plasma",
-                    "name": "Data source flag",
-                    "hidden": true,
-                    "bitmask": {
-                        "flags": [
-                            ["FAST", "Set for Swarm FAST data / unset for Swarm OPER data"]
-                        ]
-                    }
                 }
             },
             "download_parameters": {
@@ -560,21 +555,37 @@
                     "uom": "m/s",
                     "name": "Spacecraft velocity in the ITRF"
                 },
-                "Ne": {
+                "N_ion": {
                     "uom": "cm -3",
-                    "name": "Plasma density (electron)"
+                    "name": "Plasma density estimated from ion current"
                 },
-                "Ne_error": {
+                "dN_ion": {
                     "uom": "cm -3",
-                    "name": "Error estimate of plasma density (Ne)"
+                    "name": "Suggested calibration correction of N_ion"
                 },
-                "Te": {
+                "N_ion_error": {
+                    "uom": "cm -3",
+                    "name": "Statistical error of the ion density estimate"
+                },
+                "N_elec": {
+                    "uom": "cm -3",
+                    "name": "Plasma density estimated from electron current"
+                },
+                "N_elec_error": {
+                    "uom": "cm -3",
+                    "name": "Statistical error of the electron density estimate"
+                },
+                "T_elec": {
                     "uom": "K",
                     "name": "Plasma electron temperature"
                 },
-                "Te_error": {
+                "dT_elec": {
                     "uom": "K",
-                    "name": "Error estimate of plasma electron temperature (Te)"
+                    "name": "Suggested calibration correction of T_elec"
+                },
+                "T_elec_error": {
+                    "uom": "K",
+                    "name": "Error estimate of plasma electron temperature"
                 },
                 "Vs": {
                     "uom": "V",
@@ -582,23 +593,43 @@
                 },
                 "Vs_error": {
                     "uom": "V",
-                    "name": "Error estimate of spacecraft potential (Vs)"
+                    "name": "Error estimate of spacecraft potential"
                 },
                 "Flags_LP": {
                     "uom": null,
-                    "name": "Flags indicating the source/method of LP measurements (Ne, Te, Vs)"
+                    "name": "Flags indicating the source/method of LP measurements"
                 },
-                "Flags_Ne": {
+                "Flags_N_ion": {
                     "uom": null,
-                    "name": "Flags characterizing the plasma density (Ne) measurement"
+                    "name": "Flags characterizing the ion density estimate"
                 },
-                "Flags_Te": {
+                "Flags_N_elec": {
                     "uom": null,
-                    "name": "Flags characterizing the electron temperature (Te) measurement"
+                    "name": "Flags characterizing the electron density estimate"
+                },
+                "Flags_T_elec": {
+                    "uom": null,
+                    "name": "Flags characterizing the electron temperature measurement"
                 },
                 "Flags_Vs": {
                     "uom": null,
-                    "name": "Flags characterizing the spacecraft potential (Vs) measurement"
+                    "name": "Flags characterizing the spacecraft potential measurement"
+                },
+                "Gamma1": {
+                    "uom": "deg",
+                    "name": "Sun inclination angle related to right-side solar-panel normal angle"
+                },
+                "Gamma2": {
+                    "uom": "deg",
+                    "name": "Sun inclination angle related to left-side solar-panel normal angle"
+                },
+                "Flagbits1": {
+                    "uom": null,
+                    "name": "Detailed indication of the source and anomalies"
+                },
+                "Flagbits2": {
+                    "uom": null,
+                    "name": "Detailed indication of the source and anomalies"
                 },
                 "QDLat": {
                     "uom": "deg",
@@ -643,10 +674,6 @@
                 "QDOrbitDirection": {
                     "uom": null,
                     "name": "Orbit direction in quasi-dipole coordinates."
-                },
-                "DataSource": {
-                    "uom": null,
-                    "name": "Data source flag (0 - OPER, 1 - FAST)."
                 }
             }
         },
@@ -3232,7 +3259,7 @@
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
             "views": [{
-                "id": "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B",
+                "id": "SW_OPER_EFIA_LP_1B",
                 "protocol": "CZML",
                 "urls": [
                     "/ows"
@@ -3241,14 +3268,14 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B",
+                "id": "SW_OPER_EFIA_LP_1B",
                 "protocol": "EOWCS",
                 "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B"
+                    "layer_id": "SW_OPER_EFIA_LP_1B"
                 }
             ],
             "outlines": false
@@ -3259,7 +3286,7 @@
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
             "views": [{
-                "id": "SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B",
+                "id": "SW_OPER_EFIB_LP_1B",
                 "protocol": "CZML",
                 "urls": [
                     "/ows"
@@ -3268,14 +3295,14 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B",
+                "id": "SW_OPER_EFIB_LP_1B",
                 "protocol": "EOWCS",
                 "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B"
+                    "layer_id": "SW_OPER_EFIB_LP_1B"
                 }
             ],
             "outlines": false
@@ -3286,7 +3313,7 @@
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
             "views": [{
-                "id": "SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B",
+                "id": "SW_OPER_EFIC_LP_1B",
                 "protocol": "CZML",
                 "urls": [
                     "/ows"
@@ -3295,14 +3322,14 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B",
+                "id": "SW_OPER_EFIC_LP_1B",
                 "protocol": "EOWCS",
                 "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B"
+                    "layer_id": "SW_OPER_EFIC_LP_1B"
                 }
             ],
             "outlines": false
