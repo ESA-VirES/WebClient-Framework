@@ -528,6 +528,18 @@
                     "uom": "m/s",
                     "colorscale": "jet",
                     "name": "Spacecraft velocity in the ITRF"
+                },
+                "DataSource": {
+                    "range": [0, 1],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "Data source flag",
+                    "hidden": true,
+                    "bitmask": {
+                        "flags": [
+                            ["FAST", "Set for Swarm FAST data / unset for Swarm OPER data"]
+                        ]
+                    }
                 }
             },
             "download_parameters": {
@@ -674,6 +686,10 @@
                 "QDOrbitDirection": {
                     "uom": null,
                     "name": "Orbit direction in quasi-dipole coordinates."
+                },
+                "DataSource": {
+                    "uom": null,
+                    "name": "Data source flag (0 - OPER, 1 - FAST)."
                 }
             }
         },
@@ -3259,7 +3275,7 @@
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
             "views": [{
-                "id": "SW_OPER_EFIA_LP_1B",
+                "id": "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B",
                 "protocol": "CZML",
                 "urls": [
                     "/ows"
@@ -3268,14 +3284,14 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_EFIA_LP_1B",
+                "id": "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B",
                 "protocol": "EOWCS",
                 "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_EFIA_LP_1B"
+                    "layer_id": "SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B"
                 }
             ],
             "outlines": false
@@ -3286,7 +3302,7 @@
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
             "views": [{
-                "id": "SW_OPER_EFIB_LP_1B",
+                "id": "SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B",
                 "protocol": "CZML",
                 "urls": [
                     "/ows"
@@ -3295,14 +3311,14 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_EFIB_LP_1B",
+                "id": "SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B",
                 "protocol": "EOWCS",
                 "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_EFIB_LP_1B"
+                    "layer_id": "SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B"
                 }
             ],
             "outlines": false
@@ -3313,7 +3329,7 @@
             "timeSliderProtocol": "WPS",
             "color": "#ff7f0e",
             "views": [{
-                "id": "SW_OPER_EFIC_LP_1B",
+                "id": "SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B",
                 "protocol": "CZML",
                 "urls": [
                     "/ows"
@@ -3322,14 +3338,14 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_EFIC_LP_1B",
+                "id": "SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B",
                 "protocol": "EOWCS",
                 "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_EFIC_LP_1B"
+                    "layer_id": "SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B"
                 }
             ],
             "outlines": false
