@@ -224,7 +224,7 @@ var RELATED_COLLECTIONS = {
   ],
   'SW_OPER_MITBTEC_2F': [
     {
-      collections: ['SW_OPER_MITBTEC_2F:ID'],
+      collections: ['SW_OPER_MITBTEC_2F'],
       type: 'MIT_TEC'
     },
     {
@@ -234,7 +234,7 @@ var RELATED_COLLECTIONS = {
   ],
   'SW_OPER_MITCTEC_2F': [
     {
-      collections: ['SW_OPER_MITCTEC_2F:ID'],
+      collections: ['SW_OPER_MITCTEC_2F'],
       type: 'MIT_TEC'
     },
     {
@@ -254,7 +254,7 @@ var RELATED_COLLECTIONS = {
   ],
   'SW_OPER_PPIBFAC_2F': [
     {
-      collections: ['SW_OPER_PPIBFAC_2F:ID'],
+      collections: ['SW_OPER_PPIBFAC_2F'],
       type: 'PPI_FAC'
     },
     {
@@ -264,7 +264,7 @@ var RELATED_COLLECTIONS = {
   ],
   'SW_OPER_PPICFAC_2F': [
     {
-      collections: ['SW_OPER_PPICFAC_2F:ID'],
+      collections: ['SW_OPER_PPICFAC_2F'],
       type: 'PPI_FAC'
     },
     {
