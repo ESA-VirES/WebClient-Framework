@@ -86,7 +86,7 @@ var MASTER_PRIORITY = [
   'SW_OPER_TECATMS_2F+SW_FAST_TECATMS_2F', 'SW_OPER_TECBTMS_2F+SW_FAST_TECBTMS_2F', 'SW_OPER_TECCTMS_2F+SW_FAST_TECCTMS_2F', 'SW_OPER_TECUTMS_2F',
   'SW_OPER_IBIATMS_2F', 'SW_OPER_IBIBTMS_2F', 'SW_OPER_IBICTMS_2F', 'SW_OPER_IBIUTMS_2F',
   'SW_OPER_AEJALPS_2F', 'SW_OPER_AEJBLPS_2F', 'SW_OPER_AEJCLPS_2F', 'SW_OPER_AEJULPS_2F',
-  'SW_OPER_AEJALPL_2F', 'SW_OPER_AEJBLPL_2F', 'SW_OPER_AEJCLPL_2F', 'SW_OPER_AEJULPL_2F',
+  'SW_OPER_AEJALPL_2F+SW_FAST_AEJALPL_2F', 'SW_OPER_AEJBLPL_2F+SW_FAST_AEJBLPL_2F', 'SW_OPER_AEJCLPL_2F+SW_FAST_AEJCLPL_2F', 'SW_OPER_AEJULPL_2F',
   'SW_OPER_MITA_LP_2F', 'SW_OPER_MITB_LP_2F', 'SW_OPER_MITC_LP_2F', 'SW_OPER_MITU_LP_2F',
   'SW_OPER_MITATEC_2F', 'SW_OPER_MITBTEC_2F', 'SW_OPER_MITCTEC_2F', 'SW_OPER_MITUTEC_2F',
   'SW_OPER_PPIAFAC_2F', 'SW_OPER_PPIBFAC_2F', 'SW_OPER_PPICFAC_2F', 'SW_OPER_PPIUFAC_2F',
@@ -140,45 +140,45 @@ var RELATED_COLLECTIONS = {
       type: 'AEJ_PBS:GroundMagneticDisturbance'
     }
   ],
-  'SW_OPER_AEJALPL_2F': [
+  'SW_OPER_AEJALPL_2F+SW_FAST_AEJALPL_2F': [
     {
-      timeSliderDataset: 'SW_OPER_AEJAPBL_2F',
-      collections: ['SW_OPER_AEJAPBL_2F'],
+      timeSliderDataset: 'SW_OPER_AEJAPBL_2F+SW_FAST_AEJAPBL_2F',
+      collections: ['SW_OPER_AEJAPBL_2F+SW_FAST_AEJAPBL_2F'],
       type: 'AEJ_PBL'
     }
   ],
-  'SW_OPER_AEJBLPL_2F': [
+  'SW_OPER_AEJBLPL_2F+SW_FAST_AEJBLPL_2F': [
     {
-      timeSliderDataset: 'SW_OPER_AEJBPBL_2F',
-      collections: ['SW_OPER_AEJBPBL_2F'],
+      timeSliderDataset: 'SW_OPER_AEJBPBL_2F+SW_FAST_AEJBPBL_2F',
+      collections: ['SW_OPER_AEJBPBL_2F+SW_FAST_AEJBPBL_2F'],
       type: 'AEJ_PBL'
     }
   ],
-  'SW_OPER_AEJCLPL_2F': [
+  'SW_OPER_AEJCLPL_2F+SW_FAST_AEJCLPL_2F': [
     {
-      timeSliderDataset: 'SW_OPER_AEJCPBL_2F',
-      collections: ['SW_OPER_AEJCPBL_2F'],
+      timeSliderDataset: 'SW_OPER_AEJCPBL_2F+SW_FAST_AEJCPBL_2F',
+      collections: ['SW_OPER_AEJCPBL_2F+SW_FAST_AEJCPBL_2F'],
       type: 'AEJ_PBL'
     }
   ],
   'SW_OPER_FACATMS_2F+SW_FAST_FACATMS_2F': [
     {
-      timeSliderDataset: 'SW_OPER_AOBAFAC_2F',
-      collections: ['SW_OPER_AOBAFAC_2F', 'SW_OPER_FACATMS_2F'],
+      timeSliderDataset: 'SW_OPER_AOBAFAC_2F+SW_FAST_AOBAFAC_2F',
+      collections: ['SW_OPER_AOBAFAC_2F+SW_FAST_AOBAFAC_2F', 'SW_OPER_FACATMS_2F+SW_FAST_FACATMS_2F'],
       type: 'AOB_FAC'
     }
   ],
   'SW_OPER_FACBTMS_2F+SW_FAST_FACBTMS_2F': [
     {
-      timeSliderDataset: 'SW_OPER_AOBBFAC_2F',
-      collections: ['SW_OPER_AOBBFAC_2F', 'SW_OPER_FACBTMS_2F'],
+      timeSliderDataset: 'SW_OPER_AOBBFAC_2F+SW_FAST_AOBBFAC_2F',
+      collections: ['SW_OPER_AOBBFAC_2F+SW_FAST_AOBBFAC_2F', 'SW_OPER_FACBTMS_2F+SW_FAST_FACBTMS_2F'],
       type: 'AOB_FAC'
     }
   ],
   'SW_OPER_FACCTMS_2F+SW_FAST_FACCTMS_2F': [
     {
-      timeSliderDataset: 'SW_OPER_AOBCFAC_2F',
-      collections: ['SW_OPER_AOBCFAC_2F', 'SW_OPER_FACCTMS_2F'],
+      timeSliderDataset: 'SW_OPER_AOBCFAC_2F+SW_FAST_AOBCFAC_2F',
+      collections: ['SW_OPER_AOBCFAC_2F+SW_FAST_AOBCFAC_2F', 'SW_OPER_FACCTMS_2F+SW_FAST_FACCTMS_2F'],
       type: 'AOB_FAC'
     }
   ],
@@ -647,6 +647,9 @@ var RELATED_VARIABLES = {
               "SW_OPER_FACATMS_2F": "SW_OPER_FACATMS_2F+SW_FAST_FACATMS_2F",
               "SW_OPER_FACBTMS_2F": "SW_OPER_FACBTMS_2F+SW_FAST_FACBTMS_2F",
               "SW_OPER_FACCTMS_2F": "SW_OPER_FACCTMS_2F+SW_FAST_FACCTMS_2F",
+              "SW_OPER_AEJALPL_2F": "SW_OPER_AEJALPL_2F+SW_FAST_AEJALPL_2F",
+              "SW_OPER_AEJBLPL_2F": "SW_OPER_AEJBLPL_2F+SW_FAST_AEJBLPL_2F",
+              "SW_OPER_AEJCLPL_2F": "SW_OPER_AEJCLPL_2F+SW_FAST_AEJCLPL_2F",
             },
             function (dstName, srcName) {
               if (has(productConfiguration, srcName)) {
@@ -1000,9 +1003,9 @@ var RELATED_VARIABLES = {
             "Upload": "SW_OPER_IPDUIRR_2F",
           },
           "AEJ_LPL": {
-            "Alpha": "SW_OPER_AEJALPL_2F",
-            "Bravo": "SW_OPER_AEJBLPL_2F",
-            "Charlie": "SW_OPER_AEJCLPL_2F",
+            "Alpha": "SW_OPER_AEJALPL_2F+SW_FAST_AEJALPL_2F",
+            "Bravo": "SW_OPER_AEJBLPL_2F+SW_FAST_AEJBLPL_2F",
+            "Charlie": "SW_OPER_AEJCLPL_2F+SW_FAST_AEJCLPL_2F",
             "Upload": "SW_OPER_AEJULPL_2F",
           },
           "AEJ_LPS": {
