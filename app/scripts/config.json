@@ -2493,6 +2493,18 @@
                     "uom": "A/km",
                     "name": "Horizontal sheet current density (QD eastward)",
                     "relatedVector": "J_NE"
+                },
+                "DataSource": {
+                    "range": [0, 1],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "Data source flag",
+                    "hidden": true,
+                    "bitmask": {
+                        "flags": [
+                            ["FAST", "Set for Swarm FAST data / unset for Swarm OPER data"]
+                        ]
+                    }
                 }
             },
             "download_parameters": {
@@ -2520,6 +2532,10 @@
                 "J_QD": {
                     "uom": "A/km",
                     "name": "Horizontal sheet current density (QD frame, east component)"
+                },
+                "DataSource": {
+                    "uom": null,
+                    "name": "Data source flag (0 - OPER, 1 - FAST)."
                 }
             }
         },
@@ -4287,7 +4303,7 @@
             "timeSliderWpsProcessName": "retrieve_continuous_segments",
             "color": "#024573",
             "views": [{
-                "id": "SW_OPER_AEJALPL_2F",
+                "id": "SW_OPER_AEJALPL_2F+SW_FAST_AEJALPL_2F",
                 "protocol": "CZML",
                 "urls": [
                     "/ows"
@@ -4296,14 +4312,14 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_AEJALPL_2F",
+                "id": "SW_OPER_AEJALPL_2F+SW_FAST_AEJALPL_2F",
                 "protocol": "EOWCS",
                 "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_AEJALPL_2F"
+                    "layer_id": "SW_OPER_AEJALPL_2F+SW_FAST_AEJALPL_2F"
                 }
             ],
             "outlines": false
@@ -4315,7 +4331,7 @@
             "timeSliderWpsProcessName": "retrieve_continuous_segments",
             "color": "#024573",
             "views": [{
-                "id": "SW_OPER_AEJBLPL_2F",
+                "id": "SW_OPER_AEJBLPL_2F+SW_FAST_AEJBLPL_2F",
                 "protocol": "CZML",
                 "urls": [
                     "/ows"
@@ -4324,14 +4340,14 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_AEJBLPL_2F",
+                "id": "SW_OPER_AEJBLPL_2F+SW_FAST_AEJBLPL_2F",
                 "protocol": "EOWCS",
                 "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_AEJBLPL_2F"
+                    "layer_id": "SW_OPER_AEJBLPL_2F+SW_FAST_AEJBLPL_2F"
                 }
             ],
             "outlines": false
@@ -4343,7 +4359,7 @@
             "timeSliderWpsProcessName": "retrieve_continuous_segments",
             "color": "#024573",
             "views": [{
-                "id": "SW_OPER_AEJCLPL_2F",
+                "id": "SW_OPER_AEJCLPL_2F+SW_FAST_AEJCLPL_2F",
                 "protocol": "CZML",
                 "urls": [
                     "/ows"
@@ -4352,14 +4368,14 @@
                 "format": "image/png"
             }],
             "download": {
-                "id": "SW_OPER_AEJCLPL_2F",
+                "id": "SW_OPER_AEJCLPL_2F+SW_FAST_AEJCLPL_2F",
                 "protocol": "EOWCS",
                 "url": "/ows"
             },
             "processes" : [
                 {
                     "id": "retrieve_data",
-                    "layer_id": "SW_OPER_AEJCLPL_2F"
+                    "layer_id": "SW_OPER_AEJCLPL_2F+SW_FAST_AEJCLPL_2F"
                 }
             ],
             "outlines": false

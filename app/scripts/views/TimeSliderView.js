@@ -418,7 +418,7 @@
 
                     var extAtt = {
                       wpsProcessName: "getTimeData",
-                      id: auxId,
+                      id: encodeURIComponent(auxId),
                       url: product.get('download').url
                     };
                     this.slider.addDataset({
