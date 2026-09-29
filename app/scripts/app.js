@@ -43,6 +43,8 @@ var SCALAR_PARAM = [
   "TEC",
   // PPI FAC
   "PPI",
+  // STR EPF,
+  "EPF", "EPD",
 ];
 
 // parameters displayed by Cesium as vectors by Cesium (note that some of them
@@ -77,6 +79,7 @@ var REVERSE_DERIVED_PARAMETERS = {};
 // Ordered from highest resolution to lowest with the exception of FAC that
 // needs to be first as the master product needs to be the same
 var MASTER_PRIORITY = [
+  'SW_OPER_STRAEPF_1B+SW_FAST_STRAEPF_1B:flattened', 'SW_OPER_STRBEPF_1B+SW_FAST_STRBEPF_1B:flattened', 'SW_OPER_STRCEPF_1B+SW_FAST_STRCEPF_1B:flattened', 'SW_OPER_STRUEPF_1B:flattened',
   'SW_OPER_FACATMS_2F+SW_FAST_FACATMS_2F', 'SW_OPER_FACBTMS_2F+SW_FAST_FACBTMS_2F', 'SW_OPER_FACCTMS_2F+SW_FAST_FACCTMS_2F', 'SW_OPER_FAC_TMS_2F', 'SW_OPER_FACUTMS_2F',
   'SW_OPER_EFIA_LP_1B+SW_FAST_EFIA_LP_1B', 'SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B', 'SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B', 'SW_OPER_EFIU_LP_1B',
   'SW_OPER_EFIATIE_2_', 'SW_OPER_EFIBTIE_2_', 'SW_OPER_EFICTIE_2_', 'SW_OPER_EFIUTIE_2_',
@@ -935,7 +938,7 @@ var RELATED_VARIABLES = {
         var filtered = globals.products.filter(function (product) {
           var id = product.get("download").id;
           return !(id && id.match(
-            /^SW_(OPER|FAST|PREL|EXPT)_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ|MIT|PPI)[ABCU_]/
+            /^SW_(OPER|FAST|PREL|EXPT)_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ|MIT|PPI|STR)[ABCU_]/
           ));
         });
 
@@ -1028,6 +1031,12 @@ var RELATED_VARIABLES = {
             "Alpha": "SW_OPER_PPIAFAC_2F",
             "Bravo": "SW_OPER_PPIBFAC_2F",
             "Charlie": "SW_OPER_PPICFAC_2F",
+          },
+          "STR_EPF": {
+            "Alpha": "SW_OPER_STRAEPF_1B+SW_FAST_STRAEPF_1B:flattened",
+            "Bravo": "SW_OPER_STRBEPF_1B+SW_FAST_STRBEPF_1B:flattened",
+            "Charlie": "SW_OPER_STRCEPF_1B+SW_FAST_STRCEPF_1B:flattened",
+            "Upload": "SW_OPER_STRUEPF_1B:flattened",
           }
         };
 
@@ -1094,6 +1103,7 @@ var RELATED_VARIABLES = {
           'MIT_LP': false,
           'MIT_TEC': false,
           'PPI_FAC': false,
+          'STR_EPF': false,
         };
 
         var clickEvent = "require(['communicator'], function(Communicator){Communicator.mediator.trigger('application:reset');});";
@@ -1145,6 +1155,14 @@ var RELATED_VARIABLES = {
         }
 
         // Add generic product (which is container for A,B and C sats)
+        filtered_collection.add({
+          name: "Star Tracker Energetic Particle Flux - (STR EPF)",
+          visible: containerSelection['STR_EPF'],
+          color: "#a0d431",
+          protocol: null,
+          containerproduct: true,
+          id: "STR_EPF"
+        }, {at: 0});
         filtered_collection.add({
           name: "Midnight Plasmapause Index - (PPI FAC)",
           visible: containerSelection['PPI_FAC'],

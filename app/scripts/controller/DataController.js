@@ -457,6 +457,9 @@
           "Depth", "DR", "Width", "dL", "PW_Gradient", "EW_Gradient", "Quality",
           // PPI FAC also overlaps with MIT TEC params
           "Sigma", "PPI",
+          // STR EPF,
+          "EPF", "EPD", "T_CHU", "RA", "DEC", "EPD_T_corr", "EPD_Dens_corr",
+          "Flags_EPF", "SensorId",
         ];
 
         var retrieveUserUploads = (

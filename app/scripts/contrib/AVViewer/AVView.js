@@ -1299,6 +1299,7 @@ define(['backbone.marionette',
           'Viy', 'Viz', // EFIxTCT defaults
           "TEC", // MIT TEC
           "PPI", // PPI FAC
+          "EPD", "EPF", // STR EPF
         ];
 
         // Go trough all plots and see if they need to be removed
