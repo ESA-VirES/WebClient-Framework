@@ -95,7 +95,8 @@
         ],
         "PPI_FAC": [
             "<p>Equatorward boundary of SSFACs and the associated midnight PP index</p>",
-            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_PPIxFAC_2F' target='_blank'>Product specification</a><br>"
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_PPIxFAC_2F' target='_blank'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03j2_demo-prism-ppixfac' target='notebooks'>Example VRE notebook</a>"
         ]
     },
 
