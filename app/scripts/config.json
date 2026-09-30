@@ -3062,7 +3062,7 @@
             "satellite": "Swarm",
             "parameters": {
                 "EPF": {
-                    "range": [70000, 90000],
+                    "range": [0, 800],
                     "selected": true,
                     "colorscale": "viridis",
                     "uom": "cm-2s-1",
@@ -3076,7 +3076,7 @@
                     }
                 },
                 "EPD": {
-                    "range": [3000, 5000],
+                    "range": [0, 10],
                     "selected": true,
                     "colorscale": "plasma",
                     "uom": null,
