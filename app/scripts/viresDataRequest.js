@@ -64,30 +64,34 @@
         return this.size < 1;
       },
 
+      getRecord: function (idx) {
+        // extract full data record for the given record index
+        var record = {};
+        for (var key in this.data) {
+          record[key] = this.data[key][idx];
+        }
+        record.__index__ = idx;
+        return record;
+      },
+
       forEachRecord: function (action, filter) {
-        var data = this.data;
-
-        var getRecord = function (idx) {
-          // extract full data record for the given record index
-          var record = {};
-          for (var key in data) {
-            record[key] = data[key][idx];
-          }
-          record.__index__ = idx;
-          return record;
-        };
-
         if (filter.match) { // filter is an object with a match() method
           filter = _.bind(filter.match, filter);
         } else { // filter a function
           filter = filter || function (record) {return true;};
         }
-
         for (var idx = 0, size = this.size; idx < size; idx++) {
-          var record = getRecord(idx);
+          var record = this.getRecord(idx);
           if (filter(record)) {
-            action(record);
+            action(record, idx);
           }
+        }
+      },
+
+      forEachRecordIndexed: function (action, index) {
+        for (var i = 0, size = index.length; i < size; i++) {
+          var idx = index[i];
+          action(this.getRecord(idx), idx);
         }
       },
 

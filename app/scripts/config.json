@@ -3066,14 +3066,28 @@
                     "selected": true,
                     "colorscale": "viridis",
                     "uom": "cm-2s-1",
-                    "name": "Energetic particle flux"
+                    "name": "Energetic particle flux (maximum of selected CHU)",
+                    "binning": {
+                        "by": "Timestamp",
+                        "type": "maximum",
+                        "isTime": true,
+                        "exact": true,
+                        "sorted": true
+                    }
                 },
                 "EPD": {
                     "range": [3000, 5000],
                     "selected": true,
                     "colorscale": "plasma",
                     "uom": null,
-                    "name": "Energetic particle detections"
+                    "name": "Energetic particle detections (maximum of selected CHU)",
+                    "binning": {
+                        "by": "Timestamp",
+                        "type": "maximum",
+                        "isTime": true,
+                        "exact": true,
+                        "sorted": true
+                    }
                 },
                 "Flags_EPF": {
                     "range": [0, 255],
