@@ -1274,6 +1274,7 @@ define(['backbone.marionette',
           'Viy', 'Viz', 'Vixh', 'Vixv', 'Quality_flags', 'Calibration_flags',
           "TEC", // MIT TEC
           "PPI", // PPI FAC
+          "Flags_EPF", // STR EPF
         ];
 
         var residuals = _.filter(idKeys, function (item) {
@@ -1311,6 +1312,7 @@ define(['backbone.marionette',
           'Viy', 'Viz', // EFIxTCT defaults
           "TEC", // MIT TEC
           "PPI", // PPI FAC
+          "EPD", "EPF", // STR EPF
         ];
 
         // Go trough all plots and see if they need to be removed

@@ -173,6 +173,54 @@ define([
   var FAC_PPI_POLEWARD_EDGE_OF_SSFAC_BOUNDARY = 0x1;
 
 
+  // record binning classes
+  function SortedExactMaximumDataBinner(variable, options) {
+    // binning maximum values for sorted records
+    this.forVariable = variable;
+    this.byVariable = options.by;
+    this.convertValue = (
+        options.isTime
+        ? function (v) {return v.getTime();}
+        : function (v) {return v;}
+    );
+    this.index = [];
+    this.currentBin = null;
+    this.maxValue = null;
+    this.maxValueIndex = null;
+  }
+
+  SortedExactMaximumDataBinner.prototype = {
+
+    addRecord: function (index, record) {
+      var x = this.convertValue(record[this.byVariable]);
+      var y = record[this.forVariable];
+      if (this.currentBin === null) {
+        this.currentBin = x;
+        this.maxValue = y;
+        this.maxValueIndex = index;
+      } else if (this.currentBin != x) {
+        this.index.push(this.maxValueIndex);
+        this.currentBin = x;
+        this.maxValue = y;
+        this.maxValueIndex = index;
+      } else if (!(this.maxValue >= y)) {
+        this.maxValue = y;
+        this.maxValueIndex = index;
+      } else {
+      }
+    },
+
+    closeRecords: function () {
+      if (this.currentBin !== null) {
+        this.index.push(this.maxValueIndex);
+        this.currentBin = null;
+        this.maxValue = null;
+        this.maxValueIndex = null;
+      }
+    }
+
+  }
+
   // record filter class
   var RecordFilter = function (variables) {
     // get subset of applicable global filters
@@ -2451,6 +2499,10 @@ define([
               _addVectorCollection(parameter, get(data.vectors, relatedVector));
             } else {
               _addPointCollection(parameter);
+              var _settings = settings[id][parameter];
+              if (_settings.binning) {
+                _settings.binner = new SortedExactMaximumDataBinner(parameter, _settings.binning);
+              }
             }
           });
 
@@ -2493,12 +2545,15 @@ define([
       if (_.isEmpty(settings)) {return;}
 
       var fieldlinesActive = false;
+
       data.forEachRecord(
-        function (record) {
+        function (record, index) {
           _.each(settings[record.id], function (parameterSettings) {
             // If parameter fieldlines we do not create features for it
             if (parameterSettings.type === 'data-fieldlines') {
               fieldlinesActive = true;
+            } else if (parameterSettings.binner) {
+              parameterSettings.binner.addRecord(index, record);
             } else {
               parameterSettings.featureCreator(record, parameterSettings);
             }
@@ -2506,6 +2561,20 @@ define([
         },
         new RecordFilter(_.keys(data.data)), this
       );
+
+      // render binned variables
+      _.each(settings, function (sensorSettings) {
+        _.each(sensorSettings, function (parameterSettings) {
+          if (!parameterSettings.binner) return;
+          parameterSettings.binner.closeRecords();
+          data.forEachRecordIndexed(
+              function (record, idx) {
+                parameterSettings.featureCreator(record, parameterSettings);
+              },
+              parameterSettings.binner.index
+          );
+        });
+      });
 
       this.featureCollections.showAll();
 

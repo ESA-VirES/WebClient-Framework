@@ -95,7 +95,12 @@
         ],
         "PPI_FAC": [
             "<p>Equatorward boundary of SSFACs and the associated midnight PP index</p>",
-            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_PPIxFAC_2F' target='_blank'>Product specification</a><br>"
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_PPIxFAC_2F' target='_blank'>Product specification</a><br>",
+            "<a href='https://notebooks.vires.services/notebooks/03j2_demo-prism-ppixfac' target='notebooks'>Example VRE notebook</a>"
+        ],
+        "STR_EPF": [
+            "<p>Proton flux of energetic particles (>100 MeV) measured by each CHU (Camera Head Unit)</p>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_STRxEPF_1B' target='_blank'>Product specification</a><br>"
         ]
     },
 
@@ -3052,10 +3057,133 @@
                     "name": "Quality indicators of SSFAC boundary detection"
                 }
             }
+        },
+        "SW_STRxEPF_1B": {
+            "satellite": "Swarm",
+            "parameters": {
+                "EPF": {
+                    "range": [0, 200],
+                    "selected": true,
+                    "colorscale": "viridis",
+                    "uom": "cm-2s-1",
+                    "name": "Energetic particle flux (maximum of selected CHU)",
+                    "binning": {
+                        "by": "Timestamp",
+                        "type": "maximum",
+                        "isTime": true,
+                        "exact": true,
+                        "sorted": true
+                    }
+                },
+                "EPD": {
+                    "range": [0, 10],
+                    "colorscale": "plasma",
+                    "uom": null,
+                    "name": "Energetic particle detections (maximum of selected CHU)",
+                    "binning": {
+                        "by": "Timestamp",
+                        "type": "maximum",
+                        "isTime": true,
+                        "exact": true,
+                        "sorted": true
+                    }
+                },
+                "Flags_EPF": {
+                    "range": [0, 255],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "Flags characterizing the energetic particle flux estimate (EPF)",
+                    "hidden": true,
+                    "bitmask": {
+                        "flags": [
+                            ["bit 0", "Star density above limit in field of view"],
+                            ["bit 1", "CHU temperature above limit"],
+                            ["bit 2", "Gain control not stabilized"],
+                            ["bit 3", "Raw particle count above limit"],
+                            ["bit 4", "Big bright object (BBO) detected"],
+                            ["bit 5", "CHU in high-rate mode (image smir)"],
+                            ["bit 6", "Non-valid attitude sample"],
+                            ["bit 7", "On-board processing not completed"]
+                        ]
+                    }
+                },
+                "DataSource": {
+                    "range": [0, 1],
+                    "uom": null,
+                    "colorscale": "plasma",
+                    "name": "Data source flag",
+                    "hidden": true,
+                    "bitmask": {
+                        "flags": [
+                            ["FAST", "Set for Swarm FAST data / unset for Swarm OPER data"]
+                        ]
+                    }
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "SyncStatus": {
+                    "uom": null,
+                    "name": "Time synchronization status, source and quality"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - Geocentric latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - Geocentric longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - Radius"
+                },
+                "EPF": {
+                    "uom": "cm-2s-1",
+                    "name": "Energetic particle flux"
+                },
+                "EPD": {
+                    "uom": null,
+                    "name": "Energetic particle detections"
+                },
+                "T_CHU": {
+                    "uom": "℃ ",
+                    "name": "CHU temperature"
+                },
+                "RA": {
+                    "uom": "deg",
+                    "name": "Rect-ascension of CHU attitude"
+                },
+                "DEC": {
+                    "uom": "deg",
+                    "name": "Declination of CHU attitude"
+                },
+                "EPD_T_corr": {
+                    "uom": null,
+                    "name": "Temperature correction of particle count"
+                },
+                "EPD_Dens_corr": {
+                    "uom": null,
+                    "name": "Star density correction of particle count"
+                },
+                "Flags_EPF": {
+                    "uom": null,
+                    "name": "Flags characterizing the energetic particle flux estimate (EPF)"
+                },
+                "SensorId": {
+                    "uom": null,
+                    "name": "CHU identifier"
+                },
+                "DataSource": {
+                    "uom": null,
+                    "name": "Data source flag (0 - OPER, 1 - FAST)."
+                }
+            }
         }
     },
-
-
     "mapConfig": {
         "model": "models/MapModel",
         "visualizationLibs": [],
@@ -4846,6 +4974,114 @@
             "processes" : [
                 {
                     "doNotLoadAsPrimary": false,
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "download_parameters": {},
+            "outlines": false,
+            "satellite": "Upload"
+        }, {
+            "name": "STR A EPF 1B",
+            "type": "SW_STRxEPF_1B",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#a0d431",
+            "views": [{
+                "id": "SW_OPER_STRAEPF_1B+SW_FAST_STRAEPF_1B:flattened",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_STRAEPF_1B+SW_FAST_STRAEPF_1B:flattened",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_STRAEPF_1B+SW_FAST_STRAEPF_1B:flattened"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "STR B EPF 1B",
+            "type": "SW_STRxEPF_1B",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#a0d431",
+            "views": [{
+                "id": "SW_OPER_STRBEPF_1B+SW_FAST_STRBEPF_1B:flattened",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_STRBEPF_1B+SW_FAST_STRBEPF_1B:flattened",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_STRBEPF_1B+SW_FAST_STRBEPF_1B:flattened"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "STR C EPF 1B",
+            "type": "SW_STRxEPF_1B",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#a0d431",
+            "views": [{
+                "id": "SW_OPER_STRCEPF_1B+SW_FAST_STRCEPF_1B:flattened",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_STRCEPF_1B+SW_FAST_STRCEPF_1B:flattened",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_OPER_STRCEPF_1B+SW_FAST_STRCEPF_1B:flattened"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "STR U EPF 1B",
+            "type": "SW_STRxEPF_1B",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#a0d431",
+            "views": [{
+                "id": "SW_OPER_STRUEPF_1B",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_OPER_STRUEPF_1B"
+            },
+            "processes" : [
+                {
                     "id": "retrieve_data",
                     "layer_id": "USER_DATA"
                 }
