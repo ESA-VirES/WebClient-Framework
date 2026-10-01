@@ -1263,6 +1263,7 @@ define(['backbone.marionette',
           "TEC", // MIT TEC
           "PPI", // PPI FAC
           "Flags_EPF", // STR EPF
+          "N_FP", "I_FP", // EFI LP FP
         ];
 
         var residuals = _.filter(idKeys, function (item) {
@@ -1301,6 +1302,7 @@ define(['backbone.marionette',
           "TEC", // MIT TEC
           "PPI", // PPI FAC
           "EPD", "EPF", // STR EPF
+          "N_FP", "I_FP", // EFI LP FP
         ];
 
         // Go trough all plots and see if they need to be removed

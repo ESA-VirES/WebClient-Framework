@@ -101,6 +101,10 @@
         "STR_EPF": [
             "<p>Proton flux of energetic particles (>100 MeV) measured by each CHU (Camera Head Unit)</p>",
             "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_STRxEPF_1B' target='_blank'>Product specification</a><br>"
+        ],
+        "EFI_FP": [
+            "<p>Faceplate plasma density at 16 Hz</p>",
+            "<a href='https://swarmhandbook.earth.esa.int/catalogue/SW_EFIx_LP_FP' target='_blank'>Product specification</a><br>"
         ]
     },
 
@@ -698,6 +702,62 @@
                 }
             }
         },
+        "SW_EFIx_LP_FP": {
+            "satellite": "Swarm",
+            "parameters": {
+                "N_FP": {
+                    "range": [100000, 200000],
+                    "uom":"cm -3",
+                    "colorscale": "plasma",
+                    "selected": true,
+                    "name": "Plasma density from the faceplate current"
+                },
+                "I_FP": {
+                    "range": [-1e4, 1e4],
+                    "uom":"nA",
+                    "colorscale": "diverging_1",
+                    "name": "Calibrated measured faceplate current"
+                }
+            },
+            "download_parameters": {
+                "Timestamp": {
+                    "uom": null,
+                    "name": "Time of observation"
+                },
+                "Latitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - latitude"
+                },
+                "Longitude": {
+                    "uom": "deg",
+                    "name": "Position in ITRF - longitude"
+                },
+                "Radius": {
+                    "uom": "m",
+                    "name": "Position in ITRF - radius"
+                },
+                "Latitude_GD": {
+                    "uom": "deg",
+                    "name": "WGS84 geodetic latitude"
+                },
+                "Longitude_GD": {
+                    "uom": "deg",
+                    "name": "WGS84 geodetic longitude"
+                },
+                "Height_GD": {
+                    "uom": "m",
+                    "name": "Height above WGS84 reference ellipsoid"
+                },
+                "N_FP": {
+                    "uom":"cm -3",
+                    "name": "Plasma density from the faceplate current"
+                },
+                "I_FP": {
+                    "uom":"nA",
+                    "name": "Calibrated measured faceplate current"
+                }
+            }
+        },
         "SW_EFIxTIE_2_": {
             "satellite": "Swarm",
             "parameters": {
@@ -967,7 +1027,11 @@
                 },
                 "Radius": {
                     "uom": "m",
-                    "name": "Position in ITRF - Radius"
+                    "name": "Position in ITRF - radius"
+                },
+                "Longitude_GD": {
+                    "uom": "deg",
+                    "name": "WGS84 geodetic longitude"
                 },
                 "Latitude_GD": {
                     "uom": "deg",
@@ -3510,6 +3574,115 @@
             }],
             "download": {
                 "id": "SW_OPER_EFIU_LP_1B"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "USER_DATA"
+                }
+            ],
+            "download_parameters": {},
+            "outlines": false,
+            "satellite": "Upload"
+        }, {
+            "name": "EFI A LP FP",
+            "type": "SW_EFIx_LP_FP",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#ad42f5",
+            "views": [{
+                "id": "SW_EXTD_EFIA_LP_FP",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_EXTD_EFIA_LP_FP",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_EXTD_EFIA_LP_FP"
+                }
+            ],
+            "outlines": false,
+            "satellite": "Swarm"
+        }, {
+            "name": "EFI B LP FP",
+            "type": "SW_EFIx_LP_FP",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#ad42f5",
+            "views": [{
+                "id": "SW_EXTD_EFIB_LP_FP",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_EXTD_EFIB_LP_FP",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_EXTD_EFIB_LP_FP"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "EFI C LP FP",
+            "type": "SW_EFIx_LP_FP",
+            "timeSlider": true,
+            "timeSliderProtocol": "WPS",
+            "color": "#ad42f5",
+            "views": [{
+                "id": "SW_EXTD_EFIC_LP_FP",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_EXTD_EFIC_LP_FP",
+                "protocol": "EOWCS",
+                "url": "/ows"
+            },
+            "processes" : [
+                {
+                    "id": "retrieve_data",
+                    "layer_id": "SW_EXTD_EFIC_LP_FP"
+                }
+            ],
+            "outlines": false
+        }, {
+            "name": "EFI U LP FP",
+            "type": "SW_EFIx_LP_FP",
+            "timeSlider": true,
+            "timeSliderProtocol": "USER_DATA",
+            "color": "#ad42f5",
+            "views": [{
+                "id": "SW_EXTD_EFIU_LP_FP",
+                "protocol": "CZML",
+                "urls": [
+                    "/ows"
+                ],
+                "style": "default",
+                "format": "image/png"
+            }],
+            "download": {
+                "id": "SW_EXTD_EFIU_LP_FP"
             },
             "processes" : [
                 {

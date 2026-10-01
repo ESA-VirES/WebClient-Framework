@@ -460,6 +460,8 @@
           // STR EPF,
           "EPF", "EPD", "T_CHU", "RA", "DEC", "EPD_T_corr", "EPD_Dens_corr",
           "Flags_EPF", "SensorId",
+          // EFI LP FP
+          "N_FP", "I_FP",
         ];
 
         var retrieveUserUploads = (
