@@ -45,6 +45,8 @@ var SCALAR_PARAM = [
   "PPI",
   // STR EPF,
   "EPF", "EPD",
+  // EFI LP FP
+  "N_FP", "I_FP",
 ];
 
 // parameters displayed by Cesium as vectors by Cesium (note that some of them
@@ -94,6 +96,7 @@ var MASTER_PRIORITY = [
   'SW_OPER_MITATEC_2F', 'SW_OPER_MITBTEC_2F', 'SW_OPER_MITCTEC_2F', 'SW_OPER_MITUTEC_2F',
   'SW_OPER_PPIAFAC_2F', 'SW_OPER_PPIBFAC_2F', 'SW_OPER_PPICFAC_2F', 'SW_OPER_PPIUFAC_2F',
   'SW_OPER_EEFATMS_2F', 'SW_OPER_EEFBTMS_2F', 'SW_OPER_EEFCTMS_2F', 'SW_OPER_EEFUTMS_2F',
+  'SW_EXTD_EFIA_LP_FP', 'SW_EXTD_EFIB_LP_FP', 'SW_EXTD_EFIC_LP_FP', 'SW_EXTD_EFIU_LP_FP',
 ];
 
 var MERGED_MASTER_TIMELINE = [
@@ -938,7 +941,7 @@ var RELATED_VARIABLES = {
         var filtered = globals.products.filter(function (product) {
           var id = product.get("download").id;
           return !(id && id.match(
-            /^SW_(OPER|FAST|PREL|EXPT)_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ|MIT|PPI|STR)[ABCU_]/
+            /^SW_(OPER|FAST|PREL|EXPT|EXTD)_(MAG|EFI|IBI|TEC|FAC|EEF|IPD|AEJ|MIT|PPI|STR)[ABCU_]/
           ));
         });
 
@@ -955,6 +958,12 @@ var RELATED_VARIABLES = {
             "Bravo": "SW_OPER_EFIB_LP_1B+SW_FAST_EFIB_LP_1B",
             "Charlie": "SW_OPER_EFIC_LP_1B+SW_FAST_EFIC_LP_1B",
             "Upload": "SW_OPER_EFIU_LP_1B",
+          },
+          "EFI_FP": {
+            "Alpha": "SW_EXTD_EFIA_LP_FP",
+            "Bravo": "SW_EXTD_EFIB_LP_FP",
+            "Charlie": "SW_EXTD_EFIC_LP_FP",
+            "Upload": "SW_EXTD_EFIU_LP_FP",
           },
           "EFI_TIE": {
             "Alpha": "SW_OPER_EFIATIE_2_",
@@ -1090,6 +1099,7 @@ var RELATED_VARIABLES = {
         var containerSelection = {
           'MAG': false,
           'EFI': false,
+          'EFI_FP': false,
           'EFI_TIE': false,
           'EFI_IDM': false,
           'EFI_TCT': false,
@@ -1266,6 +1276,14 @@ var RELATED_VARIABLES = {
           protocol: null,
           containerproduct: true,
           id: "EFI_TIE"
+        }, {at: 0});
+        filtered_collection.add({
+          name: "Faceplace plasma density (EFI FP)",
+          visible: containerSelection['EFI_FP'],
+          color: "#ad42f5",
+          protocol: null,
+          containerproduct: true,
+          id: "EFI_FP"
         }, {at: 0});
         filtered_collection.add({
           name: "Plasma data (EFI LP)",
