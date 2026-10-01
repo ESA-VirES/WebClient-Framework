@@ -3062,7 +3062,7 @@
             "satellite": "Swarm",
             "parameters": {
                 "EPF": {
-                    "range": [0, 800],
+                    "range": [0, 200],
                     "selected": true,
                     "colorscale": "viridis",
                     "uom": "cm-2s-1",
@@ -3077,7 +3077,6 @@
                 },
                 "EPD": {
                     "range": [0, 10],
-                    "selected": true,
                     "colorscale": "plasma",
                     "uom": null,
                     "name": "Energetic particle detections (maximum of selected CHU)",
@@ -3173,6 +3172,10 @@
                 "Flags_EPF": {
                     "uom": null,
                     "name": "Flags characterizing the energetic particle flux estimate (EPF)"
+                },
+                "SensorId": {
+                    "uom": null,
+                    "name": "CHU identifier"
                 },
                 "DataSource": {
                     "uom": null,
