@@ -713,9 +713,9 @@
                     "name": "Plasma density from the faceplate current"
                 },
                 "I_FP": {
-                    "range": [-1e4, 1e4],
+                    "range": [-5e4, 0],
                     "uom":"nA",
-                    "colorscale": "diverging_1",
+                    "colorscale": "redblue",
                     "name": "Calibrated measured faceplate current"
                 }
             },
