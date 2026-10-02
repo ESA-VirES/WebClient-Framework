@@ -27,8 +27,13 @@ define(['backbone.marionette',
   // TODO: find a better place to put the extra parameters' configuration
   var EXTRA_PARAMETERS = {
     "MLT": {
-      "uom": "hr",
+      "uom": "hour",
       "name": "Magnetic Local Time",
+      "periodic": {"period": 24, "offset": 0}
+    },
+    "LST": {
+      "uom": "hour",
+      "name": "Local Solar Time",
       "periodic": {"period": 24, "offset": 0}
     },
     "QDLat": {
@@ -81,6 +86,7 @@ define(['backbone.marionette',
       "periodic": {"period": 360, "offset": 0, "specialTicks": true}
     },
     "SunAzimuthAngle": {
+      "periodic": {"period": 360, "offset": -180},
       "uom": "deg",
       "name": "Local Sun azimuth angle"
     },
@@ -89,6 +95,7 @@ define(['backbone.marionette',
       "name": "Local Sun zenith angle"
     },
     "SunHourAngle": {
+      "periodic": {"period": 360, "offset": 0},
       "uom": "deg",
       "name": "Local Sun hour angle"
     },
@@ -97,6 +104,7 @@ define(['backbone.marionette',
       "name": "Sun declination"
     },
     "SunRightAscension": {
+      "periodic": {"period": 360, "offset": 0},
       "uom": "deg",
       "name": "Sun right ascension"
     },

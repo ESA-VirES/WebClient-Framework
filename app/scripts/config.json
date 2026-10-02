@@ -462,7 +462,7 @@
                     "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
-                    "uom": null,
+                    "uom": "hour",
                     "name": "Magnetic local time"
                 },
                 "OrbitNumber": {
@@ -661,7 +661,7 @@
                     "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
-                    "uom": null,
+                    "uom": "hour",
                     "name": "Magnetic local time"
                 },
                 "OrbitNumber": {
@@ -853,7 +853,7 @@
                     "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
-                    "uom": null,
+                    "uom": "hour",
                     "name": "Magnetic local time"
                 },
                 "Tn_msis": {
@@ -1050,7 +1050,7 @@
                     "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
-                    "uom": null,
+                    "uom": "hour",
                     "name": "Magnetic local time"
                 },
                 "V_sat_nec": {
@@ -1285,7 +1285,7 @@
                     "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
-                    "uom": null,
+                    "uom": "hour",
                     "name": "Magnetic local time"
                 },
                 "Vixh": {
@@ -1532,7 +1532,7 @@
                     "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
-                    "uom": null,
+                    "uom": "hour",
                     "name": "Magnetic local time"
                 },
                 "OrbitNumber": {
@@ -1708,7 +1708,7 @@
                     "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
-                    "uom": null,
+                    "uom": "hour",
                     "name": "Magnetic local time"
                 },
                 "OrbitNumber": {
@@ -1849,7 +1849,7 @@
                     "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
-                    "uom": null,
+                    "uom": "hour",
                     "name": "Magnetic local time"
                 },
                 "OrbitNumber": {
@@ -1998,7 +1998,7 @@
                     "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
-                    "uom": null,
+                    "uom": "hour",
                     "name": "Magnetic local time"
                 },
                 "OrbitNumber": {
@@ -2175,7 +2175,7 @@
                     "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
-                    "uom": null,
+                    "uom": "hour",
                     "name": "Magnetic local time"
                 },
                 "OrbitNumber": {
@@ -2493,7 +2493,7 @@
                     "name": "Quasi-dipole longitude"
                 },
                 "MLT": {
-                    "uom": null,
+                    "uom": "hour",
                     "name": "Magnetic local time"
                 },
                 "OrbitNumber": {
