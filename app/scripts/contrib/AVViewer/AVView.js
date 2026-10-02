@@ -27,7 +27,7 @@ define(['backbone.marionette',
   // TODO: find a better place to put the extra parameters' configuration
   var EXTRA_PARAMETERS = {
     "MLT": {
-      "uom": "hr",
+      "uom": "hour",
       "name": "Magnetic Local Time",
       "periodic": {"period": 24, "offset": 0}
     },
