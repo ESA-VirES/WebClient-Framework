@@ -31,6 +31,11 @@ define(['backbone.marionette',
       "name": "Magnetic Local Time",
       "periodic": {"period": 24, "offset": 0}
     },
+    "LST": {
+      "uom": "hour",
+      "name": "Local Solar Time",
+      "periodic": {"period": 24, "offset": 0}
+    },
     "QDLat": {
       "uom": "deg",
       "name": "Quasi-Dipole Latitude"
