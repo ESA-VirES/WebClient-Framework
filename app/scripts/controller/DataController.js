@@ -460,6 +460,8 @@
           // STR EPF,
           "EPF", "EPD", "T_CHU", "RA", "DEC", "EPD_T_corr", "EPD_Dens_corr",
           "Flags_EPF", "SensorId",
+          // DNSxACC and DNSxPOD
+          "NeutralDensity_ACC", "NeutralDensity_POD", "NeutralDensityOrbitMean_POD", "ValidityFlag",
         ];
 
         var retrieveUserUploads = (
