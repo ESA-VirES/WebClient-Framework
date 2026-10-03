@@ -3197,13 +3197,13 @@
             "parameters": {
                 "NeutralDensity_POD": {
                     "selected": true,
-                    "range": [0, 1e-12],
+                    "range": [0, 1.2e-12],
                     "colorscale": "jet",
                     "uom": "kg/m3",
                     "name": "Thermospheric neutral density"
                 },
                 "NeutralDensityOrbitMean_POD": {
-                    "range": [0, 1e-12],
+                    "range": [0, 1.2e-12],
                     "colorscale": "jet",
                     "uom": "kg/m3",
                     "name": "Orbit-mean thermospheric neutral density"
@@ -3266,7 +3266,7 @@
             "parameters": {
                 "NeutralDensity_ACC": {
                     "selected": true,
-                    "range": [0, 1e-12],
+                    "range": [0, 1.2e-12],
                     "colorscale": "jet",
                     "uom": "kg/m3",
                     "name": "Thermospheric neutral density"
