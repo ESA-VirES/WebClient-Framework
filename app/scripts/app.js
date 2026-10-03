@@ -67,6 +67,7 @@ var VECTOR_PARAM = [
 // components by the client.)
 var VECTOR_BREAKDOWN = {};
 var REVERSE_VECTOR_BREAKDOWN = {};
+var VALUE_MASKING = {}
 
 // composition of source scalars to vectors
 // (The data comes as set of separate scalar components which needs to be
@@ -561,10 +562,26 @@ var RELATED_VARIABLES = {
           }
         };
 
+        var updateValueMasking = function (target, name, value_maps) {
+          if (!value_maps || !Array.isArray(value_maps)) return;
+          var _getValueMapper = function (source, target) {
+            return function (value) {
+              return value === source ? target : value;
+            };
+          };
+          target[name] = _.map(value_maps, function (value_map) {
+            if (value_map.target == "NaN") {
+              value_map.target = NaN;
+            }
+            return _getValueMapper(value_map.source, value_map.target);
+          });
+        };
+
         var extractVectorBreakdown = function (parameter, name) {
           updateVectorComposition(VECTOR_COMPOSITION, REVERSE_VECTOR_COMPOSITION, name, get(parameter, "composeFrom"));
           updateVectorBreakdown(VECTOR_BREAKDOWN, REVERSE_VECTOR_BREAKDOWN, name, get(parameter, "breakInto"));
           updateDerivedParameters(DERIVED_PARAMETERS, REVERSE_DERIVED_PARAMETERS, name, get(parameter, "derivedFrom"));
+          updateValueMasking(VALUE_MASKING, name, get(parameter, "maskValues"))
         };
 
         _.each(config.mapConfig.products, function (product) {

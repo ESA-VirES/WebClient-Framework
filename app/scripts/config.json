@@ -3296,7 +3296,10 @@
                 },
                 "NeutralDensity_ACC": {
                     "uom": "kg/m3",
-                    "name": "Thermospheric neutral density"
+                    "name": "Thermospheric neutral density",
+                    "maskValues": [
+                        {"source": 9.99e+32, "target": "NaN"}
+                    ]
                 },
                 "OrbitNumber": {
                     "uom": null,

@@ -1,7 +1,7 @@
 /* global _ */
 /* global TIMESTAMP SPACECRAFT_TO_ID */
 /* global VECTOR_BREAKDOWN VECTOR_COMPOSITION REVERSE_VECTOR_COMPOSITION */
-/* global DERIVED_PARAMETERS REVERSE_DERIVED_PARAMETERS */
+/* global VALUE_MASKING,DERIVED_PARAMETERS REVERSE_DERIVED_PARAMETERS */
 /* global get has pop Timer */
 
 
@@ -328,6 +328,29 @@
         {}, VECTOR_BREAKDOWN, globals.userData.getVectorBreakdown()
       );
 
+      // Setup value masking
+      var value_masking = VALUE_MASKING;
+
+      var getArrayValueMapper = function (valueMapper) {
+        var _arrayMapper = function (data) {
+          var i, j, size, value;
+          if (data.length > 0 && Array.isArray(data[0])) {
+            for (i = 0, size = data.length; i < size; i++) {
+              _arrayMapper(data[i]);
+            }
+          } else {
+            for (i = 0, size = data.length; i < size; i++) {
+              value = data[i];
+              for (j = 0; j < valueMapper.length; j++) {
+                value = valueMapper[j](value);
+              }
+              data[i] = value;
+            }
+          }
+        }
+        return _arrayMapper;
+      };
+
       _.each(_.keys(data.data), function (variable) {
         if (has(vector_breakdown, variable)) {
           decomposeVector(variable, vector_breakdown[variable]);
@@ -339,6 +362,9 @@
           _.each(REVERSE_DERIVED_PARAMETERS[variable], function (item) {
             createDerivedParameter(item, DERIVED_PARAMETERS[item]);
           });
+        }
+        if (has(VALUE_MASKING, variable)) {
+            getArrayValueMapper(VALUE_MASKING[variable])(data.data[variable]);
         }
       });
 
