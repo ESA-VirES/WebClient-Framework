@@ -294,7 +294,10 @@ define(['backbone.marionette',
         filterList = JSON.parse(filterList);
         this.selectedFilterList = filterList;
       } else {
-        this.selectedFilterList = ['F', 'B_N', 'B_E', 'B_C', 'Dst', 'QDLat', 'MLT'];
+        this.selectedFilterList = [
+            'F', 'B_N', 'B_E', 'B_C', 'Dst', 'QDLat', 'MLT', 'LST',
+            'NeutralDensity_ACC', 'NeutralDensity_POD', 'ValidityFlag',
+        ];
       }
 
 
@@ -1322,6 +1325,8 @@ define(['backbone.marionette',
           "TEC", // MIT TEC
           "PPI", // PPI FAC
           "EPD", "EPF", // STR EPF
+          "NeutralDensity_ACC", // DNSxACC
+          "NeutralDensity_POD", // DNSxPOD
           "N_FP", "I_FP", // EFI LP FP
         ];
 
